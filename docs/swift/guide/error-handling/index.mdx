@@ -1,0 +1,286 @@
+# 错误处理
+
+<DocCaution />
+
+<OriginalLink
+  title="响应错误并从错误中恢复"
+  value="https://docs.swift.org/swift-book/documentation/the-swift-programming-language/errorhandling"
+/>
+
+错误处理是响应程序中的错误情况并从中恢复的过程。Swift 为在运行时抛出、捕获、传播和处理可恢复错误提供了一流的支持。
+
+某些操作不能保证始终完成执行或产生有用的输出。Optionals 用于表示值的缺失，但是当操作失败时，了解导致失败的原因通常很有用，这样您的代码才能做出相应的响应。
+
+例如，考虑从磁盘上的文件读取和处理数据的任务。此任务失败的原因有多种，包括指定路径中不存在的文件、没有读取权限的文件或未以兼容格式编码的文件。区分这些不同的情况允许程序解决一些错误并向用户传达它无法解决的任何错误。
+
+:::note
+Swift 中的错误处理与使用 NSErrorCocoa 和 Objective-C 中的类的错误处理模式互操作。有关此类的更多信息，请参阅在 Swift 中处理 Cocoa 错误。
+:::
+
+## 表示和抛出错误
+
+在 Swift 中，错误由符合协议的类型的值表示 Error。这个空协议表示一个类型可以用于错误处理。
+
+Swift 枚举特别适合于对一组相关的错误条件进行建模，关联值允许传达有关错误性质的附加信息。例如，您可以通过以下方式表示在游戏中操作自动售货机的错误情况：
+
+```swift
+enum VendingMachineError: Error {
+    case invalidSelection
+    case insufficientFunds(coinsNeeded: Int)
+    case outOfStock
+}
+```
+
+抛出错误可以让您表明发生了意外情况，正常的执行流程无法继续。您使用 throw 语句来抛出错误。例如，下面的代码会抛出一个错误，表明自动售货机需要另外五枚硬币：
+
+```swift
+throw VendingMachineError.insufficientFunds(coinsNeeded: 5)
+```
+
+## 处理错误
+
+当错误被抛出时，一些周围的代码片段必须负责处理错误——例如，通过纠正问题、尝试替代方法或通知用户失败。
+
+Swift 中有四种处理错误的方法。您可以将错误从函数传播到调用该函数的代码，使用 do-catch 语句处理错误，将错误作为可选值处理，或者断言错误不会发生。每种方法都在下面的部分中进行了描述。
+
+当函数抛出错误时，它会改变程序的流程，因此您可以快速识别代码中可能抛出错误的位置非常重要。要在您的代码中识别这些位置，请在调用可能引发错误的函数、方法或初始化程序的一段代码之前写上 try 关键字（或 try?or 变体）。try!这些关键字在以下部分中进行了描述。
+
+:::note
+Swift 中的错误处理类似于其他语言中的异常处理，使用 try,catch 和 throw 关键字。与许多语言（包括 Objective-C）中的异常处理不同，Swift 中的错误处理不涉及展开调用堆栈，这是一个计算量大的过程。因此，throw 语句的性能特征与语句的性能特征相当 return。
+:::
+
+## 使用抛出函数传播错误
+
+要指示函数、方法或初始值设定项可以抛出错误，请 throws 在函数声明中的参数后写入关键字。标有 的函数 throws 称为抛出函数。如果函数指定了返回类型，则将 throws 关键字写在返回箭头 ( ->) 之前。
+
+```swift
+func canThrowErrors() throws -> String
+
+func cannotThrowErrors() -> String
+```
+
+抛出函数将在其内部抛出的错误传播到调用它的范围。
+
+:::note
+只有抛出函数才能传播错误。非抛出函数内部抛出的任何错误都必须在函数内部处理。
+:::
+
+在下面的示例中，该类有一个方法，如果请求的商品不可用、缺货或成本超过当前存入金额，该方法会抛出一个适当的异常：VendingMachinevend(itemNamed:)VendingMachineError
+
+```swift
+struct Item {
+    var price: Int
+    var count: Int
+}
+
+class VendingMachine {
+    var inventory = [
+        "Candy Bar": Item(price: 12, count: 7),
+        "Chips": Item(price: 10, count: 4),
+        "Pretzels": Item(price: 7, count: 11)
+    ]
+    var coinsDeposited = 0
+
+    func vend(itemNamed name: String) throws {
+        guard let item = inventory[name] else {
+            throw VendingMachineError.invalidSelection
+        }
+
+        guard item.count > 0 else {
+            throw VendingMachineError.outOfStock
+        }
+
+        guard item.price <= coinsDeposited else {
+            throw VendingMachineError.insufficientFunds(coinsNeeded: item.price - coinsDeposited)
+        }
+
+        coinsDeposited -= item.price
+
+        var newItem = item
+        newItem.count -= 1
+        inventory[name] = newItem
+
+        print("Dispensing \(name)")
+    }
+}
+```
+
+该方法的实现使用语句提前退出该方法，并在不满足购买零食的任何要求时抛出适当的错误。因为语句会立即转移程序控制，所以只有满足所有这些要求时才会出售商品。vend(itemNamed:)guardthrow
+
+因为该方法会传播它抛出的任何错误，所以调用此方法的任何代码都必须处理错误（使用-语句、或）或继续传播错误。例如，下例中的 也是一个抛出函数，该方法抛出的任何错误都会传播到调用该函数的位置。vend(itemNamed:)docatchtry?try!buyFavoriteSnack(person:vendingMachine:)vend(itemNamed:)buyFavoriteSnack(person:vendingMachine:)
+
+```swift
+let favoriteSnacks = [
+    "Alice": "Chips",
+    "Bob": "Licorice",
+    "Eve": "Pretzels",
+]
+func buyFavoriteSnack(person: String, vendingMachine: VendingMachine) throws {
+    let snackName = favoriteSnacks[person] ?? "Candy Bar"
+    try vendingMachine.vend(itemNamed: snackName)
+}
+```
+
+在此示例中，该函数查找给定人最喜欢的零食，并尝试通过调用该方法为他们购买。因为该方法可以抛出错误，所以调用它时使用前面的关键字。buyFavoriteSnack(person: vendingMachine:)vend(itemNamed:)vend(itemNamed:)try
+
+抛出初始化器可以像抛出函数一样传播错误。例如，下面清单中结构的初始化器调用一个抛出函数作为初始化过程的一部分，它通过将错误传播给调用者来处理它遇到的任何错误。PurchasedSnack
+
+```swift
+struct PurchasedSnack {
+    let name: String
+    init(name: String, vendingMachine: VendingMachine) throws {
+        try vendingMachine.vend(itemNamed: name)
+        self.name = name
+    }
+}
+```
+
+## 使用 Do-Catch 处理错误
+
+您使用 do-catch 语句通过运行一段代码来处理错误。如果子句中的代码抛出错误 do，则将其与 catch 子句进行匹配以确定其中哪一个可以处理错误。
+
+do 这是-语句的一般形式 catch：
+
+```swift
+do {
+    try <#expression#>
+    <#statements#>
+} catch <#pattern 1#> {
+    <#statements#>
+} catch <#pattern 2#> where <#condition#> {
+    <#statements#>
+} catch <#pattern 3#>, <#pattern 4#> where <#condition#> {
+    <#statements#>
+} catch {
+    <#statements#>
+}
+```
+
+您在后面写一个模式 catch 来指示该子句可以处理哪些错误。如果一个 catch 子句没有模式，则该子句匹配任何错误并将该错误绑定到名为 的局部常量 error。有关模式匹配的更多信息，请参阅模式。
+
+例如，以下代码匹配枚举的所有三种情况。VendingMachineError
+
+```swift
+var vendingMachine = VendingMachine()
+vendingMachine.coinsDeposited = 8
+do {
+    try buyFavoriteSnack(person: "Alice", vendingMachine: vendingMachine)
+    print("Success! Yum.")
+} catch VendingMachineError.invalidSelection {
+    print("Invalid Selection.")
+} catch VendingMachineError.outOfStock {
+    print("Out of Stock.")
+} catch VendingMachineError.insufficientFunds(let coinsNeeded) {
+    print("Insufficient funds. Please insert an additional \(coinsNeeded) coins.")
+} catch {
+    print("Unexpected error: \(error).")
+}
+// Prints "Insufficient funds. Please insert an additional 2 coins."
+```
+
+在上面的例子中，函数是在表达式中调用的，因为它会抛出错误。如果抛出错误，执行将立即转移到子句，由子句决定是否允许继续传播。如果没有匹配的模式，则错误会被 final 子句捕获并绑定到局部常量。如果没有抛出错误，则执行语句中的其余语句。buyFavoriteSnack(person:vendingMachine:)trycatchcatcherrordo
+
+这些 catch 子句不必处理子句中的代码 do 可能抛出的所有可能错误。如果没有 catch 子句处理错误，则错误会传播到周围的范围。然而，传播的错误必须由一些周围的范围来处理。在非抛出函数中，封闭的 do-catch 语句必须处理错误。在抛出函数中，封闭的 do-catch 语句或调用者必须处理错误。如果错误未经处理就传播到顶级范围，您将收到运行时错误。
+
+例如，可以编写上面的示例，以便调用函数捕获任何不是 a 的错误：VendingMachineError
+
+```swift
+func nourish(with item: String) throws {
+    do {
+        try vendingMachine.vend(itemNamed: item)
+    } catch is VendingMachineError {
+        print("Couldn't buy that from the vending machine.")
+    }
+}
+
+do {
+    try nourish(with: "Beet-Flavored Chips")
+} catch {
+    print("Unexpected non-vending-machine-related error: \(error)")
+}
+// Prints "Couldn't buy that from the vending machine."
+```
+
+在 nourish(with:)函数中，如果抛出枚举情况之一的错误，则通过打印消息来处理错误。否则，将错误传播到其调用站点。然后错误被一般条款捕获。vend(itemNamed:)VendingMachineErrornourish(with:)nourish(with:)catch
+
+捕获多个相关错误的另一种方法是将它们列在 之后 catch，以逗号分隔。例如：
+
+```swift
+func eat(item: String) throws {
+    do {
+        try vendingMachine.vend(itemNamed: item)
+    } catch VendingMachineError.invalidSelection, VendingMachineError.insufficientFunds, VendingMachineError.outOfStock {
+        print("Invalid selection, out of stock, or not enough money.")
+    }
+}
+```
+
+该 `eat(item:)` 函数列出了要捕获的自动售货机错误，其错误文本对应于该列表中的项目。如果抛出列出的三个错误中的任何一个，此 catch 子句将通过打印消息来处理它们。任何其他错误都会传播到周围范围，包括以后可能添加的任何自动售货机错误。
+
+## 将错误转换为可选值
+
+您用来 try?通过将错误转换为可选值来处理错误。如果在计算表达式时抛出错误 try?，则表达式的值为 nil。例如，在下面的代码中 x，y 具有相同的值和行为：
+
+```swift
+func someThrowingFunction() throws -> Int {
+    // ...
+}
+
+let x = try? someThrowingFunction()
+
+let y: Int?
+do {
+    y = try someThrowingFunction()
+} catch {
+    y = nil
+}
+```
+
+如果抛出错误，则 and 的值为。否则， and 的值就是函数返回的值。请注意，和是任何类型返回的可选。这里的函数返回一个整数，所以和是可选的整数。someThrowingFunction()xynilxyxysomeThrowingFunction()xy
+
+`try?` 当您想以相同的方式处理所有错误时，使用可以让您编写简洁的错误处理代码。例如，以下代码使用多种方法来获取数据，或者 nil 在所有方法都失败时返回。
+
+```swift
+func fetchData() -> Data? {
+    if let data = try? fetchDataFromDisk() { return data }
+    if let data = try? fetchDataFromServer() { return data }
+    return nil
+}
+```
+
+## 禁用错误传播
+
+有时您知道抛出函数或方法实际上不会在运行时抛出错误。try!在这些情况下，您可以在表达式之前写入以禁用错误传播并将调用包装在不会抛出任何错误的运行时断言中。如果实际上抛出了一个错误，您将得到一个运行时错误。
+
+例如，下面的代码使用了一个函数，该函数加载给定路径的图像资源，或者如果无法加载图像则抛出错误。在这种情况下，因为图像是随应用程序一起提供的，所以在运行时不会抛出任何错误，因此禁用错误传播是合适的。loadImage(atPath:)
+
+```swift
+let photo = try! loadImage(atPath: "./Resources/John Appleseed.jpg")
+```
+
+## 指定清理操作
+
+您使用 `defer` 语句在代码执行离开当前代码块之前执行一组语句。此语句允许您执行任何应该执行的必要清理，而不管执行如何离开当前代码块——它离开是因为抛出错误还是因为 returnor 之类的语句 break。例如，您可以使用一条 defer 语句来确保关闭文件描述符并释放手动分配的内存。
+
+语句 defer 延迟执行，直到退出当前作用域。该语句由 defer 关键字和后面要执行的语句组成。延迟的语句可能不包含任何将控制转移出语句的代码，例如 abreak 或 return 语句，或通过抛出错误。延迟操作的执行顺序与它们在源代码中的写入顺序相反。也就是说，第一个 defer 语句中的代码最后执行，第二个语句中的代码 defer 倒数第二个执行，依此类推。源代码顺序中的最后一条 defer 语句首先执行。
+
+```swift
+func processFile(filename: String) throws {
+    if exists(filename) {
+        let file = open(filename)
+        defer {
+            close(file)
+        }
+        while let line = try file.readline() {
+            // Work with the file.
+        }
+        // close(file) is called here, at the end of the scope.
+    }
+}
+```
+
+上面的例子使用了一个 `defer` 语句来保证 `open(_:)` 函数有对应的调用 `close(_:)` 。
+
+:::note
+`defer` 即使不涉及错误处理代码，您也可以使用语句。
+:::

@@ -92,9 +92,10 @@ const config = {
       navbar: {
         title: "Swift 学习指南",
         logo: {
-          alt: "Swift 学习指南",
           src: "img/logo.svg",
+          alt: "Swift 学习指南",
         },
+        style: "dark",
         items: [
           {
             type: "docSidebar",
@@ -109,8 +110,9 @@ const config = {
             position: "right",
           },
           {
-            label: "GitHub",
+            "aria-label": "GitHub repository",
             href: "https://github.com/zhuanghongji/swift-tutorials-cn",
+            className: "navbar-github-link",
             position: "right",
           },
         ],
@@ -225,6 +227,11 @@ const config = {
             className: "code-block-console-line",
             line: "console-next-line",
             block: { start: "console-start", end: "console-end" },
+          },
+          {
+            className: "code-block-tip-line",
+            line: "tip-next-line",
+            block: { start: "tip-start", end: "tip-end" },
           },
         ],
       },

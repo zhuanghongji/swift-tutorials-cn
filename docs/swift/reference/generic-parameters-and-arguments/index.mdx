@@ -1,0 +1,139 @@
+# 泛型形参和实参
+
+<DocCaution />
+
+<OriginalLink
+  title="概括声明以抽象出具体类型"
+  value="https://docs.swift.org/swift-book/documentation/the-swift-programming-language/genericparametersandarguments"
+/>
+
+本章介绍泛型类型、函数和初始值设定项的参数和自变量。当您声明泛型类型、函数、下标或初始值设定项时，您指定了泛型类型、函数或初始值设定项可以使用的类型参数。这些类型参数充当占位符，当创建泛型类型的实例或调用泛型函数或初始化程序时，它们将被实际的具体类型参数替换。
+
+有关 Swift 中泛型的概述，请参阅泛型。
+
+## 通用参数子句
+
+泛型参数子句指定泛型类型或函数的类型参数，以及对这些参数的任何相关约束和要求。通用参数子句括在尖括号 (`<>`) 中并具有以下形式：
+
+```swift
+<<#generic parameter list#>>
+```
+
+泛型参数列表是以逗号分隔的泛型参数列表，每个参数都具有以下形式：
+
+```swift
+<#type parameter#>: <#constraint#>
+```
+
+泛型参数由一个类型参数和一个可选约束组成。类型参数只是占位符类型的名称（例如，、、、、、T 等）。您可以访问类型、函数或初始化程序声明的其余部分（包括函数或初始化程序的签名）中的类型参数（及其任何关联类型）。UVKeyValue
+
+该约束指定类型参数继承自特定类或符合协议或协议组合。例如，在下面的泛型函数中，泛型参数 T: Comparable 表示任何替代类型参数的类型参数都 T 必须符合 Comparable 协议。
+
+```swift
+func simpleMax<T: Comparable>(_ x: T, _ y: T) -> T {
+    if x < y {
+        return y
+    }
+    return x
+}
+```
+
+例如，因为 Int 和 Double 都符合 Comparable 协议，所以此函数接受任一类型的参数。与泛型类型相反，当您使用泛型函数或初始化程序时，您无需指定泛型参数子句。类型参数是从传递给函数或初始值设定项的参数类型中推断出来的。
+
+```swift
+simpleMax(17, 42) // T is inferred to be Int
+simpleMax(3.14159, 2.71828) // T is inferred to be Double
+```
+
+## 通用 Where 子句
+
+where 您可以通过在类型或函数主体的左大括号之前包含一个泛型子句来指定对类型参数及其关联类型的其他要求。通用 where 子句由关键字组成 where，后跟一个或多个要求的逗号分隔列表。
+
+where <#requirements#>
+通用子句中的要求指定 where 类型参数继承自类或符合协议或协议组合。虽然泛型 where 子句提供了语法糖来表达对类型参数的简单约束（例如，`<T: Comparable>` 等同于 `<T> where T: Comparable` 等），但您可以使用它来提供对类型参数及其关联类型的更复杂约束。例如，您可以约束类型参数的关联类型以符合协议。例如，指定符合协议以及关联类型符合协议。此约束确保序列中的每个元素都是相等的。`<S: Sequence> where S.Iterator.Element: EquatableSSequenceS.Iterator.ElementEquatable`
+
+您还可以使用运算符指定两种类型相同的要求==。例如，表示和符合协议的约束以及两个序列的元素必须属于同一类型。`<S1: Sequence, S2: Sequence> where S1.Iterator.Element == S2.Iterator.ElementS1S2Sequence`
+
+任何替代类型参数的类型参数都必须满足对类型参数的所有约束和要求。
+
+泛型 where 子句可以作为包含类型参数的声明的一部分出现，也可以作为嵌套在包含类型参数的声明中的声明的一部分。嵌套声明的通用 where 子句仍然可以引用封闭声明的类型参数；但是，该条款的要求 where 仅适用于其所写的声明。
+
+如果封闭声明也有一个 where 子句，则将两个子句的要求结合起来。在下面的示例中，仅当同时符合和 时才可用。startsWithZero()ElementSomeProtocolNumeric
+
+```swift
+extension Collection where Element: SomeProtocol {
+    func startsWithZero() -> Bool where Element: Numeric {
+        return first == .zero
+    }
+}
+```
+
+您可以通过对类型参数提供不同的约束、要求或两者来重载泛型函数或初始化程序。当您调用重载的泛型函数或初始化程序时，编译器会使用这些约束来确定要调用的重载函数或初始化程序。
+
+有关泛型 where 子句的更多信息以及查看泛型函数声明中的泛型子句示例，请参阅泛型 Where 子句。
+
+:::note 通用参数子句的语法
+
+```
+generic-parameter-clause → < generic-parameter-list >
+
+generic-parameter-list → generic-parameter | generic-parameter , generic-parameter-list
+
+generic-parameter → type-name
+
+generic-parameter → type-name : type-identifier
+
+generic-parameter → type-name : protocol-composition-type
+
+generic-where-clause → where requirement-list
+
+requirement-list → requirement | requirement , requirement-list
+
+requirement → conformance-requirement | same-type-requirement
+
+conformance-requirement → type-identifier : type-identifier
+
+conformance-requirement → type-identifier : protocol-composition-type
+
+same-type-requirement → type-identifier == type
+```
+
+:::
+
+## 一般论证条款
+
+泛型参数子句指定泛型类型的类型参数。通用参数子句括在尖括号 (`<>`) 中并具有以下形式：
+
+```swift
+<<#generic argument list#>>
+```
+
+通用参数列表是以逗号分隔的类型参数列表。类型参数是实际具体类型的名称，它替换了泛型类型的泛型参数子句中的相应类型参数。结果是该通用类型的专用版本。下面的示例显示了 Swift 标准库的通用字典类型的简化版本。
+
+```swift
+struct Dictionary<Key: Hashable, Value>: Collection, ExpressibleByDictionaryLiteral {
+    /* ... */
+}
+```
+
+泛型 Dictionary 类型的特殊版本 `Dictionary<String, Int>` 是通过用具体类型参数 Key: Hashable 和替换 Value 泛型参数 String 和来形成的 Int。每个类型参数都必须满足它所替换的泛型参数的所有约束，包括泛型 where 子句中指定的任何附加要求。在上面的示例中，Key 类型参数被约束为符合 Hashable 协议，因此 String 也必须符合 Hashable 协议。
+
+您还可以将类型参数替换为本身是泛型类型的专用版本的类型参数（前提是它满足适当的约束和要求）。例如，您可以将类型参数 `Elementin` 替换 `Array<Element>` 为数组的特殊版本 ，`Array<Int>` 以形成一个其元素本身就是整数数组的数组。
+
+```swift
+let arrayOfArrays: Array<Array<Int>> = [[1, 2, 3], [4, 5, 6], [7, 8, 9]]
+```
+
+如通用参数子句中所述，您不使用通用参数子句来指定通用函数或初始化程序的类型参数。
+
+:::note 通用参数子句的语法
+
+```
+generic-argument-clause → < generic-argument-list >
+
+generic-argument-list → generic-argument | generic-argument , generic-argument-list
+
+generic-argument → type
+```
+
+:::

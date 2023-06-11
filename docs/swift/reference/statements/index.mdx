@@ -1,0 +1,891 @@
+# 语句
+
+<DocCaution />
+
+<OriginalLink
+  title="组表达式并控制执行流程"
+  value="https://docs.swift.org/swift-book/documentation/the-swift-programming-language/statements"
+/>
+
+在 Swift 中，语句分为三种：简单语句、编译器控制语句和控制流语句。简单语句是最常见的，由表达式或声明组成。编译器控制语句允许程序更改编译器行为的各个方面，并包括条件编译块和行控制语句。
+
+控制流语句用于控制程序中的执行流。Swift 中有几种类型的控制流语句，包括循环语句、分支语句和控制转移语句。循环语句允许重复执行代码块，分支语句允许仅在满足特定条件时才执行特定代码块，而控制转移语句提供了一种改变代码执行顺序的方法。此外，Swift 提供了一个 do 语句来引入作用域、捕获和处理错误，以及一个 defer 在当前作用域退出之前运行清理操作的语句。
+
+分号 ( ;) 可以选择出现在任何语句之后，如果它们出现在同一行，则用于分隔多个语句。
+
+:::note 语句的语法
+
+```
+statement → expression ;?
+
+statement → declaration ;?
+
+statement → loop-statement ;?
+
+statement → branch-statement ;?
+
+statement → labeled-statement ;?
+
+statement → control-transfer-statement ;?
+
+statement → defer-statement ;?
+
+statement → do-statement ;?
+
+statement → compiler-control-statement
+
+statements → statement statements?
+```
+
+:::
+
+## 循环语句
+
+循环语句允许重复执行一段代码，具体取决于循环中指定的条件。Swift 有三个循环语句：一个 for-in 语句、一个 while 语句和一个 repeat-while 语句。
+
+循环语句中的控制流可以通过一个 break 语句和一个语句来改变，在下面的 Break 语句和 Continue 语句 continue 中讨论。
+
+:::note 循环语句的语法
+
+```
+loop-statement → for-in-statement
+
+loop-statement → while-statement
+
+loop-statement → repeat-while-statement
+```
+
+:::
+
+## For-In 语句
+
+for-语句 in 允许对符合协议的集合（或任何类型）中的每个项目执行一次代码块 Sequence。
+
+A for-in 语句具有以下形式：
+
+```swift
+for <#item#> in <#collection#> {
+   <#statements#>
+}
+```
+
+在集合表达式上调用该方法以获取迭代器类型的值——即符合协议的类型。程序通过调用迭代器上的方法开始执行循环。如果返回值不是，则将其分配给项目模式，程序执行语句，然后在循环开始处继续执行。否则，程序不执行赋值或执行语句，并且执行完-语句。makeIterator()IteratorProtocolnext()nilforin
+
+:::note for-in 语句的语法
+
+```
+for-in-statement → for case? pattern in expression where-clause? code-block
+```
+
+:::
+
+## 语句
+
+while 只要条件保持为真，语句就允许重复执行一段代码。
+
+语句 while 具有以下形式：
+
+```swift
+while <#condition#> {
+   <#statements#>
+}
+```
+
+语句 while 执行如下：
+
+1. 评估条件。
+
+如果 true，则继续执行步骤 2。如果 false，则程序执行完该 while 语句。
+
+2. 程序执行语句，然后执行返回到步骤 1。
+
+因为条件的值是在语句执行之前计算的，所以语句中的语句 while 可以执行零次或多次。
+
+条件的值必须是类型 Bool 或桥接到 的类型 Bool。条件也可以是可选绑定声明，如可选绑定中所述。
+
+:::note while 语句的语法
+
+```
+while-statement → while condition-list code-block
+
+condition-list → condition | condition , condition-list
+
+condition → expression | availability-condition | case-condition | optional-binding-condition
+
+case-condition → case pattern initializer
+
+optional-binding-condition → let pattern initializer? | var pattern initializer?
+```
+
+:::
+
+## 重复语句
+
+-语句允许代码块执行一次或多次，只要条件保持为真 repeat。while
+
+A repeat-while 语句具有以下形式：
+
+```swift
+repeat {
+   <#statements#>
+} while <#condition#>
+```
+
+A-语句执行如下 repeat：while
+
+1. 程序执行语句，然后继续执行步骤 2。
+
+2. 评估条件。
+
+如果 true，执行返回到步骤 1。如果 false，程序执行完 repeat-while 语句。
+
+因为条件的值是在语句执行后计算的，所以-语句中的语句至少执行一次。repeatwhile
+
+条件的值必须是类型 Bool 或桥接到 的类型 Bool。
+
+:::note repeat-while 语句的语法
+
+```
+repeat-while-statement → repeat code-block while expression
+```
+
+:::
+
+## 分支报表
+
+分支语句允许程序根据一个或多个条件的值执行代码的某些部分。分支语句中指定的条件值控制程序如何分支，从而控制执行哪个代码块。Swift 有三个分支语句：一个 if 语句，一个 guard 语句，一个 switch 语句。
+
+if 语句或语句中的控制流 switch 可以通过语句更改，并在下面的 Break 语句 break 中讨论。
+
+:::note 分支语句的语法
+
+```
+branch-statement → if-statement
+
+branch-statement → guard-statement
+
+branch-statement → switch-statement
+```
+
+:::
+
+## If 语句
+
+语句 `if` 用于根据对一个或多个条件的评估来执行代码。
+
+语句有两种基本形式 if。在每种形式中，左括号和右括号都是必需的。
+
+第一种形式允许代码仅在条件为真时执行，具有以下形式：
+
+```swift
+if <#condition#> {
+   <#statements#>
+}
+```
+
+第二种形式的 if 语句提供了一个额外的 else 子句（由关键字引入 else），用于在条件为真时执行一部分代码，在相同条件为假时执行另一部分代码。当存在单个 else 子句时，if 语句具有以下形式：
+
+```swift
+if <#condition#> {
+   <#statements to execute if condition is true#>
+} else {
+   <#statements to execute if condition is false#>
+}
+```
+
+一个语句的 else 子句 if 可以包含另一个 if 语句来测试多个条件。以这种方式链接在一起的语句 if 具有以下形式：
+
+```swift
+if <#condition 1#> {
+   <#statements to execute if condition 1 is true#>
+} else if <#condition 2#> {
+   <#statements to execute if condition 2 is true#>
+} else {
+   <#statements to execute if both conditions are false#>
+}
+```
+
+语句中任何条件的值 if 必须是类型 Bool 或桥接到 的类型 Bool。条件也可以是可选绑定声明，如可选绑定中所述。
+
+:::note if 语句的语法
+
+```
+if-statement → if condition-list code-block else-clause?
+
+else-clause → else code-block | else if-statement
+```
+
+:::
+
+## Guard 语句
+
+guard 如果不满足一个或多个条件，则使用语句将程序控制转移出范围。
+
+语句 guard 具有以下形式：
+
+```swift
+guard <#condition#> else {
+   <#statements#>
+}
+```
+
+语句中任何条件的值 guard 必须是类型 Bool 或桥接到 的类型 Bool。条件也可以是可选绑定声明，如可选绑定中所述。
+
+从语句条件中的可选绑定声明中分配值的任何常量或变量都 guard 可以用于 guard 语句的封闭范围的其余部分。
+
+else 语句的子句是必需的，并且必须使用以下语句之一调用 guard 具有返回类型的函数或将程序控制转移到 guard 语句的封闭范围之外：Never
+
+- return
+
+- break
+
+- continue
+
+- throw
+
+控制转移语句在下面的控制转移语句中讨论。有关具有返回类型的函数的更多信息 Never，请参阅永不返回的函数。
+
+:::note 守卫声明的语法
+
+```
+guard-statement → guard condition-list else code-block
+```
+
+:::
+
+# Swift 语句
+
+语句 switch 允许根据控制表达式的值执行某些代码块。
+
+语句 switch 具有以下形式：
+
+```swift
+switch <#control expression#> {
+case <#pattern 1#>:
+    <#statements#>
+case <#pattern 2#> where <#condition#>:
+    <#statements#>
+case <#pattern 3#> where <#condition#>,
+    <#pattern 4#> where <#condition#>:
+    <#statements#>
+default:
+    <#statements#>
+}
+```
+
+评估语句的控制表达式，然后将其与每种情况下指定的模式进行比较。switch 如果找到匹配项，程序将执行该案例范围内列出的语句。每个案例的范围不能为空。因此，您必须在:每个 case 标签的冒号 ( ) 后至少包含一个语句。break 如果您不打算执行匹配案例正文中的任何代码，请使用单个语句。
+
+您的代码可以分支的表达式的值非常灵活。例如，除了整数和字符等标量类型的值外，您的代码还可以对任何类型的值进行分支，包括浮点数、字符串、元组、自定义类的实例和可选值。控制表达式的值甚至可以与枚举中的案例值相匹配，并检查是否包含在指定的值范围内。有关如何在 switch 语句中使用这些不同类型的值的示例，请参阅控制流中的 Switch。
+
+案例 switch 可以选择 where 在每个模式之后包含一个子句。where 子句由关键字 where 和表达式引入，用于在 case 中的模式被认为与控制表达式匹配之前提供附加条件。如果 where 存在子句，则仅当控制表达式的值与 case 的模式之一匹配并且子句的表达式计算为 时，才会执行相关 case 中的语句。例如，仅当控制表达式是包含两个具有相同值的元素的元组时，它才匹配下面示例中的大小写，例如.wheretrue(1, 1)
+
+```swift
+case let (x, y) where x == y:
+```
+
+如上例所示，case 中的模式也可以使用 let 关键字绑定常量（它们也可以使用 var 关键字绑定变量）。然后可以在相应的子句中引用这些常量（或变量）where，并贯穿案例范围内的其余代码。如果 case 包含与控制表达式匹配的多个模式，则所有模式必须包含相同的常量或变量绑定，并且每个绑定变量或常量在所有 case 的模式中必须具有相同的类型。
+
+语句 switch 还可以包括由关键字引入的默认情况 default。仅当没有其他情况与控制表达式匹配时，默认情况下的代码才会执行 ​​。一个 switch 语句只能包含一个默认情况，它必须出现在语句的末尾 switch。
+
+尽管模式匹配操作的实际执行顺序，尤其是案例中模式的求值顺序，是未指定的，但语句中的模式匹配的行为 switch 就像是按源代码顺序执行求值——即它们出现的顺序在源代码中。因此，如果多个 case 包含计算结果相同的模式，因此可以匹配控制表达式的值，则程序仅执行源代码顺序中第一个匹配 case 中的代码。
+
+## Switch 语句必须详尽无遗
+
+在 Swift 中，控制表达式类型的每个可能值都必须匹配至少一个 case 模式的值。当这根本不可行时（例如，当控制表达式的类型为 时 Int），您可以包含一个默认情况来满足要求。
+
+## 切换未来的枚举案例
+
+非冻结枚举是一种特殊的枚举，将来可能会获得新的枚举案例——即使在您编译并发布应用程序之后。切换非冻结枚举需要额外考虑。当库的作者将枚举标记为非冻结时，他们保留添加新枚举案例的权利，并且与该枚举交互的任何代码都必须能够处理这些未来案例而无需重新编译。在库进化模式下编译的代码、标准库中的代码、Apple 框架的 Swift 覆盖以及 C 和 Objective-C 代码都可以声明非冻结枚举。有关冻结和非冻结枚举的信息，请参阅 frozen。
+
+切换非冻结枚举值时，始终需要包含默认情况，即使枚举的每个情况都已经有相应的切换情况。您可以将该@unknown 属性应用于默认情况，这表明默认情况应该只匹配将来添加的枚举情况。如果默认情况与编译器时已知的任何枚举情况相匹配，Swift 会发出警告。此未来警告通知您库作者向枚举添加了一个新案例，但没有相应的切换案例。
+
+以下示例切换标准库枚举的所有三种现有情况。如果您将来添加其他案例，编译器会生成一条警告，指示您需要更新 switch 语句以将新案例考虑在内。Mirror.AncestorRepresentation
+
+```swift
+let representation: Mirror.AncestorRepresentation = .generated
+switch representation {
+case .customized:
+    print("Use the nearest ancestor’s implementation.")
+case .generated:
+    print("Generate a default mirror for all ancestor classes.")
+case .suppressed:
+    print("Suppress the representation of all ancestor classes.")
+@unknown default:
+    print("Use a representation that was unknown when this code was compiled.")
+}
+// Prints "Generate a default mirror for all ancestor classes."
+```
+
+## 执行不会暗中通过案件
+
+匹配案例中的代码执行完毕后，程序从该 switch 语句中退出。程序执行不会继续或“失败”到下一个案例或默认案例。也就是说，如果您希望从一个案例继续执行到下一个案例，请在您希望继续执行的案例中显式包含一个 fallthrough 仅由关键字组成的语句。fallthrough 有关该 fallthrough 声明的更多信息，请参阅下面的 Fallthrough 声明。
+
+:::note switch 语句的语法
+
+```
+switch-statement → switch expression { switch-cases? }
+
+switch-cases → switch-case switch-cases?
+
+switch-case → case-label statements
+
+switch-case → default-label statements
+
+switch-case → conditional-switch-case
+
+case-label → attributes? case case-item-list :
+
+case-item-list → pattern where-clause? | pattern where-clause? , case-item-list
+
+default-label → attributes? default :
+
+where-clause → where where-expression
+
+where-expression → expression
+
+conditional-switch-case → switch-if-directive-clause switch-elseif-directive-clauses? switch-else-directive-clause? endif-directive
+
+switch-if-directive-clause → if-directive compilation-condition switch-cases?
+
+switch-elseif-directive-clauses → elseif-directive-clause switch-elseif-directive-clauses?
+
+switch-elseif-directive-clause → elseif-directive compilation-condition switch-cases?
+
+switch-else-directive-clause → else-directive switch-cases?
+```
+
+:::
+
+## 标签声明
+
+您可以为循环语句、if 语句 switch、语句或 do 带有语句标签的语句添加前缀，该语句由标签的名称和紧跟的冒号 (:) 组成。将语句标签与 breakandcontinue 语句一起使用，以明确说明您希望如何更改循环语句或语句中的控制流 switch，如下面的 Break Statement 和 Continue Statement 中所述。
+
+标记语句的范围是语句标签后面的整个语句。您可以嵌套标签语句，但每个语句标签的名称必须是唯一的。
+
+有关详细信息和查看如何使用语句标签的示例，请参阅控制流中的标签语句。
+
+:::note 标记语句的语法
+
+```
+labeled-statement → statement-label loop-statement
+
+labeled-statement → statement-label if-statement
+
+labeled-statement → statement-label switch-statement
+
+labeled-statement → statement-label do-statement
+
+statement-label → label-name :
+
+label-name → identifier
+```
+
+:::
+
+## 控制转移报表
+
+控制转移语句可以通过无条件地将程序控制从一段代码转移到另一段代码来更改程序中代码的执行顺序。Swift 有五种控制转移语句：break 语句、continue 语句、fallthrough 语句、return 语句、throw 语句。
+
+:::note 控制转移语句的语法
+
+```
+control-transfer-statement → break-statement
+
+control-transfer-statement → continue-statement
+
+control-transfer-statement → fallthrough-statement
+
+control-transfer-statement → return-statement
+
+control-transfer-statement → throw-statement
+```
+
+:::
+
+## 中断语句
+
+语句 break 结束循环、语句 if 或 switch 语句的程序执行。语句 break 可以只包含 break 关键字，也可以由 break 关键字和语句标签名称组成，如下所示。
+
+```swift
+break
+break <#label name#>
+```
+
+当 break 语句后跟语句标签的名称时，它会结束循环、if 语句或 switch 由该标签命名的语句的程序执行。
+
+当 break 语句后面没有语句标签的名称时，它会结束该 switch 语句或出现该语句的最内层封闭循环语句的程序执行。您不能使用未标记的 break 语句来中断 if 语句。
+
+switch 在这两种情况下，程序控制都会转移到封闭循环或语句（如果有）之后的第一行代码。
+
+有关如何使用 break 语句的示例，请参阅控制流中的中断和标记语句。
+
+:::note break 语句的语法
+
+```
+break-statement → break label-name?
+```
+
+:::
+
+## 继续声明
+
+语句 continue 结束循环语句当前迭代的程序执行，但不会停止循环语句的执行。语句 continue 可以只包含 continue 关键字，也可以由 continue 关键字和语句标签名称组成，如下所示。
+
+```swift
+continue
+continue <#label name#>
+```
+
+当 continue 语句后跟语句标签的名称时，它会结束由该标签命名的循环语句的当前迭代的程序执行。
+
+当 continue 语句后面没有语句标签的名称时，它会结束程序执行它所在的最内层封闭循环语句的当前迭代。
+
+在这两种情况下，程序控制都会转移到封闭循环语句的条件。
+
+在 for 语句中，增量表达式仍然在 continue 语句执行后计算，因为增量表达式在循环体执行后计算。
+
+有关如何使用 continue 语句的示例，请参阅控制流中的继续和标记语句。
+
+:::note continue 语句的语法
+
+```
+continue-statement → continue label-name?
+```
+
+:::
+
+## 失败声明
+
+语句 fallthrough 由关键字组成 fallthrough，并且仅出现在语句的 case 块中 switch。语句 fallthrough 使程序从语句中的一个案例继续执行 switch 到下一个案例。即使 case 标签的模式与语句的控制表达式的值不匹配，程序也会继续执行下一个 case switch。
+
+语句 fallthrough 可以出现在 switch 语句内的任何位置，而不仅仅是作为 case 块的最后一条语句，但它不能用于最后的 case 块。它还不能将控制转移到其模式包含值绑定模式的 case 块中。
+
+有关如何 fallthrough 在 switch 语句中使用语句的示例，请参阅控制流中的控制传输语句。
+
+:::note fallthrough 语句的语法
+
+```
+fallthrough-statement → fallthrough
+```
+
+:::
+
+## 退货单
+
+语句 return 出现在函数或方法定义的主体中，并导致程序执行返回到调用函数或方法。程序在函数或方法调用之后立即继续执行。
+
+语句 return 可以只包含 return 关键字，也可以由 return 关键字和表达式组成，如下所示。
+
+```swift
+return
+return <#expression#>
+```
+
+当 return 语句后跟表达式时，表达式的值返回给调用函数或方法。如果表达式的值与函数或方法声明中声明的返回类型的值不匹配，则表达式的值在返回到调用函数或方法之前将转换为返回类型。
+
+:::note
+如可失败初始化器中所述，可在可失败初始化器中使用 return 语句 ( )的特殊形式来指示初始化失败。return nil
+:::
+
+当 return 语句后没有表达式时，它只能用于从不返回值的函数或方法返回（即，当函数或方法的返回类型为 or 时 Void）()。
+
+:::note 返回语句的语法
+
+```
+return-statement → return expression?
+```
+
+:::
+
+## 抛出语句
+
+语句 throw 出现在抛出函数或方法的主体中，或者出现在类型用关键字标记的闭包表达式的主体中 throws。
+
+语句 throw 导致程序结束当前作用域的执行并开始将错误传播到其封闭作用域。抛出的错误会继续传播，直到它被语句 catch 的子句处理为止 do。
+
+语句 throw 由关键字和表达式组成 throw，如下所示。
+
+```swift
+throw <#expression#>
+```
+
+表达式的值必须具有符合 Error 协议的类型。
+
+有关如何使用 throw 语句的示例，请参阅错误处理中的使用抛出函数传播错误。
+
+:::note throw 语句的语法
+
+```
+throw-statement → throw expression
+```
+
+:::
+
+## 延迟声明
+
+语句 defer 用于在将程序控制转移到语句 defer 出现的范围之外之前执行代码。
+
+语句 defer 具有以下形式：
+
+```swift
+defer {
+    <#statements#>
+}
+```
+
+defer 无论程序控制如何转移，语句中的语句都会执行。这意味着 defer 可以使用一条语句，例如，执行手动资源管理（例如关闭文件描述符），以及执行即使抛出错误也需要发生的操作。
+
+语句中的语句在包含 defer 该语句的范围的末尾执行 defer。
+
+```swift
+func f(x: Int) {
+  defer { print("First defer") }
+
+  if x < 10 {
+    defer { print("Second defer") }
+    print("End of if")
+  }
+
+  print("End of function")
+}
+f(x: 5)
+// Prints "End of if"
+// Prints "Second defer"
+// Prints "End of function"
+// Prints "First defer"
+```
+
+在上面的代码中，deferin 语句在函数中声明 if 之前执行，因为语句的作用域在函数作用域之前结束。deferfif
+
+如果多个 defer 语句出现在同一范围内，则它们出现的顺序与它们执行的顺序相反。首先在给定范围内执行最后一条 defer 语句意味着最后一条 defer 语句中的语句可以引用将被其他语句清理的资源 defer。
+
+```swift
+func f() {
+    defer { print("First defer") }
+    defer { print("Second defer") }
+    print("End of function")
+}
+f()
+// Prints "End of function"
+// Prints "Second defer"
+// Prints "First defer"
+```
+
+语句中的语句 defer 不能将程序控制转移到 defer 语句之外。
+
+:::note defer 语句的语法
+
+```
+defer-statement → defer code-block
+```
+
+:::
+
+## Do 声明
+
+该 do 语句用于引入一个新的范围，并且可以选择包含一个或多个 catch 子句，这些子句包含与定义的错误条件相匹配的模式。在语句范围内声明的变量和常量 do 只能在该范围内访问。
+
+Swift 中的语句 do 类似于{}C 中用于分隔代码块的大括号 ( )，并且不会在运行时产生性能成本。
+
+语句 do 具有以下形式：
+
+```swift
+do {
+    try <#expression#>
+    <#statements#>
+} catch <#pattern 1#> {
+    <#statements#>
+} catch <#pattern 2#> where <#condition#> {
+    <#statements#>
+} catch <#pattern 3#>, <#pattern 4#> where <#condition#> {
+    <#statements#>
+} catch {
+    <#statements#>
+}
+```
+
+如果 do 代码块中的任何语句抛出错误，程序控制将转移到 catch 模式与错误匹配的第一个子句。如果没有任何子句匹配，错误将传播到周围的范围。如果在顶层未处理错误，程序将停止执行并出现运行时错误。
+
+与语句一样 switch，编译器会尝试推断 catch 子句是否详尽无遗。如果可以做出这样的决定，则认为错误已得到处理。否则，错误可能会传播到包含范围之外，这意味着错误必须由封闭子句处理，catch 或者包含函数必须用 throws.
+
+具有多个模式的子句 catch 如果其任何模式与错误匹配，则与错误匹配。如果一个 catch 子句包含多个模式，则所有模式必须包含相同的常量或变量绑定，并且每个绑定变量或常量在子句的所有模式中必须具有相同的类型 catch。
+
+为确保错误得到处理，请使用 catch 具有匹配所有错误的模式的子句，例如通配符模式 ( \_)。如果 catch 子句未指定模式，则该 catch 子句匹配任何错误并将其绑定到名为 的局部常量 error。有关可在 catch 子句中使用的模式的更多信息，请参阅模式。
+
+do 要查看如何使用包含多个子句的语句的示例 catch，请参阅处理错误。
+
+:::note do 语句的语法
+
+```
+do-statement → do code-block catch-clauses?
+
+catch-clauses → catch-clause catch-clauses?
+
+catch-clause → catch catch-pattern-list? code-block
+
+catch-pattern-list → catch-pattern | catch-pattern , catch-pattern-list
+
+catch-pattern → pattern where-clause?
+```
+
+:::
+
+## 编译器控制语句
+
+编译器控制语句允许程序更改编译器行为的各个方面。Swift 有三个编译器控制语句：条件编译块、行控制语句和编译时诊断语句。
+
+:::note 编译器控制语句的语法
+
+```
+compiler-control-statement → conditional-compilation-block
+
+compiler-control-statement → line-control-statement
+
+compiler-control-statement → diagnostic-statement
+```
+
+:::
+
+## 条件编译块
+
+条件编译块允许根据一个或多个编译条件的值有条件地编译代码。
+
+每个条件编译块都以编译指令开始#if 并以编译指令结束#endif。一个简单的条件编译块具有以下形式：
+
+```swift
+#if <#compilation condition#>
+    <#statements#>
+#endif
+```
+
+与语句的条件不同 if，编译条件是在编译时评估的。因此，仅当编译条件在编译时计算为时，才会编译和执行语句。true
+
+编译条件可以包括 true 和 false 布尔文字、与命令行标志一起使用的标识符-D 或下表中列出的任何平台条件。
+
+| 平台状况            | 有效参数                                         |
+| ------------------- | ------------------------------------------------ |
+| os()                | macOS,,,,, \_ \_ \_ \_iOSwatchOStvOSLinuxWindows |
+| arch()              | i386, , ,x86_64armarm64                          |
+| swift()             | >=或<后跟版本号                                  |
+| compiler()          | >=或<后跟版本号                                  |
+| canImport()         | 模块名称                                         |
+| targetEnvironment() | simulator,macCatalyst                            |
+
+swift()和平台条件的版本号 compiler()由主版本号、可选的次版本号、可选的补丁号等组成，.版本号的每个部分之间用点 ( ) 分隔。比较运算符和版本号之间不能有空格。的版本 compiler()是编译器版本，与传递给编译器的 Swift 版本设置无关。的版本 swift()是当前正在编译的语言版本。例如，如果您在 Swift 4.2 模式下使用 Swift 5 编译器编译代码，则编译器版本为 5，语言版本为 4.2。使用这些设置，以下代码打印所有三个消息：
+
+```swift
+#if compiler(>=5)
+print("Compiled with the Swift 5 compiler or later")
+#endif
+#if swift(>=4.2)
+print("Compiled in Swift 4.2 mode or later")
+#endif
+#if compiler(>=5) && swift(<5)
+print("Compiled with the Swift 5 compiler or later in a Swift mode earlier than 5")
+#endif
+// Prints "Compiled with the Swift 5 compiler or later"
+// Prints "Compiled in Swift 4.2 mode or later"
+// Prints "Compiled with the Swift 5 compiler or later in a Swift mode earlier than 5"
+```
+
+平台条件的参数是可能并非在所有平台上都存在的模块的名称。该模块可以在其名称中包含句点 ( )。此条件测试是否可以导入模块，但实际上并不导入它。如果模块存在，平台条件返回；否则，它返回。canImport().truefalse
+
+为指定环境编译代码时返回平台条件；否则，它返回。targetEnvironment()truefalse
+
+:::note
+对于 ARM 64 设备，平台 arch(arm)条件不会返回。当为 32 位 iOS 模拟器编译代码时，true 平台 arch(i386)条件返回。true
+:::
+
+您可以使用逻辑运算符&&、||和 组合和取反编译条件，!并使用括号进行分组。这些运算符与用于组合普通布尔表达式的逻辑运算符具有相同的结合性和优先级。
+
+类似于 if 语句，可以添加多个条件分支来测试不同的编译条件。您可以使用子句添加任意数量的附加分支#elseif。您还可以使用子句添加最终的附加分支#else。包含多个分支的条件编译块具有以下形式：
+
+```swift
+#if <#compilation condition 1#>
+    <#statements to compile if compilation condition 1 is true#>
+#elseif <#compilation condition 2#>
+    <#statements to compile if compilation condition 2 is true#>
+#else
+    <#statements to compile if both compilation conditions are false#>
+#endif
+```
+
+:::note
+条件编译块主体中的每个语句都会被解析，即使它没有被编译。但是，如果编译条件包含 swift()orcompiler()平台条件，则有一个例外：仅当语言或编译器版本与平台条件中指定的相匹配时，才会解析语句。此异常可确保旧版编译器不会尝试解析新版 Swift 中引入的语法。
+:::
+
+有关如何在条件编译块中包装显式成员表达式的信息，请参阅显式成员表达式。
+
+:::note 条件编译块的语法
+
+```
+conditional-compilation-block → if-directive-clause elseif-directive-clauses? else-directive-clause? endif-directive
+
+if-directive-clause → if-directive compilation-condition statements?
+
+elseif-directive-clauses → elseif-directive-clause elseif-directive-clauses?
+
+elseif-directive-clause → elseif-directive compilation-condition statements?
+
+else-directive-clause → else-directive statements?
+
+if-directive → #if
+
+elseif-directive → #elseif
+
+else-directive → #else
+
+endif-directive → #endif
+
+compilation-condition → platform-condition
+
+compilation-condition → identifier
+
+compilation-condition → boolean-literal
+
+compilation-condition → ( compilation-condition )
+
+compilation-condition → ! compilation-condition
+
+compilation-condition → compilation-condition && compilation-condition
+
+compilation-condition → compilation-condition || compilation-condition
+
+platform-condition → os ( operating-system )
+
+platform-condition → arch ( architecture )
+
+platform-condition → swift ( >= swift-version ) | swift ( < swift-version )
+
+platform-condition → compiler ( >= swift-version ) | compiler ( < swift-version )
+
+platform-condition → canImport ( import-path )
+
+platform-condition → targetEnvironment ( environment )
+
+operating-system → macOS | iOS | watchOS | tvOS | Linux | Windows
+
+architecture → i386 | x86_64 | arm | arm64
+
+swift-version → decimal-digits swift-version-continuation?
+
+swift-version-continuation → . decimal-digits swift-version-continuation?
+
+environment → simulator | macCatalyst
+```
+
+:::
+
+## 行控制语句
+
+行控制语句用于指定可以与正在编译的源代码的行号和文件名不同的行号和文件名。使用行控制语句更改 Swift 用于诊断和调试目的的源代码位置。
+
+行控制语句具有以下形式：
+
+```swift
+#sourceLocation(file: <#file path#>, line: <#line number#>)
+#sourceLocation()
+```
+
+#line 行控制语句的第一种形式更改、#file、和文字表达式的值，从行控制语句后面的代码行开始。行号更改 的值，并且是任何大于零的整数文字。文件路径改变了、、 和的值，并且是一个字符串文字。指定的字符串成为 的值，字符串的最后一个路径组件由 的值使用。有关、和 的信息，请参阅文字表达式。#fileID#filePath#line#file#fileID#filePath#filePath#fileID#file#fileID#filePath
+
+行控制语句的第二种形式，将源代码位置重置回默认行编号和文件路径。#sourceLocation()
+
+:::note 行控制语句的语法
+
+```
+line-control-statement → #sourceLocation ( file: file-path , line: line-number )
+
+line-control-statement → #sourceLocation ( )
+
+line-number → A decimal integer greater than zero
+
+file-path → static-string-literal
+```
+
+:::
+
+## 编译时诊断语句
+
+编译时诊断语句会导致编译器在编译期间发出错误或警告。编译时诊断语句具有以下形式：
+
+```swift
+#error("<#error message#>")
+#warning("<#warning message#>")
+```
+
+第一种形式将错误消息作为致命错误发出并终止编译过程。第二种形式发出警告消息作为非致命警告并允许编译继续进行。您将诊断消息写为静态字符串文字。静态字符串文字不能使用字符串插值或连接等功能，但它们可以使用多行字符串文字语法。
+
+:::note 编译时诊断语句的语法
+
+```
+diagnostic-statement → #error ( diagnostic-message )
+
+diagnostic-statement → #warning ( diagnostic-message )
+
+diagnostic-message → static-string-literal
+```
+
+:::
+
+## 可用性条件
+
+可用性条件用作 if、while 和 guard 语句的条件，以根据指定的平台参数在运行时查询 API 的可用性。
+
+可用性条件具有以下形式：
+
+```swift
+if #available(<#platform name#> <#version#>, <#...#>, *) {
+    <#statements to execute if the APIs are available#>
+} else {
+    <#fallback statements to execute if the APIs are unavailable#>
+}
+```
+
+您使用可用性条件来执行代码块，具体取决于您要使用的 API 在运行时是否可用。当编译器验证该代码块中的 API 是否可用时，它会使用来自可用性条件的信息。
+
+可用性条件采用以逗号分隔的平台名称和版本列表。使用、、和作为平台名称，并包括相应的版本号。该参数是必需的，它指定在任何其他平台上，由可用性条件保护的代码块的主体在您的目标指定的最小部署目标上执行。iOSmacOSwatchOStvOS\*
+
+与布尔条件不同，您不能使用&&和等逻辑运算符组合可用性条件||。不使用 using!来否定可用性条件，而是使用不可用性条件，其具有以下形式：
+
+```swift
+if #unavailable(<#platform name#> <#version#>, <#...#>) {
+    <#fallback statements to execute if the APIs are unavailable#>
+} else {
+    <#statements to execute if the APIs are available#>
+}
+```
+
+形式 `#unavailable` 是否定条件的语法糖。在不可用条件下，该*参数是隐式的，不得包含在内。*它与可用性条件中的参数具有相同的含义。
+
+:::note 可用性条件的语法
+
+```
+availability-condition → #available ( availability-arguments )
+
+availability-condition → #unavailable ( availability-arguments )
+
+availability-arguments → availability-argument | availability-argument , availability-arguments
+
+availability-argument → platform-name platform-version
+
+availability-argument → *
+
+platform-name → iOS | iOSApplicationExtension
+
+platform-name → macOS | macOSApplicationExtension
+
+platform-name → macCatalyst | macCatalystApplicationExtension
+
+platform-name → watchOS | watchOSApplicationExtension
+
+platform-name → tvOS | tvOSApplicationExtension
+
+platform-version → decimal-digits
+
+platform-version → decimal-digits . decimal-digits
+
+platform-version → decimal-digits . decimal-digits . decimal-digits
+```
+
+:::

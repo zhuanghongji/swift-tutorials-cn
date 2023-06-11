@@ -1,0 +1,1924 @@
+# 语法总结
+
+<DocCaution />
+
+<OriginalLink
+  title="阅读整个正式语法"
+  value="https://docs.swift.org/swift-book/documentation/the-swift-programming-language/summaryofthegrammar"
+/>
+
+## 词汇结构
+
+:::note 空格语法
+
+```
+whitespace → whitespace-item whitespace?
+
+whitespace-item → line-break
+
+whitespace-item → inline-space
+
+whitespace-item → comment
+
+whitespace-item → multiline-comment
+
+whitespace-item → U+0000, U+000B, or U+000C
+
+line-break → U+000A
+
+line-break → U+000D
+
+line-break → U+000D followed by U+000A
+
+inline-spaces → inline-space inline-spaces?
+
+inline-space → U+0009 or U+0020
+
+comment → // comment-text line-break
+
+multiline-comment → /* multiline-comment-text */
+
+comment-text → comment-text-item comment-text?
+
+comment-text-item → Any Unicode scalar value except U+000A or U+000D
+
+multiline-comment-text → multiline-comment-text-item multiline-comment-text?
+
+multiline-comment-text-item → multiline-comment
+
+multiline-comment-text-item → comment-text-item
+
+multiline-comment-text-item → Any Unicode scalar value except /* or */
+```
+
+:::
+
+:::note 标识符的语法
+
+```
+identifier → identifier-head identifier-characters?
+
+identifier → ` identifier-head identifier-characters? `
+
+identifier → implicit-parameter-name
+
+identifier → property-wrapper-projection
+
+identifier-list → identifier | identifier , identifier-list
+
+identifier-head → Upper- or lowercase letter A through Z
+
+identifier-head → _
+
+identifier-head → U+00A8, U+00AA, U+00AD, U+00AF, U+00B2–U+00B5, or U+00B7–U+00BA
+
+identifier-head → U+00BC–U+00BE, U+00C0–U+00D6, U+00D8–U+00F6, or U+00F8–U+00FF
+
+identifier-head → U+0100–U+02FF, U+0370–U+167F, U+1681–U+180D, or U+180F–U+1DBF
+
+identifier-head → U+1E00–U+1FFF
+
+identifier-head → U+200B–U+200D, U+202A–U+202E, U+203F–U+2040, U+2054, or U+2060–U+206F
+
+identifier-head → U+2070–U+20CF, U+2100–U+218F, U+2460–U+24FF, or U+2776–U+2793
+
+identifier-head → U+2C00–U+2DFF or U+2E80–U+2FFF
+
+identifier-head → U+3004–U+3007, U+3021–U+302F, U+3031–U+303F, or U+3040–U+D7FF
+
+identifier-head → U+F900–U+FD3D, U+FD40–U+FDCF, U+FDF0–U+FE1F, or U+FE30–U+FE44
+
+identifier-head → U+FE47–U+FFFD
+
+identifier-head → U+10000–U+1FFFD, U+20000–U+2FFFD, U+30000–U+3FFFD, or U+40000–U+4FFFD
+
+identifier-head → U+50000–U+5FFFD, U+60000–U+6FFFD, U+70000–U+7FFFD, or U+80000–U+8FFFD
+
+identifier-head → U+90000–U+9FFFD, U+A0000–U+AFFFD, U+B0000–U+BFFFD, or U+C0000–U+CFFFD
+
+identifier-head → U+D0000–U+DFFFD or U+E0000–U+EFFFD
+
+identifier-character → Digit 0 through 9
+
+identifier-character → U+0300–U+036F, U+1DC0–U+1DFF, U+20D0–U+20FF, or U+FE20–U+FE2F
+
+identifier-character → identifier-head
+
+identifier-characters → identifier-character identifier-characters?
+
+implicit-parameter-name → $ decimal-digits
+
+property-wrapper-projection → $ identifier-characters
+```
+
+:::
+
+:::note 文字语法
+
+```
+literal → numeric-literal | string-literal | regular-expression-literal | boolean-literal | nil-literal
+
+numeric-literal → -? integer-literal | -? floating-point-literal
+
+boolean-literal → true | false
+
+nil-literal → nil
+```
+
+:::
+
+:::note 整数文字的语法
+
+```
+integer-literal → binary-literal
+
+integer-literal → octal-literal
+
+integer-literal → decimal-literal
+
+integer-literal → hexadecimal-literal
+
+binary-literal → 0b binary-digit binary-literal-characters?
+
+binary-digit → Digit 0 or 1
+
+binary-literal-character → binary-digit | _
+
+binary-literal-characters → binary-literal-character binary-literal-characters?
+
+octal-literal → 0o octal-digit octal-literal-characters?
+
+octal-digit → Digit 0 through 7
+
+octal-literal-character → octal-digit | _
+
+octal-literal-characters → octal-literal-character octal-literal-characters?
+
+decimal-literal → decimal-digit decimal-literal-characters?
+
+decimal-digit → Digit 0 through 9
+
+decimal-digits → decimal-digit decimal-digits?
+
+decimal-literal-character → decimal-digit | _
+
+decimal-literal-characters → decimal-literal-character decimal-literal-characters?
+
+hexadecimal-literal → 0x hexadecimal-digit hexadecimal-literal-characters?
+
+hexadecimal-digit → Digit 0 through 9, a through f, or A through F
+
+hexadecimal-literal-character → hexadecimal-digit | _
+
+hexadecimal-literal-characters → hexadecimal-literal-character hexadecimal-literal-characters?
+```
+
+:::
+
+:::note 浮点文字的语法
+
+```
+floating-point-literal → decimal-literal decimal-fraction? decimal-exponent?
+
+floating-point-literal → hexadecimal-literal hexadecimal-fraction? hexadecimal-exponent
+
+decimal-fraction → . decimal-literal
+
+decimal-exponent → floating-point-e sign? decimal-literal
+
+hexadecimal-fraction → . hexadecimal-digit hexadecimal-literal-characters?
+
+hexadecimal-exponent → floating-point-p sign? decimal-literal
+
+floating-point-e → e | E
+
+floating-point-p → p | P
+
+sign → + | -
+```
+
+:::
+
+:::note 字符串文字的语法
+
+```
+string-literal → static-string-literal | interpolated-string-literal
+
+string-literal-opening-delimiter → extended-string-literal-delimiter? "
+
+string-literal-closing-delimiter → " extended-string-literal-delimiter?
+
+static-string-literal → string-literal-opening-delimiter quoted-text? string-literal-closing-delimiter
+
+static-string-literal → multiline-string-literal-opening-delimiter multiline-quoted-text? multiline-string-literal-closing-delimiter
+
+multiline-string-literal-opening-delimiter → extended-string-literal-delimiter? """
+
+multiline-string-literal-closing-delimiter → """ extended-string-literal-delimiter?
+
+extended-string-literal-delimiter → # extended-string-literal-delimiter?
+
+quoted-text → quoted-text-item quoted-text?
+
+quoted-text-item → escaped-character
+
+quoted-text-item → Any Unicode scalar value except ", \, U+000A, or U+000D
+
+multiline-quoted-text → multiline-quoted-text-item multiline-quoted-text?
+
+multiline-quoted-text-item → escaped-character
+
+multiline-quoted-text-item → Any Unicode scalar value except \
+
+multiline-quoted-text-item → escaped-newline
+
+interpolated-string-literal → string-literal-opening-delimiter interpolated-text? string-literal-closing-delimiter
+
+interpolated-string-literal → multiline-string-literal-opening-delimiter multiline-interpolated-text? multiline-string-literal-closing-delimiter
+
+interpolated-text → interpolated-text-item interpolated-text?
+
+interpolated-text-item → \( expression ) | quoted-text-item
+
+multiline-interpolated-text → multiline-interpolated-text-item multiline-interpolated-text?
+
+multiline-interpolated-text-item → \( expression ) | multiline-quoted-text-item
+
+escape-sequence → \ extended-string-literal-delimiter
+
+escaped-character → escape-sequence 0 | escape-sequence \ | escape-sequence t | escape-sequence n | escape-sequence r | escape-sequence " | escape-sequence '
+
+escaped-character → escape-sequence u { unicode-scalar-digits }
+
+unicode-scalar-digits → Between one and eight hexadecimal digits
+
+escaped-newline → escape-sequence inline-spaces? line-break
+```
+
+:::
+
+:::note 正则表达式文字的语法
+
+```
+regular-expression-literal → regular-expression-literal-opening-delimiter regular-expression regular-expression-literal-closing-delimiter
+
+regular-expression → Any regular expression
+
+regular-expression-literal-opening-delimiter → extended-regular-expression-literal-delimiter? /
+
+regular-expression-literal-closing-delimiter → / extended-regular-expression-literal-delimiter?
+
+extended-regular-expression-literal-delimiter → # extended-regular-expression-literal-delimiter?
+```
+
+:::
+
+:::note 运算符语法
+
+```
+operator → operator-head operator-characters?
+
+operator → dot-operator-head dot-operator-characters
+
+operator-head → / | = | - | + | ! | * | % | < | > | & | | | ^ | ~ | ?
+
+operator-head → U+00A1–U+00A7
+
+operator-head → U+00A9 or U+00AB
+
+operator-head → U+00AC or U+00AE
+
+operator-head → U+00B0–U+00B1
+
+operator-head → U+00B6, U+00BB, U+00BF, U+00D7, or U+00F7
+
+operator-head → U+2016–U+2017
+
+operator-head → U+2020–U+2027
+
+operator-head → U+2030–U+203E
+
+operator-head → U+2041–U+2053
+
+operator-head → U+2055–U+205E
+
+operator-head → U+2190–U+23FF
+
+operator-head → U+2500–U+2775
+
+operator-head → U+2794–U+2BFF
+
+operator-head → U+2E00–U+2E7F
+
+operator-head → U+3001–U+3003
+
+operator-head → U+3008–U+3020
+
+operator-head → U+3030
+
+operator-character → operator-head
+
+operator-character → U+0300–U+036F
+
+operator-character → U+1DC0–U+1DFF
+
+operator-character → U+20D0–U+20FF
+
+operator-character → U+FE00–U+FE0F
+
+operator-character → U+FE20–U+FE2F
+
+operator-character → U+E0100–U+E01EF
+
+operator-characters → operator-character operator-characters?
+
+dot-operator-head → .
+
+dot-operator-character → . | operator-character
+
+dot-operator-characters → dot-operator-character dot-operator-characters?
+
+infix-operator → operator
+
+prefix-operator → operator
+
+postfix-operator → operator
+```
+
+:::
+
+## 类型
+
+:::note 类型语法
+
+```
+type → function-type
+
+type → array-type
+
+type → dictionary-type
+
+type → type-identifier
+
+type → tuple-type
+
+type → optional-type
+
+type → implicitly-unwrapped-optional-type
+
+type → protocol-composition-type
+
+type → opaque-type
+
+type → metatype-type
+
+type → any-type
+
+type → self-type
+
+type → ( type )
+```
+
+:::
+
+:::note 类型注释的语法
+
+```
+type-annotation → : attributes? inout? type
+```
+
+:::
+
+:::note 类型标识符的语法
+
+```
+type-identifier → type-name generic-argument-clause? | type-name generic-argument-clause? . type-identifier
+
+type-name → identifier
+```
+
+:::
+
+:::note 元组类型的语法
+
+```
+tuple-type → ( ) | ( tuple-type-element , tuple-type-element-list )
+
+tuple-type-element-list → tuple-type-element | tuple-type-element , tuple-type-element-list
+
+tuple-type-element → element-name type-annotation | type
+
+element-name → identifier
+```
+
+:::
+
+:::note 函数类型的语法
+
+```
+
+```
+
+:::
+
+:::note 数组类型的语法
+
+```
+function-type → attributes? function-type-argument-clause async? throws? -> type
+
+function-type-argument-clause → ( )
+
+function-type-argument-clause → ( function-type-argument-list ...? )
+
+function-type-argument-list → function-type-argument | function-type-argument , function-type-argument-list
+
+function-type-argument → attributes? inout? type | argument-label type-annotation
+
+argument-label → identifier
+```
+
+:::
+
+:::note 数组类型的语法
+
+```
+array-type → [ type ]
+```
+
+:::
+
+:::note 字典类型的语法
+
+```
+dictionary-type → [ type : type ]
+```
+
+:::
+
+:::note 可选类型的语法
+
+```
+optional-type → type ?
+```
+
+:::
+
+:::note 隐式展开的可选类型的语法
+
+```
+implicitly-unwrapped-optional-type → type !
+```
+
+:::
+
+:::note 协议组合类型的语法
+
+```
+protocol-composition-type → type-identifier & protocol-composition-continuation
+
+protocol-composition-continuation → type-identifier | protocol-composition-type
+```
+
+:::
+
+:::note 不透明类型的语法
+
+```
+opaque-type → some type
+```
+
+:::
+
+:::note 元类型的语法
+
+```
+metatype-type → type . Type | type . Protocol
+```
+
+:::
+
+:::note Any 类型的语法
+
+```
+any-type → Any
+```
+
+:::
+
+:::note Self 类型的语法
+
+```
+self-type → Self
+```
+
+:::
+
+:::note 类型继承子句的语法
+
+```
+type-inheritance-clause → : type-inheritance-list
+
+type-inheritance-list → attributes? type-identifier | attributes? type-identifier , type-inheritance-list
+```
+
+:::
+
+## 表达式
+
+:::note 表达式语法
+
+```
+expression → try-operator? await-operator? prefix-expression infix-expressions?
+
+expression-list → expression | expression , expression-list
+```
+
+:::
+
+:::note 前缀表达式的语法
+
+```
+prefix-expression → prefix-operator? postfix-expression
+
+prefix-expression → in-out-expression
+```
+
+:::
+
+:::note in-out 表达式语法
+
+```
+in-out-expression → & identifier
+```
+
+:::
+
+:::note try 表达式的语法
+
+```
+try-operator → try | try ? | try !
+```
+
+:::
+
+:::note await 表达式的语法
+
+```
+await-operator → await
+```
+
+:::
+
+:::note 中缀表达式的语法
+
+```
+infix-expression → infix-operator prefix-expression
+
+infix-expression → assignment-operator try-operator? prefix-expression
+
+infix-expression → conditional-operator try-operator? prefix-expression
+
+infix-expression → type-casting-operator
+
+infix-expressions → infix-expression infix-expressions?
+```
+
+:::
+
+:::note 赋值运算符的语法
+
+```
+assignment-operator → =
+```
+
+:::
+
+:::note 条件运算符的语法
+
+```
+conditional-operator → ? expression :
+```
+
+:::
+
+:::note 类型转换运算符的语法
+
+```
+type-casting-operator → is type
+
+type-casting-operator → as type
+
+type-casting-operator → as ? type
+
+type-casting-operator → as ! type
+```
+
+:::
+
+:::note 初级表达式的语法
+
+```
+primary-expression → identifier generic-argument-clause?
+
+primary-expression → literal-expression
+
+primary-expression → self-expression
+
+primary-expression → superclass-expression
+
+primary-expression → closure-expression
+
+primary-expression → parenthesized-expression
+
+primary-expression → tuple-expression
+
+primary-expression → implicit-member-expression
+
+primary-expression → wildcard-expression
+
+primary-expression → key-path-expression
+
+primary-expression → selector-expression
+
+primary-expression → key-path-string-expression
+```
+
+:::
+
+:::note 文字表达式的语法
+
+```
+literal-expression → literal
+
+literal-expression → array-literal | dictionary-literal | playground-literal
+
+literal-expression → #file | #fileID | #filePath
+
+literal-expression → #line | #column | #function | #dsohandle
+
+array-literal → [ array-literal-items? ]
+
+array-literal-items → array-literal-item ,? | array-literal-item , array-literal-items
+
+array-literal-item → expression
+
+dictionary-literal → [ dictionary-literal-items ] | [ : ]
+
+dictionary-literal-items → dictionary-literal-item ,? | dictionary-literal-item , dictionary-literal-items
+
+dictionary-literal-item → expression : expression
+
+playground-literal → #colorLiteral ( red : expression , green : expression , blue : expression , alpha : expression )
+
+playground-literal → #fileLiteral ( resourceName : expression )
+
+playground-literal → #imageLiteral ( resourceName : expression )
+```
+
+:::
+
+:::note 自我表达的语法
+
+```
+self-expression → self | self-method-expression | self-subscript-expression | self-initializer-expression
+
+self-method-expression → self . identifier
+
+self-subscript-expression → self [ function-call-argument-list ]
+
+self-initializer-expression → self . init
+```
+
+:::
+
+:::note 超类表达式的语法
+
+```
+superclass-expression → superclass-method-expression | superclass-subscript-expression | superclass-initializer-expression
+
+superclass-method-expression → super . identifier
+
+superclass-subscript-expression → super [ function-call-argument-list ]
+
+superclass-initializer-expression → super . init
+```
+
+:::
+
+:::note 闭包表达式的语法
+
+```
+closure-expression → { attributes? closure-signature? statements? }
+
+closure-signature → capture-list? closure-parameter-clause async? throws? function-result? in
+
+closure-signature → capture-list in
+
+closure-parameter-clause → ( ) | ( closure-parameter-list ) | identifier-list
+
+closure-parameter-list → closure-parameter | closure-parameter , closure-parameter-list
+
+closure-parameter → closure-parameter-name type-annotation?
+
+closure-parameter → closure-parameter-name type-annotation ...
+
+closure-parameter-name → identifier
+
+capture-list → [ capture-list-items ]
+
+capture-list-items → capture-list-item | capture-list-item , capture-list-items
+
+capture-list-item → capture-specifier? identifier
+
+capture-list-item → capture-specifier? identifier = expression
+
+capture-list-item → capture-specifier? self-expression
+
+capture-specifier → weak | unowned | unowned(safe) | unowned(unsafe)
+```
+
+:::
+
+:::note 隐式成员表达式的语法
+
+```
+implicit-member-expression → . identifier
+
+implicit-member-expression → . identifier . postfix-expression
+```
+
+:::
+
+:::note 括号表达式的语法
+
+```
+parenthesized-expression → ( expression )
+```
+
+:::
+
+:::note 元组表达式的语法
+
+```
+tuple-expression → ( ) | ( tuple-element , tuple-element-list )
+
+tuple-element-list → tuple-element | tuple-element , tuple-element-list
+
+tuple-element → expression | identifier : expression
+```
+
+:::
+
+:::note 通配符表达式的语法
+
+```
+wildcard-expression → _
+```
+
+:::
+
+:::note 关键路径表达式的语法
+
+```
+key-path-expression → \ type? . key-path-components
+
+key-path-components → key-path-component | key-path-component . key-path-components
+
+key-path-component → identifier key-path-postfixes? | key-path-postfixes
+
+key-path-postfixes → key-path-postfix key-path-postfixes?
+
+key-path-postfix → ? | ! | self | [ function-call-argument-list ]
+```
+
+:::
+
+:::note 选择器表达式的语法
+
+```
+selector-expression → #selector ( expression )
+
+selector-expression → #selector ( getter: expression )
+
+selector-expression → #selector ( setter: expression )
+```
+
+:::
+
+:::note 键路径字符串表达式的语法
+
+```
+key-path-string-expression → #keyPath ( expression )
+```
+
+:::
+
+:::note 后缀表达式的语法
+
+```
+postfix-expression → primary-expression
+
+postfix-expression → postfix-expression postfix-operator
+
+postfix-expression → function-call-expression
+
+postfix-expression → initializer-expression
+
+postfix-expression → explicit-member-expression
+
+postfix-expression → postfix-self-expression
+
+postfix-expression → subscript-expression
+
+postfix-expression → forced-value-expression
+
+postfix-expression → optional-chaining-expression
+```
+
+:::
+
+:::note 函数调用表达式的语法
+
+```
+function-call-expression → postfix-expression function-call-argument-clause
+
+function-call-expression → postfix-expression function-call-argument-clause? trailing-closures
+
+function-call-argument-clause → ( ) | ( function-call-argument-list )
+
+function-call-argument-list → function-call-argument | function-call-argument , function-call-argument-list
+
+function-call-argument → expression | identifier : expression
+
+function-call-argument → operator | identifier : operator
+
+trailing-closures → closure-expression labeled-trailing-closures?
+
+labeled-trailing-closures → labeled-trailing-closure labeled-trailing-closures?
+
+labeled-trailing-closure → identifier : closure-expression
+```
+
+:::
+
+:::note 初始化表达式的语法
+
+```
+initializer-expression → postfix-expression . init
+
+initializer-expression → postfix-expression . init ( argument-names )
+```
+
+:::
+
+:::note 显式成员表达式的语法
+
+```
+explicit-member-expression → postfix-expression . decimal-digits
+
+explicit-member-expression → postfix-expression . identifier generic-argument-clause?
+
+explicit-member-expression → postfix-expression . identifier ( argument-names )
+
+explicit-member-expression → postfix-expression conditional-compilation-block
+
+argument-names → argument-name argument-names?
+
+argument-name → identifier :
+```
+
+:::
+
+:::note 后缀自我表达的语法
+
+```
+postfix-self-expression → postfix-expression . self
+```
+
+:::
+
+:::note 下标表达式的语法
+
+```
+subscript-expression → postfix-expression [ function-call-argument-list ]
+```
+
+:::
+
+:::note 强制值表达式的语法
+
+```
+forced-value-expression → postfix-expression !
+```
+
+:::
+
+## 语句
+
+:::note 语句的语法
+
+```
+statement → expression ;?
+
+statement → declaration ;?
+
+statement → loop-statement ;?
+
+statement → branch-statement ;?
+
+statement → labeled-statement ;?
+
+statement → control-transfer-statement ;?
+
+statement → defer-statement ;?
+
+statement → do-statement ;?
+
+statement → compiler-control-statement
+
+statements → statement statements?
+```
+
+:::
+
+:::note 循环语句的语法
+
+```
+loop-statement → for-in-statement
+
+loop-statement → while-statement
+
+loop-statement → repeat-while-statement
+```
+
+:::
+
+:::note for-in 语句的语法
+
+```
+for-in-statement → for case? pattern in expression where-clause? code-block
+```
+
+:::
+
+:::note while 语句的语法
+
+```
+while-statement → while condition-list code-block
+
+condition-list → condition | condition , condition-list
+
+condition → expression | availability-condition | case-condition | optional-binding-condition
+
+case-condition → case pattern initializer
+
+optional-binding-condition → let pattern initializer? | var pattern initializer?
+```
+
+:::
+
+:::note repeat-while 语句的语法
+
+```
+repeat-while-statement → repeat code-block while expression
+```
+
+:::
+
+:::note 分支语句的语法
+
+```
+branch-statement → if-statement
+
+branch-statement → guard-statement
+
+branch-statement → switch-statement
+```
+
+:::
+
+:::note if 语句的语法
+
+```
+if-statement → if condition-list code-block else-clause?
+
+else-clause → else code-block | else if-statement
+```
+
+:::
+
+:::note 守卫声明的语法
+
+```
+guard-statement → guard condition-list else code-block
+```
+
+:::
+
+:::note switch 语句的语法
+
+```
+switch-statement → switch expression { switch-cases? }
+
+switch-cases → switch-case switch-cases?
+
+switch-case → case-label statements
+
+switch-case → default-label statements
+
+switch-case → conditional-switch-case
+
+case-label → attributes? case case-item-list :
+
+case-item-list → pattern where-clause? | pattern where-clause? , case-item-list
+
+default-label → attributes? default :
+
+where-clause → where where-expression
+
+where-expression → expression
+
+conditional-switch-case → switch-if-directive-clause switch-elseif-directive-clauses? switch-else-directive-clause? endif-directive
+
+switch-if-directive-clause → if-directive compilation-condition switch-cases?
+
+switch-elseif-directive-clauses → elseif-directive-clause switch-elseif-directive-clauses?
+
+switch-elseif-directive-clause → elseif-directive compilation-condition switch-cases?
+
+switch-else-directive-clause → else-directive switch-cases?
+```
+
+:::
+
+:::note 标记语句的语法
+
+```
+labeled-statement → statement-label loop-statement
+
+labeled-statement → statement-label if-statement
+
+labeled-statement → statement-label switch-statement
+
+labeled-statement → statement-label do-statement
+
+statement-label → label-name :
+
+label-name → identifier
+```
+
+:::
+
+:::note 控制转移语句的语法
+
+```
+control-transfer-statement → break-statement
+
+control-transfer-statement → continue-statement
+
+control-transfer-statement → fallthrough-statement
+
+control-transfer-statement → return-statement
+
+control-transfer-statement → throw-statement
+```
+
+:::
+
+:::note break 语句的语法
+
+```
+break-statement → break label-name?
+```
+
+:::
+
+:::note continue 语句的语法
+
+```
+continue-statement → continue label-name?
+```
+
+:::
+
+:::note fallthrough 语句的语法
+
+```
+fallthrough-statement → fallthrough
+```
+
+:::
+
+:::note return 语句的语法
+
+```
+return-statement → return expression?
+```
+
+:::
+
+:::note throw 语句的语法
+
+```
+throw-statement → throw expression
+```
+
+:::
+
+:::note defer 语句的语法
+
+```
+defer-statement → defer code-block
+```
+
+:::
+
+:::note do 语句的语法
+
+```
+do-statement → do code-block catch-clauses?
+
+catch-clauses → catch-clause catch-clauses?
+
+catch-clause → catch catch-pattern-list? code-block
+
+catch-pattern-list → catch-pattern | catch-pattern , catch-pattern-list
+
+catch-pattern → pattern where-clause?
+```
+
+:::
+
+:::note 编译器控制语句的语法
+
+```
+compiler-control-statement → conditional-compilation-block
+
+compiler-control-statement → line-control-statement
+
+compiler-control-statement → diagnostic-statement
+```
+
+:::
+
+:::note 条件编译块的语法
+
+```
+conditional-compilation-block → if-directive-clause elseif-directive-clauses? else-directive-clause? endif-directive
+
+if-directive-clause → if-directive compilation-condition statements?
+
+elseif-directive-clauses → elseif-directive-clause elseif-directive-clauses?
+
+elseif-directive-clause → elseif-directive compilation-condition statements?
+
+else-directive-clause → else-directive statements?
+
+if-directive → #if
+
+elseif-directive → #elseif
+
+else-directive → #else
+
+endif-directive → #endif
+
+compilation-condition → platform-condition
+
+compilation-condition → identifier
+
+compilation-condition → boolean-literal
+
+compilation-condition → ( compilation-condition )
+
+compilation-condition → ! compilation-condition
+
+compilation-condition → compilation-condition && compilation-condition
+
+compilation-condition → compilation-condition || compilation-condition
+
+platform-condition → os ( operating-system )
+
+platform-condition → arch ( architecture )
+
+platform-condition → swift ( >= swift-version ) | swift ( < swift-version )
+
+platform-condition → compiler ( >= swift-version ) | compiler ( < swift-version )
+
+platform-condition → canImport ( import-path )
+
+platform-condition → targetEnvironment ( environment )
+
+operating-system → macOS | iOS | watchOS | tvOS | Linux | Windows
+
+architecture → i386 | x86_64 | arm | arm64
+
+swift-version → decimal-digits swift-version-continuation?
+
+swift-version-continuation → . decimal-digits swift-version-continuation?
+
+environment → simulator | macCatalyst
+```
+
+:::
+
+:::note 行控制语句的语法
+
+```
+line-control-statement → #sourceLocation ( file: file-path , line: line-number )
+
+line-control-statement → #sourceLocation ( )
+
+line-number → A decimal integer greater than zero
+
+file-path → static-string-literal
+```
+
+:::
+
+:::note 编译时诊断语句的语法
+
+```
+diagnostic-statement → #error ( diagnostic-message )
+
+diagnostic-statement → #warning ( diagnostic-message )
+
+diagnostic-message → static-string-literal
+```
+
+:::
+
+:::note 可用性条件的语法
+
+```
+availability-condition → #available ( availability-arguments )
+
+availability-condition → #unavailable ( availability-arguments )
+
+availability-arguments → availability-argument | availability-argument , availability-arguments
+
+availability-argument → platform-name platform-version
+
+availability-argument → *
+
+platform-name → iOS | iOSApplicationExtension
+
+platform-name → macOS | macOSApplicationExtension
+
+platform-name → macCatalyst | macCatalystApplicationExtension
+
+platform-name → watchOS | watchOSApplicationExtension
+
+platform-name → tvOS | tvOSApplicationExtension
+
+platform-version → decimal-digits
+
+platform-version → decimal-digits . decimal-digits
+
+platform-version → decimal-digits . decimal-digits . decimal-digits
+```
+
+:::
+
+## 声明
+
+:::note 声明的语法
+
+```
+declaration → import-declaration
+
+declaration → constant-declaration
+
+declaration → variable-declaration
+
+declaration → typealias-declaration
+
+declaration → function-declaration
+
+declaration → enum-declaration
+
+declaration → struct-declaration
+
+declaration → class-declaration
+
+declaration → actor-declaration
+
+declaration → protocol-declaration
+
+declaration → initializer-declaration
+
+declaration → deinitializer-declaration
+
+declaration → extension-declaration
+
+declaration → subscript-declaration
+
+declaration → operator-declaration
+
+declaration → precedence-group-declaration
+
+declarations → declaration declarations?
+```
+
+:::
+
+:::note 顶级声明的语法
+
+```
+top-level-declaration → statements?
+```
+
+:::
+
+:::note 代码块语法
+
+```
+code-block → { statements? }
+```
+
+:::
+
+:::note import 声明的语法
+
+```
+import-declaration → attributes? import import-kind? import-path
+
+import-kind → typealias | struct | class | enum | protocol | let | var | func
+
+import-path → identifier | identifier . import-path
+```
+
+:::
+
+:::note 常量声明的语法
+
+```
+constant-declaration → attributes? declaration-modifiers? let pattern-initializer-list
+
+pattern-initializer-list → pattern-initializer | pattern-initializer , pattern-initializer-list
+
+pattern-initializer → pattern initializer?
+
+initializer → = expression
+```
+
+:::
+
+:::note 变量声明的语法
+
+```
+variable-declaration → variable-declaration-head pattern-initializer-list
+
+variable-declaration → variable-declaration-head variable-name type-annotation code-block
+
+variable-declaration → variable-declaration-head variable-name type-annotation getter-setter-block
+
+variable-declaration → variable-declaration-head variable-name type-annotation getter-setter-keyword-block
+
+variable-declaration → variable-declaration-head variable-name initializer willSet-didSet-block
+
+variable-declaration → variable-declaration-head variable-name type-annotation initializer? willSet-didSet-block
+
+variable-declaration-head → attributes? declaration-modifiers? var
+
+variable-name → identifier
+
+getter-setter-block → code-block
+
+getter-setter-block → { getter-clause setter-clause? }
+
+getter-setter-block → { setter-clause getter-clause }
+
+getter-clause → attributes? mutation-modifier? get code-block
+
+setter-clause → attributes? mutation-modifier? set setter-name? code-block
+
+setter-name → ( identifier )
+
+getter-setter-keyword-block → { getter-keyword-clause setter-keyword-clause? }
+
+getter-setter-keyword-block → { setter-keyword-clause getter-keyword-clause }
+
+getter-keyword-clause → attributes? mutation-modifier? get
+
+setter-keyword-clause → attributes? mutation-modifier? set
+
+willSet-didSet-block → { willSet-clause didSet-clause? }
+
+willSet-didSet-block → { didSet-clause willSet-clause? }
+
+willSet-clause → attributes? willSet setter-name? code-block
+
+didSet-clause → attributes? didSet setter-name? code-block
+```
+
+:::
+
+:::note 类型别名声明的语法
+
+```
+typealias-declaration → attributes? access-level-modifier? typealias typealias-name generic-parameter-clause? typealias-assignment
+
+typealias-name → identifier
+
+typealias-assignment → = type
+```
+
+:::
+
+:::note 函数声明的语法
+
+```
+function-declaration → function-head function-name generic-parameter-clause? function-signature generic-where-clause? function-body?
+
+function-head → attributes? declaration-modifiers? func
+
+function-name → identifier | operator
+
+function-signature → parameter-clause async? throws? function-result?
+
+function-signature → parameter-clause async? rethrows function-result?
+
+function-result → -> attributes? type
+
+function-body → code-block
+
+parameter-clause → ( ) | ( parameter-list )
+
+parameter-list → parameter | parameter , parameter-list
+
+parameter → external-parameter-name? local-parameter-name type-annotation default-argument-clause?
+
+parameter → external-parameter-name? local-parameter-name type-annotation
+
+parameter → external-parameter-name? local-parameter-name type-annotation ...
+
+external-parameter-name → identifier
+
+local-parameter-name → identifier
+
+default-argument-clause → = expression
+```
+
+:::
+
+:::note 枚举声明的语法
+
+```
+enum-declaration → attributes? access-level-modifier? union-style-enum
+
+enum-declaration → attributes? access-level-modifier? raw-value-style-enum
+
+union-style-enum → indirect? enum enum-name generic-parameter-clause? type-inheritance-clause? generic-where-clause? { union-style-enum-members? }
+
+union-style-enum-members → union-style-enum-member union-style-enum-members?
+
+union-style-enum-member → declaration | union-style-enum-case-clause | compiler-control-statement
+
+union-style-enum-case-clause → attributes? indirect? case union-style-enum-case-list
+
+union-style-enum-case-list → union-style-enum-case | union-style-enum-case , union-style-enum-case-list
+
+union-style-enum-case → enum-case-name tuple-type?
+
+enum-name → identifier
+
+enum-case-name → identifier
+
+raw-value-style-enum → enum enum-name generic-parameter-clause? type-inheritance-clause generic-where-clause? { raw-value-style-enum-members }
+
+raw-value-style-enum-members → raw-value-style-enum-member raw-value-style-enum-members?
+
+raw-value-style-enum-member → declaration | raw-value-style-enum-case-clause | compiler-control-statement
+
+raw-value-style-enum-case-clause → attributes? case raw-value-style-enum-case-list
+
+raw-value-style-enum-case-list → raw-value-style-enum-case | raw-value-style-enum-case , raw-value-style-enum-case-list
+
+raw-value-style-enum-case → enum-case-name raw-value-assignment?
+
+raw-value-assignment → = raw-value-literal
+
+raw-value-literal → numeric-literal | static-string-literal | boolean-literal
+```
+
+:::
+
+:::note 结构体声明的语法
+
+```
+struct-declaration → attributes? access-level-modifier? struct struct-name generic-parameter-clause? type-inheritance-clause? generic-where-clause? struct-body
+
+struct-name → identifier
+
+struct-body → { struct-members? }
+
+struct-members → struct-member struct-members?
+
+struct-member → declaration | compiler-control-statement
+```
+
+:::
+
+:::note 类声明的语法
+
+```
+class-declaration → attributes? access-level-modifier? final? class class-name generic-parameter-clause? type-inheritance-clause? generic-where-clause? class-body
+
+class-declaration → attributes? final access-level-modifier? class class-name generic-parameter-clause? type-inheritance-clause? generic-where-clause? class-body
+
+class-name → identifier
+
+class-body → { class-members? }
+
+class-members → class-member class-members?
+
+class-member → declaration | compiler-control-statement
+```
+
+:::
+
+:::note 演员声明的语法
+
+```
+actor-declaration → attributes? access-level-modifier? actor actor-name generic-parameter-clause? type-inheritance-clause? generic-where-clause? actor-body
+
+actor-name → identifier
+
+actor-body → { actor-members? }
+
+actor-members → actor-member actor-members?
+
+actor-member → declaration | compiler-control-statement
+```
+
+:::
+
+:::note 协议声明的语法
+
+```
+protocol-declaration → attributes? access-level-modifier? protocol protocol-name type-inheritance-clause? generic-where-clause? protocol-body
+
+protocol-name → identifier
+
+protocol-body → { protocol-members? }
+
+protocol-members → protocol-member protocol-members?
+
+protocol-member → protocol-member-declaration | compiler-control-statement
+
+protocol-member-declaration → protocol-property-declaration
+
+protocol-member-declaration → protocol-method-declaration
+
+protocol-member-declaration → protocol-initializer-declaration
+
+protocol-member-declaration → protocol-subscript-declaration
+
+protocol-member-declaration → protocol-associated-type-declaration
+
+protocol-member-declaration → typealias-declaration
+```
+
+:::
+
+:::note 协议属性声明的语法
+
+```
+protocol-property-declaration → variable-declaration-head variable-name type-annotation getter-setter-keyword-block
+```
+
+:::
+
+:::note 协议方法声明的语法
+
+```
+protocol-method-declaration → function-head function-name generic-parameter-clause? function-signature generic-where-clause?
+```
+
+:::
+
+:::note 协议初始值设定项声明的语法
+
+```
+protocol-initializer-declaration → initializer-head generic-parameter-clause? parameter-clause throws? generic-where-clause?
+
+protocol-initializer-declaration → initializer-head generic-parameter-clause? parameter-clause rethrows generic-where-clause?
+```
+
+:::
+
+:::note 协议下标声明的语法
+
+```
+protocol-subscript-declaration → subscript-head subscript-result generic-where-clause? getter-setter-keyword-block
+```
+
+:::
+
+:::note 协议关联类型声明的语法
+
+```
+protocol-associated-type-declaration → attributes? access-level-modifier? associatedtype typealias-name type-inheritance-clause? typealias-assignment? generic-where-clause?
+```
+
+:::
+
+:::note 初始化声明的语法
+
+```
+initializer-declaration → initializer-head generic-parameter-clause? parameter-clause async? throws? generic-where-clause? initializer-body
+
+initializer-declaration → initializer-head generic-parameter-clause? parameter-clause async? rethrows generic-where-clause? initializer-body
+
+initializer-head → attributes? declaration-modifiers? init
+
+initializer-head → attributes? declaration-modifiers? init ?
+
+initializer-head → attributes? declaration-modifiers? init !
+
+initializer-body → code-block
+```
+
+:::
+
+:::note 去初始化器声明的语法
+
+```
+deinitializer-declaration → attributes? deinit code-block
+```
+
+:::
+
+:::note 扩展声明的语法
+
+```
+extension-declaration → attributes? access-level-modifier? extension type-identifier type-inheritance-clause? generic-where-clause? extension-body
+
+extension-body → { extension-members? }
+
+extension-members → extension-member extension-members?
+
+extension-member → declaration | compiler-control-statement
+```
+
+:::
+
+:::note 下标声明的语法
+
+```
+subscript-declaration → subscript-head subscript-result generic-where-clause? code-block
+
+subscript-declaration → subscript-head subscript-result generic-where-clause? getter-setter-block
+
+subscript-declaration → subscript-head subscript-result generic-where-clause? getter-setter-keyword-block
+
+subscript-head → attributes? declaration-modifiers? subscript generic-parameter-clause? parameter-clause
+
+subscript-result → -> attributes? type
+```
+
+:::
+
+:::note 运算符声明的语法
+
+```
+operator-declaration → prefix-operator-declaration | postfix-operator-declaration | infix-operator-declaration
+
+prefix-operator-declaration → prefix operator operator
+
+postfix-operator-declaration → postfix operator operator
+
+infix-operator-declaration → infix operator operator infix-operator-group?
+
+infix-operator-group → : precedence-group-name
+```
+
+:::
+
+:::note 优先组声明的语法
+
+```
+precedence-group-declaration → precedencegroup precedence-group-name { precedence-group-attributes? }
+
+precedence-group-attributes → precedence-group-attribute precedence-group-attributes?
+
+precedence-group-attribute → precedence-group-relation
+
+precedence-group-attribute → precedence-group-assignment
+
+precedence-group-attribute → precedence-group-associativity
+
+precedence-group-relation → higherThan : precedence-group-names
+
+precedence-group-relation → lowerThan : precedence-group-names
+
+precedence-group-assignment → assignment : boolean-literal
+
+precedence-group-associativity → associativity : left
+
+precedence-group-associativity → associativity : right
+
+precedence-group-associativity → associativity : none
+
+precedence-group-names → precedence-group-name | precedence-group-name , precedence-group-names
+
+precedence-group-name → identifier
+```
+
+:::
+
+:::note 声明修饰符的语法
+
+```
+declaration-modifier → class | convenience | dynamic | final | infix | lazy | optional | override | postfix | prefix | required | static | unowned | unowned ( safe ) | unowned ( unsafe ) | weak
+
+declaration-modifier → access-level-modifier
+
+declaration-modifier → mutation-modifier
+
+declaration-modifier → actor-isolation-modifier
+
+declaration-modifiers → declaration-modifier declaration-modifiers?
+
+access-level-modifier → private | private ( set )
+
+access-level-modifier → fileprivate | fileprivate ( set )
+
+access-level-modifier → internal | internal ( set )
+
+access-level-modifier → public | public ( set )
+
+access-level-modifier → open | open ( set )
+
+mutation-modifier → mutating | nonmutating
+
+actor-isolation-modifier → nonisolated
+```
+
+:::
+
+## 属性
+
+:::note 属性语法
+
+```
+attribute → @ attribute-name attribute-argument-clause?
+
+attribute-name → identifier
+
+attribute-argument-clause → ( balanced-tokens? )
+
+attributes → attribute attributes?
+
+balanced-tokens → balanced-token balanced-tokens?
+
+balanced-token → ( balanced-tokens? )
+
+balanced-token → [ balanced-tokens? ]
+
+balanced-token → { balanced-tokens? }
+
+balanced-token → Any identifier, keyword, literal, or operator
+
+balanced-token → Any punctuation except (, ), [, ], {, or }
+```
+
+:::
+
+## 模式
+
+:::note 模式语法
+
+```
+pattern → wildcard-pattern type-annotation?
+
+pattern → identifier-pattern type-annotation?
+
+pattern → value-binding-pattern
+
+pattern → tuple-pattern type-annotation?
+
+pattern → enum-case-pattern
+
+pattern → optional-pattern
+
+pattern → type-casting-pattern
+
+pattern → expression-pattern
+```
+
+:::
+
+:::note 通配符模式的语法
+
+```
+wildcard-pattern → _
+```
+
+:::
+
+:::note 标识符模式的语法
+
+```
+identifier-pattern → identifier
+```
+
+:::
+
+:::note 值绑定模式的语法
+
+```
+value-binding-pattern → var pattern | let pattern
+```
+
+:::
+
+:::note 元组模式的语法
+
+```
+tuple-pattern → ( tuple-pattern-element-list? )
+
+tuple-pattern-element-list → tuple-pattern-element | tuple-pattern-element , tuple-pattern-element-list
+
+tuple-pattern-element → pattern | identifier : pattern
+```
+
+:::
+
+:::note 枚举格模式语法
+
+```
+enum-case-pattern → type-identifier? . enum-case-name tuple-pattern?
+```
+
+:::
+
+:::note 可选模式的语法
+
+```
+optional-pattern → identifier-pattern ?
+```
+
+:::
+
+:::note 类型转换模式的语法
+
+```
+type-casting-pattern → is-pattern | as-pattern
+
+is-pattern → is type
+
+as-pattern → pattern as type
+```
+
+:::
+
+:::note 表达式模式的语法
+
+```
+expression-pattern → expression
+```
+
+:::
+
+## 通用参数和参数
+
+:::note 通用参数子句的语法
+
+```
+generic-parameter-clause → < generic-parameter-list >
+
+generic-parameter-list → generic-parameter | generic-parameter , generic-parameter-list
+
+generic-parameter → type-name
+
+generic-parameter → type-name : type-identifier
+
+generic-parameter → type-name : protocol-composition-type
+
+generic-where-clause → where requirement-list
+
+requirement-list → requirement | requirement , requirement-list
+
+requirement → conformance-requirement | same-type-requirement
+
+conformance-requirement → type-identifier : type-identifier
+
+conformance-requirement → type-identifier : protocol-composition-type
+
+same-type-requirement → type-identifier == type
+```
+
+:::
+
+:::note 通用参数子句的语法
+
+```
+generic-argument-clause → < generic-argument-list >
+
+generic-argument-list → generic-argument | generic-argument , generic-argument-list
+
+generic-argument → type
+```
+
+:::

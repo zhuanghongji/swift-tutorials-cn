@@ -1,0 +1,256 @@
+# 不透明类型
+
+<DocCaution />
+
+<OriginalLink
+  title="隐藏有关值类型的实现细节"
+  value="https://docs.swift.org/swift-book/documentation/the-swift-programming-language/opaquetypes"
+/>
+
+具有不透明返回类型的函数或方法隐藏了其返回值的类型信息。返回值不是提供具体类型作为函数的返回类型，而是根据它支持的协议来描述。隐藏类型信息在模块和调用模块的代码之间的边界处很有用，因为返回值的基础类型可以保持私有。与返回类型为协议类型的值不同，不透明类型保留类型标识——编译器可以访问类型信息，但模块的客户端不能。
+
+## 不透明类型解决的问题
+
+例如，假设您正在编写一个绘制 ASCII 艺术图形的模块。ASCII 艺术形状的基本特征是一个 draw()返回该形状的字符串表示的函数，您可以将其用作协议的要求 Shape：
+
+```swift
+protocol Shape {
+    func draw() -> String
+}
+
+struct Triangle: Shape {
+    var size: Int
+    func draw() -> String {
+       var result: [String] = []
+       for length in 1...size {
+           result.append(String(repeating: "*", count: length))
+       }
+       return result.joined(separator: "\n")
+    }
+}
+let smallTriangle = Triangle(size: 3)
+print(smallTriangle.draw())
+// *
+// **
+// ***
+```
+
+您可以使用泛型来实现垂直翻转形状等操作，如下面的代码所示。但是，这种方法有一个重要的限制：翻转的结果公开了用于创建它的确切泛型类型。
+
+```swift
+struct FlippedShape<T: Shape>: Shape {
+    var shape: T
+    func draw() -> String {
+        let lines = shape.draw().split(separator: "\n")
+        return lines.reversed().joined(separator: "\n")
+    }
+}
+let flippedTriangle = FlippedShape(shape: smallTriangle)
+print(flippedTriangle.draw())
+// ***
+// **
+// *
+```
+
+这种定义将两个形状垂直连接在一起的结构的方法（如下面的代码所示）会产生类似于将翻转三角形与另一个三角形连接在一起的类型。`JoinedShape<T: Shape, U: Shape>JoinedShape<FlippedShape<Triangle>, Triangle>`
+
+```swift
+struct JoinedShape<T: Shape, U: Shape>: Shape {
+    var top: T
+    var bottom: U
+    func draw() -> String {
+       return top.draw() + "\n" + bottom.draw()
+    }
+}
+let joinedTriangles = JoinedShape(top: smallTriangle, bottom: flippedTriangle)
+print(joinedTriangles.draw())
+// *
+// **
+// ***
+// ***
+// **
+// *
+```
+
+由于需要声明完整的返回类型，因此公开有关形状创建的详细信息允许不属于 ASCII 艺术模块公共接口一部分的类型泄漏出去。模块内的代码可以通过多种方式构建相同的形状，使用该形状的模块外的其他代码不必考虑有关转换列表的实现细节。包装器类型对模块的用户来说很重要也无关紧要，它们不应该是可见的。该模块的公共接口由连接和翻转形状等操作组成，这些操作返回另一个值。JoinedShapeFlippedShapeShape
+
+## 返回不透明类型
+
+您可以将不透明类型视为通用类型的反面。通用类型让调用函数的代码选择函数参数的类型，并以从函数实现中抽象出来的方式返回值。例如，以下代码中的函数返回一个取决于其调用者的类型：
+
+```swift
+func max<T>(_ x: T, _ y: T) -> T where T: Comparable { ... }
+```
+
+调用的代码选择和 的值，这些值的类型决定 的具体类型。调用代码可以使用任何符合协议的类型。函数内的代码以通用方式编写，因此它可以处理调用者提供的任何类型。的实现仅使用所有类型共享的功能。`max(_:_:)xyTComparablemax(_:_:)Comparable`
+
+对于具有不透明返回类型的函数，这些角色是相反的。不透明类型允许函数实现以一种从调用函数的代码中抽象出来的方式为其返回的值选择类型。例如，下例中的函数返回一个梯形而不公开该形状的基础类型。
+
+```swift
+struct Square: Shape {
+    var size: Int
+    func draw() -> String {
+        let line = String(repeating: "*", count: size)
+        let result = Array<String>(repeating: line, count: size)
+        return result.joined(separator: "\n")
+    }
+}
+
+func makeTrapezoid() -> some Shape {
+    let top = Triangle(size: 2)
+    let middle = Square(size: 2)
+    let bottom = FlippedShape(shape: top)
+    let trapezoid = JoinedShape(
+        top: top,
+        bottom: JoinedShape(top: middle, bottom: bottom)
+    )
+    return trapezoid
+}
+let trapezoid = makeTrapezoid()
+print(trapezoid.draw())
+// *
+// **
+// **
+// **
+// **
+// *
+```
+
+此示例中的函数将其返回类型声明为；结果，该函数返回符合协议的某个给定类型的值，而不指定任何特定的具体类型。以这种方式编写可以让它表达其公共接口的基本方面——它返回的值是一个形状——而无需从其公共接口的一部分中创建形状的特定类型。此实现使用两个三角形和一个正方形，但可以重写该函数以通过各种其他方式绘制梯形，而无需更改其返回类型。makeTrapezoid()some ShapeShapemakeTrapezoid()
+
+此示例强调了不透明返回类型类似于泛型类型的方式。内部代码可以返回它需要的任何类型，只要该类型符合协议，就像调用代码对通用函数所做的那样。调用该函数的代码需要以通用方式编写，例如通用函数的实现，以便它可以使用返回的任何值。makeTrapezoid()ShapeShapemakeTrapezoid()
+
+您还可以将不透明的返回类型与泛型结合起来。下面代码中的函数都返回一个符合协议的某种类型的值 Shape。
+
+```swift
+func flip<T: Shape>(_ shape: T) -> some Shape {
+    return FlippedShape(shape: shape)
+}
+func join<T: Shape, U: Shape>(_ top: T, _ bottom: U) -> some Shape {
+    JoinedShape(top: top, bottom: bottom)
+}
+
+let opaqueJoinedTriangles = join(smallTriangle, flip(smallTriangle))
+print(opaqueJoinedTriangles.draw())
+// *
+// **
+// ***
+// ***
+// **
+// *
+```
+
+此示例中的值与本章前面“不透明类型解决的问题”部分的泛型示例中的值相同。但是，与该示例中的值不同，将通用形状操作返回的基础类型包装在不透明的返回类型中，从而防止这些类型可见。这两个函数都是通用的，因为它们所依赖的类型是通用的，并且函数的类型参数传递了 和 所需的类型信息。opaqueJoinedTrianglesjoinedTrianglesflip(_:)join(_:\_:)FlippedShapeJoinedShape
+
+如果具有不透明返回类型的函数从多个地方返回，则所有可能的返回值必须具有相同的类型。对于泛型函数，该返回类型可以使用函数的泛型类型参数，但它仍然必须是单一类型。例如，这是形状翻转函数的无效版本，其中包括正方形的特殊情况：
+
+```swift
+func invalidFlip<T: Shape>(_ shape: T) -> some Shape {
+    if shape is Square {
+        return shape // Error: return types don't match
+    }
+    return FlippedShape(shape: shape) // Error: return types don't match
+}
+```
+
+如果你用 a 调用这个函数 Square，它返回一个 Square；否则，它返回一个. 这违反了只返回一种类型的值的要求，并使代码无效。一种修复方法是将 square 的特殊情况移到 的实现中，这让该函数始终返回一个值：FlippedShapeinvalidFlip(_:)invalidFlip(_:)FlippedShapeFlippedShape
+
+```swift
+struct FlippedShape<T: Shape>: Shape {
+    var shape: T
+    func draw() -> String {
+        if shape is Square {
+           return shape.draw()
+        }
+        let lines = shape.draw().split(separator: "\n")
+        return lines.reversed().joined(separator: "\n")
+    }
+}
+```
+
+始终返回单一类型的要求并不妨碍您在不透明的返回类型中使用泛型。下面是一个将其类型参数合并到它返回值的基础类型中的函数示例：
+
+```swift
+func `repeat`<T: Shape>(shape: T, count: Int) -> some Collection {
+    return Array<T>(repeating: shape, count: count)
+}
+```
+
+在这种情况下，返回值的基础类型取决于 T：无论传递给它什么形状，都会创建并返回该形状的数组。尽管如此，返回值始终具有相同的底层类型，因此它遵循具有不透明返回类型的函数必须仅返回单一类型的值的要求。`repeat(shape:count:)[T]`
+
+## 不透明类型和协议类型之间的差异
+
+返回不透明类型看起来与使用协议类型作为函数的返回类型非常相似，但这两种返回类型的不同之处在于它们是否保留类型标识。不透明类型指的是一种特定类型，尽管函数的调用者无法看到是哪种类型；协议类型可以引用任何符合协议的类型。一般来说，协议类型让你更灵活地了解它们存储的值的底层类型，而不透明类型让你对这些底层类型做出更有力的保证。
+
+例如，这是一个 `flip(_:)` 使用协议类型作为其返回类型而不是不透明返回类型的版本：
+
+```swift
+func protoFlip<T: Shape>(_ shape: T) -> Shape {
+    return FlippedShape(shape: shape)
+}
+```
+
+此版本的与 具有相同的主体，并且始终返回相同类型的值。与 不同，返回的值不需要始终具有相同的类型——它只需要符合协议即可。换句话说，与它的调用者订立一个比订立的要宽松得多的 API 合同。它保留返回多种类型值的灵活性：protoFlip(_:)flip(_:)flip(_:)protoFlip(_:)ShapeprotoFlip(_:)flip(_:)
+
+```swift
+func protoFlip<T: Shape>(_ shape: T) -> Shape {
+    if shape is Square {
+        return shape
+    }
+
+    return FlippedShape(shape: shape)
+}
+```
+
+代码的修订版本返回 的实例 Square 或 的实例，具体取决于传入的形状。此函数返回的两个翻转形状可能具有完全不同的类型。当翻转同一形状的多个实例时，此函数的其他有效版本可能会返回不同类型的值。来自的不太具体的返回类型信息意味着许多依赖于类型信息的操作在返回值上不可用。例如，不可能编写一个运算符来比较此函数返回的结果。FlippedShapeprotoFlip(\_:)==
+
+```swift
+let protoFlippedTriangle = protoFlip(smallTriangle)
+let sameThing = protoFlip(smallTriangle)
+protoFlippedTriangle == sameThing  // Error
+```
+
+示例最后一行出现错误的原因有多种。直接的问题是它 Shape 没有将==运营商作为其协议要求的一部分。如果您尝试添加一个，您将遇到的下一个问题是运算==符需要知道其左侧和右侧参数的类型。这种运算符通常采用 type 的参数 Self，匹配采用协议的任何具体类型，但是 Self 向协议添加要求不允许在将协议用作类型时发生类型擦除。
+
+使用协议类型作为函数的返回类型可以让您灵活地返回任何符合协议的类型。但是，这种灵活性的代价是无法对返回值执行某些操作。该示例显示了==运算符如何不可用——它取决于特定的类型信息，这些信息不会通过使用协议类型来保留。
+
+这种方法的另一个问题是形状变换不嵌套。翻转三角形的结果是 type 的值 Shape，并且该函数采用符合协议的某种类型的参数。但是，协议类型的值不符合该协议；返回的值不符合。这意味着应用多个转换的代码是无效的，因为翻转的形状不是 的有效参数。protoFlip(_:)ShapeprotoFlip(_:)ShapeprotoFlip(protoFlip(smallTriangle))protoFlip(\_:)
+
+相反，不透明类型保留底层类型的身份。Swift 可以推断关联类型，这让您可以在协议类型不能用作返回值的地方使用不透明的返回值。例如，这里是 GenericsContainer 协议的一个版本：
+
+```swift
+protocol Container {
+    associatedtype Item
+    var count: Int { get }
+    subscript(i: Int) -> Item { get }
+}
+extension Array: Container { }
+```
+
+您不能用作 Container 函数的返回类型，因为该协议具有关联类型。您也不能将它用作泛型返回类型中的约束，因为函数体外部没有足够的信息来推断泛型类型需要是什么。
+
+```swift
+// Error: Protocol with associated types can't be used as a return type.
+func makeProtocolContainer<T>(item: T) -> Container {
+    return [item]
+}
+
+// Error: Not enough information to infer C.
+func makeProtocolContainer<T, C: Container>(item: T) -> C {
+    return [item]
+}
+```
+
+使用不透明类型 some Container 作为返回类型表示所需的 API 契约——该函数返回一个容器，但拒绝指定容器的类型：
+
+```swift
+func makeOpaqueContainer<T>(item: T) -> some Container {
+    return [item]
+}
+let opaqueContainer = makeOpaqueContainer(item: 12)
+let twelve = opaqueContainer[0]
+print(type(of: twelve))
+// Prints "Int"
+```
+
+的类型 twelve 被推断为 Int，这说明了类型推断适用于不透明类型的事实。在 的实现中，不透明容器的底层类型是。在本例中，是，因此返回值是一个整数数组，关联类型被推断为。返回的下标，这意味着 的类型也被推断为。`makeOpaqueContainer(item:)[T]TIntItemIntContainerItemtwelveInt`
