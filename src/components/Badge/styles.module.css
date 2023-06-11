@@ -1,0 +1,49 @@
+.VPBadge {
+  display: inline-block;
+  margin-left: 2px;
+  border: 1px solid transparent;
+  border-radius: 10px;
+  padding: 0 8px;
+  line-height: 18px;
+  font-size: 12px;
+  font-weight: 600;
+  transform: translateY(-2px);
+}
+
+h1 .VPBadge,
+h2 .VPBadge,
+h3 .VPBadge,
+h4 .VPBadge,
+h5 .VPBadge,
+h6 .VPBadge {
+  vertical-align: top;
+}
+
+h2 .VPBadge {
+  border-radius: 11px;
+  line-height: 20px;
+}
+
+.VPBadge.info {
+  border-color: #47474E;
+  color: #A1A1A9;
+  background-color: #313136;
+}
+
+.VPBadge.tip {
+  border-color: #059669;
+  color: #10B981;
+  background-color: #1D2525;
+}
+
+.VPBadge.warning {
+  border-color: #B45309;
+  color: #D97706;
+  background-color: #28251E;
+}
+
+.VPBadge.danger {
+  border-color: #E11D48;
+  color: #F43F5E;
+  background-color: #281F23;
+}
