@@ -1,3 +1,29 @@
+import Image from "@theme/IdealImage";
+import ScreenshotBlock from "@site/src/components/ScreenshotBlock";
+import HelloWorldImage from "./hello-world.png";
+
 # 关于 SwiftUI
 
-✨
+<ScreenshotBlock src={HelloWorldImage}>
+
+```swift
+import SwiftUI
+
+struct ContentView: View {
+    var body: some View {
+        VStack {
+            Image(systemName: "globe")
+                .imageScale(.large)
+                .foregroundStyle(.tint
+            Text("Hello, world!")
+        }
+        .padding()
+    }
+}
+
+#Preview {
+    ContentView()
+}
+```
+
+</ScreenshotBlock>

@@ -32,6 +32,25 @@ const config = {
     locales: ["zh-hans"],
   },
 
+  markdown: {
+    mermaid: true,
+  },
+
+  themes: ["@docusaurus/theme-mermaid"],
+
+  plugins: [
+    [
+      "@docusaurus/plugin-ideal-image",
+      {
+        quality: 70,
+        max: 1030, // max resized image's size.
+        min: 640, // min resized image's size. if original is lower, use that size.
+        steps: 2, // the max number of images generated between min and max (inclusive)
+        disableInDev: true,
+      },
+    ],
+  ],
+
   presets: [
     [
       "classic",
@@ -189,6 +208,25 @@ const config = {
       prism: {
         theme: lightCodeTheme,
         darkTheme: darkCodeTheme,
+        additionalLanguages: ["swift"],
+        magicComments: [
+          // Remember to extend the default highlight class name as well!
+          {
+            className: "theme-code-block-highlighted-line",
+            line: "highlight-next-line",
+            block: { start: "highlight-start", end: "highlight-end" },
+          },
+          {
+            className: "code-block-error-line",
+            line: "error-next-line",
+            block: { start: "error-start", end: "error-end" },
+          },
+          {
+            className: "code-block-console-line",
+            line: "console-next-line",
+            block: { start: "console-start", end: "console-end" },
+          },
+        ],
       },
     }),
 };
