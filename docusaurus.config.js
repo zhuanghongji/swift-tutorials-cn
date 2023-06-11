@@ -6,7 +6,7 @@ const darkCodeTheme = require("prism-react-renderer/themes/dracula");
 
 /** @type {import('@docusaurus/types').Config} */
 const config = {
-  title: "Swift 学习指南",
+  title: "Swift 悍刀行",
   tagline: "入门轻车，进阶熟路",
   favicon: "img/favicon.ico",
 
@@ -90,10 +90,10 @@ const config = {
         disableSwitch: true,
       },
       navbar: {
-        title: "Swift 学习指南",
+        title: "Swift 悍刀行",
         logo: {
           src: "img/logo.svg",
-          alt: "Swift 学习指南",
+          alt: "Swift 悍刀行",
         },
         style: "dark",
         items: [
