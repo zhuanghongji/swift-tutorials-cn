@@ -1,0 +1,15 @@
+# 关于 SwiftData
+
+```swift
+import SwiftData
+
+// Annotate new or existing model classes with the @Model macro.
+@Model
+class Trip {
+    var name: String
+    var destination: String
+    var startDate: Date
+    var endDate: Date
+    var accommodation: Accommodation?
+}
+```

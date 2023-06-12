@@ -69,7 +69,7 @@
   display: block;
   margin: 0 calc(-1 * var(--ifm-pre-padding));
   padding: 0 var(--ifm-pre-padding);
-  border-left: 3px solid #9A9A9B;
+  border-left: 3px solid #9A9A9B00;
 }
 
 .code-block-tip-line {
@@ -77,5 +77,5 @@
   display: block;
   margin: 0 calc(-1 * var(--ifm-pre-padding));
   padding: 0 var(--ifm-pre-padding);
-  border-left: 3px solid #1FA386;
+  border-left: 3px solid #1FA38600;
 }

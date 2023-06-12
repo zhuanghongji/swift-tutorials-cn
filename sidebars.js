@@ -82,6 +82,55 @@ const swiftSidebar = [
     ],
   },
 ];
+
+/** @type {import('@docusaurus/plugin-content-docs').SidebarsConfig['']} */
+const swiftuiSidebar = [
+  {
+    type: "category",
+    label: "SwiftUI",
+    collapsible: false,
+    items: [
+      {
+        type: "category",
+        label: "概要",
+        items: ["swiftui/essentials/about/index"],
+      },
+    ],
+  },
+];
+
+/** @type {import('@docusaurus/plugin-content-docs').SidebarsConfig['']} */
+const swiftchartsSidebar = [
+  {
+    type: "category",
+    label: "Swift Charts",
+    collapsible: false,
+    items: [
+      {
+        type: "category",
+        label: "概要",
+        items: ["swiftcharts/essentials/about/index"],
+      },
+    ],
+  },
+];
+
+/** @type {import('@docusaurus/plugin-content-docs').SidebarsConfig['']} */
+const swiftdataSidebar = [
+  {
+    type: "category",
+    label: "SwiftData",
+    collapsible: false,
+    items: [
+      {
+        type: "category",
+        label: "概要",
+        items: ["swiftdata/essentials/about/index"],
+      },
+    ],
+  },
+];
+
 /** @type {import('@docusaurus/plugin-content-docs').SidebarsConfig} */
 const sidebars = {
   // By default, Docusaurus generates a sidebar from the docs folder structure
@@ -89,20 +138,9 @@ const sidebars = {
 
   // But you can create a sidebar manually
   swiftSidebar,
-  swiftuiSidebar: [
-    {
-      type: "category",
-      label: "SwiftUI",
-      collapsible: false,
-      items: [
-        {
-          type: "category",
-          label: "概要",
-          items: ["swiftui/essentials/about/index"],
-        },
-      ],
-    },
-  ],
+  swiftuiSidebar,
+  swiftchartsSidebar,
+  swiftdataSidebar,
 };
 
 module.exports = sidebars;

@@ -110,6 +110,18 @@ const config = {
             position: "right",
           },
           {
+            type: "docSidebar",
+            label: "SwiftCharts",
+            sidebarId: "swiftchartsSidebar",
+            position: "right",
+          },
+          {
+            type: "docSidebar",
+            label: "SwiftData",
+            sidebarId: "swiftdataSidebar",
+            position: "right",
+          },
+          {
             "aria-label": "GitHub repository",
             href: "https://github.com/zhuanghongji/swift-tutorials-cn",
             className: "navbar-github-link",
