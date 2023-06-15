@@ -1,0 +1,8 @@
+.container {
+  background-color: #1F2020;
+  display: block;
+  margin: 0 calc(-1 * var(--ifm-pre-padding));
+  padding: 0 var(--ifm-pre-padding);
+  color: #1FA386;
+  border-left: 3px solid #1FA386;
+}
