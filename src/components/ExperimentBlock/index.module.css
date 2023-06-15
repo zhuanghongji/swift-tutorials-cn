@@ -1,0 +1,10 @@
+/* summary {
+  display: block; 
+} */
+
+summary p {
+  /* 去掉前面的空白 */
+  /* text-indent: -1em;  */
+  /* white-space: nowrap; */
+  white-space: pre-line;
+}

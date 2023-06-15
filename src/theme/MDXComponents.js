@@ -3,6 +3,7 @@ import MDXComponents from "@theme-original/MDXComponents";
 import Badge from "@site/src/components/Badge";
 import DocCaution from "@site/src/components/DocCaution";
 import OriginalLink from "@site/src/components/OriginalLink";
+import ExperimentBlock from "@site/src/components/ExperimentBlock";
 import ScreenshotBlock from "@site/src/components/ScreenshotBlock";
 
 export default {
@@ -11,5 +12,6 @@ export default {
   Badge,
   DocCaution,
   OriginalLink,
+  ExperimentBlock,
   ScreenshotBlock,
 };
