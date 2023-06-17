@@ -93,7 +93,14 @@ const swiftuiSidebar = [
       {
         type: "category",
         label: "概要",
+        collapsed: false,
         items: ["swiftui/essentials/about/index"],
+      },
+      {
+        type: "category",
+        label: "视图",
+        collapsed: false,
+        items: ["swiftui/views/text/index"],
       },
     ],
   },
