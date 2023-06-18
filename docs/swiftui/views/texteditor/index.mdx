@@ -1,0 +1,153 @@
+import TextEditorImage from "./text-editor.png";
+import TextEditorWithKeyboardImage from "./text-editor-with-keyboard.png";
+import TextEditor2Image from "./text-editor-2.png";
+import TextEditorWithHeightGIF from "./text-editor-with-height.gif";
+import FindNavigatorImage from "./find-navigator.png";
+import FindNavigatorWithKeyboardImage from "./find-navigator-with-keyboard.png";
+
+# TextEditor
+
+<OriginalLink
+  title="可以显示和编辑长格式文本的视图"
+  value="https://developer.apple.com/documentation/swiftui/texteditor"
+/>
+
+## 概述
+
+文本编辑器（text editor）视图允许你在应用程序的用户界面中显示和编辑多行的、可滚动的文本。默认情况下，文本编辑器视图使用从环境（environment）中继承的特征（如 `font(_:)`、`foregroundColor(_:)` 和 `multilineTextAlignment(_:)` ）设置文本样式。
+
+你可以通过向视图 `body` 添加 `TextEditor` 实例来创建文本编辑器，并通过传递 [Binding](https://developer.apple.com/documentation/swiftui/binding) 给应用中的字符串变量来初始化它：
+
+<ScreenshotBlock src={TextEditorImage} srcRight={TextEditorWithKeyboardImage}>
+
+```swift
+@State private var fullText
+    = "This is some editable text..."
+
+var body: some View {
+    VStack {
+        TextEditor(text: $fullText)
+            .scrollContentBackground(.hidden)
+            .background(.gray.opacity(0.1))
+    }
+    .padding()
+}
+
+// 从左右两边视图的灰色背景来看：
+// - TextEditor 默认是占满可用空间的
+// - 并随着键盘的出现缩减高度
+```
+
+</ScreenshotBlock>
+
+要设置文本样式，可使用标准视图修饰器来配置系统字体、设置自定义字体，或更改视图文本的颜色。
+
+在此示例中，视图使用自定义字体以灰色呈现编辑器的文本：
+
+<ScreenshotBlock src={TextEditor2Image}>
+
+```swift
+@State private var fullText
+    = "This is some editable text..."
+
+var body: some View {
+    TextEditor(text: $fullText)
+        .foregroundColor(Color.gray)
+        .font(.custom("HelveticaNeue", size: 23))
+}
+```
+
+</ScreenshotBlock>
+
+如果要更改文本的间距或字体缩放方面，可以使用 `lineLimit(_:)`、`lineSpacing(_:)` 和 `minimumScaleFactor(_:)` 等修饰器，配置视图根据空间约束显示文本的方式。例如，这里的 `lineSpacing(_:)` 修饰器将行之间的间距设置为 `5`：
+
+```swift
+struct TextEditingView: View {
+    @State private var fullText: String = "This is some editable text..."
+
+    var body: some View {
+        TextEditor(text: $fullText)
+            .foregroundColor(Color.gray)
+            .font(.custom("HelveticaNeue", size: 23))
+            .lineSpacing(5)
+    }
+}
+```
+
+在下面这个示例中，我们将 `TextEditor` 的高度限定为了 `100` ：
+
+<ScreenshotBlock src={TextEditorWithHeightGIF}>
+
+```swift
+@State private var fullText = "Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat. Duis aute irure dolor in reprehenderit in voluptate velit esse cillum dolore eu fugiat nulla pariatur. Excepteur sint occaecat cupidatat non proident, sunt in culpa qui officia deserunt mollit anim id est laborum."
+
+var body: some View {
+    VStack {
+        TextEditor(text: $fullText)
+            .frame(height: 100)
+            .scrollContentBackground(.hidden)
+            .background(.gray.opacity(0.1))
+    }
+    .padding()
+}
+```
+
+</ScreenshotBlock>
+
+## 主题
+
+### 创建文本编辑器
+
+```swift
+// 创建纯文本编辑器
+init(text: Binding<String>)
+```
+
+### 查找与替换
+
+在使用 `TextEditor` 时，我们可以通过下面三个修饰器进行文本的查找与替换操作：
+
+```swift
+extension View {
+  // ...
+
+  // 以编程方式呈现文本编辑器视图的查找和替换界面
+  public func findNavigator(isPresented: Binding<Bool>) -> some View
+
+  // 防止在文本编辑器中执行查找和替换操作
+  public func findDisabled(_ isDisabled: Bool = true) -> some View
+
+  // 防止文本编辑器中的替换操作
+  public func replaceDisabled(_ isDisabled: Bool = true) -> some View
+}
+```
+
+示例如下：
+
+<ScreenshotBlock src={FindNavigatorImage} srcRight={FindNavigatorWithKeyboardImage}>
+
+```swift
+@State private var isPresented = false
+@State private var fullText = "Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat. Duis aute irure dolor in reprehenderit in voluptate velit esse cillum dolore eu fugiat nulla pariatur. Excepteur sint occaecat cupidatat non proident, sunt in culpa qui officia deserunt mollit anim id est laborum."
+
+var body: some View {
+    NavigationStack {
+        VStack {
+            TextEditor(text: $fullText)
+                .scrollContentBackground(.hidden)
+                .background(.gray.opacity(0.1))
+                .replaceDisabled(false)
+                .findNavigator(isPresented: $isPresented)
+                .toolbar {
+                    Toggle(isOn: $isPresented) {
+                        Label("Find", systemImage: "magnifyingglass")
+                    }
+                }
+
+        }
+        .padding()
+    }
+}
+```
+
+</ScreenshotBlock>
