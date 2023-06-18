@@ -1,0 +1,433 @@
+import UsernameGIF from "./username.gif";
+import PersonNameImage from "./person-name.png";
+import FormImage from "./form.png";
+import FormMacImage from "./form-mac.png";
+import RoundedBorderImage from "./rounded-border.png";
+import WilliamImage from "./william.png";
+
+# TextField
+
+<OriginalLink
+  title="显示可编辑文本界面的控件"
+  value="https://developer.apple.com/documentation/swiftui/textfield"
+/>
+
+## 概述
+
+创建具有标签（label）和绑定值（a binding to a value）的文本输入框。如果值为字符串，则当用户键入或以其他方式编辑输入框中的文本时，文本输入框会不断更新此值。对于非字符串类型，它会在用户提交其编辑时更新值，例如按 _Return_ 键。
+
+以下示例演示了一个接受用户名的文本输入框，以及该输入框下方的 `Text` 视图，该视图影射（shadows）了 `username` 持续更新的值。`Text` 视图在用户开始和结束编辑时更改颜色。当用户将其完成的录入（entry）提交到文本输入框时，`onSubmit(of:_:)` 修饰器将调用内部的 `validate(name:)` 方法。
+
+<ScreenshotBlock src={UsernameGIF}>
+
+```swift
+@State private var username: String = ""
+@FocusState private var emailFieldIsFocused
+
+func validate(name: String) {
+    print("validate \(name)")
+}
+
+var body: some View {
+    VStack {
+        TextField(
+            "User name (email address)",
+            text: $username
+        )
+        .focused($emailFieldIsFocused)
+        .onSubmit {
+            validate(name: username)
+        }
+        .textInputAutocapitalization(.never)
+        .disableAutocorrection(true)
+        .padding()
+        .border(.secondary)
+
+        Text(username)
+            .foregroundColor(emailFieldIsFocused ? .red : .blue)
+    }
+    .padding()
+}
+```
+
+</ScreenshotBlock>
+
+绑定值不非得是字符串。通过使用 [FormatStyle](https://developer.apple.com/documentation/foundation/formatstyle)，可以将文本输入框绑定到非字符串类型，使用 format style 将键入的文本转换为绑定类型的实例。下面的示例使用 [PersonNameComponents.FormatStyle](https://developer.apple.com/documentation/foundation/personnamecomponents/formatstyle) 将文本输入框中键入的名称转换为 [PersonNameComponents](https://developer.apple.com/documentation/foundation/personnamecomponents) 实例。文本输入框下方的 `Text` 视图显示此实例的调试说明字符串。
+
+<ScreenshotBlock src={PersonNameImage}>
+
+```swift
+@State private var nameComponents = PersonNameComponents()
+
+func validate(components: PersonNameComponents) {
+    print("givenName = \(components.givenName)")
+    print("familyName = \(components.familyName)")
+    print("description = \(components.description)")
+}
+
+var body: some View {
+    VStack {
+        // highlight-start
+        TextField(
+            "Proper name",
+            value: $nameComponents,
+            format: .name(style: .medium)
+        )
+        // highlight-end
+        .onSubmit {
+            validate(components: nameComponents)
+        }
+        .disableAutocorrection(true)
+        .padding()
+        .border(.secondary)
+
+        Text(nameComponents.debugDescription)
+    }
+    .padding()
+}
+
+// 输入 zhang san 并触发 submit 后，打印：
+// highlight-start
+// givenName = Optional("zhang")
+// familyName = Optional("san")
+// description = givenName: zhang familyName: san
+// highlight-end
+```
+
+</ScreenshotBlock>
+
+如果你试着将上面的 format style 改成其他的枚举值，你会发现：
+
+<ScreenshotBlock src={WilliamImage}>
+
+```swift
+@State private var nameComponents = PersonNameComponents(givenName: "William", middleName: "Alexander", familyName: "Smith")
+
+var body: some View {
+    VStack {
+        Group {
+            TextField(
+                "Proper name",
+                value: $nameComponents,
+                format: .name(style: .short)
+            )
+
+            TextField(
+                "Proper name",
+                value: $nameComponents,
+                format: .name(style: .medium)
+            )
+
+            TextField(
+                "Proper name",
+                value: $nameComponents,
+                format: .name(style: .long)
+            )
+
+            TextField(
+                "Proper name",
+                value: $nameComponents,
+                format: .name(style: .abbreviated)
+            )
+        }
+        .padding()
+        .border(.secondary)
+
+        Text(nameComponents.debugDescription)
+            .foregroundStyle(.gray)
+    }
+    .padding()
+}
+```
+
+</ScreenshotBlock>
+
+:::info
+
+在英语语言中：
+
+- givenName 通常指个人的名字，也就是 first name。
+- middleName 是指名字中间的那个单词，部分人中间有一个名字，部分人没有。
+- familyName 通常指姓，也就是 last name 。
+
+因此，在 William Alexander Smith 中：
+
+- William 是 givenName（first name）。
+- Alexander 是 middleName（middle name）。
+- Smith 是 familyName（last name）。
+
+:::
+
+<ExperimentBlock>
+
+尝试根据相关的源码定义，解析上面高亮代码 `TextField("Proper name", value: $nameComponents, format: .name(style: .medium))` 的逻辑。
+
+1. 上面代码高亮处这里使用到的 `TextField` 初始化器定义如下：
+
+```swift
+extension TextField where Label == Text {
+  // ...
+
+  public init<F>(_ titleKey: LocalizedStringKey,
+                value: Binding<F.FormatInput>,
+                format: F,
+                prompt: Text? = nil)
+      where F : ParseableFormatStyle, F.FormatOutput == String
+}
+```
+
+2. 可见，标签参数 `format` 的类型是符合 `FormatStyle` 协议的 `ParseableFormatStyle` 协议，`ParseableFormatStyle` 相关定义如下：
+
+```swift
+/// A type that can convert a given data type into a representation.
+public protocol FormatStyle : Decodable, Encodable, Hashable {
+    // ...
+}
+
+/// A type that can convert a given input data type into a representation in an output type.
+public protocol ParseableFormatStyle : FormatStyle {
+    // ...
+}
+
+extension ParseableFormatStyle where Self == PersonNameComponents.FormatStyle {
+    public static func name(style: PersonNameComponents.FormatStyle.Style) -> Self
+}
+```
+
+当 `Self` 是 `PersonNameComponents.FormatStyle` 时，它有个参数 `stlye` 类型为 ` PersonNameComponents.FormatStyle.Style` 的静态方法 `name(style:)`。`PersonNameComponents` 相关定义如下：
+
+```swift
+/// The separate parts of a person's name, allowing locale-aware formatting.
+public struct PersonNameComponents : ReferenceConvertible, Hashable, Equatable, Sendable {
+  // ...
+
+  public var namePrefix: String?
+  public var givenName: String?
+  public var middleName: String?
+  public var familyName: String?
+  public var nameSuffix: String?
+  public var nickname: String?
+  public var phoneticRepresentation: PersonNameComponents?
+}
+
+extension PersonNameComponents {
+  // ...
+
+  public struct FormatStyle : FormatStyle, Sendable {
+      // ...
+
+      public enum Style : Int, Codable, Hashable, Sendable {
+          // ...
+
+          /// Specifies a short person name components style.
+          case short
+
+          /// Specifies a medium person name components style.
+          case medium
+
+          /// Specifies a long person name components style.
+          case long
+
+          /// Specifies an abbreviated (缩写) person name components style.
+          case abbreviated
+      }
+  }
+}
+```
+
+那么，结合 `ParseableFormatStyle` 和 `PersonNameComponents` 的定义，我们便能够理解 `format: .name(style: .medium)` 这行代码调用了。
+
+</ExperimentBlock>
+
+### 文本输入框提示
+
+你可以在文本输入框上设置显式提示（prompt），以指导用户应提供哪些文本。每个文本输入框的样式决定 "文本输入框使用提示和标签" 的位置和时间。例如，macOS 上的表单始终将标签放在输入框的前缘（leading edge），并使用提示（如果可用）作为输入框本身内的占位符文本。同一上下文时在 iOS 中，文本输入框使用提示或标签作为占位符文本，具体取决于初始化器是否提供了提示。
+
+以下示例显示了一个包含两个文本输入框的 Form ，每个文本输入框都提供指示该输入框为必填输入框的提示，以及一个视图构建器以提供标签：
+
+<ScreenshotBlock src={FormImage}>
+
+```swift
+@State private var username = ""
+@State private var password = ""
+
+var body: some View {
+    VStack {
+        Form {
+            TextField(text: $username, prompt: Text("Required")) {
+                Text("Username")
+            }
+            TextField(text: $password, prompt: Text("Required")) {
+                Text("Password")
+            }
+        }
+    }
+}
+```
+
+</ScreenshotBlock>
+
+上述示例中用到的 `TextField` 初始化器定义如下：
+
+```swift
+extension TextField {
+
+    /// Creates a text field with a prompt generated from a `Text`.
+    ///
+    /// Use the ``View/onSubmit(of:_:)`` modifier to invoke an action
+    /// whenever the user submits this text field.
+    ///
+    /// - Parameters:
+    ///   - text: The text to display and edit.
+    ///   - prompt: A `Text` representing the prompt of the text field
+    ///     which provides users with guidance on what to type into the text
+    ///     field.
+    ///   - label: A view that describes the purpose of the text field.
+    @available(iOS 15.0, macOS 12.0, tvOS 15.0, watchOS 8.0, *)
+    public init(text: Binding<String>, prompt: Text? = nil, @ViewBuilder label: () -> Label)
+}
+```
+
+也就是说，其中的 `Text("Username")` 和 `Text("Password")` 都是一个 `Label` 来的，只是在 iOS 上并没有使用到该 `Label`。在 macOS 中，它的显示可能是这样的：
+
+<Screenshot src={FormMacImage} size={480} />
+
+### 文本输入框样式
+
+SwiftUI 提供默认的文本输入框样式，该样式反映（reflects）了适合（appropriate）平台的外观和行为。默认样式还会考虑当前上下文，例如文本输入框是否位于以特殊样式显示文本输入框的容器中。除此之外，你还可以使用 `textFieldStyle(_:)` 修饰符并传入 `TextFieldStyle` 的实例，来自定义文本输入框的外观和交互。下面的示例将 `roundedBorder` 样式应用于 `VStack` 中的两个文本输入框。
+
+<ScreenshotBlock src={RoundedBorderImage}>
+
+```swift
+@State private var givenName = ""
+@State private var familyName = ""
+
+var body: some View {
+    VStack {
+        TextField(
+            "Given Name",
+            text: $givenName
+        )
+        TextField(
+            "Family Name",
+            text: $familyName
+        )
+    }
+    .textFieldStyle(.roundedBorder)
+    .padding()
+}
+```
+
+</ScreenshotBlock>
+
+`TextFieldStyle` 实际是一个协议（并非是枚举），它有三个静态变量：
+
+```swift
+public protocol TextFieldStyle {
+}
+
+extension TextFieldStyle where Self == DefaultTextFieldStyle {
+
+    /// The default text field style, based on the text field's context.
+    ///
+    /// The default style represents the recommended style based on the
+    /// current platform and the text field's context within the view hierarchy.
+    public static var automatic: DefaultTextFieldStyle { get }
+}
+
+extension TextFieldStyle where Self == RoundedBorderTextFieldStyle {
+
+    /// A text field style with a system-defined rounded border.
+    public static var roundedBorder: RoundedBorderTextFieldStyle { get }
+}
+
+extension TextFieldStyle where Self == PlainTextFieldStyle {
+
+    /// A text field style with no decoration.
+    public static var plain: PlainTextFieldStyle { get }
+}
+```
+
+## 主题
+
+### 创建文本输入框
+
+1. 通过字符串创建文本输入框
+
+```swift
+// 使用从本地化标题字符串生成的文本标签创建一个文本输入框
+init(LocalizedStringKey, text: Binding<String>)
+
+// 使用从标题字符串生成的文本标签创建一个文本输入框
+init<S>(S, text: Binding<String>)
+
+// 使用从本地化标题字符串生成的文本标签创建一个文本输入框（当 Label 为 Text 时可用）
+init(LocalizedStringKey, text: Binding<String>, prompt: Text?)
+
+// 通过从 Text 生成的提示创建一个文本输入框（当 Label 符合 View 协议时可用）
+init(text: Binding<String>, prompt: Text?, label: () -> Label)
+```
+
+2. 创建可滚动文本输入框
+
+```swift
+// 创建具有首选轴（preferred axis）和从本地化标题字符串生成的文本标签的文本输入框
+init(LocalizedStringKey, text: Binding<String>, axis: Axis)
+
+// 创建具有首选轴和从本地化标题字符串生成的文本标签的文本输入框
+init<S>(S, text: Binding<String>, axis: Axis)
+
+// 创建具有首选轴和从本地化标题字符串生成的文本标签的文本输入框
+init(LocalizedStringKey, text: Binding<String>, prompt: Text?, axis: Axis)
+
+// 使用从标题字符串生成的文本标签创建文本输入框
+init<S>(S, text: Binding<String>, prompt: Text?, axis: Axis)
+
+// 通过首选轴和从 Text 生成的提示创建一个文本输入框
+init(text: Binding<String>, prompt: Text?, axis: Axis, label: () -> Label)
+```
+
+3. 通过值创建文本输入框
+
+使用这些初始化器可以创建绑定到任意类型（arbitrary type）值的文本输入框。
+
+```swift
+// 创建一个文本输入框，该输入框将格式样式应用于绑定值，其中包含从本地化标题字符串生成的标签
+init<F>(LocalizedStringKey, value: Binding<F.FormatInput>, format: F, prompt: Text?)
+
+// 创建一个文本输入框，该输入框将格式样式应用于绑定值，其中包含从标题字符串生成的标签
+init<S, F>(S, value: Binding<F.FormatInput>, format: F, prompt: Text?)
+
+// 创建一个文本输入框，该输入框将格式样式应用于绑定值，并带有从视图生成器生成的标签
+init<F>(value: Binding<F.FormatInput>, format: F, prompt: Text?, label: () -> Label)
+
+// 创建一个绑定到任意类型 V 上的实例
+init<S, V>(S, value: Binding<V>, formatter: Formatter)
+
+// 创建一个绑定到任意类型 V 上的实例
+init<V>(LocalizedStringKey, value: Binding<V>, formatter: Formatter)
+
+// 创建一个文本输入框，该输入框将格式化程序应用于绑定值，其中包含从本地化标题字符串生成的标签
+init<V>(LocalizedStringKey, value: Binding<V>, formatter: Formatter, prompt: Text?)
+
+// 创建一个文本输入框，该输入框将格式化程序应用于绑定值，其中包含从标题字符串生成的标签
+init<S, V>(S, value: Binding<V>, formatter: Formatter, prompt: Text?)
+
+// 创建一个文本输入框，该输入框将格式化程序应用于绑定的可选值，并带有从视图生成器生成的标签
+init<V>(value: Binding<V>, formatter: Formatter, prompt: Text?, label: () -> Label)
+```
+
+3. 通过可选（optional）创建文本输入框
+
+使用这些初始值器创建绑定到任意类型的可选值的文本输入框。
+
+```swift
+// 创建一个文本输入框，该输入框将格式样式应用于绑定的可选值，其中包含从本地化标题字符串生成的标签
+init<F>(LocalizedStringKey, value: Binding<F.FormatInput?>, format: F, prompt: Text?)
+
+// 创建一个文本输入框，该输入框将格式样式应用于绑定的可选值，并使用从标题字符串生成的标签
+init<S, F>(S, value: Binding<F.FormatInput?>, format: F, prompt: Text?)
+
+// 创建一个文本输入框，该输入框将格式样式应用于绑定的可选值，并带有从视图生成器生成的标签
+init<F>(value: Binding<F.FormatInput?>, format: F, prompt: Text?, label: () -> Label)
+```

@@ -100,7 +100,7 @@ const swiftuiSidebar = [
         type: "category",
         label: "视图",
         collapsed: false,
-        items: ["swiftui/views/text/index"],
+        items: ["swiftui/views/text/index", "swiftui/views/textfield/index"],
       },
     ],
   },
