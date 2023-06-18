@@ -5,6 +5,24 @@ import FormMacImage from "./form-mac.png";
 import RoundedBorderImage from "./rounded-border.png";
 import WilliamImage from "./william.png";
 
+import DefaultKTImage from "./keyboard-type/default.png";
+import AsciiCapableKTImage from "./keyboard-type/asciiCapable.png";
+import NumbersAndPunctuationKTImage from "./keyboard-type/numbersAndPunctuation.png";
+import URLKTImage from "./keyboard-type/URL.png";
+import NumberPadKTImage from "./keyboard-type/numberPad.png";
+import PhonePadKTImage from "./keyboard-type/phonePad.png";
+import NamePhonePadKTImage from "./keyboard-type/namePhonePad.png";
+import EmailAddressKTImage from "./keyboard-type/emailAddress.png";
+import DecimalPadKTImage from "./keyboard-type/decimalPad.png";
+import TwitterKTImage from "./keyboard-type/twitter.png";
+import WebSearchKTImage from "./keyboard-type/webSearch.png";
+import AsciiCapableNumberPadKTImage from "./keyboard-type/asciiCapableNumberPad.png";
+
+import CharactersACImage from "./auto-cap/characters.png";
+import SentencesACImage from "./auto-cap/sentences.png";
+import WordsACImage from "./auto-cap/words.png";
+import NeverACImage from "./auto-cap/never.png";
+
 # TextField
 
 <OriginalLink
@@ -430,4 +448,299 @@ init<S, F>(S, value: Binding<F.FormatInput?>, format: F, prompt: Text?)
 
 // 创建一个文本输入框，该输入框将格式样式应用于绑定的可选值，并带有从视图生成器生成的标签
 init<F>(value: Binding<F.FormatInput?>, format: F, prompt: Text?, label: () -> Label)
+```
+
+### 键盘配置
+
+在使用 `TextField` 时，常见的键盘配置修饰器主要有三个：
+
+```swift
+// 设置此视图的键盘类型
+func keyboardType(UIKeyboardType) -> some View
+
+// 设置键盘中 shift 键自动启用的频率
+func textInputAutocapitalization(TextInputAutocapitalization?) -> some View
+
+// 设置此视图的文本内容类型，当用户在 iOS 或 tvOS 设备上输入文本时，系统使用该类型提供建议。
+func textContentType(UITextContentType?) -> some View
+```
+
+#### UIKeyboardType
+
+[UIKeyboardType](https://developer.apple.com/documentation/uikit/uikeyboardtype) 的定义如下：
+
+```swift
+public enum UIKeyboardType : Int, @unchecked Sendable {
+
+    case `default` = 0 // Default type for the current input method.
+
+    case asciiCapable = 1 // Displays a keyboard which can enter ASCII characters
+
+    case numbersAndPunctuation = 2 // Numbers and assorted punctuation.
+
+    case URL = 3 // A type optimized for URL entry (shows . / .com prominently).
+
+    case numberPad = 4 // A number pad with locale-appropriate digits (0-9, ۰-۹, ०-९, etc.). Suitable for PIN entry.
+
+    case phonePad = 5 // A phone pad (1-9, *, 0, #, with letters under the numbers).
+
+    case namePhonePad = 6 // A type optimized for entering a person's name or phone number.
+
+    case emailAddress = 7 // A type optimized for multiple email address entry (shows space @ . prominently).
+
+    @available(iOS 4.1, *)
+    case decimalPad = 8 // A number pad with a decimal point.
+
+    @available(iOS 5.0, *)
+    case twitter = 9 // A type optimized for twitter text entry (easy access to @ #)
+
+    @available(iOS 7.0, *)
+    case webSearch = 10 // A default keyboard type with URL-oriented addition (shows space . prominently).
+
+    @available(iOS 10.0, *)
+    case asciiCapableNumberPad = 11 // A number pad (0-9) that will always be ASCII digits.
+
+    public static var alphabet: UIKeyboardType { get } // Deprecated
+}
+```
+
+以下面的代码为例：
+
+```swift
+@State private var username = ""
+
+var body: some View {
+    VStack {
+        TextField("Username", text: $username)
+            .padding()
+            .border(.secondary)
+            // highlight-next-line
+            // .keyboardType(.default)
+    }
+    .padding()
+}
+```
+
+我们来看下不同 `UIKeyboardType` 时键盘的显示是怎样：
+
+<ScreenshotTableList
+  data={[
+    { title: ".default", src: DefaultKTImage },
+    { title: ".asciiCapable", src: AsciiCapableKTImage },
+    { title: ".numbersAndPunctuation", src: NumbersAndPunctuationKTImage },
+    { title: ".URL", src: URLKTImage },
+    { title: ".numberPad", src: NumberPadKTImage },
+    { title: ".phonePad", src: PhonePadKTImage },
+    { title: ".namePhonePad", src: NamePhonePadKTImage },
+    { title: ".emailAddress", src: EmailAddressKTImage },
+    { title: ".decimalPad", src: DecimalPadKTImage },
+    { title: ".twitter", src: TwitterKTImage },
+    { title: ".webSearch", src: WebSearchKTImage },
+    { title: ".asciiCapableNumberPad", src: AsciiCapableNumberPadKTImage },
+  ]}
+/>
+
+#### TextInputAutocapitalization
+
+[TextInputAutocapitalization](https://developer.apple.com/documentation/swiftui/textinputautocapitalization/) 用于设置 "在文本输入期间应用的自动大写行为的类型"。
+
+```swift
+extension View {
+    public func textInputAutocapitalization(_ autocapitalization: TextInputAutocapitalization?) -> some View
+}
+
+public struct TextInputAutocapitalization : Sendable {
+
+    // 定义将每个字母大写的自动大写行为
+    public static var never: TextInputAutocapitalization { get }
+
+    // 定义自动大写行为，该行为将每个句子中的第一个字母大写
+    public static var words: TextInputAutocapitalization { get }
+
+    // 定义自动大写行为，该行为将每个单词的首字母大写
+    public static var sentences: TextInputAutocapitalization { get }
+
+    // 定义不会大写任何内容的自动大写行为
+    public static var characters: TextInputAutocapitalization { get }
+}
+```
+
+示例如下：
+
+```swift
+struct TextFieldView: View {
+    @State private var text = ""
+
+    var body: some View {
+        TextField("Username", text: $text)
+            .padding()
+            .border(.secondary)
+    }
+}
+
+struct ContentView: View {
+    var body: some View {
+        VStack {
+            TextFieldView()
+                .textInputAutocapitalization(.characters)
+            TextFieldView()
+                .textInputAutocapitalization(.sentences)
+            TextFieldView()
+                .textInputAutocapitalization(.words)
+            TextFieldView()
+                .textInputAutocapitalization(.never)
+        }
+        .padding()
+    }
+}
+```
+
+<ScreenshotTable
+  data={[
+    { title: ".characters", src: CharactersACImage },
+    { title: ".sentences", src: SentencesACImage },
+    { title: ".words", src: WordsACImage },
+    { title: ".never", src: NeverACImage },
+  ]}
+/>
+
+#### UIKeyboardType
+
+[UITextContentType](https://developer.apple.com/documentation/uikit/uitextcontenttype) 的源码定义如下：
+
+```swift
+extension UITextContentType {
+
+    @available(iOS 10.0, *)
+    public static let name: UITextContentType
+
+    @available(iOS 10.0, *)
+    public static let namePrefix: UITextContentType
+
+    @available(iOS 10.0, *)
+    public static let givenName: UITextContentType
+
+    @available(iOS 10.0, *)
+    public static let middleName: UITextContentType
+
+    @available(iOS 10.0, *)
+    public static let familyName: UITextContentType
+
+    @available(iOS 10.0, *)
+    public static let nameSuffix: UITextContentType
+
+    @available(iOS 10.0, *)
+    public static let nickname: UITextContentType
+
+    @available(iOS 10.0, *)
+    public static let jobTitle: UITextContentType
+
+    @available(iOS 10.0, *)
+    public static let organizationName: UITextContentType
+
+    @available(iOS 10.0, *)
+    public static let location: UITextContentType
+
+    @available(iOS 10.0, *)
+    public static let fullStreetAddress: UITextContentType
+
+    @available(iOS 10.0, *)
+    public static let streetAddressLine1: UITextContentType
+
+    @available(iOS 10.0, *)
+    public static let streetAddressLine2: UITextContentType
+
+    @available(iOS 10.0, *)
+    public static let addressCity: UITextContentType
+
+    @available(iOS 10.0, *)
+    public static let addressState: UITextContentType
+
+    @available(iOS 10.0, *)
+    public static let addressCityAndState: UITextContentType
+
+    @available(iOS 10.0, *)
+    public static let sublocality: UITextContentType
+
+    @available(iOS 10.0, *)
+    public static let countryName: UITextContentType
+
+    @available(iOS 10.0, *)
+    public static let postalCode: UITextContentType
+
+    @available(iOS 10.0, *)
+    public static let telephoneNumber: UITextContentType
+
+    @available(iOS 10.0, *)
+    public static let emailAddress: UITextContentType
+
+    @available(iOS 10.0, *)
+    public static let URL: UITextContentType
+
+    @available(iOS 10.0, *)
+    public static let creditCardNumber: UITextContentType
+
+    @available(iOS 11.0, *)
+    public static let username: UITextContentType
+
+    @available(iOS 11.0, *)
+    public static let password: UITextContentType
+
+    @available(iOS 12.0, *)
+    public static let newPassword: UITextContentType
+
+    @available(iOS 12.0, *)
+    public static let oneTimeCode: UITextContentType
+
+    /// Parcel tracking numbers such as "FedEx 8602 9191 3550", "1Z50T0536891664106", and "729445720428778".
+    @available(iOS 15.0, *)
+    public static let shipmentTrackingNumber: UITextContentType
+
+    /// Airline flight numbers such as "CZ # 1234", "AA212", and "SW Flight 573".
+    @available(iOS 15.0, *)
+    public static let flightNumber: UITextContentType
+
+    /// Dates, times, or durations such as "7-3-2021" or "This Saturday", "12:30", and "10-11am", respectively.
+    @available(iOS 15.0, *)
+    public static let dateTime: UITextContentType
+
+    @available(iOS 17.0, *)
+    public static let birthdate: UITextContentType
+
+    @available(iOS 17.0, *)
+    public static let birthdateDay: UITextContentType
+
+    @available(iOS 17.0, *)
+    public static let birthdateMonth: UITextContentType
+
+    @available(iOS 17.0, *)
+    public static let birthdateYear: UITextContentType
+
+    @available(iOS 17.0, *)
+    public static let creditCardSecurityCode: UITextContentType
+
+    @available(iOS 17.0, *)
+    public static let creditCardName: UITextContentType
+
+    @available(iOS 17.0, *)
+    public static let creditCardGivenName: UITextContentType
+
+    @available(iOS 17.0, *)
+    public static let creditCardMiddleName: UITextContentType
+
+    @available(iOS 17.0, *)
+    public static let creditCardFamilyName: UITextContentType
+
+    @available(iOS 17.0, *)
+    public static let creditCardExpiration: UITextContentType
+
+    @available(iOS 17.0, *)
+    public static let creditCardExpirationMonth: UITextContentType
+
+    @available(iOS 17.0, *)
+    public static let creditCardExpirationYear: UITextContentType
+
+    @available(iOS 17.0, *)
+    public static let creditCardType: UITextContentType
+}
 ```
