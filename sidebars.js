@@ -102,6 +102,7 @@ const swiftuiSidebar = [
         collapsed: false,
         items: [
           "swiftui/views/text/index",
+          "swiftui/views/label/index",
           "swiftui/views/textfield/index",
           "swiftui/views/securefield/index",
           "swiftui/views/texteditor/index",
