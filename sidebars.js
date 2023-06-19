@@ -106,6 +106,7 @@ const swiftuiSidebar = [
           "swiftui/views/textfield/index",
           "swiftui/views/securefield/index",
           "swiftui/views/texteditor/index",
+          "swiftui/views/image/index",
         ],
       },
     ],

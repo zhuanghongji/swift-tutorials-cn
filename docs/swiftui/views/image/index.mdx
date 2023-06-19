@@ -1,0 +1,414 @@
+import GZTowerImage from "./gz_tower.jpg";
+import AssetsImage from "./assets.png";
+import GZTower2Image from "./gz_tower_2.png";
+import Fitting1Image from "./fitting-1.png";
+import Fitting2Image from "./fitting-2.png";
+import FillingImage from "./filling.png";
+import ClippingImage from "./clipping.png";
+import DotGreenImage from "./dot_green.jpeg";
+import DotGreen2Image from "./dot_green_2.png";
+import DotGreen3Image from "./dot_green_3.png";
+import DotGreen4Image from "./dot_green_4.png";
+import AccessibeImage from "./accessibe.png";
+import SFSymblesBetaImage from "./sf_symbles_beta.png";
+import SystemName1Image from "./system_name_1.png";
+import UIImageImage from "./uiimage.png";
+
+# Image
+
+<OriginalLink
+  title="显示图像的视图"
+  value="https://developer.apple.com/documentation/swiftui/image"
+/>
+
+## 概述
+
+当你想要向 SwiftUI 应用程序添加图像时，可使用 Image 实例。你可以从多个来源创建图像：
+
+- 应用 asset library 或 bundle 中的图片文件。支持的类型包括 PNG、JPEG、HEIC 等。
+- 特定于平台的映像类型的实例，例如 [UIImage](https://developer.apple.com/documentation/uikit/uiimage) 和 [NSImage](https://developer.apple.com/documentation/appkit/nsimage)。
+- 存储在 Core Graphics [CGImage](https://developer.apple.com/documentation/coregraphics/cgimage) 实例中的位图（bitmap）。
+- SF Symbols 中的系统图形。
+
+以下示例演示如何从应用的 asset library 或 bundle 中加载图像，并将其缩放以适合其容器：
+
+1. 将下面这张图片拖到 **Assets** 中：
+
+<Screenshot src={GZTowerImage} size={240} />
+
+<Screenshot src={AssetsImage} size={640} />
+
+2. 编写代码然后运行：
+
+<ScreenshotBlock src={GZTower2Image}>
+
+```swift
+VStack {
+    Image("gz_tower")
+        .resizable()
+        .aspectRatio(contentMode: .fit)
+    Text("Guangzhou Tower")
+}
+```
+
+</ScreenshotBlock>
+
+可以使用 `Image` 类型的方法以及标准视图修饰符，来调整图像大小以适应应用的界面。在这里， `Image` 类型的 `resizable(capInsets:resizingMode:)` 方法缩放图像以适应当前视图。然后，`aspectRatio(_:contentMode:)` 视图修饰器调整此 "大小调整" 行为以保持图像的原始纵横比（aspect ratio），而不是单独缩放 x 轴和 y 轴以填充视图的所有四个边。
+
+Image 是一个 late-binding token。仅当系统即将在环境中使用图像时，系统才会解析其实际值。
+
+### 将图像调整到可用空间
+
+图像大小差异很大，从单像素 PNG 文件到具有数百万像素的数码摄影图像。由于设备大小也各不相同，因此应用通常需要对图像大小进行运行时调整，以便它们适应可见的用户界面。SwiftUI 提供了用于缩放、剪辑和转换图像的修改器，以完美地适应你的界面。
+
+1. 使用放缩调整大小图像以适应其容器
+
+以我们上面使用的 `gz_tower.jpg` 为例，它是一个尺寸 1080 \* 1080 的正方形图片，显示了广州塔的悬梁、悬索，以及暗黑的天空。
+
+下面的实例将图像直接加载到 `Image` 视图中，然后将其放置在带有蓝色边框的 400 x 400 点框中：
+
+<ScreenshotBlock src={Fitting1Image}>
+
+```swift
+VStack {
+    Image("gz_tower")
+        .frame(width: 360,
+                height: 240,
+                alignment: .topLeading
+        )
+        .border(.blue)
+}
+```
+
+</ScreenshotBlock>
+
+如右边截屏所示，图像数据以全尺寸加载到视图中，所以只显示了左上角的悬梁。由于图像以全尺寸呈现，并且蓝色框小于原始图像，因此图像显示在框边界（area bounded）之外。
+
+要解决此问题，你需要对 `Image` 应用两个修饰器：
+
+- `resizable(capInsets:resizingMode:)`：告知图像视图调整 "图像表现（image representation）" 以匹配视图的大小。默认情况下，该修饰器通过减小较大图像的大小来缩放（scales）图像，并放大（enlarges）小于视图的图像。就其本身而言，此修饰器独立缩放图像的每个轴。
+- `aspectRatio(_:contentMode:)`：更正图像每个轴的缩放比例不同的行为。这将保留（perserves）图像的原始纵横比，使用由 [ContentMode](https://developer.apple.com/documentation/swiftui/contentmode) 枚举定义的两个策略之一：
+  - `ContentMode.fit` 沿一个轴缩放图像以适应视图大小，沿另一个轴可能留有空白。
+  - `ContentMode.fill` 缩放图像以填充整个视图。
+
+<ScreenshotBlock src={Fitting2Image} srcRight={FillingImage}>
+
+```swift
+// 左图
+VStack {
+    Image("gz_tower")
+        // highlight-start
+        .resizable()
+        .aspectRatio(contentMode: .fit)
+        // highlight-end
+        .frame(width: 360,
+                height: 240,
+                alignment: .topLeading
+        )
+        .border(.blue)
+}
+
+// 右图
+VStack {
+    Image("gz_tower")
+        .resizable()
+        // highlight-next-line
+        .aspectRatio(contentMode: .fill)
+        .frame(width: 360,
+                height: 240,
+                alignment: .topLeading
+        )
+        .border(.blue)
+}
+```
+
+</ScreenshotBlock>
+
+从右上图看发现，如果在缩放图像时使用了 `ContentMode.fill`，如果图像本身的纵横比不刚好与视图的相等，则图像的一部分旧会超出视图的边界。那么，我们该如何避免该问题呢？
+
+答：使用 `clipped(antialiased:)` 修饰器。
+
+2. 使用裁剪将图像数据保持在视图边界内
+
+`clipped(antialiased:)` 修饰器只是简单地在视图边界处切断多余的（excess）图像渲染。或者，你可以添加抗锯齿行为以将平滑应用于剪切矩形的边缘，此参数默认为 `false`。以下示例演示了给 "上面的 `ContentMode.fill` 示例" 添加裁剪的效果：
+
+<ScreenshotBlock src={ClippingImage} minSize>
+
+```swift
+VStack {
+    Image("gz_tower")
+        .resizable()
+        .aspectRatio(contentMode: .fill)
+        .frame(width: 360,
+                height: 240,
+                alignment: .topLeading
+        )
+        .border(.blue)
+        // highlight-next-line
+        .clipped()
+}
+```
+
+</ScreenshotBlock>
+
+3. 使用插值标志调整渲染的图像质量
+
+以原始大小以外的任何大小渲染图像都需要 _插值（interpolation）_：使用现有图像数据以不同的大小近似表示。
+
+执行不同的插值方式，在 "计算复杂性" 和 "渲染图像的视觉质量" 之间具有不同的权衡。你可以使用 `interpolation(_:)` 修饰符为 SwiftUI 渲染行为提供提示。
+
+将较小的图像缩放到较大的空间时，更容易看到插值的效果，因为渲染的图像需要的图像数据多于可用的图像数据。请考虑以下示例，该示例将名为 "dot_green" 的 32 x 32 图像呈现到 300 x 400 容器框中：
+
+<Screenshot src={DotGreenImage} size={32} />
+
+<ScreenshotBlock src={DotGreen2Image}>
+
+```swift
+// 因为图片本身是白底的，所以通过 ZStack 加了个背景灰色方便区分
+ZStack {
+    Color.gray
+
+    VStack {
+        Image("dot_green")
+            .resizable()
+            // highlight-next-line
+            .interpolation(.none)
+            .aspectRatio(contentMode: .fit)
+            .frame(width: 300,
+                    height: 400,
+                    alignment: .topLeading
+            )
+            .border(.blue)
+            .clipped()
+    }
+}
+```
+
+</ScreenshotBlock>
+
+上面代码中将 [Image.Interpolation.none](https://developer.apple.com/documentation/swiftui/image/interpolation/none) 值传给了 `interpolation(_:)` 修饰器以在渲染时生成（produces）高度像素化（highly pixelated）的图像。
+
+如果你将插值改为 [Image.Interpolation.medium](https://developer.apple.com/documentation/swiftui/image/interpolation/medium)，SwiftUI 将平滑像素数据以生成像素化程度较低的图像：
+
+<ScreenshotBlock src={DotGreen3Image}>
+
+```swift
+// 因为图片本身是白底的，所以通过 ZStack 加了个背景灰色方便区分
+ZStack {
+    Color.gray
+
+    VStack {
+        Image("dot_green")
+            .resizable()
+            // highlight-next-line
+            .interpolation(.medium)
+            .aspectRatio(contentMode: .fit)
+            .frame(width: 300,
+                    height: 400,
+                    alignment: .topLeading
+            )
+            .border(.blue)
+            .clipped()
+    }
+}
+```
+
+</ScreenshotBlock>
+
+:::tip
+
+你还可以在缩小图像时指定插值行为，以确保尽可能获得最高质量的图像、最快的渲染时间或介于两者之间的行为。
+
+:::
+
+4. 使用平铺用重复图像填充空间
+
+当你的图像比要渲染它的空间小得多时，填充空间的另一个选项是 _平铺（tilling）_：一遍又一遍地重复相同的图像。若要平铺图像，请将 [Image.ResizingMode.tile](https://developer.apple.com/documentation/swiftui/image/resizingmode/tile) 参数传递给 `resizable(capInsets:resizingMode:)` 修饰器：
+
+<ScreenshotBlock src={DotGreen4Image}>
+
+```swift
+ZStack {
+    Color.gray
+    VStack {
+        Image("dot_green")
+            // highlight-next-line
+            .resizable(resizingMode: .tile)
+            .frame(width: 300,
+                    height: 400,
+                    alignment: .topLeading)
+            .border(.blue)
+    }
+}
+```
+
+</ScreenshotBlock>
+
+当使用图像与自身的副本端到端放置时，平铺可能特别（particuarly）有用，没有视觉上的不连续性。
+
+### 使图像可访问（accessible）
+
+若要将图像用作控件，请使用采用 `label` 参数的初始器之一。这允许系统的辅助功能框架（accessibility frameworks）使用标签作为 "使用旁白（VoiceOver）等功能的用户" 的控件名称。
+
+对于仅出于美学（aesthetic）原因而存在的图像，请使用带有 `decorative` 参数的初始化器，辅助功能系统会忽略这些图像。
+
+<ScreenshotBlock src={AccessibeImage}>
+
+```swift
+VStack {
+    Image("dot_green",
+          label: Text("Click to turn on light"))
+        .onTapGesture {
+            print("Already turn on")
+        }
+
+    // Only for aesthetic
+    Image(decorative: "gz_tower")
+        .resizable()
+        .aspectRatio(contentMode: .fill)
+        .frame(width: 300,
+                height: 400,
+                alignment: .topLeading)
+        .border(.blue)
+        .clipped()
+}
+```
+
+</ScreenshotBlock>
+
+### 系统符号图像
+
+Apple 平台提供了一个 SF Symbols 图标库，能够与系统字体 San Francisco 无缝集成，你可以从 [SF Symbols](https://developer.apple.com/sf-symbols/) 了解更多。下面是 SF Symbols 5 Beta 应用程序的一个截图：
+
+<Screenshot src={SFSymblesBetaImage} size={720} />
+
+`Image` 提供了一个 `Image(systemName:)` 初始化器，我们可以非常方便的使用这些图标：
+
+<ScreenshotBlock src={SystemName1Image}>
+
+```swift
+VStack(spacing: 20) {
+    HStack(spacing: 10) {
+        Image(systemName: "square.and.arrow.up")
+        Image(systemName: "square.and.arrow.up.fill")
+        Image(systemName: "square.and.arrow.up.circle")
+        Image(systemName: "square.and.arrow.up.circle.fill")
+        Image(systemName: "square.and.arrow.up.trianglebadge.exclamationmark")
+        Image(systemName: "square.and.arrow.down")
+        Image(systemName: "square.and.arrow.down.fill")
+    }
+
+    HStack(spacing: 10) {
+        Image(systemName: "square.and.arrow.up.on.square")
+        Image(systemName: "square.and.arrow.up.on.square.fill")
+        Image(systemName: "square.and.arrow.down.on.square")
+        Image(systemName: "square.and.arrow.down.on.square.fill")
+        Image(systemName: "rectangle.portrait.and.arrow.right")
+        Image(systemName: "rectangle.portrait.and.arrow.right.fill")
+        Image(systemName: "rectangle.portrait.and.arrow.forward")
+    }
+    .font(.title)
+    .foregroundColor(.blue)
+}
+```
+
+</ScreenshotBlock>
+
+### 通过图像创建图像
+
+在下面的示例中：
+
+- 我们通过 `UIImage(name:)` 初始化器，从 assets library 中读取图片 "gz_tower.jpg" 并创建了一个 [UIImage](https://developer.apple.com/documentation/uikit/uiimage) 实例。最后它会通过 `Image(uiImage:)` 初始化器创建 `Image` 视图，如下右上图。
+- 我们声明了一个类型同为 `UIImage` 的计算属性 `roatedUIImage`，它是通过已有的 `uiImage` 实例计算（旋转了 90 度）出来的，最后它也会通过 `Image(uiImage:)` 初始化器创建 `Image` 视图，如下右下图。
+
+<ScreenshotBlock src={UIImageImage}>
+
+```swift
+let uiImage = UIImage(named: "gz_tower")!
+
+var roatedUIImage: UIImage {
+    UIGraphicsBeginImageContextWithOptions(uiImage.size, false, uiImage.scale)
+    let context = UIGraphicsGetCurrentContext()!
+    context.translateBy(x: uiImage.size.width / 2, y: uiImage.size.height / 2)
+    context.rotate(by: CGFloat.pi*2)
+    context.translateBy(x: -uiImage.size.width / 2, y: -uiImage.size.height / 2)
+    context.draw(uiImage.cgImage!, in: CGRect(origin: .zero, size: uiImage.size))
+    let flippedImage = UIGraphicsGetImageFromCurrentImageContext()
+    UIGraphicsEndImageContext()
+    return flippedImage!
+}
+
+var body: some View {
+    VStack {
+        Image(uiImage: uiImage)
+            .resizable()
+            .aspectRatio(contentMode: .fit)
+            .frame(width: 300, height: 300)
+
+        Image(uiImage: roatedUIImage)
+            .resizable()
+            .aspectRatio(contentMode: .fit)
+            .frame(width: 300, height: 300)
+    }
+}
+```
+
+</ScreenshotBlock>
+
+## 主题
+
+### 创建图像
+
+```swift
+// 创建可用作控件内容的带标签的图像
+init(String, bundle: Bundle?)
+
+// 创建可用作控件内容的带标签的图像，并具有可变值
+init(String, variableValue: Double?, bundle: Bundle?)
+
+// 使用映像资源初始化 Image
+init(ImageResource)
+```
+
+### 创建用作控件的图像
+
+```swift
+// 创建可用作控件内容的带标签的图像，并具有指定的标签
+init(String, bundle: Bundle?, label: Text)
+
+// 创建可用作控件内容的带标签的图像，并具有指定的标签和变量值
+init(String, variableValue: Double?, bundle: Bundle?, label: Text)
+
+// 基于核心图形图像实例创建标记图像，可用作控件的内容
+init(CGImage, scale: CGFloat, orientation: Image.Orientation, label: Text)
+```
+
+### 创建用于装饰用途的图像
+
+```swift
+// 创建未标签（unlabeld）的装饰性图像
+init(decorative: String, bundle: Bundle?)
+
+// 创建具有可变值的未标签的装饰性图像
+init(decorative: String, variableValue: Double?, bundle: Bundle?)
+
+// 基于 Core Graphics 图像实例创建未标签的装饰性图像。
+init(decorative: CGImage, scale: CGFloat, orientation: Image.Orientation)
+```
+
+### 创建系统符号图像
+
+```swift
+// 从 UIKit 图像实例创建 SwiftUI 图像
+init(uiImage: UIImage)
+
+// 从 AppKit 图像实例创建 SwiftUI 图像
+init(nsImage: NSImage)
+```
+
+### 从绘图说明（drawing instructions）创建图像
+
+```swift
+// 初始化给定大小的图像，内容由自定义呈现闭包提供
+init(size: CGSize, label: Text?, opaque: Bool, colorMode: ColorRenderingMode, renderer: (inout GraphicsContext) -> Void)
+```

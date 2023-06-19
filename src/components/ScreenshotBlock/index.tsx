@@ -1,14 +1,18 @@
 import React, { PropsWithChildren } from "react"
 
+const MIN_SIZE = 180
+const MAX_SIZE = 240
+
 type ScreenshotBlockProps = PropsWithChildren<{
   src: any
   srcRight?: any
+  minSize?: boolean
 }>
 
-export default function ScreenshotBlock({ children, src, srcRight }: ScreenshotBlockProps) {
-  let width = 240
-  if (srcRight) {
-    width = 180
+export default function ScreenshotBlock({ children, src, srcRight, minSize = false }: ScreenshotBlockProps) {
+  let width = MAX_SIZE
+  if (srcRight || minSize) {
+    width = MIN_SIZE
   }
   return (
     <>
