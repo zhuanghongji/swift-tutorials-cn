@@ -6,12 +6,15 @@ const MAX_SIZE = 240
 type ScreenshotBlockProps = PropsWithChildren<{
   src: any
   srcRight?: any
+  size?: number
   minSize?: boolean
 }>
 
-export default function ScreenshotBlock({ children, src, srcRight, minSize = false }: ScreenshotBlockProps) {
+export default function ScreenshotBlock({ children, src, srcRight, size, minSize = false,}: ScreenshotBlockProps) {
   let width = MAX_SIZE
-  if (srcRight || minSize) {
+  if (size !== undefined) {
+    width = size 
+  } else if (srcRight || minSize) {
     width = MIN_SIZE
   }
   return (
