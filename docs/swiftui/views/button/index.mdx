@@ -5,6 +5,9 @@ import Button4Image from "./button_4.png";
 import Button5Image from "./button_5.png";
 import Button6Image from "./button_6.png";
 import Button7Image from "./button_7.png";
+import Edit1Image from "./edit_1.png";
+import Edit2Image from "./edit_2.png";
+import Edit3GIF from "./edit_3.gif";
 
 # Button
 
@@ -343,6 +346,112 @@ struct ContentView: View {
         }
         // highlight-next-line
         .buttonStyle(.my)
+    }
+}
+```
+
+</ScreenshotBlock>
+
+### EditButton
+
+[EditButton](https://developer.apple.com/documentation/swiftui/editbutton)：编辑按钮，用于切换 "编辑模式" 环境值的按钮。
+
+编辑按钮用于切换（toggles）支持编辑模式的容器中的内容所在环境的 [editMode](https://developer.apple.com/documentation/swiftui/environmentvalues/editmode) 值。在以下示例中，放在 [NavigationView](https://developer.apple.com/documentation/swiftui/navigationview) 内的编辑按钮支持编辑 [List](https://developer.apple.com/documentation/swiftui/list)：
+
+<ScreenshotBlock src={Edit1Image} srcRight={Edit2Image}>
+
+```swift
+@State private var fruits = [
+    "Apple",
+    "Banana",
+    "Papaya",
+    "Mango"
+]
+
+var body: some View {
+    NavigationView {
+        List {
+            ForEach(fruits, id: \.self) { fruit in
+                Text(fruit)
+            }
+            .onDelete { fruits.remove(atOffsets: $0) }
+            .onMove { fruits.move(fromOffsets: $0, toOffset: $1) }
+        }
+        .navigationTitle("Fruits")
+        .toolbar {
+            EditButton()
+        }
+    }
+}
+```
+
+</ScreenshotBlock>
+
+上述示例中的 `ForEach` 定义了 `onDelete(perform:)` 和 `onMove(perform:)` 的行为：
+
+```swift
+/// A type of view that generates views from an underlying collection of data.
+public protocol DynamicViewContent : View {
+
+    associatedtype Data : Collection
+
+    var data: Self.Data { get }
+}
+
+extension DynamicViewContent {
+
+    /// Sets the deletion action for the dynamic view.
+    @inlinable public func onDelete(perform action: ((IndexSet) -> Void)?) -> some DynamicViewContent
+}
+
+extension DynamicViewContent {
+
+    /// Sets the move action for the dynamic view.
+    @inlinable public func onMove(perform action: ((IndexSet, Int) -> Void)?) -> some DynamicViewContent
+}
+```
+
+因此当用户点击 "Edit" 时，可编辑列表将显示 "删除" 和 "移动" 的 UI 样式。注意，当编辑模式处于 active 状态时，"Edit" 按钮标题会显示 "Done"。如上右图所示。
+
+你还可以创建自定义视图，以响应编辑模式状态中的更改，如下示例，通过检查编辑模式将只读 `Text` 视图替换为可编辑的 `TextField`：
+
+<ScreenshotBlock src={Edit3GIF}>
+
+```swift
+struct ContentView: View {
+    @State private var mode: EditMode = .inactive
+
+    var body: some View {
+        NavigationView {
+            EditingView()
+                .environment(\.editMode, $mode)
+        }
+    }
+}
+
+struct EditingView: View {
+    @Environment(\.editMode) private var editMode
+
+    @State private var name = "Maria Ruiz"
+    @FocusState private var isFocused
+
+    var body: some View {
+        Form {
+            if editMode?.wrappedValue.isEditing == true {
+                TextField("Name", text: $name)
+                    .focused($isFocused)
+                    .onAppear {
+                        isFocused = true
+                    }
+            } else {
+                Text(name)
+                    .foregroundColor(.black.opacity(0.5))
+            }
+        }
+        .animation(nil, value: editMode?.wrappedValue)
+        .toolbar {
+            EditButton()
+        }
     }
 }
 ```
