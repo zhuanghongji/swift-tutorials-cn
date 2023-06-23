@@ -1,0 +1,398 @@
+import Button1Image from "./button_1.png";
+import Button2Image from "./button_2.png";
+import Button3Image from "./button_3.png";
+import Button4Image from "./button_4.png";
+import Button5Image from "./button_5.png";
+import Button6Image from "./button_6.png";
+import Button7Image from "./button_7.png";
+
+# Button
+
+<OriginalLink
+  title="触发一个操作（initiates an action）的控件"
+  value="https://developer.apple.com/documentation/swiftui/imagerenderer"
+/>
+
+## 概述
+
+`Button` 可以说是最常用的视图之一了，其定义如下：
+
+```swift
+public struct Button<Label> : View where Label : View {
+
+    /// Creates a button that displays a custom label.
+    public init(action: @escaping () -> Void, @ViewBuilder label: () -> Label)
+
+    /// The content and behavior of the view.
+    @MainActor public var body: some View { get }
+
+    /// The type of view representing the body of this view.
+    public typealias Body = some View
+}
+```
+
+你可以通过提供一个操作（action）和一个标签（label）来创建按钮（button）。该操作是一个在用户单击或点击按钮时执行某些逻辑的方法或闭包。其中标签是描述操作的视图，例如，用来显示文本或图标，或两个同时显示：
+
+<ScreenshotBlock src={Button1Image}>
+
+```swift
+func signIn() {
+    print("signIn")
+}
+
+var body: some View {
+    VStack {
+        // highlight-start
+        Button(action: signIn) {
+            Text("Sign In")
+        }
+        // highlight-end
+    }
+    .font(.largeTitle)
+}
+
+// 点击 "Sign In" 时，打印："signIn"
+```
+
+</ScreenshotBlock>
+
+对于 "纯文本标签" 这种常见情况，你可以使用下面的便捷初始化器（convenience initializer）：
+
+```swift
+extension Button where Label == Text {
+
+    /// Creates a button that generates its label from a localized string key.
+    public init(_ titleKey: LocalizedStringKey, action: @escaping () -> Void)
+
+    /// Creates a button that generates its label from a string.
+    public init<S>(_ title: S, action: @escaping () -> Void) where S : StringProtocol
+}
+```
+
+该初始化器接收一个 `title` 字符串或 [LocalizedStringKey](https://developer.apple.com/documentation/swiftui/localizedstringkey) （第一个参数）来作为 label，而不是上面那样通过尾随闭包返回 label 。于是，代码可以简化成：
+
+```swift
+// highlight-next-line
+Button("sign In", action: signIn)
+```
+
+要注意的是，上面两个初始化器都可以完全使用闭包的方式（而不是定义一个 `signIn` 方法）来来编写代码。你要能够直接看出它们使用的初始化器是啥，才不至于茫然：
+
+```swift
+Button {
+    print("signIn")
+} label: {
+    Text("Sign In")
+}
+// Button(action:label:)
+
+
+Button("sign In") {
+    print("signIn")
+}
+// Button(_:action:)
+```
+
+用户触发按钮 action 的方式因平台而异：
+
+- 在 iOS 和 watchOS 中，用户点击（taps）按钮。
+- 在 macOS 中，用户单击（clicks）按钮。
+- 在 tvOS 中，当将焦点放在按钮上时，用户在外部遥控器（如 Siri 遥控器）上按下 "选择（select）"，。
+
+### 向容器（containers）添加按钮
+
+在任意触发操作的用户界面元素中都可以使用按钮。按钮会自动调整它们的视觉样式，以匹配这些不同容器和上下文的预期样式。例如，创建一个在用户选择时触发一个操作的 [List](https://developer.apple.com/documentation/swiftui/list) 单元格（cell），添加一个按钮作为它的内容：
+
+<ScreenshotBlock src={Button2Image}>
+
+```swift
+struct Folder: Identifiable {
+    let id: UUID = UUID()
+    let title: String
+}
+
+struct ContentView: View {
+
+    let folders: [Folder] = [
+        Folder(title: "Documents"),
+        Folder(title: "Downloads"),
+        Folder(title: "Recents"),
+    ]
+
+    func addItem() {
+        print("add item")
+    }
+
+    var body: some View {
+        // Cells that show all the current folders
+        List {
+            ForEach(folders) { folder in
+                Text(folder.title)
+            }
+
+            // A cell that, when selected, adds a new folder
+            // highlight-start
+            Button(action: addItem) {
+                Label("Add Folder",
+                      systemImage: "folder.badge.plus")
+            }
+            // highlight-end
+        }
+    }
+}
+```
+
+</ScreenshotBlock>
+
+同样地，如创建一个触发操作的上下文菜单项（context menu item），在修饰器 `contextMenu(_:)` 的 content 闭包中添加按钮：
+
+<ScreenshotBlock src={Button3Image}>
+
+```swift
+Text("Hello")
+    .contextMenu {
+        Button("Cut") {
+            print("Cut")
+        }
+        Button("Copy") {
+            print("Copy")
+        }
+        Button("Paste") {
+            print("Paste")
+        }
+    }
+```
+
+</ScreenshotBlock>
+
+此模式（pattern）扩展到 SwiftUI 中 "具有可自定义的、交互式的内容的" 大多数其他容器视图，例如 [Form](https://developer.apple.com/documentation/swiftui/form) 实例。
+
+### 分配角色
+
+你可以选择性地使用 [ButtonRole](https://developer.apple.com/documentation/swiftui/buttonrole) 来初始化按钮，以表征（characterizes）按钮的用途。
+
+```swift
+public struct ButtonRole : Equatable, Sendable {
+    // ..
+
+    // 指示破坏性按钮的角色
+    public static let destructive: ButtonRole
+
+    // 指示取消操作的按钮的角色
+    public static let cancel: ButtonRole
+}
+```
+
+例如，你可以为删除操作创建一个 [destructive](https://developer.apple.com/documentation/swiftui/buttonrole/destructive) 按钮：
+
+<ScreenshotBlock src={Button4Image}>
+
+```swift
+Text("Hello")
+    .contextMenu {
+        Button("Cut") {
+            print("Cut")
+        }
+        Button("Copy") {
+            print("Copy")
+        }
+        Button("Paste") {
+            print("Paste")
+        }
+        // highlight-start
+        Button("Delete", role: .destructive) {
+            print("Delete")
+        }
+        // highlight-end
+    }
+```
+
+</ScreenshotBlock>
+
+系统使用按钮的角色在每个上下文中适当地设置按钮样式。如上示例所示，上下文菜单中的破坏性（destructive）按钮以红色前景色显示：
+
+如果未为按钮指定角色，系统将应用适当的默认外观。
+
+### 样式化按钮
+
+你可以使用标准按钮样式之一自定义按钮的外观，如 [bordered](https://developer.apple.com/documentation/swiftui/primitivebuttonstyle/bordered)，并使用 `buttonStyle(_:)` 修饰器应用样式。
+
+```swift
+extension View {
+
+    /// Sets the style for buttons within this view to a button style with a
+    /// custom appearance and custom interaction behavior.
+    public func buttonStyle<S>(_ style: S) -> some View where S : PrimitiveButtonStyle
+}
+
+extension PrimitiveButtonStyle where Self == BorderedButtonStyle {
+
+    /// A button style that applies standard border artwork based on the
+    /// button's context.
+    public static var bordered: BorderedButtonStyle { get }
+}
+
+public struct BorderedButtonStyle : PrimitiveButtonStyle {
+
+    public init()
+
+    public func makeBody(configuration: BorderedButtonStyle.Configuration) -> some View
+
+    public typealias Body = some View
+}
+```
+
+如果将样式应用于容器视图（如上例所示），则容器中的所有按钮都使用该样式：
+
+<ScreenshotBlock src={Button5Image}>
+
+```swift
+HStack {
+    Button("Sign In") {}
+    Button("Register") {}
+}
+// highlight-next-line
+.buttonStyle(.bordered)
+```
+
+</ScreenshotBlock>
+
+类似 `.bordered` 的标准样式，部分列举如下：
+
+<ScreenshotBlock src={Button6Image}>
+
+```swift
+VStack {
+    HStack {
+        Button("Sign In") {}
+        Button("Register") {}
+    }
+    // 一种按钮样式，它基于按钮的上下文应用标准突显的边框
+    // highlight-next-line
+    .buttonStyle(.borderedProminent)
+
+    HStack {
+        Button("Sign In") {}
+        Button("Register") {}
+    }
+    // 一种按钮样式，它在空闲时不设置其内容的样式或修饰
+    // 但可以应用视觉效果来指示按钮的按下、聚焦或启用状态
+    // highlight-next-line
+    .buttonStyle(.plain)
+
+    HStack {
+        Button("Sign In") {}
+        Button("Register") {}
+    }
+    // 默认按钮样式，基于按钮的上下文
+    // highlight-next-line
+    .buttonStyle(.automatic)
+
+    HStack {
+        Button("Sign In") {}
+        Button("Register") {}
+    }
+    // 不应用边框的按钮样式
+    // highlight-next-line
+    .buttonStyle(.borderless)
+}
+```
+
+</ScreenshotBlock>
+
+你还可以创建自定义样式：
+
+- 若要添加具有标准交互行为的自定义外观，请创建符合 `ButtonStyle` 协议的样式。
+- 若要自定义外观和交互行为，请创建符合 `PrimitiveButtonStyle` 协议的样式。
+
+自定义样式还可以读取按钮的角色并使用它来调整按钮的外观，示例如下：
+
+<ScreenshotBlock src={Button7Image}>
+
+```swift
+struct MyButtonStyle: PrimitiveButtonStyle {
+    func makeBody(configuration: Configuration) -> some View {
+        // highlight-start
+        configuration.label
+            .padding()
+            .foregroundColor(.white)
+            .background(configuration.role == .destructive ? .red : .blue)
+            .clipShape(.rect(
+                topLeadingRadius: 10.0,
+                bottomLeadingRadius: 0.0,
+                bottomTrailingRadius: 10.0,
+                topTrailingRadius: 0.0
+            ))
+        // highlight-end
+    }
+}
+
+extension PrimitiveButtonStyle where Self == MyButtonStyle {
+    // highlight-start
+    internal static var my: MyButtonStyle {
+        return MyButtonStyle()
+    }
+    // highlight-end
+}
+
+struct ContentView: View {
+    var body: some View {
+        HStack {
+            Button("Add") {}
+            Button("Remove", role: .destructive) {}
+        }
+        // highlight-next-line
+        .buttonStyle(.my)
+    }
+}
+```
+
+</ScreenshotBlock>
+
+## 主题
+
+### 创建按钮
+
+```swift
+// 创建显示自定义标签的按钮
+init(action: () -> Void, label: () -> Label)
+
+// 创建一个按钮，该按钮从本地化的字符串键生成其标签
+init(LocalizedStringKey, action: () -> Void)
+
+// 创建一个从字符串生成其标签的按钮
+init<S>(S, action: () -> Void)
+```
+
+### 创建具有角色的按钮
+
+```swift
+// 创建具有指定角色的按钮，该按钮显示自定义标签
+init(role: ButtonRole?, action: () -> Void, label: () -> Label)
+
+// 创建具有指定角色的按钮，该按钮从本地化的字符串键生成其标签
+init(LocalizedStringKey, role: ButtonRole?, action: () -> Void)
+
+// 创建具有指定角色的按钮，该按钮从字符串生成其标签
+init<S>(S, role: ButtonRole?, action: () -> Void)
+```
+
+### 从配置创建按钮
+
+```swift
+// 基于具有自定义外观和自定义交互行为的样式的配置创建按钮
+init(PrimitiveButtonStyleConfiguration)
+```
+
+### 创建按钮以执行应用意图（Intent）
+
+```swift
+// 创建执行 AppIntent 的按钮
+init<I>(intent: I, label: () -> Label)
+
+// 创建一个按钮，该按钮执行 AppIntent 并从本地化的字符串键生成其标签
+init(LocalizedStringKey, intent: some AppIntent)
+
+// 创建一个按钮，该按钮执行 AppIntent 并从字符串生成其标签
+init<S>(S, intent: some AppIntent)
+```
