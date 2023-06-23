@@ -110,6 +110,12 @@ const swiftuiSidebar = [
           "swiftui/views/asyncimage/index",
         ],
       },
+      {
+        type: "category",
+        label: "其它",
+        collapsed: false,
+        items: ["swiftui/rest/imagerenderer/index"],
+      },
     ],
   },
 ];

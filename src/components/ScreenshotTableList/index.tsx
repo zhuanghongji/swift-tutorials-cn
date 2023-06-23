@@ -4,7 +4,7 @@ import ScreenshotTable from '../ScreenshotTable'
 const COLUMN = 4
 
 type Item = {
-  title: string 
+  title?: string 
   src: any
 }
 

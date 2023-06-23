@@ -1,0 +1,212 @@
+import Trophy0Image from "./trophy_0.png";
+import Trophy1Image from "./trophy_1.png";
+import Trophy2Image from "./trophy_2.png";
+import Trophy3Image from "./trophy_3.png";
+import Trophy4Image from "./trophy_4.png";
+import Trophy5Image from "./trophy_5.png";
+import Trophy6Image from "./trophy_6.png";
+import TargetsInfo1Image from "./targets_info_1.png";
+import TargetsInfo2Image from "./targets_info_2.png";
+
+# ImageRenderer
+
+<OriginalLink
+  title="从 SwiftUI 视图创建图像的对象"
+  value="https://developer.apple.com/documentation/swiftui/imagerenderer"
+/>
+
+## 概述
+
+`ImageRenderer` 是一个类：
+
+```swift
+final public class ImageRenderer<Content> : ObservableObject where Content : View {
+    // ...
+
+    /// Creates a renderer object with a source content view.
+    @MainActor public init(content view: Content)
+
+    /// The current contents of the view, rasterized as a Core Graphics image.
+    @MainActor final public var cgImage: CGImage? { get }
+
+    /// The current contents of the view, rasterized as a UIKit image.
+    @MainActor final public var uiImage: UIImage? { get }
+
+    /// Draws the renderer's current contents to an arbitrary Core Graphics context.
+    @MainActor final public func render(rasterizationScale: CGFloat = 1,
+                                        renderer: (CGSize, (CGContext) -> Void) -> Void)
+}
+```
+
+使用 `ImageRenderer` 从 SwiftUI 视图中导出位图（bitmap）图像数据。如上初始化器所示，你可以通过一个 `view` 初始化一个 `ImageRenderer` 实例，然后调用其 `render(rasterizationScale:renderer:)` 方法，或使用其属性创建 `CGImage`、`NSImage` 或 `UIImage` 来按需绘制图像。
+
+通过绘制到 [Canvas](https://developer.apple.com/documentation/swiftui/canvas) 并使用 `ImageRenderer` 导出，你可以从任何 "以编程方式绘制的（progammatically-rendered）" 内容，如路径、形状、渐变等，生成图像。你还可以绘制标准 SwiftUI 视图，如 `Text` 视图，或多个视图类型的容器。
+
+以下示例使用自定义视图 `AwardView` 创建具有奖杯符号、用户名和日期的游戏应用视图：
+
+```swift
+struct AwardView: View {
+    let playerName: String
+    let achievementDate: Date
+
+    var body: some View {
+        VStack {
+            Image(systemName: "trophy")
+                .resizable()
+                .frame(width: 240, height: 240)
+                .frame(maxWidth: .infinity, maxHeight: .infinity)
+                .shadow(color: .mint, radius: 5)
+            Text(playerName)
+            Text(achievementDate.formatted())
+        }
+        .multilineTextAlignment(.center)
+        .padding()
+        .frame(width: 320, height: 360)
+        .background(.gray.opacity(0.1))
+    }
+}
+```
+
+此视图将一个有阴影效果的 `Image` 和两个 `Text` 包含在 `VStack` 中，并设置了 `0.1` 不透明度的灰色。下面的示例中，我们添加了一个 `Button`，点击时将 `AwardView` 视图保存到相册中：
+
+<ScreenshotBlock src={Trophy0Image} srcRight={Trophy1Image}>
+
+```swift
+let trophyAndDate = AwardView(playerName: "zhangsan",
+                              achievementDate: Date(timeIntervalSince1970: 1672531200))
+
+var body: some View {
+    VStack {
+        trophyAndDate
+        Button("Save Achievement") {
+            // highlight-start
+            let renderer = ImageRenderer(content: trophyAndDate)
+            if let image = renderer.uiImage {
+                let imageSaver = ImageSaver()
+                imageSaver.writeToPhotoAlbum(image)
+            }
+            // highlight-end
+        }
+    }
+}
+```
+
+</ScreenshotBlock>
+
+用户点击 "Save Achievement" 按钮时，我们通过 `ImageRenderer` 栅格化（rasterize）一个 `UIImage`，然后初始化一个 `ImageSaver` 实例以将其保存到相册中。
+
+`ImageSaver` 是参考 [How to save images to the user’s photo library](https://www.hackingwithswift.com/books/ios-swiftui/how-to-save-images-to-the-users-photo-library) 实现 "保存图片到相册" 的一个工具类：
+
+```swift
+class ImageSaver: NSObject {
+
+    func writeToPhotoAlbum(_ image: UIImage) {
+        // Adds the specified image to the user’s Camera Roll album.
+        UIImageWriteToSavedPhotosAlbum(image, self, #selector(saveError), nil)
+    }
+
+    @objc func saveError(_ image: UIImage,
+                         didFinishSavingWithError error: Error?,
+                         contextInfo: UnsafeRawPointer) {
+        if let error = error {
+            print("Save error: \(error.localizedDescription)")
+            return
+        }
+        print("Save success.")
+    }
+}
+```
+
+要注意的是，运行上述代码前，记得在 "TARGETS -> Info -> Custom iOS Target Properties" 中添加 "Privacy - Photo Library Additions Usage Description" 配置：
+
+<Screenshot src={TargetsInfo1Image} size={720} />
+
+由于 `ImageRenderer` 符合 `ObservableObject`，因此你可以使用它在其属性更改时生成图像流。订阅渲染器的 `objectWillChange` 发布者，然后在每次订阅者收到更新时使用渲染器栅格化新图像。
+
+:::caution
+
+`ImageRenderer` 输出仅包括 SwiftUI 绘制的视图，例如 text、image、shape 这些类型的视图或其复合视图。它不绘制（render）本机 native 框架（AppKit 和 UIKit）提供的视图，例如 Web 视图、媒体播放器和某些控件。对于这些视图， `ImageRenderer` 显示占位符图像，类似于 [drawingGroup(opaque:colorMode:)](<https://developer.apple.com/documentation/swiftui/view/drawinggroup(opaque:colormode:)>) 的行为。
+
+:::
+
+### 绘制到 PDF Context
+
+`ImageRenderer` 实例方法 `render(rasterizationScale:renderer:)` 可以讲指定的视图会知道任意 [CGContext](https://developer.apple.com/documentation/coregraphics/cgcontext) 。这意味着你并不限制于创建栅格化 `CGImage` 或 `UIImage`。例如，你可以通过绘制到 PDF context 来生成 PDF data。生成的 PDF 保持着视图结构成员（如 text, symbol images, lines, shapes 和 fills）的 resolution-independence。
+
+> `CGContext` 类型：表现为 Quartz 2D 绘图目标（destination）。图形上下文（graphics context）包含 "绘图（drawing）参数" 和 "将画面绘制到目标所需的所有特定于设备的信息"，无论目标是应用程序中的窗口、位图图像、PDF 文档还是打印机。
+
+以下示例使用上一示例中的自定义视图 `AwardView`，并将其内容作为 800 x 600 point 的 PDF 导出到文件 URL `renderURL`。它使用传给 redering 闭包的 `size` 参数，以在页面上垂直和水平居中 `trophyAndDate` 视图：
+
+```swift
+let trophyAndDate = AwardView(playerName: "zhangsan",
+                              achievementDate: Date(timeIntervalSince1970: 1672531200))
+
+var body: some View {
+    VStack {
+        trophyAndDate
+        Button("Save Achievement") {
+            let renderer = ImageRenderer(content: trophyAndDate)
+
+            // highlight-start
+            renderer.render { size, renderer in
+                guard let documentDir = FileManager.default.urls(for: .documentDirectory,
+                                                                  in: .userDomainMask).first
+                else {
+                    return
+                }
+                let renderURL = documentDir.appending(path: "achievement_\(Date().timeIntervalSince1970).pdf")
+
+                var mediaBox = CGRect(origin: .zero,
+                                      size: CGSize(width: 800, height: 600))
+                guard let consumer = CGDataConsumer(url: renderURL as CFURL),
+                      let pdfContext = CGContext(consumer: consumer, mediaBox: &mediaBox, nil)
+                else {
+                    return
+                }
+                pdfContext.beginPDFPage(nil)
+                pdfContext.translateBy(x: mediaBox.size.width / 2 - size.width / 2,
+                                        y: mediaBox.size.height / 2 - size.height / 2)
+                renderer(pdfContext)
+                pdfContext.endPDFPage()
+                pdfContext.closePDF()
+                // highlight-end
+
+                print("Save pdf success: \(renderURL.path())")
+            }
+        }
+    }
+}
+
+// 点击 "Save Achievement" 到处 PDF 成功时，打印日志大致如下：
+// Save pdf success: /Users/zhuanghongji/.../achievement_1687498595.807407.pdf
+```
+
+将上面这个打印出来的路径通过 "访达 -> 前往文件夹" 打开后你会看到：
+
+<Screenshot src={Trophy2Image} size={480} />
+
+如果想在手机或模拟器中查看该 PDF 文件的话，在 "TARGETS -> Info -> Custom iOS Target Properties" 中依次添加以下配置：
+
+<Screenshot src={TargetsInfo2Image} size={720} />
+
+重新编译后你就可以 "Files -> On My iPhone -> Your App Name" 中看到：
+
+<ScreenshotTable
+  headDisabled
+  data={[
+    { src: Trophy3Image },
+    { src: Trophy4Image },
+    { src: Trophy5Image },
+    { src: Trophy6Image },
+  ]}
+/>
+
+### 根据绘图说明（drawing instructions）创建图像
+
+`ImageRenderer` 使得以下操作变得可行：
+
+- 通过绘制到 `Canvas` 来创建自定义图像。
+- 从其（from it）绘制一个 `CGImage`。
+- 用其（using it）初始化一个 `Image`。
+
+为了简化此过程，可使用 `Image` 初始化器 `init(size:label:opaque:colorMode:renderer:)`，它采用一个闭包，其参数是可以直接绘制的 [GraphicsContext](https://developer.apple.com/documentation/swiftui/graphicscontext)。
