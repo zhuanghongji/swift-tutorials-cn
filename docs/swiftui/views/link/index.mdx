@@ -1,0 +1,438 @@
+import Link1Image from "./link_1.png";
+import Link2Image from "./link_2.png";
+import Link3Image from "./link_3.png";
+import Link4Image from "./link_4.png";
+import Share1Image from "./share_1.png";
+import Share2Image from "./share_2.png";
+import Share3Image from "./share_3.png";
+import Share4Image from "./share_4.png";
+import Share5Image from "./share_5.png";
+import Trans1Image from "./trans_1.png";
+import Trans2Image from "./trans_2.png";
+import Trans3Image from "./trans_3.png";
+
+# Link
+
+<OriginalLink
+  title="用于导航到 URL 的控件"
+  value="https://developer.apple.com/documentation/swiftui/imagerenderer"
+/>
+
+## 概述
+
+`Link` 定义如下：
+
+```swift
+public struct Link<Label> : View where Label : View {
+
+    /// Creates a control, consisting of a URL and a label, used to navigate
+    /// to the given URL.
+    public init(destination: URL, @ViewBuilder label: () -> Label)
+
+    @MainActor public var body: some View { get }
+
+    public typealias Body = some View
+}
+
+extension Link where Label == Text {
+
+    /// Creates a control, consisting of a URL and a title key, used to
+    /// navigate to a URL.
+    public init(_ titleKey: LocalizedStringKey, destination: URL)
+
+    /// Creates a control, consisting of a URL and a title string, used to
+    /// navigate to a URL.
+    public init<S>(_ title: S, destination: URL) where S : StringProtocol
+}
+```
+
+通过提供目标 URL 和标题来创建链接。标题告诉用户链接的用途，可以是字符串、生成本地化字符串的标题键（title key）或充当标签的视图。下面的示例创建一个指向 _github.com_ 的链接，并将标题字符串显示为链接样式视图：
+
+<ScreenshotBlockVertical src={Link1Image} srcRight={Link2Image}>
+
+```swift
+Link("View GitHub", destination: URL(string: "https://www.github.com")!)
+```
+
+</ScreenshotBlockVertical>
+
+:::note
+
+要注意的是，初始化器 `URL(string:)` 是一个 [Failable Initializers](https://docs.swift.org/swift-book/documentation/the-swift-programming-language/initialization#Failable-Initializers)。因此上面的示例代码在其后面添加了 `!` 进行强制解包（force unwrapping of its value），以匹配初始化器 `Link(destination:label:)`。
+
+```swift
+public struct URL : ReferenceConvertible, Equatable, Sendable {
+    // ...
+
+    public init?(string: String)
+}
+```
+
+:::
+
+当用户点击或单击 `Link` 时，默认行为取决于 `URL` 的内容。例如，如果可能，SwiftUI 会在关联的应用程序中打开 `Universal Link`，如果没有，则会在用户的默认 Web 浏览器中打开。或者，你可以通过使用自定义 `OpenURLAction` 来设置 `openURL` 环境值以覆盖默认行为：
+
+```swift
+Link("View GitHub", destination: URL(string: "https://www.github.com")!)
+    .environment(\.openURL, OpenURLAction { url in
+        print("Open \(url)")
+        return .handled
+    })
+
+// 当你点击 Link 时，打印 "Open https://www.github.com"，不会有浏览器被拉起
+```
+
+`OpenURLAction` 的定义如下：
+
+```swift
+public struct OpenURLAction {
+    // ...
+
+    public struct Result {
+
+        /// The handler opened the URL.
+        public static let handled: OpenURLAction.Result
+
+        /// The handler discarded the URL.
+        public static let discarded: OpenURLAction.Result
+
+        /// The handler asks the system to open the original URL.
+        public static let systemAction: OpenURLAction.Result
+
+        /// The handler asks the system to open the modified URL.
+        public static func systemAction(_ url: URL) -> OpenURLAction.Result
+    }
+
+    /// Creates an action that opens a URL.
+    public init(handler: @escaping (URL) -> OpenURLAction.Result)
+}
+```
+
+根据上述 `handler` 的返回值可知，如果你经过一系列判断后还是想让系统处理这个链接的话，可以这样：
+
+```swift
+Link("View GitHub", destination: URL(string: "https://www.github.com")!)
+    .environment(\.openURL, OpenURLAction { url in
+        if url.scheme == "https" {
+            // highlight-next-line
+            return .systemAction
+        }
+        print("Open \(url)")
+        return .handled
+    })
+```
+
+如果你是想让系统处理另外一个链接的话，是这样：
+
+```swift
+Link("View GitHub", destination: URL(string: "https://www.github.com")!)
+    .environment(\.openURL, OpenURLAction { url in
+        if url.scheme == "https" {
+            // highlight-next-line
+            return .systemAction(URL(string: "https://www.bing.com")!)
+        }
+        print("Open \(url)")
+        return .handled
+    })
+```
+
+与其他视图一样，你可以使用标准视图修饰符设置链接样式，具体取决于链接标签的视图类型。例如，可以使用自定义 `font(_:)` 或 `foregroundColor(_:)` 修改 `Text` 标签，以自定义链接在应用 UI 中的外观。
+
+<ScreenshotBlock src={Link3Image}>
+
+```swift
+let url = URL(string: "https://www.github.com")!
+
+var body: some View {
+    VStack(spacing: 20) {
+        Link("View GitHub", destination: url)
+
+        Link("View GitHub", destination: url)
+            .font(.title)
+            .foregroundColor(.green)
+
+        Link("View GitHub", destination: url)
+            .font(.title)
+            .buttonStyle(.bordered)
+
+        Link("View GitHub", destination: url)
+            .font(.title)
+            .foregroundColor(.white)
+            .padding(20)
+            .background(.black)
+            .clipShape(.rect(cornerRadius: 16))
+    }
+}
+```
+
+</ScreenshotBlock>
+
+上面的示例中，我们使用的 `Link` 初始化器都是 `Link(_:destination:)` 来显示一个 "纯文本" 的链接。如果想要更个性化的显示布局，可以使用另外一个初始化器 `Link(destination:label:)`：
+
+<ScreenshotBlock src={Link4Image}>
+
+```swift
+let url = URL(string: "https://www.github.com")!
+
+var body: some View {
+    VStack(spacing: 20) {
+        Link(destination: url) {
+            Text("View Bing")
+        }
+
+        Link(destination: url) {
+            Label("View Bing", systemImage: "globe")
+        }
+
+        Link(destination: url) {
+            HStack {
+                Image(systemName: "globe")
+                Text("View Bing")
+            }
+            .foregroundColor(.white)
+            .padding()
+            .background(.black)
+        }
+    }
+    .font(.title)
+}
+```
+
+</ScreenshotBlock>
+
+### ShareLink
+
+[ShareLink](https://developer.apple.com/documentation/swiftui/sharelink)：一个控制分享 presentation 的视图。
+
+```swift
+public struct ShareLink<Data, PreviewImage, PreviewIcon, Label> : View
+    where Data : RandomAccessCollection,
+          PreviewImage : Transferable,
+          PreviewIcon : Transferable,
+          Label : View,
+          Data.Element : Transferable {
+
+    /// Creates an instance that presents the share interface.
+    public init(items: Data,
+                subject: Text? = nil,
+                message: Text? = nil,
+                preview: @escaping (Data.Element) -> SharePreview<PreviewImage, PreviewIcon>,
+                @ViewBuilder label: () -> Label)
+
+    /// The content and behavior of the view.
+    @MainActor public var body: some View { get }
+
+    /// The type of view representing the body of this view.
+    public typealias Body = some View
+}
+
+/// A representation of a type to display in a share preview.
+public struct SharePreview<Image, Icon> where Image : Transferable, Icon : Transferable {
+
+    /// Creates a preview representation.
+    public init(_ titleKey: LocalizedStringKey, image: Image, icon: Icon)
+
+    /// Creates a preview representation.
+    public init<S>(_ title: S, image: Image, icon: Icon) where S : StringProtocol
+
+    /// Creates a preview representation.
+    public init(_ title: Text, image: Image, icon: Icon)
+}
+```
+
+用户点击或单击分享链接（share link）以显示（present）分享界面。该链接通常使用系统标准外观，你只需要提供要分享的内容：
+
+<ScreenshotBlockVertical src={Share1Image} srcRight={Share2Image}>
+
+```swift
+let url = URL(string: "https://developer.apple.com/xcode/swiftui/")!
+
+var body: some View {
+    VStack(spacing: 20) {
+        ShareLink(item: url)
+
+        ShareLink("Share URL", item: url)
+
+        ShareLink(item: url) {
+            Label("Share SwiftUI", systemImage: "swift")
+        }
+    }
+}
+```
+
+</ScreenshotBlockVertical>
+
+上面的示例分别用到了以下 `Link` 扩展的初始化器：
+
+```swift
+extension ShareLink where PreviewImage == Never, PreviewIcon == Never, Label == DefaultShareLinkLabel {
+    // ...
+
+    // 未设置 Label
+    public init(item: URL, subject: Text? = nil, message: Text? = nil) where Data == CollectionOfOne<URL>
+
+    // 采用字符串并作为 Label
+    public init(_ titleKey: LocalizedStringKey,
+                item: URL,
+                subject: Text? = nil,
+                message: Text? = nil) where Data == CollectionOfOne<URL>
+}
+
+extension ShareLink where PreviewImage == Never, PreviewIcon == Never {
+    // ...
+
+    // 通过提供视图内容来控制链接的外观
+    public init(item: URL,
+                subject: Text? = nil,
+                message: Text? = nil,
+                @ViewBuilder label: () -> Label) where Data == CollectionOfOne<URL>
+}
+```
+
+特别地，`Link` 除了有扩展 `item` 类型为 `URL` 的便捷初始化器之外，也扩展了类型为 `String` 的便捷初始化器。所以，你也可以分享一段纯文本：
+
+<ScreenshotBlockVertical src={Share3Image} srcRight={Share4Image} srcRightmost={Share5Image}>
+
+```swift
+let text = "Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat. Duis aute irure dolor in reprehenderit in voluptate velit esse cillum dolore eu fugiat nulla pariatur. Excepteur sint occaecat cupidatat non proident, sunt in culpa qui officia deserunt mollit anim id est laborum."
+
+var body: some View {
+    VStack(spacing: 20) {
+        ShareLink(item: text)
+
+        ShareLink("Share text content", item: text)
+
+        ShareLink(item: text) {
+            Label("Share text content", systemImage: "pencil.line")
+        }
+    }
+}
+```
+
+</ScreenshotBlockVertical>
+
+`ShareLink` 不是只可以分享 `URL` 和 `String`，而是可以分享任何符合 [Transferable](https://developer.apple.com/documentation/swiftui/sharelink) 的内容：
+
+```swift
+// 描述类型如何与传输 API（如拖放或复制和粘贴）交互的协议
+public protocol Transferable {
+
+    /// The type of the representation used to import and export the item.
+    associatedtype Representation : TransferRepresentation
+
+    /// The representation used to import and export the item.
+    @TransferRepresentationBuilder<Self> static var transferRepresentation: Self.Representation { get }
+}
+
+// 用于导入和导出 item 的表示形式
+public protocol TransferRepresentation<Item> : Sendable {
+
+    /// The type of the item that's being transferred.
+    associatedtype Item : Transferable
+
+    /// The transfer representation for the item.
+    associatedtype Body : TransferRepresentation
+
+    /// A builder expression that describes the process of importing and exporting an item.
+    @TransferRepresentationBuilder<Self.Item> var body: Self.Body { get }
+}
+```
+
+许多框架类型（如 `URL`）已经符合此协议，你也可以使自己的类型变得 transferable。
+
+例如，你可以使用 [ProxyRepresentation](https://developer.apple.com/documentation/CoreTransferable/ProxyRepresentation)：
+
+```swift
+// 使用另一种类型的传递表示形式作为其自己的传递表示形式
+public struct ProxyRepresentation<Item, ProxyRepresentation> : TransferRepresentation
+    where Item : Transferable,
+          ProxyRepresentation : Transferable {
+    // ...
+
+    /// Creates a transfer representation that's exported by proxy through
+    /// another transfer representation.
+    public init(exporting: @escaping @Sendable (Item) throws -> ProxyRepresentation)
+}
+```
+
+将自己的类型解析为框架类型：
+
+```swift
+struct Photo: Transferable {
+    static var transferRepresentation: some TransferRepresentation {
+        ProxyRepresentation(exporting: \.image)
+    }
+
+    public var image: Image
+    public var caption: String
+}
+```
+
+然后在视图中使用 `Photo` 类型：
+
+<ScreenshotBlockVertical src={Trans1Image} srcRight={Trans2Image} srcRightmost={Trans3Image}>
+
+```swift
+struct PhotoView: View {
+    let photo: Photo
+
+    var body: some View {
+        photo.image
+            .resizable()
+            .aspectRatio(contentMode: .fill)
+            .frame(width: 300, height: 300)
+            .toolbar {
+                ShareLink(
+                    item: photo,
+                    preview: SharePreview(
+                        photo.caption,
+                        image: photo.image
+                    )
+                )
+            }
+    }
+}
+
+struct ContentView: View {
+    var body: some View {
+        NavigationView {
+            VStack(spacing: 20) {
+                PhotoView(photo: Photo(
+                    image: Image("gz_tower"),
+                    caption: "GLOBE"
+                ))
+            }
+        }
+    }
+}
+```
+
+</ScreenshotBlockVertical>
+
+> "gz_tower" 是在 [Image](../image/) 一文中添加到 Assets 的图片资源。
+
+有时，你应用分享的内容不会立即可用。当需要异步操作（如网络请求）来检索（retrieve）和准备内容时，可以使用 [FileRepresentation](https://developer.apple.com/documentation/CoreTransferable/FileRepresentation) 或 [DataRepresentation](https://developer.apple.com/documentation/CoreTransferable/DataRepresentation)。
+
+`Transferable` 类型还允许你为单个可分享 item 提供多个内容类型。分享界面根据你提供的类型显示相关的分享服务。
+
+前面的示例还演示了如何提供要在分享界面中显示的内容的预览。
+
+分享网址或非属性字符串时不需要预览。分享这些类型的内容时，系统可以自动确定预览。
+
+即使预览是可选的，也可以提供预览。例如，分享 `URL` 时，自动预览首先在基本 `URL` 旁边显示占位符链接图标，同时通过网络获取链接的元数据。一旦链接的图标和标题可用，预览就会更新。如果你改为提供预览，则预览会立即显示，而不会通过网络获取数据。
+
+某些分享活动支持主题和消息字段。你可以使用 `subject` 和 `message` 参数预填充这些字段：
+
+```swift
+ShareLink(
+    item: photo,
+    // highlight-next-line
+    subject: Text("Cool photo"),
+    // highlight-next-line
+    message: Text("Check it out!"),
+    preview: SharePreview(
+        photo.caption,
+        image: photo.image
+    )
+)
+```

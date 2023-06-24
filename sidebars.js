@@ -109,6 +109,7 @@ const swiftuiSidebar = [
           "swiftui/views/image/index",
           "swiftui/views/asyncimage/index",
           "swiftui/views/button/index",
+          "swiftui/views/link/index",
         ],
       },
       {
