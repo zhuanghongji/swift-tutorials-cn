@@ -112,6 +112,7 @@ const swiftuiSidebar = [
           "swiftui/views/link/index",
           "swiftui/views/slider/index",
           "swiftui/views/stepper/index",
+          "swiftui/views/toggle/index",
         ],
       },
       {
