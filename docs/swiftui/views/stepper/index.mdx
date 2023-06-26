@@ -1,0 +1,119 @@
+import Stepper1Image from "./stepper_1.png";
+import Stepper2Image from "./stepper_2.png";
+import Stepper3Image from "./stepper_3.png";
+import Stepper4Image from "./stepper_4.png";
+
+# Stepper
+
+<OriginalLink
+  title="执行递增和递减操作的控件"
+  value="https://developer.apple.com/documentation/swiftui/stepper"
+/>
+
+```swift
+public struct Stepper<Label> : View where Label : View {
+
+    public init(@ViewBuilder label: () -> Label,
+                onIncrement: (() -> Void)?,
+                onDecrement: (() -> Void)?,
+                onEditingChanged: @escaping (Bool) -> Void = { _ in })
+
+    @MainActor public var body: some View { get }
+
+    public typealias Body = some View
+}
+```
+
+## 概述
+
+如果希望用户在递增或递减值时进行精细（granular）控制，请使用 stepper 控件。例如，您可以使用 stepper 执行以下操作：
+
+- 向上或向下更改值 1 。
+- 严格在规定的（prescribed）范围内操作。
+- 在 stepper 的可能值范围内按特定步长增减。
+
+下面的示例使用一个包含多个 `Color` 值的数组、一个局部状态变量 `value` 来设置控件的背景色和标题标签。当用户单击或点击步进器的递增或递减按钮时，SwiftUI 会执行更新 `value` 的相关闭包，包装（wrapping） `value` 以防止溢出。然后，SwiftUI 重新呈现视图，更新文本和背景颜色以匹配当前索引：
+
+<ScreenshotBlock src={Stepper1Image} srcRight={Stepper2Image}>
+
+```swift
+@State private var value = 0
+let colors: [Color] = [.orange, .red, .gray, .blue,
+                        .green, .purple, .pink]
+
+func incrementStep() {
+    value += 1
+    if value >= colors.count { value = 0 }
+}
+
+func decrementStep() {
+    value -= 1
+    if value < 0 { value = colors.count - 1 }
+}
+
+var body: some View {
+    Stepper {
+        Text("Value: \(value) Color: \(colors[value].description)")
+    } onIncrement: {
+        incrementStep()
+    } onDecrement: {
+        decrementStep()
+    }
+    .padding()
+    .background(colors[value])
+}
+```
+
+</ScreenshotBlock>
+
+下面的示例演示了一个 stepper，其步长由 `step` 定义为 `5`，其范围由 `range` 定义 `0` 到 `50`：
+
+<ScreenshotBlock src={Stepper3Image} srcRight={Stepper4Image}>
+
+```swift
+@State private var value = 0
+
+var body: some View {
+    VStack {
+        Text("Current Stepper Value: \(value)")
+        Stepper(value: $value,
+                in: 0 ... 50,
+                step: 5) {
+            Text("Stepper")
+        }
+        .padding()
+    }
+}
+```
+
+</ScreenshotBlock>
+
+上面的示例用到的初始化器是：
+
+```swift
+extension Stepper {
+
+    /// Creates a stepper configured to increment or decrement a binding to a
+    /// value using a step value you provide.
+    public init<V>(value: Binding<V>,
+                   step: V.Stride = 1,
+                   @ViewBuilder label: () -> Label,
+                   onEditingChanged: @escaping (Bool) -> Void = { _ in }) where V : Strideable
+
+    // highlight-start
+    /// Creates a stepper configured to increment or decrement a binding to a
+    /// value using a step value and within a range of values you provide.
+    public init<V>(value: Binding<V>,
+                   in bounds: ClosedRange<V>,
+                   step: V.Stride = 1,
+                   @ViewBuilder label: () -> Label,
+                   onEditingChanged: @escaping (Bool) -> Void = { _ in }) where V : Strideable
+    // highlight-end
+}
+```
+
+:::note
+
+注意看上面示例左图，当 `value` 为 `0` 时，stepper 的 "减按钮" 是灰色的，因为已经不能再往下减了。同理，当 `value` 为 `50` 时，其 "增按钮" 也会变成灰色。
+
+:::
