@@ -1,4 +1,5 @@
 import React, { PropsWithChildren } from "react"
+import styles from './styles.module.css'
 
 const MIN_SIZE = 180
 const MAX_SIZE = 240
@@ -20,7 +21,7 @@ export default function ScreenshotBlock({ children, src, srcRight, size, minSize
   return (
     <>
       <div style={{ display: 'flex' }}>
-        <div style={{ flex: '1 1 auto', flexBasis: '0', minWidth: '0', borderRadius: 6, background: '#282A3633' }}>
+        <div className={styles.container}>
           {children}
         </div>
         <div style={{ marginLeft: 14 }}>
