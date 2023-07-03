@@ -1,0 +1,485 @@
+import Rectangle1Image from "./rectangle_1.png";
+import Rectangle2Image from "./rectangle_2.png";
+import Rectangle3Image from "./rectangle_3.png";
+import Stroke1Image from "./stroke_1.png";
+import Stroke2Image from "./stroke_2.png";
+import Stroke3Image from "./stroke_3.png";
+import Border1Image from "./border_1.png";
+import RoundedRectangle1Image from "./rounded_rectangle_1.png";
+import UnevenRoundedRectangle1Image from "./uneven_rounded_rectangle_1.png";
+import UnevenRoundedRectangle2Image from "./uneven_rounded_rectangle_2.png";
+
+# Rectangle
+
+<OriginalLink
+  title="在包含它的视图的 frame 内对齐的（aligned）矩形形状"
+  value="https://developer.apple.com/documentation/swiftui/imagerenderer"
+/>
+
+## 概述
+
+`Rectangle` 定义如下：
+
+```swift
+/// A rectangular shape aligned inside the frame of the view containing it.
+@frozen public struct Rectangle : Shape {
+    // ...
+
+    /// Describes this shape as a path within a rectangular frame of reference.
+    public func path(in rect: CGRect) -> Path
+
+    /// Creates a new rectangle shape.
+    @inlinable public init()
+}
+```
+
+比如：
+
+<ScreenshotBlock src={Rectangle1Image}>
+
+```swift
+VStack {
+    Rectangle()
+        .frame(width: 300, height: 200)
+}
+```
+
+</ScreenshotBlock>
+
+### 填充色
+
+如果你想给 `Rectangle` 填充颜色，可使用 `fill(_:)` 修饰器：
+
+```swift
+extension Shape {
+    // ...
+
+    /// Fills this shape with a color or gradient.
+    public func fill<S>(_ content: S = .foreground,
+                        style: FillStyle = FillStyle()) -> _ShapeView<Self, S> where S : ShapeStyle
+}
+```
+
+比如，下面示例分别给两个 `Rectangle` 填充了 "蓝色" 和 "蓝色渐变"：
+
+<ScreenshotBlock src={Rectangle2Image}>
+
+```swift
+VStack {
+    Rectangle()
+        .fill(.blue)
+        .frame(width: 300, height: 200)
+
+    Rectangle()
+        .fill(.blue.gradient)
+        .frame(width: 300, height: 200)
+}
+```
+
+</ScreenshotBlock>
+
+注意，`fill(_:)` 修饰器只能作用域 [Shpape](https://developer.apple.com/documentation/swiftui/shape) 实例本身：
+
+```swift
+Rectangle()
+    // The line next is works.
+    // highlight-next-line
+    .fill(.blue)
+    .frame(width: 300, height: 200)
+```
+
+```swift
+Rectangle()
+    .frame(width: 300, height: 200)
+    // The line next is error: Value of type 'some View' has no member 'fill'
+    // error-next-line
+    .fill(.blue)
+```
+
+另外也要注意，如果你给 `Rectangle` 外层容器视图指定了 "前景色" 而未给其本身指定 "填充色" 的话，则会默认使用该前景色作为填充器，如下示例所示：
+
+<ScreenshotBlock src={Rectangle3Image}>
+
+```swift
+VStack {
+    Text("This is in blue")
+
+    // 没有指定填充色
+    Rectangle()
+        // highlight-next-line
+        // .fill(.orange)
+        .frame(width: 300, height: 200)
+
+    // 显式指定填充色
+    Rectangle()
+        // highlight-next-line
+        .fill(.orange)
+        .frame(width: 300, height: 200)
+}
+.foregroundColor(.blue)
+```
+
+</ScreenshotBlock>
+
+### 描边
+
+如果你想给 `Rectangle` 描边，可使用 `stroke(_:lineWidth:antialiased:)` 修饰器：
+
+```swift
+extension ShapeView {
+    // ...
+
+    /// Traces the outline of this shape with a color or gradient.
+    public func stroke<S>(_ content: S,
+                          lineWidth: CGFloat = 1,
+                          antialiased: Bool = true) -> StrokeShapeView<Self.Content, S, Self> where S : ShapeStyle
+}
+```
+
+<ScreenshotBlock src={Stroke1Image}>
+
+```swift
+VStack(spacing: 20) {
+    // 未描边
+    Rectangle()
+        .frame(width: 300, height: 100)
+
+    // 默认描边的变宽为 1
+    Rectangle()
+        // highlight-next-line
+        .stroke(.green)
+        .frame(width: 300, height: 100)
+
+    // 描边颜色为渐变色
+    Rectangle()
+        .fill(.orange)
+        // highlight-next-line
+        .stroke(.green.gradient, lineWidth: 10)
+        .frame(width: 300, height: 100)
+
+    Rectangle()
+        .fill(.orange)
+        // highlight-next-line
+        .stroke(.green, lineWidth: 10)
+        .frame(width: 300, height: 100)
+
+    Rectangle()
+        .fill(.orange)
+        // highlight-next-line
+        .stroke(.green, lineWidth: 20)
+        .frame(width: 300, height: 100)
+}
+```
+
+</ScreenshotBlock>
+
+对比 `VStack` 中的第一个和第二个视图你会发现，在我们添加了 `stroke(_:lineWidth:antialiased:)` 修饰器后，SwiftUI 不会再给 `Rectangle` 进行颜色填充。
+
+再仔细看你会发现，随着 `lineWidth` 的增大，`VStack` 的子视图间距在视觉上并不完全相同（并非完全等同于我们设定的 `spacing: 20`），这是为啥？看下面这个使用了 `opacity: 0.5` 颜色进行描边的示例：
+
+<ScreenshotBlock src={Stroke2Image}>
+
+```swift
+VStack(spacing: 20) {
+    Rectangle()
+        .frame(width: 300, height: 100)
+
+    Rectangle()
+        // highlight-next-line
+        .stroke(.green.opacity(0.5))
+        .frame(width: 300, height: 100)
+
+    Rectangle()
+        .fill(.orange)
+        // highlight-next-line
+        .stroke(.green.gradient.opacity(0.5), lineWidth: 10)
+        .frame(width: 300, height: 100)
+
+    Rectangle()
+        .fill(.orange)
+        // highlight-next-line
+        .stroke(.green.opacity(0.5), lineWidth: 10)
+        .frame(width: 300, height: 100)
+
+    Rectangle()
+        .fill(.orange)
+        // highlight-next-line
+        .stroke(.green.opacity(0.5), lineWidth: 20)
+        .frame(width: 300, height: 100)
+}
+```
+
+</ScreenshotBlock>
+
+可以看到，在使用 `stroke(_:lineWidth:antialiased:)` 修饰器进行描边时，边宽会对半分布在视图 "边" 的两侧，外侧那一半会在视觉上覆盖视图的间距。
+
+如果只想让描边分布在 "边" 内测怎么办？使用 `stroke(_:lineWidth:antialiased:)` 修饰器即可：
+
+```swift
+extension ShapeView where Self.Content : InsettableShape {
+    // ...
+
+    /// Returns a view that's the result of filling an inner stroke of this view
+    /// with the content you supply.
+    public func strokeBorder<S>(_ content: S = .foreground,
+                                lineWidth: CGFloat = 1,
+                                antialiased: Bool = true) -> StrokeBorderShapeView<Self.Content, S, Self> where S : ShapeStyle
+}
+```
+
+示例如下：
+
+<ScreenshotBlock src={Stroke3Image}>
+
+```swift
+VStack(spacing: 20) {
+    Rectangle()
+        .frame(width: 300, height: 100)
+
+    Rectangle()
+        // highlight-next-line
+        .strokeBorder(.green.opacity(0.5))
+        .frame(width: 300, height: 100)
+
+    Rectangle()
+        .fill(.orange)
+        // highlight-next-line
+        .strokeBorder(.green.gradient.opacity(0.5), lineWidth: 10)
+        .frame(width: 300, height: 100)
+
+    Rectangle()
+        .fill(.orange)
+        // highlight-next-line
+        .strokeBorder(.green.opacity(0.5), lineWidth: 10)
+        .frame(width: 300, height: 100)
+
+    Rectangle()
+        .fill(.orange)
+        // highlight-next-line
+        .strokeBorder(.green.opacity(0.5), lineWidth: 20)
+        .frame(width: 300, height: 100)
+}
+```
+
+</ScreenshotBlock>
+
+特别地，`View` 视图的 `border(_:width:)` 修饰器也是 "内描边" 的，示例如下：
+
+<ScreenshotBlock src={Border1Image}>
+
+```swift
+struct MyView: View {
+    var body: some View {
+        HStack {
+            Text("My View")
+        }
+        .frame(width: 300, height: 100)
+        .background(.orange)
+    }
+}
+
+struct ContentView: View {
+    var body: some View {
+        VStack(spacing: 20) {
+            MyView()
+
+            MyView()
+                .border(.green.opacity(0.5))
+
+            MyView()
+                .border(.green.gradient.opacity(0.5), width: 10)
+
+            MyView()
+                .border(.green.opacity(0.5), width: 10)
+
+            MyView()
+                .border(.green.opacity(0.5), width: 20)
+        }
+    }
+}
+```
+
+</ScreenshotBlock>
+
+### RoundedRectangle
+
+[RoundedRectangle](https://developer.apple.com/documentation/swiftui/roundedrectangle) 具有圆角的矩形形状:
+
+```swift
+/// A rectangular shape with rounded corners, aligned inside the frame of the
+/// view containing it.
+@frozen public struct RoundedRectangle : Shape {
+    // ...
+
+    /// The width and height of the rounded rectangle's corners.
+    public var cornerSize: CGSize
+
+    /// The style of corners drawn by the rounded rectangle.
+    public var style: RoundedCornerStyle
+
+    /// Creates a new rounded rectangle shape.
+    @inlinable public init(cornerSize: CGSize, style: RoundedCornerStyle = .continuous)
+
+    /// Creates a new rounded rectangle shape.
+    @inlinable public init(cornerRadius: CGFloat, style: RoundedCornerStyle = .continuous)
+
+    /// Describes this shape as a path within a rectangular frame of reference.
+    public func path(in rect: CGRect) -> Path
+}
+```
+
+可以看出，它提供两种初始化方式（通过 `cornerSize` 或 `cornerRadius`），示例如下：
+
+<ScreenshotBlock src={RoundedRectangle1Image}>
+
+```swift
+VStack {
+    // cornerSize
+    RoundedRectangle(cornerSize: CGSize(width: 20, height: 20))
+        .fill(.orange)
+        .frame(width: 300, height: 100)
+    RoundedRectangle(cornerSize: CGSize(width: 20, height: 50))
+        .fill(.orange)
+        .frame(width: 300, height: 100)
+    RoundedRectangle(cornerSize: CGSize(width: 50, height: 20))
+        .fill(.orange)
+        .frame(width: 300, height: 100)
+    RoundedRectangle(cornerSize: CGSize(width: 50, height: 50))
+        .fill(.orange)
+        .frame(width: 300, height: 100)
+
+    // cornerRadius
+    RoundedRectangle(cornerRadius: 20)
+        .fill(.purple)
+        .frame(width: 300, height: 100)
+}
+
+// 观察右图橘色圆角矩形
+// 以理解 cornerSize 中 width 和 height 之前的差异
+```
+
+</ScreenshotBlock>
+
+### UnevenRoundedRectangle
+
+上面的 `RoundedRectangle` 的四个圆角尺寸（`cornerSize`）是相同的、有规则的，如果想要创建不规则圆角（具有不同值的圆角）矩形，需要使用 [UnevenRoundedRectangle](https://developer.apple.com/documentation/swiftui/unevenroundedrectangle)：
+
+```swift
+/// A rectangular shape with rounded corners with different values, aligned
+/// inside the frame of the view containing it.
+@frozen public struct UnevenRoundedRectangle : Shape {
+    // ...
+
+    /// The radii of each corner of the rounded rectangle.
+    public var cornerRadii: RectangleCornerRadii
+
+    /// The style of corners drawn by the rounded rectangle.
+    public var style: RoundedCornerStyle
+
+    /// Creates a new rounded rectangle shape with uneven corners.
+    @inlinable public init(cornerRadii: RectangleCornerRadii,
+                           style: RoundedCornerStyle = .continuous)
+
+    /// Creates a new rounded rectangle shape with uneven corners.
+    public init(topLeadingRadius: CGFloat = 0,
+                bottomLeadingRadius: CGFloat = 0,
+                bottomTrailingRadius: CGFloat = 0,
+                topTrailingRadius: CGFloat = 0,
+                style: RoundedCornerStyle = .continuous)
+
+    /// Describes this shape as a path within a rectangular frame of reference.
+    public func path(in rect: CGRect) -> Path
+}
+
+/// Describes the corner radius values of a rounded rectangle with uneven corners.
+@frozen public struct RectangleCornerRadii : Equatable, Animatable {
+    // ...
+
+    /// The radius of the top-leading corner.
+    public var topLeading: CGFloat
+
+    /// The radius of the bottom-leading corner.
+    public var bottomLeading: CGFloat
+
+    /// The radius of the bottom-trailing corner.
+    public var bottomTrailing: CGFloat
+
+    /// The radius of the top-trailing corner.
+    public var topTrailing: CGFloat
+
+    /// Creates a new set of corner radii for a rounded rectangle with
+    /// uneven corners.
+    public init(topLeading: CGFloat = 0,
+                bottomLeading: CGFloat = 0,
+                bottomTrailing: CGFloat = 0,
+                topTrailing: CGFloat = 0)
+}
+```
+
+其中初始化器 `RectangleCornerRadii(cornerRadii:style:)` 示例如下：
+
+<ScreenshotBlock src={UnevenRoundedRectangle1Image}>
+
+```swift
+VStack {
+    UnevenRoundedRectangle(cornerRadii: RectangleCornerRadii(
+        topLeading: 20,
+        bottomLeading: 20,
+        bottomTrailing: 20,
+        topTrailing: 20
+    ))
+    .fill(.orange)
+    .frame(width: 300, height: 100)
+
+    UnevenRoundedRectangle(cornerRadii: RectangleCornerRadii(
+        topLeading: 20,
+        bottomLeading: 20,
+        bottomTrailing: 20,
+        topTrailing: 0
+    ))
+    .fill(.orange)
+    .frame(width: 300, height: 100)
+
+    UnevenRoundedRectangle(cornerRadii: RectangleCornerRadii(
+        topTrailing: 50
+    ))
+    .fill(.orange)
+    .frame(width: 300, height: 100)
+}
+```
+
+</ScreenshotBlock>
+
+其中初始化器 `RectangleCornerRadii(topLeadingRadius:bottomLeadingRadius:bottomTrailingRadius:topTrailingRadius:style:)` 示例如下：
+
+<ScreenshotBlock src={UnevenRoundedRectangle2Image}>
+
+```swift
+VStack {
+    UnevenRoundedRectangle(
+        topLeadingRadius: 20,
+        bottomLeadingRadius: 20,
+        bottomTrailingRadius: 20,
+        topTrailingRadius: 20
+    )
+    .fill(.purple)
+    .frame(width: 300, height: 100)
+
+    UnevenRoundedRectangle(
+        topLeadingRadius: 20,
+        bottomLeadingRadius: 0,
+        bottomTrailingRadius: 20,
+        topTrailingRadius: 20
+    )
+    .fill(.purple)
+    .frame(width: 300, height: 100)
+
+    UnevenRoundedRectangle(
+        bottomLeadingRadius: 50
+    )
+    .fill(.purple)
+    .frame(width: 300, height: 100)
+}
+```
+
+</ScreenshotBlock>
