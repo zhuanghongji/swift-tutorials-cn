@@ -1,0 +1,140 @@
+import Circle1Image from "./circle_1.png";
+import Circle2Image from "./circle_2.png";
+import Circle3Image from "./circle_3.png";
+
+# Circle
+
+<OriginalLink
+  title="以包含它的视图 frame 为中心的圆"
+  value="https://developer.apple.com/documentation/swiftui/circle"
+/>
+
+```swift
+/// A circle centered on the frame of the view containing it.
+@frozen public struct Circle : Shape {
+    // ...
+
+    /// Describes this shape as a path within a rectangular frame of reference.
+    public func path(in rect: CGRect) -> Path
+
+    /// Creates a new circle shape.
+    @inlinable public init()
+}
+```
+
+## 概述
+
+圆的半径等于框架矩形最小边缘长度的一半，示例如下：
+
+<ScreenshotBlock src={Circle1Image}>
+
+```swift
+VStack(spacing: 20) {
+    Circle()
+        .frame(width: 200, height: 200)
+        .background(.gray.opacity(0.2))
+
+    Circle()
+        .fill(.orange)
+        .frame(width: 300, height: 200)
+        .background(.gray.opacity(0.2))
+
+    Circle()
+        .fill(.purple)
+        .stroke(.green, lineWidth: 10)
+        .frame(width: 200, height: 100)
+        .background(.gray.opacity(0.2))
+}
+```
+
+</ScreenshotBlock>
+
+如果想 "圆" 与 "frame" 之间有些间隔的话，可以使用扩展自 `Circle` 的 `inset(by:)` 修饰器：
+
+```swift
+extension Circle : InsettableShape {
+
+    /// Returns `self` inset by `amount`.
+    @inlinable public func inset(by amount: CGFloat) -> some InsettableShape
+
+    /// The type of the inset shape.
+    public typealias InsetShape = some InsettableShape
+}
+```
+
+示例如下：
+
+<ScreenshotBlock src={Circle2Image}>
+
+```swift
+VStack(spacing: 20) {
+    Circle()
+        .fill(.orange)
+        .frame(width: 300, height: 200)
+        .background(.gray.opacity(0.2))
+
+    Circle()
+        // highlight-next-line
+        .inset(by: 20)
+        .fill(.orange)
+        .frame(width: 300, height: 200)
+        .background(.gray.opacity(0.2))
+
+    Circle()
+        // highlight-next-line
+        .inset(by: 50)
+        .fill(.orange)
+        .frame(width: 300, height: 200)
+        .background(.gray.opacity(0.2))
+}
+```
+
+</ScreenshotBlock>
+
+如果想重新定义包含圆的 frame 尺寸，可以使用扩展自 `Shape` 的 `size(_:)` 或 `size(width:height:)` 修饰器：
+
+```swift
+extension Shape {
+
+    /// Returns a new version of self representing the same shape, but
+    /// that will ask it to create its path from a rect of `size`. This
+    /// does not affect the layout properties of any views created from
+    /// the shape (e.g. by filling it).
+    @inlinable public func size(_ size: CGSize) -> some Shape
+
+    /// Returns a new version of self representing the same shape, but
+    /// that will ask it to create its path from a rect of size
+    /// `(width, height)`. This does not affect the layout properties
+    /// of any views created from the shape (e.g. by filling it).
+    @inlinable public func size(width: CGFloat, height: CGFloat) -> some Shape
+}
+```
+
+<ScreenshotBlock src={Circle3Image}>
+
+```swift
+VStack(spacing: 20) {
+    Circle()
+        // highlight-next-line
+        .size(width: 100, height: 100)
+        .fill(.orange)
+        .frame(width: 300, height: 200)
+        .background(.gray.opacity(0.2))
+
+    Circle()
+        // highlight-next-line
+        .size(CGSize(width: 150.0, height: 150.0))
+        .fill(.orange)
+        .frame(width: 300, height: 200)
+        .background(.gray.opacity(0.2))
+
+    Circle()
+        // highlight-next-line
+        .size(CGSize(width: 250.0, height: 250.0))
+        .fill(.orange)
+        .frame(width: 300, height: 200)
+        .background(.gray.opacity(0.2))
+}
+```
+
+</ScreenshotBlock>
