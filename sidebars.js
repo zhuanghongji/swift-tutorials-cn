@@ -116,6 +116,7 @@ const swiftuiSidebar = [
           "swiftui/views/picker/index",
           "swiftui/views/rectangle/index",
           "swiftui/views/circle/index",
+          "swiftui/views/ellipse/index",
         ],
       },
       {
