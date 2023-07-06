@@ -82,7 +82,7 @@ const config = {
       docs: {
         sidebar: {
           hideable: false,
-          autoCollapseCategories: false,
+          autoCollapseCategories: true,
         },
       },
       colorMode: {
@@ -128,6 +128,10 @@ const config = {
             position: "right",
           },
         ],
+      },
+      tableOfContents: {
+        minHeadingLevel: 2,
+        maxHeadingLevel: 4,
       },
       footer: {
         style: "dark",
