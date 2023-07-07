@@ -125,7 +125,10 @@ const swiftuiSidebar = [
         type: "category",
         label: "视图布局",
         collapsed: false,
-        items: ["swiftui/viewlayout/hstack/index"],
+        items: [
+          "swiftui/viewlayout/hstack/index",
+          "swiftui/viewlayout/vstack/index",
+        ],
       },
       {
         type: "category",
