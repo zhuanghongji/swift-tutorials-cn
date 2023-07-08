@@ -133,6 +133,12 @@ const swiftuiSidebar = [
       },
       {
         type: "category",
+        label: "事件处理",
+        collapsed: false,
+        items: ["swiftui/event-handling/recognizing-tap-gestures/index"],
+      },
+      {
+        type: "category",
         label: "其它",
         collapsed: false,
         items: ["swiftui/rest/imagerenderer/index"],
