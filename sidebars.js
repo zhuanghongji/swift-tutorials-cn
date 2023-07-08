@@ -128,6 +128,7 @@ const swiftuiSidebar = [
         items: [
           "swiftui/viewlayout/hstack/index",
           "swiftui/viewlayout/vstack/index",
+          "swiftui/viewlayout/grid/index",
         ],
       },
       {
