@@ -1,0 +1,143 @@
+import Heart1Image from "./heart_1.png";
+import Circle1Image from "./circle_1.png";
+
+# 识别长按手势
+
+## onLongPressGesture(minimumDuration:maximumDistance:perform:onPressingChanged:)
+
+给视图添加一个在识别长按手势时要执行的 action。
+
+```swift
+extension View {
+
+    // 给视图添加一个在识别长按手势时要执行的 action。
+    //
+    // - minimumDuration: 手势成功之前必须经过的长按的最短持续（elapse）时间
+    // - maximumDistance: 执行长按的手指或光标，在手势失败之前可以移动的最大距离
+    // - action: 识别出长按时执行的操作
+    // - onPressingChanged: 当手势的按下状态发生变化时执行的闭包，将当前状态作为参数传递
+    @available(tvOS, unavailable)
+    public func onLongPressGesture(minimumDuration: Double = 0.5,
+                                   maximumDistance: CGFloat = 10,
+                                   perform action: @escaping () -> Void,
+                                   onPressingChanged: ((Bool) -> Void)? = nil
+    ) -> some View
+}
+```
+
+示例如下：
+
+<ScreenshotBlock mini src={Heart1Image}>
+
+```swift
+Image(systemName: "heart.fill")
+    .resizable()
+    .frame(width: 200, height: 200)
+    .foregroundColor(.blue)
+    .onLongPressGesture {
+        print("onLongPressGesture")
+    } onPressingChanged: { pressing in
+        print("onPressingChanged = \(pressing)")
+    }
+
+// 长按右图心形图像时，打印：
+// onPressingChanged = true
+// onPressingChanged = false
+// onLongPressGesture
+```
+
+</ScreenshotBlock>
+
+## LongPressGesture
+
+[LongPressGesture](https://developer.apple.com/documentation/swiftui/longpressgesture) 是一个结构体，是用户长按成功时的手势：
+
+```swift
+public struct LongPressGesture : Gesture {
+
+    /// The minimum duration of the long press that must elapse before the
+    /// gesture succeeds.
+    public var minimumDuration: Double
+
+    /// The maximum distance that the long press can move before the gesture
+    /// fails.
+    public var maximumDistance: CGFloat
+
+    /// Creates a long-press gesture with a minimum duration and a maximum
+    /// distance that the interaction can move before the gesture fails.
+    public init(minimumDuration: Double = 0.5, maximumDistance: CGFloat = 10)
+
+    /// The type representing the gesture's value.
+    public typealias Value = Bool
+
+    /// The type of gesture representing the body of `Self`.
+    public typealias Body = Never
+}
+```
+
+下面的示例给 `Circle` 添加了长按手势：
+
+- 开始长按时，Circle 由蓝色逐渐变为红色（动画持续时长 2 秒）。
+- 长按持续到第 3 秒时，Circle 立即变为绿色。
+
+<ScreenshotBlock mini src={Circle1Image}>
+
+```swift
+@GestureState private var isDetectingLongPress = false
+@State private var completedLongPress = false
+
+var fillColor: Color {
+    if isDetectingLongPress {
+        return .red
+    }
+    return completedLongPress ? .green : .blue
+}
+
+var longPress: some Gesture {
+    LongPressGesture(minimumDuration: 3)
+        .updating($isDetectingLongPress) { currentState,
+                                           gestureState,
+                                           transaction in
+            gestureState = currentState
+            transaction.animation = Animation.easeIn(
+                duration: 2.0
+            )
+        }
+        .onEnded { finished in
+            completedLongPress = finished
+        }
+}
+
+var body: some View {
+    Circle()
+        .fill(fillColor)
+        .frame(width: 100, height: 100, alignment: .center)
+        .gesture(longPress)
+}
+
+// 长按右图 Circle 时，日志打印大致如下：
+// currentState = true, gestureState = false
+// onEnded = true
+```
+
+</ScreenshotBlock>
+
+其中 `updating` 的定义如下：
+
+```swift
+extension Gesture {
+
+    // 当手势的值改变时，更新提供的手势状态属性。
+    //
+    // - state: 一个绑定视图 `GestureState` 的属性
+    // - body: 当手势的值改变时，SwiftUI 调用的回调
+    //   - currentState: 已更新的手势状态
+    //   - gestureState: 之前的手势状态
+    //   - transaction: 手势的上下文
+    @inlinable public func updating<State>(_ state: GestureState<State>,
+                                          body: @escaping (Self.Value,
+                                                           inout State,
+                                                           inout Transaction) -> Void
+    ) -> GestureStateGesture<Self, State>
+}
+```

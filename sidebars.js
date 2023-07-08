@@ -135,7 +135,10 @@ const swiftuiSidebar = [
         type: "category",
         label: "事件处理",
         collapsed: false,
-        items: ["swiftui/event-handling/recognizing-tap-gestures/index"],
+        items: [
+          "swiftui/event-handling/recognizing-tap-gestures/index",
+          "swiftui/event-handling/recognizing-long-press-gestures/index",
+        ],
       },
       {
         type: "category",
