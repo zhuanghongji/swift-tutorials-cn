@@ -32,7 +32,7 @@ import LazyHGridImage from "./lazy_hgrid.png";
 
 ## 概述
 
-通过初始化一个带有一系列 [GridRow](https://developer.apple.com/documentation/swiftui/gridrow) 结构的 `Grid` 来创建一个二维布局。每个表格行中的第一个视图出现在表格的第一列中，第二个视图出现在第二列中，以此类推。以下示例创建一个包含两个行和两个列的表格：
+通过初始化一个带有一系列 [GridRow](https://developer.apple.com/documentation/swiftui/gridrow) 结构的 `Grid` 来创建一个二维布局。每个网格行中的第一个视图出现在网格的第一列中，第二个视图出现在第二列中，以此类推。以下示例创建一个包含两个行和两个列的网格：
 
 <ScreenshotBlock src={Grid1Image}>
 
@@ -51,11 +51,11 @@ Grid {
 
 </ScreenshotBlock>
 
-表格及其行的行为类似于包装在 `VStack` 中的 `HStack` 实例的集合。但是，表格将行和列的创建作为单个操作来处理，它将对齐和间距应用于单元格（cells），而不是首先应用于行，然后应用于不相关行的列。上面示例生成的表格演示了这一点。
+网格及其行的行为类似于包装在 `VStack` 中的 `HStack` 实例的集合。但是，网格将行和列的创建作为单个操作来处理，它将对齐和间距应用于单元格（cells），而不是首先应用于行，然后应用于不相关行的列。上面示例生成的网格演示了这一点。
 
 ## 多列单元格
 
-如果你提供非 `GridRow` 的视图作为表格内容中的元素，表格将使用该视图创建跨越表格所有列的行。例如，你可以在上一个示例的行之间添加 [Divider](https://developer.apple.com/documentation/swiftui/divider) ：
+如果你提供非 `GridRow` 的视图作为网格内容中的元素，网格将使用该视图创建跨越网格所有列的行。例如，你可以在上一个示例的行之间添加 [Divider](https://developer.apple.com/documentation/swiftui/divider) ：
 
 <ScreenshotBlock src={Grid2Image}>
 
@@ -78,7 +78,7 @@ Grid {
 
 </ScreenshotBlock>
 
-由于分隔线占用与其父视图提供的水平空间一样多的空间，因此整个表格会变宽（widens）以填充其父视图提供的宽度。
+由于分隔线占用与其父视图提供的水平空间一样多的空间，因此整个网格会变宽（widens）以填充其父视图提供的宽度。
 
 为了防止 flexible 视图在给定轴上占用的空间多于行或列中其他单元格所需的空间，可将 `gridCellUnsizedAxes(_:)` 视图修饰器添加到该视图上：
 
@@ -104,7 +104,7 @@ extension View {
 }
 ```
 
-这会将表格恢复为文本和图像所需的宽度，示例如下：
+这会将网格恢复为文本和图像所需的宽度，示例如下：
 
 <ScreenshotBlock src={Grid3Image}>
 
@@ -129,7 +129,7 @@ Grid {
 
 </ScreenshotBlock>
 
-要使单元格跨越特定数量的列而不是整个表格，请在 `GridRow` 内的视图上使用 `gridCellColumns(_:)` 修饰器：
+要使单元格跨越特定数量的列而不是整个网格，请在 `GridRow` 内的视图上使用 `gridCellColumns(_:)` 修饰器：
 
 ```swift
 extension View {
@@ -183,7 +183,7 @@ Grid {
 
 ## 列数
 
-表格的列数会增加以处理列数最多的行。如果你创建具有不同列数的行，表格会将空单元格添加到列数较少的行的末端（trailing edge）。下面的示例创建具有不同列数的三行：
+网格的列数会增加以处理列数最多的行。如果你创建具有不同列数的行，网格会将空单元格添加到列数较少的行的末端（trailing edge）。下面的示例创建具有不同列数的三行：
 
 <ScreenshotBlock src={Grid5Image}>
 
@@ -206,11 +206,11 @@ Grid {
 
 </ScreenshotBlock>
 
-生成的表格具有与最宽的（widest）行一样多的列，将空单元格添加到未指定足够视图的行。
+生成的网格具有与最宽的（widest）行一样多的列，将空单元格添加到未指定足够视图的行。
 
-表格设置列中所有单元格的宽度，以满足列最宽单元格的需求。在上面的示例中，第一列的宽度取决于该列包含的最宽的 [Text](https://developer.apple.com/documentation/swiftui/text) 视图的宽度。其他列包含 flexible 的 [Color](https://developer.apple.com/documentation/swiftui/color) 视图，平等地共享表格父视图提供的剩余水平空间。
+网格设置列中所有单元格的宽度，以满足列最宽单元格的需求。在上面的示例中，第一列的宽度取决于该列包含的最宽的 [Text](https://developer.apple.com/documentation/swiftui/text) 视图的宽度。其他列包含 flexible 的 [Color](https://developer.apple.com/documentation/swiftui/color) 视图，平等地共享网格父视图提供的剩余水平空间。
 
-同样，一行中最高的单元格设置整行的高度。上面表格第一列中的单元格仅需要每个字符串所需的高度，但 `Color` 单元格会扩展以平均共享表格可用的总高度。因此，颜色单元格决定行高。
+同样，一行中最高的单元格设置整行的高度。上面网格第一列中的单元格仅需要每个字符串所需的高度，但 `Color` 单元格会扩展以平均共享网格可用的总高度。因此，颜色单元格决定行高。
 
 ## 单元格间距和对齐方式
 
@@ -251,13 +251,13 @@ Grid(alignment: .bottom,
 
 ## 性能考虑
 
-表格可以正确调整其行和列的大小，因为它会立即渲染其所有子视图。如果你的应用在首次显示 [ScrollView](https://developer.apple.com/documentation/swiftui/scrollview) 内出现的大表格时表现不佳（exhibits poor performance），可考虑切换到 [LazyVGrid](https://developer.apple.com/documentation/swiftui/lazyvgrid) 或 [LazyHGrid](https://developer.apple.com/documentation/swiftui/lazyhgrid)。
+网格可以正确调整其行和列的大小，因为它会立即渲染其所有子视图。如果你的应用在首次显示 [ScrollView](https://developer.apple.com/documentation/swiftui/scrollview) 内出现的大网格时表现不佳（exhibits poor performance），可考虑切换到 [LazyVGrid](https://developer.apple.com/documentation/swiftui/lazyvgrid) 或 [LazyHGrid](https://developer.apple.com/documentation/swiftui/lazyhgrid)。
 
-只有在 SwiftUI 需要显示它们时，lazy 表格才会渲染它们的单元格，而不是一次性全部显示。这降低了 "永远不完全可见的（never fully visible）" 大型可滚动表格的初始渲染成本，但也降低了表格优化单元格布局的能力。仅当分析代码显示出值得的（worthwhile）性能改进时，才切换到 lazy 表格。
+只有在 SwiftUI 需要显示它们时，lazy 网格才会渲染它们的单元格，而不是一次性全部显示。这降低了 "永远不完全可见的（never fully visible）" 大型可滚动网格的初始渲染成本，但也降低了网格优化单元格布局的能力。仅当分析代码显示出值得的（worthwhile）性能改进时，才切换到 lazy 网格。
 
 ### LazyVGrid
 
-LazyVGrid](https://developer.apple.com/documentation/swiftui/lazyvgrid)：一个容器视图，将其子视图排列在垂直增长的表格中，仅根据需要创建项目（items）。
+LazyVGrid](https://developer.apple.com/documentation/swiftui/lazyvgrid)：一个容器视图，将其子视图排列在垂直增长的网格中，仅根据需要创建项目（items）。
 
 ```swift
 public struct LazyVGrid<Content> : View where Content : View {
@@ -308,7 +308,7 @@ public struct GridItem : Sendable {
 }
 ```
 
-以下示例中的表格定义了两列，并使用 [ForEach](https://developer.apple.com/documentation/swiftui/foreach) 结构体为每行中的列重复生成一对 [Text](https://developer.apple.com/documentation/swiftui/foreach) 视图：
+以下示例中的网格定义了两列，并使用 [ForEach](https://developer.apple.com/documentation/swiftui/foreach) 结构体为每行中的列重复生成一对 [Text](https://developer.apple.com/documentation/swiftui/foreach) 视图：
 
 <ScreenshotBlock src={LazyVGridImage}>
 
@@ -337,11 +337,11 @@ private func emoji(_ value: Int) -> String {
 
 </ScreenshotBlock>
 
-对于表格中的每一行，第一列显示 "笑脸" 组中的 Unicode 代码点，第二列显示其相应的表情符号。
+对于网格中的每一行，第一列显示 "笑脸" 组中的 Unicode 代码点，第二列显示其相应的表情符号。
 
 ### LazyHGrid
 
-[LazyHGrid](https://developer.apple.com/documentation/swiftui/lazyhgrid)：一个容器视图，将其子视图排列在水平增长的表格中，仅根据需要创建项目（items）。
+[LazyHGrid](https://developer.apple.com/documentation/swiftui/lazyhgrid)：一个容器视图，将其子视图排列在水平增长的网格中，仅根据需要创建项目（items）。
 
 ```swift
 public struct LazyHGrid<Content> : View where Content : View {
@@ -358,7 +358,7 @@ public struct LazyHGrid<Content> : View where Content : View {
 }
 ```
 
-以下示例中的表格定义了两行，并使用 [ForEach](https://developer.apple.com/documentation/swiftui/foreach) 结构体为每列中的行重复生成一对 [Text](https://developer.apple.com/documentation/swiftui/foreach) 视图：
+以下示例中的网格定义了两行，并使用 [ForEach](https://developer.apple.com/documentation/swiftui/foreach) 结构体为每列中的行重复生成一对 [Text](https://developer.apple.com/documentation/swiftui/foreach) 视图：
 
 <ScreenshotBlock src={LazyHGridImage}>
 
@@ -390,4 +390,4 @@ private func emoji(_ value: Int) -> String {
 
 </ScreenshotBlock>
 
-对于表格中的每一列，顶行（top row）显示 "笑脸" 组中的 Unicode 代码点，底行（bottom row）显示其相应的表情符号。
+对于网格中的每一列，顶行（top row）显示 "笑脸" 组中的 Unicode 代码点，底行（bottom row）显示其相应的表情符号。
