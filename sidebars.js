@@ -79,6 +79,21 @@ const swiftSidebar = [
           "swift/reference/summary-of-the-grammar/index",
         ],
       },
+      {
+        type: "category",
+        label: "标准库",
+        collapsed: false,
+        items: [
+          "swift/standard-library/int/index",
+          "swift/standard-library/double/index",
+        ],
+      },
+      {
+        type: "category",
+        label: "其它",
+        collapsed: false,
+        items: ["swift/rest/numbers/index"],
+      },
     ],
   },
 ];

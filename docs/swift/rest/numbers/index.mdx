@@ -1,0 +1,83 @@
+# Numbers
+
+## Decimal
+
+[Decimal](https://developer.apple.com/documentation/foundation/decimal)：表示以 10 为基数的数字的结构。
+
+```swift
+public struct Decimal : @unchecked Sendable {
+    // ...
+
+    public init()
+
+    public init(_exponent: Int32,
+                _length: UInt32,
+                _isNegative: UInt32,
+                _isCompact: UInt32,
+                _reserved: UInt32,
+                _mantissa: (UInt16, UInt16, UInt16, UInt16,
+                            UInt16, UInt16, UInt16, UInt16))
+}
+```
+
+示例如下：
+
+```swift
+import Foundation
+
+let x = Decimal()
+// x == 0
+
+let y = Decimal(1.23)
+// y == 1.23
+```
+
+与 `Double` 相比，`Decimal` 有着更高的精度，这在金融领域显得尤为重要：
+
+```swift
+import Foundation
+
+let a = Double(0.123456789)
+let b = Double(0.12345678901234567890123456789)
+// a == 0.123456789
+// b == 0.1234567890123457
+
+let c = Decimal(0.123456789)
+let d = Decimal(0.12345678901234567890123456789)
+// c == 0.12345678899999997952
+// d == 0.12345678901234569216
+```
+
+## NumberFormatter
+
+[NumberFormatter](https://developer.apple.com/documentation/foundation/numberformatter)：在数值及其文本表示形式之间进行转换的格式化器。
+
+```swift
+open class NumberFormatter : Formatter, @unchecked Sendable {
+    // ...
+
+    open var numberStyle: NumberFormatter.Style
+
+    open var locale: Locale!
+}
+```
+
+比如，将数字转换为百分比格式:
+
+```swift
+let number = 0.75
+let formatter = NumberFormatter()
+formatter.numberStyle = .percent
+let formattedString = formatter.string(from: NSNumber(value: number))
+// formattedString == "75%"
+```
+
+再比如，将数字转换为科学计数法格式:
+
+```swift
+let number = 1234567890
+let formatter = NumberFormatter()
+formatter.numberStyle = .scientific
+let formattedString = formatter.string(from: NSNumber(value: number))
+// formattedString == "1.23456789E9"
+```
