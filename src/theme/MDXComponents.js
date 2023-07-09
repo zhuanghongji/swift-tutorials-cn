@@ -5,6 +5,7 @@ import DocCaution from "@site/src/components/DocCaution";
 import OriginalLink from "@site/src/components/OriginalLink";
 import ExperimentBlock from "@site/src/components/ExperimentBlock";
 import Screenshot from "@site/src/components/Screenshot";
+import Screenshots from "@site/src/components/Screenshots";
 import ScreenshotBlock from "@site/src/components/ScreenshotBlock";
 import ScreenshotBlockVertical from "@site/src/components/ScreenshotBlockVertical";
 import ScreenshotTable from "@site/src/components/ScreenshotTable";
@@ -19,6 +20,7 @@ export default {
   OriginalLink,
   ExperimentBlock,
   Screenshot,
+  Screenshots,
   ScreenshotBlock,
   ScreenshotBlockVertical,
   ScreenshotTable,

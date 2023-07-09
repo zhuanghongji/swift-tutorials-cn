@@ -1,0 +1,333 @@
+import Circle1Image from "./circle_1.png";
+import Circle2Image from "./circle_2.png";
+
+# 组合手势
+
+## 概述
+
+当你将多个手势添加到应用程序的视图层次结构时，你需要决定手势之间如何交互。你可以使用手势组合来定义 SwiftUI 识别手势的顺序。手势组合方式分为三种：
+
+- Simultaneous（同时发生的）
+- Sequenced（按顺序的）
+- Exclusive（唯一的、排外的）
+
+具体来说：
+
+- 当你以 simultaneously 方式组合手势修饰器时，SwiftUI 必须同时识别所有的子手势模式（subgesture patterns）才能识别组合手势。
+- 当你一个接一个地对手势修改器进行 Sequence 时，SwiftUI 必须按顺序识别每个子手势。
+- 最后，当你以 exclusively 方式组合手势时，当 SwiftUI 仅识别一个子手势而不识别其他子手势时，SwiftUI 会识别整个手势模式。
+
+### SimultaneousGesture
+
+[SimultaneousGesture](https://developer.apple.com/documentation/swiftui/simultaneousgesture)：包含两个手势的手势，可以同时发生，并且两个手势都不先于另一个。
+
+```swift
+@frozen public struct SimultaneousGesture<First, Second> : Gesture
+        where First : Gesture, Second : Gesture {
+    // ...
+
+    // 同步手势的值，指示其两个手势中的哪一个接收事件
+    @frozen public struct Value {
+
+        // 第一个手势的值
+        public var first: First.Value?
+
+        // 第二个手势的值
+        public var second: Second.Value?
+    }
+
+    // 可以同时发生的两个手势中的第一个
+    public var first: First
+
+    // 可以同时发生的两个手势中的第二个
+    public var second: Second
+
+    // 使用两个可以独立接收更新或成功的手势创建一个手势
+    @inlinable public init(_ first: First, _ second: Second)
+}
+```
+
+同步手势是一个容器事件处理程序，它同时评估其两个子手势。它的值是一个具有两个可选值的结构体，每个值代表两个手势之一的阶段。
+
+你可以通过 `Gesture` 的扩展方法 `simultaneously(with:)` 来快速应用它：
+
+```swift
+extension Gesture {
+
+    // 将一个手势与另一个手势组合起来，创建一个可同时识别这两个手势的新手势
+    // - other: 你想要与你的手势相结合以创建新的组合手势的手势
+    @inlinable public func simultaneously<Other>(with other: Other)
+            -> SimultaneousGesture<Self, Other> where Other : Gesture
+}
+```
+
+### SequenceGesture
+
+[SequenceGesture](https://developer.apple.com/documentation/swiftui/sequencegesture)：由两个手势组成的手势。
+
+```swift
+@frozen public struct SequenceGesture<First, Second> : Gesture where First : Gesture, Second : Gesture {
+    // ...
+
+    /// 序列手势的值，有助于检测第一个手势是否成功，以便第二个手势可以开始
+    @frozen public enum Value {
+
+        /// 第一个手势未完成
+        case first(First.Value)
+
+        /// 第一个手势已完成
+        case second(First.Value, Second.Value?)
+    }
+
+    // 两个手势序列中的第一个手势
+    public var first: First
+
+    // 两个手势序列中的第二个手势
+    public var second: Second
+
+    // 使用两个手势创建序列手势
+    @inlinable public init(_ first: First, _ second: Second)
+}
+```
+
+你可以通过 `Gesture` 的扩展方法 `sequenced(before:)` 来快速应用它：
+
+```swift
+extension Gesture {
+
+    // 你想要与另一个手势组合以创建新的有序手势的手势
+    // - before: 你想要与另一个手势组合以创建新的有序手势的手势
+    @inlinable public func sequenced<Other>(before other: Other)
+            -> SequenceGesture<Self, Other> where Other : Gesture
+}
+```
+
+### ExclusiveGesture
+
+[ExclusiveGesture](https://developer.apple.com/documentation/swiftui/exclusivegesture)：一种由两个手势组成的手势，其中只有一个可以成功。
+
+```swift
+@frozen public struct ExclusiveGesture<First, Second> : Gesture where First : Gesture, Second : Gesture {
+    // ...
+
+    // 指示两个手势中哪一个成功的独占手势的值
+    @frozen public enum Value {
+
+        // 两个手势中的第一个成功
+        case first(First.Value)
+
+        // 两个手势中的第一个成功
+        case second(Second.Value)
+    }
+
+    // 两个手势中的第一个
+    public var first: First
+
+    // 两个手势中的第二个
+    public var second: Second
+
+    // 从两个手势创建一个手势，其中只有一个成功
+    @inlinable public init(_ first: First, _ second: Second)
+}
+```
+
+你可以通过 `Gesture` 的扩展方法 `exclusively(before:)` 来快速应用它：
+
+```swift
+extension Gesture {
+
+    // 仅组合两个手势来创建一个新手势，其中只有一个手势成功，并优先于第一个手势
+    // - before: 与你的手势相结合以创建新的组合手势的手势
+    @inlinable public func exclusively<Other>(before other: Other)
+            -> ExclusiveGesture<Self, Other> where Other : Gesture
+}
+```
+
+下面会通过一个 "实现 `Circle` 先长按才能拖动" 来演示实际场景中 Sequenced 手势的使用：
+
+<Screenshots data={[Circle1Image, Circle2Image]} />
+
+## 将一个手势按顺序排列
+
+当你对一个手势进行排序时，SwiftUI 会先识别第一个手势，然后再识别第二个手势。例如，要在用户拖动视图之前需要长按，可以在 `LongPressGesture` 之后排列 `DragGesture`。
+
+## 对序列手势状态进行建模
+
+为了更轻松地跟踪复杂状态，请使用枚举来捕获配置视图所需的所有状态。在下面的示例中，存在三个重要状态：
+
+- 无交互（inactive）
+- 长按过程中（pressing）
+- 拖动（dragging）
+
+```swift
+enum DragState {
+    case inactive
+    case pressing
+    case dragging(translation: CGSize)
+
+    var translation: CGSize {
+        switch self {
+        case .inactive, .pressing:
+            return .zero
+        case .dragging(let translation):
+            return translation
+        }
+    }
+
+    var isActive: Bool {
+        switch self {
+        case .inactive:
+            return false
+        case .pressing, .dragging:
+            return true
+        }
+    }
+
+    var isDragging: Bool {
+        switch self {
+        case .inactive, .pressing:
+            return false
+        case .dragging:
+            return true
+        }
+    }
+}
+```
+
+## 创建手势并更新 UI 状态
+
+当你对两个手势进行排序时，回调会捕获两个手势的状态。在更新回调中，新的 `value` 使用枚举来表示可能的手势状态的组合。下面的代码将底层手势状态转换为上面定义的高级 `DragState` 枚举。
+
+```swift
+@GestureState private var dragState = DragState.inactive
+@State private var viewState = CGSize.zero
+
+var body: some View {
+    let minLongPressDuration = 0.5
+    let longPressDrag = LongPressGesture(minimumDuration: minLongPressDuration)
+        .sequenced(before: DragGesture())
+        .updating($dragState) { value, state, transaction in
+            switch value {
+                // Long press begins.
+            case .first(true):
+                state = .pressing
+                // Long press confirmed, dragging may begin.
+            case .second(true, let drag):
+                state = .dragging(translation: drag?.translation ?? .zero)
+                // Dragging ended or the long press cancelled.
+            default:
+                state = .inactive
+            }
+        }
+        .onEnded { value in
+            guard case .second(true, let drag?) = value else { return }
+            self.viewState.width += drag.translation.width
+            self.viewState.height += drag.translation.height
+        }
+
+    // return ...
+}
+```
+
+当用户开始按下视图时，拖动状态将更改为 `pressing` 并且形状下方会出现阴影动画。用户完成长按并且拖动状态更改为 `dragging` 后，形状周围会出现边框，指示用户可以开始移动视图。
+
+```swift
+return Circle()
+    .fill(Color.blue)
+    .overlay(dragState.isDragging ? Circle().stroke(Color.white, lineWidth: 2) : nil)
+    .frame(width: 100, height: 100, alignment: .center)
+    .offset(
+        x: viewState.width + dragState.translation.width,
+        y: viewState.height + dragState.translation.height
+    )
+    .animation(nil)
+    .shadow(radius: dragState.isActive ? 8 : 0)
+    .animation(.linear(duration: minLongPressDuration))
+    .gesture(longPressDrag)
+```
+
+## 完整代码
+
+```swift
+import SwiftUI
+
+enum DragState {
+    case inactive
+    case pressing
+    case dragging(translation: CGSize)
+
+    var translation: CGSize {
+        switch self {
+        case .inactive, .pressing:
+            return .zero
+        case .dragging(let translation):
+            return translation
+        }
+    }
+
+    var isActive: Bool {
+        switch self {
+        case .inactive:
+            return false
+        case .pressing, .dragging:
+            return true
+        }
+    }
+
+    var isDragging: Bool {
+        switch self {
+        case .inactive, .pressing:
+            return false
+        case .dragging:
+            return true
+        }
+    }
+}
+
+struct ContentView: View {
+    @GestureState private var dragState = DragState.inactive
+    @State private var viewState = CGSize.zero
+
+    var body: some View {
+        let minLongPressDuration = 0.5
+        let longPressDrag = LongPressGesture(minimumDuration: minLongPressDuration)
+            .sequenced(before: DragGesture())
+            .updating($dragState) { value, state, transaction in
+                switch value {
+                    // Long press begins.
+                case .first(true):
+                    state = .pressing
+                    // Long press confirmed, dragging may begin.
+                case .second(true, let drag):
+                    state = .dragging(translation: drag?.translation ?? .zero)
+                    // Dragging ended or the long press cancelled.
+                default:
+                    state = .inactive
+                }
+            }
+            .onEnded { value in
+                guard case .second(true, let drag?) = value else { return }
+                self.viewState.width += drag.translation.width
+                self.viewState.height += drag.translation.height
+            }
+
+        return Circle()
+            .fill(Color.blue)
+            .overlay(dragState.isDragging ?
+                        Circle().stroke(Color.white, lineWidth: 2) : nil)
+            .frame(width: 100, height: 100, alignment: .center)
+            .offset(
+                x: viewState.width + dragState.translation.width,
+                y: viewState.height + dragState.translation.height
+            )
+            .animation(nil)
+            .shadow(radius: dragState.isActive ? 8 : 0)
+            .animation(.linear(duration: minLongPressDuration))
+            .gesture(longPressDrag)
+    }
+}
+
+#Preview {
+    ContentView()
+}
+```

@@ -139,6 +139,7 @@ const swiftuiSidebar = [
           "swiftui/event-handling/recognizing-tap-gestures/index",
           "swiftui/event-handling/recognizing-long-press-gestures/index",
           "swiftui/event-handling/recognizing-gestures-that-change-over-time/index",
+          "swiftui/event-handling/combining-gestures/index",
         ],
       },
       {
