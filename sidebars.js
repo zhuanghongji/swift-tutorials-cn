@@ -86,6 +86,7 @@ const swiftSidebar = [
         items: [
           "swift/standard-library/int/index",
           "swift/standard-library/double/index",
+          "swift/standard-library/string/index",
         ],
       },
       {
