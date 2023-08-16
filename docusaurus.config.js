@@ -20,7 +20,7 @@ const config = {
   // GitHub pages deployment config.
   // If you aren't using GitHub pages, you don't need these.
   organizationName: "zhuanghongji", // Usually your GitHub org/user name.
-  projectName: "swift-tutorials-cn", // Usually your repo name.
+  projectName: "swift-tutorials-cn.github.io", // Usually your repo name.
   deploymentBranch: "gh-pages",
   trailingSlash: false,
 
