@@ -1,4 +1,4 @@
-import React, { PropsWithChildren } from "react"
+import React, { PropsWithChildren } from 'react'
 import WordRow, { WordRowProps } from '../WordRow'
 import './index.module.css'
 

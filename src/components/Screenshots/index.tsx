@@ -1,4 +1,5 @@
-import React from "react"
+import React from 'react'
+import Image from '@theme/IdealImage'
 
 type Src = any
 
@@ -12,7 +13,12 @@ export default function Screenshots({ data, size = 160 }: ScreenshotTableProps) 
     <div style={{ display: 'flex', width: '100%', justifyContent: 'center' }}>
       {
         data.map((src, index) => {
-          return <img key={`${index}`} style={{ marginLeft: index === 0 ? 0 : 14 }} src={src} width={size} />
+          return (
+            <Image 
+              key={`${index}`} 
+              style={{ width: size, marginLeft: index === 0 ? 0 : 14 }} 
+              img={src} />
+          )
         })
       }
     </div>

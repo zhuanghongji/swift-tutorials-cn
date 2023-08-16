@@ -1,4 +1,5 @@
-import React, { PropsWithChildren } from "react"
+import React from 'react'
+import Image from '@theme/IdealImage'
 
 type ScreenshotProps = {
   src: any
@@ -14,7 +15,7 @@ export default function Screenshot({ src, size  }: ScreenshotProps) {
   }
   return (
     <>
-      <img src={src} width={width} />
+      <Image style={{ width }} img={src} />
       <br />
       <br />
     </>

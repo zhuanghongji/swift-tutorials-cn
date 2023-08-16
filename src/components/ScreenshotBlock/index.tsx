@@ -1,4 +1,5 @@
-import React, { PropsWithChildren } from "react"
+import React, { PropsWithChildren } from 'react'
+import Image from '@theme/IdealImage'
 import styles from './styles.module.css'
 
 const MIN_SIZE = 180
@@ -11,7 +12,6 @@ type ScreenshotBlockProps = PropsWithChildren<{
   srcBottom?: any
   size?: number
   minSize?: boolean
-  
 }>
 
 export default function ScreenshotBlock({ children, mini = false, src, srcRight, srcBottom, size, minSize = false}: ScreenshotBlockProps) {
@@ -31,12 +31,12 @@ export default function ScreenshotBlock({ children, mini = false, src, srcRight,
           {children}
         </div>
         <div style={{ display: 'flex', flexDirection: 'column', marginLeft: 14 }}>
-          <img src={src} width={width} />
-          {srcBottom ? <img style={{ marginTop: 14 }} src={srcBottom} width={width} /> : null}
+          <Image style={{ width }} img={src} />
+          {srcBottom ? <Image style={{ width, marginTop: 14 }} img={srcBottom} /> : null}
         </div>
         {srcRight ? ( 
           <div style={{ marginLeft: 14 }}>
-            <img src={srcRight} width={width} />
+            <Image style={{ width }} img={srcRight} />
           </div>
         ) : null}
       </div>

@@ -1,4 +1,5 @@
-import React from "react"
+import React from 'react'
+import Image from '@theme/IdealImage'
 import './index.module.css'
 
 type Item = {
@@ -31,7 +32,11 @@ export default function ScreenshotTable({ headDisabled = false, data, size = 160
         {
           data.map((item, index) => {
             const { title = '', src } = item 
-            return <td key={`${index}_${title}`}><img src={src} width={size} /></td>
+            return (
+              <td key={`${index}_${title}`}>
+                <Image style={{ width: size }} img={src} />
+              </td>
+            )
           })
         }
       </tbody>

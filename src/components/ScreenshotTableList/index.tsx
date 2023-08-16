@@ -1,4 +1,4 @@
-import React, { useMemo } from "react"
+import React, { useMemo } from 'react'
 import ScreenshotTable from '../ScreenshotTable'
 
 const COLUMN = 4

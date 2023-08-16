@@ -1,4 +1,5 @@
-import React, { PropsWithChildren } from "react"
+import React, { PropsWithChildren } from 'react'
+import Image from '@theme/IdealImage'
 
 const MIN_SIZE = 180
 const MAX_SIZE = 240
@@ -23,12 +24,12 @@ export default function ScreenshotBlockVertical({ children, src, srcRight, srcRi
     <>
       {children}
       <div style={{ display: 'flex', flexDirection: 'row' }}>
-        <img src={src} width={width} />
+        <Image style={{ width }} img={src} />
         {srcRight ? ( 
-            <img  style={{ marginLeft: MARGIN_LEFT }} src={srcRight} width={width} />
+          <Image style={{ width, marginLeft: MARGIN_LEFT }} img={srcRight} />
         ) : null}
         {srcRightmost ? ( 
-            <img  style={{ marginLeft: MARGIN_LEFT }} src={srcRightmost} width={width} />
+          <Image style={{ width, marginLeft: MARGIN_LEFT }} img={srcRightmost} />
         ) : null}
       </div>
       <br />

@@ -1,4 +1,4 @@
-import React from "react"
+import React from 'react'
 import Admonition from '@theme/Admonition';
 
 interface OriginalLinkProps {

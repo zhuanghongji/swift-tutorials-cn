@@ -1,4 +1,4 @@
-import React, { PropsWithChildren } from "react"
+import React, { PropsWithChildren } from 'react'
 import Admonition from '@theme/Admonition'
 import './index.module.css'
 
