@@ -16,10 +16,13 @@ const config = {
   // For GitHub pages deployment, it is often '/<projectName>/'
   baseUrl: "/",
 
+  // https://docusaurus.io/docs/deployment#deploying-to-github-pages
   // GitHub pages deployment config.
   // If you aren't using GitHub pages, you don't need these.
   organizationName: "zhuanghongji", // Usually your GitHub org/user name.
   projectName: "swift-tutorials-cn", // Usually your repo name.
+  deploymentBranch: "gh-pages",
+  trailingSlash: false,
 
   onBrokenLinks: "throw",
   onBrokenMarkdownLinks: "warn",
