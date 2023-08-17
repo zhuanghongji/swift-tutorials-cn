@@ -2,7 +2,7 @@
 <rss version="2.0" xmlns:dc="http://purl.org/dc/elements/1.1/" xmlns:content="http://purl.org/rss/1.0/modules/content/">
     <channel>
         <title>Swift 悍刀行 Blog</title>
-        <link>https://zhuanghongji.github.io/blog</link>
+        <link>https://zhuanghongji.github.io/swift-tutorials-cn/blog</link>
         <description>Swift 悍刀行 Blog</description>
         <lastBuildDate>Sat, 10 Jun 2023 00:00:00 GMT</lastBuildDate>
         <docs>https://validator.w3.org/feed/docs/rss2.html</docs>
@@ -10,8 +10,8 @@
         <language>zh-hans</language>
         <item>
             <title><![CDATA[Welcome]]></title>
-            <link>https://zhuanghongji.github.io/blog/welcome</link>
-            <guid>https://zhuanghongji.github.io/blog/welcome</guid>
+            <link>https://zhuanghongji.github.io/swift-tutorials-cn/blog/welcome</link>
+            <guid>https://zhuanghongji.github.io/swift-tutorials-cn/blog/welcome</guid>
             <pubDate>Sat, 10 Jun 2023 00:00:00 GMT</pubDate>
             <description><![CDATA[Hello, this is swift-tutorials-cn.]]></description>
             <content:encoded><![CDATA[<p>Hello, this is swift-tutorials-cn.</p>]]></content:encoded>

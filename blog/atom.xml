@@ -1,16 +1,16 @@
 <?xml version="1.0" encoding="utf-8"?>
 <feed xmlns="http://www.w3.org/2005/Atom">
-    <id>https://zhuanghongji.github.io/blog</id>
+    <id>https://zhuanghongji.github.io/swift-tutorials-cn/blog</id>
     <title>Swift 悍刀行 Blog</title>
     <updated>2023-06-10T00:00:00.000Z</updated>
     <generator>https://github.com/jpmonette/feed</generator>
-    <link rel="alternate" href="https://zhuanghongji.github.io/blog"/>
+    <link rel="alternate" href="https://zhuanghongji.github.io/swift-tutorials-cn/blog"/>
     <subtitle>Swift 悍刀行 Blog</subtitle>
-    <icon>https://zhuanghongji.github.io/img/favicon.ico</icon>
+    <icon>https://zhuanghongji.github.io/swift-tutorials-cn/img/favicon.ico</icon>
     <entry>
         <title type="html"><![CDATA[Welcome]]></title>
-        <id>https://zhuanghongji.github.io/blog/welcome</id>
-        <link href="https://zhuanghongji.github.io/blog/welcome"/>
+        <id>https://zhuanghongji.github.io/swift-tutorials-cn/blog/welcome</id>
+        <link href="https://zhuanghongji.github.io/swift-tutorials-cn/blog/welcome"/>
         <updated>2023-06-10T00:00:00.000Z</updated>
         <summary type="html"><![CDATA[Hello, this is swift-tutorials-cn.]]></summary>
         <content type="html"><![CDATA[<p>Hello, this is swift-tutorials-cn.</p>]]></content>

@@ -1,0 +1,1 @@
+"use strict";(self.webpackChunkswift_tutorials_cn=self.webpackChunkswift_tutorials_cn||[]).push([[8769],{95013:t=>{t.exports=JSON.parse('{"permalink":"/swift-tutorials-cn/blog","page":1,"postsPerPage":10,"totalPages":1,"totalCount":1,"blogDescription":"Blog","blogTitle":"Blog"}')}}]);
