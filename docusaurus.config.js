@@ -14,7 +14,7 @@ const config = {
   url: "https://zhuanghongji.github.io",
   // Set the /<baseUrl>/ pathname under which your site is served
   // For GitHub pages deployment, it is often '/<projectName>/'
-  baseUrl: "/",
+  baseUrl: "/swift-tutorials-cn/",
 
   // https://docusaurus.io/docs/deployment#deploying-to-github-pages
   // GitHub pages deployment config.
