@@ -1,0 +1,38 @@
+{
+  "Swift Code Block": {
+    "scope": "md,mdx",
+    "prefix": "```swift",
+    "body": ["```swift", "$1", "```", "", "$0"],
+    "description": "Create Swift Code Block"
+  },
+  "Highlight Next Line": {
+    "scope": "md,mdx,javascript,typescript",
+    "prefix": "highlightnext",
+    "body": ["// highlight-next-line"],
+    "description": "Add Highlight Next Line Comment"
+  },
+  "Highlight Start": {
+    "scope": "md,mdx",
+    "prefix": "highlightstart",
+    "body": ["// highlight-start"],
+    "description": "Add Highlight Start Comment"
+  },
+  "Highlight End": {
+    "scope": "md,mdx",
+    "prefix": "highlightend",
+    "body": ["// highlight-end"],
+    "description": "Add Highlight End Comment"
+  },
+  "Create Screenshot": {
+    "scope": "md,mdx",
+    "prefix": "screenshot",
+    "body": ["<Screenshot src={require('./$1.png')} size={$2} />"],
+    "description": "Create Screenshot"
+  },
+  "Create ScreenshotBlock": {
+    "scope": "md,mdx",
+    "prefix": "screenshotblock",
+    "body": ["<ScreenshotBlock src={require('./$1.png')}>$0</ScreenshotBlock>"],
+    "description": "Create ScreenshotBlock"
+  }
+}

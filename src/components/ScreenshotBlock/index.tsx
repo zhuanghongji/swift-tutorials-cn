@@ -3,7 +3,7 @@ import Image from '@theme/IdealImage'
 import styles from './styles.module.css'
 
 const MIN_SIZE = 180
-const MAX_SIZE = 240
+const MAX_SIZE = 180
 
 type ScreenshotBlockProps = PropsWithChildren<{
   mini?: boolean

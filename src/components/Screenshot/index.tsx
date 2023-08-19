@@ -15,8 +15,9 @@ export default function Screenshot({ src, size  }: ScreenshotProps) {
   }
   return (
     <>
-      <Image style={{ width }} img={src} />
-      <br />
+      <div style={{ display: 'flex', width: '100%', justifyContent: 'center' }}>
+        <Image style={{ width }} img={src} />
+      </div>
       <br />
     </>
   );

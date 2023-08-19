@@ -1,0 +1,521 @@
+# 创建和共享视图状态
+
+<OriginalLink
+  title="创建和共享视图状态"
+  value="https://developer.apple.com/documentation/swiftui/model-data#creating-and-sharing-view-state"
+/>
+
+## 管理用户界面状态
+
+将特定于视图的数据封装在应用程序的视图层次结构中，以使你的视图可重用。
+
+### 概述
+
+将数据作为状态存储在视图的最小父视图中，这些视图需要数据来建立跨视图共享的 "单一事实来源（single source of truth）"。通过 Swift 属性以只读方式提供数据，或使用绑定（binding）创建与状态（state）的双向连接。 SwiftUI 监视数据的变化，并根据需要更新任何受影响的视图。
+
+<Screenshot src={require("./image_1.png")} size={480} />
+
+不要将状态属性用于持久存储，因为状态变量的生命周期反映了视图生命周期。相反，使用它们来管理仅影响用户界面的 "转瞬即逝的（transient）状态"，比如按钮的突出显示状态、过滤设置或当前选定的列表项。你可能还会发现进行原型设计时（在准备更改应用程序的数据模型之前），这种存储很方便。
+
+### 将可变值作为状态进行管理
+
+如果视图需要存储可以修改的数据，请使用 [State](https://developer.apple.com/documentation/swiftui/state) 属性包装器声明一个变量。例如，你可以在播客播放器视图中创建一个 `isPlaying` 布尔值来跟踪播放状态：
+
+```swift
+struct PlayerView: View {
+    // highlight-next-line
+    @State private var isPlaying: Bool = false
+
+    var body: some View {
+        // ...
+    }
+}
+```
+
+将属性标记为 state 会告诉框架管理底层存储。你的视图通过属性名称读取和写入 "在状态的 wrappedValue 属性中的数据"。当你更改值时，SwiftUI 会更新视图的受影响部分。例如，你可以向 `PlayerView` 添加一个按钮，点击该按钮即可切换存储的值，并根据存储的值显示不同的图像：
+
+<ScreenshotBlock mini src={require('./image_2.png')}>
+
+```swift
+struct PlayerView: View {
+    @State private var isPlaying: Bool = false
+
+    var body: some View {
+        // highlight-start
+        Button {
+            isPlaying.toggle()
+        } label: {
+            Image(systemName:
+                isPlaying ? "pause.circle" : "play.circle"
+            )
+            .font(.title)
+        }
+        // highlight-end
+    }
+}
+```
+
+</ScreenshotBlock>
+
+通过将状态变量声明为 `private` 来限制其范围，以确保了该变量仍然封装在声明它们的视图层次结构中。
+
+### 声明 Swift 属性来存储不可变值
+
+要为视图提供该视图不会修改的数据，请声明一个标准 Swift 属性。例如，你可以扩展播客播放器以具有包含剧集标题和节目名称字符串的输入结构：
+
+<ScreenshotBlock src={require('./image_3.png')}>
+
+```swift
+struct Episode {
+    let title: String
+    let showTitle: String
+}
+
+struct PlayerView: View {
+    // The queued episode.
+    // highlight-next-line
+    let episode = Episode(title: "TITLE", showTitle: "SHOW TITLE")
+    @State private var isPlaying: Bool = false
+
+    var body: some View {
+        VStack {
+            // Display information about the episode.
+            // highlight-start
+            Text(episode.title)
+            Text(episode.showTitle)
+            // highlight-end
+
+            Button {
+                isPlaying.toggle()
+            } label: {
+                Image(systemName:
+                    isPlaying ? "pause.circle" : "play.circle"
+                )
+                .font(.title)
+            }
+        }
+    }
+}
+
+struct ContentView: View {
+    var body: some View {
+        // highlight-start
+        PlayerView(episode: Episode(title: "TITLE",
+                                    showTitle: "SHOW TITLE"))
+        // highlight-end
+    }
+}
+
+```
+
+</ScreenshotBlock>
+
+虽然 `Episode` 属性值对于 `PlayerView` 来说是一个常量，但它在此视图的父视图中可以是常量，也可以是状态。当用户在父级中选择不同的剧集（episode）时，SwiftUI 会检测状态更改并使用新输入重新创建 `PlayerView`。
+
+在下面示例中，我们将父视图的 `Episode` 属性的值改成了状态，并在点击按钮时更改其 `title` 的值：
+
+```swift
+struct ContentView: View {
+    @State private var episode = Episode(title: "TITLE", showTitle: "SHOW TITfLE")
+
+    var body: some View {
+        VStack {
+            PlayerView(episode: episode)
+            Button {
+                episode = Episode(title: "NEW TITLE", showTitle: "SHOW TITfLE")
+            } label: {
+                Text("Update Title")
+            }
+        }
+    }
+}
+```
+
+### 通过绑定来共享对状态的访问
+
+如果视图需要与子视图共享状态控制，可使用 [Binding](https://developer.apple.com/documentation/swiftui/binding) 属性包装器在子视图中声明属性。绑定表示对现有存储的引用，为底层数据保留 "单一事实来源"。例如，如果你将播客播放器视图的按钮重构为名为 `PlayButton` 的子视图，则可以将其绑定到 `isPlaying` 属性：
+
+```swift
+struct PlayButton: View {
+    // highlight-next-line
+    @Binding var isPlaying: Bool
+
+    var body: some View {
+        Button {
+            isPlaying.toggle()
+        } label: {
+            Image(systemName: isPlaying ? "pause.circle" : "play.circle")
+        }
+    }
+}
+```
+
+如上所示，你可以通过直接引用属性来读取和写入绑定的包装值，就像状态一样。但与状态属性不同的是，绑定没有自己的存储。相反，它引用存储在其它位置的状态属性，并提供与该存储的双向连接。
+
+当你实例化 `PlayButton` 时，通过在父视图中添加美元符号前缀 `$` 来提供对父视图中声明的相应状态变量的绑定：
+
+```swift
+struct PlayerView: View {
+    var episode: Episode
+    @State private var isPlaying: Bool = false
+
+    var body: some View {
+        VStack {
+            Text(episode.title)
+            Text(episode.showTitle)
+
+            // highlight-next-line
+            PlayButton(isPlaying: $isPlaying) // Pass a binding.
+        }
+    }
+}
+```
+
+`$` 前缀向包装属性请求其 `projectedValue`，对于状态来说，它是对底层存储的绑定。同样，你可以使用 `$` 前缀从绑定中获取绑定，从而允许你通过任意数量的视图层次结构级别传递绑定。
+
+你还可以获取对 "状态变量内的作用域值" 的绑定。例如，如果你在播放器的父视图中将 `episode` 声明为状态变量，并且 `Episode` 结构体还包含你想要通过切换来控制的 `isFavorite` 布尔值，那么你可以请引用 `$episode.isFavorite` 获取与该 Episode 的收藏状态的绑定：
+
+```swift
+struct Podcaster: View {
+    @State private var episode = Episode(title: "Some Episode",
+                                         showTitle: "Great Show",
+                                         isFavorite: false)
+    var body: some View {
+        VStack {
+            // highlight-next-line
+            Toggle("Favorite", isOn: $episode.isFavorite) // Bind to the Boolean.
+            PlayerView(episode: episode)
+        }
+    }
+}
+
+// 注：你需要给 `Episode` 结构体补充 `let isFavorite: Bool` 声明
+```
+
+### 动画状态转换
+
+当视图状态发生变化时，SwiftUI 会立即更新受影响的视图。如果你想要平滑视觉过渡，你可以通过将 "触发它们的状态更改的逻辑" 包装在 `withAnimation(_:_:)` 函数的调用中，以告知 SwiftUI 要为它们设置动画。例如，你可以对由 `isPlaying` 布尔值控制的更改进行动画处理：
+
+```swift
+withAnimation(.easeInOut(duration: 1)) {
+    isPlaying.toggle()
+}
+```
+
+通过更改动画函数的尾部闭包内的 `isPlaying` ，你可以告诉 SwiftUI 对依赖于包装值的任何内容进行动画处理，例如按钮图像上的缩放效果：
+
+```swift
+Image(systemName: isPlaying ? "pause.circle" : "play.circle")
+    .scaleEffect(isPlaying ? 1 : 1.5)
+
+// 这样当 isPlaying 变为 true 时，图像大小会逐渐变为原来的 1.5 倍
+```
+
+SwiftUI 使用你指定的曲线和持续时间，或合理的默认值（如果你未提供任何值），随时间在给定值 `1` 和 `1.5` 之间过渡缩放效果输入。另一方面，图像内容不受动画影响，即使相同的布尔值指示要显示哪个系统图像。这是因为 SwiftUI 无法在两个字符串 `pause.circle` 和 `play.circle` 之间以有意义的方式增量转换。
+
+你可以将动画添加到状态属性，或者如上例所示，添加到绑定。无论哪种方式，SwiftUI 都会对底层存储值更改时发生的任何视图更改进行动画处理。例如，如果你向 `PlayerView` 添加背景颜色（位于动画块位置上方的视图层次结构级别），SwiftUI 也会为其添加动画：
+
+```swift
+VStack {
+    Text(episode.title)
+    Text(episode.showTitle)
+    PlayButton(isPlaying: $isPlaying)
+}
+// highlight-next-line
+.background(isPlaying ? Color.green : Color.red) // Transitions with animation.
+```
+
+当你想要将动画应用到特定的视图，而不是由状态变化触发的所有视图时，请使用 `animation(_:value:)` 视图修饰符。
+
+## State
+
+一种属性包装类型，可以读取和写入由 SwiftUI 管理的值。
+
+```swift
+@frozen @propertyWrapper public struct State<Value> : DynamicProperty {
+
+    // 创建一个存储初始包装值的状态属性
+    public init(wrappedValue value: Value)
+
+    // 创建存储初始值的状态属性
+    public init(initialValue value: Value)
+
+    // 状态变量引用的基础值
+    public var wrappedValue: Value { get nonmutating set }
+
+    // 与状态值的绑定
+    public var projectedValue: Binding<Value> { get }
+}
+```
+
+### 概述
+
+使用状态作为存储在视图层次结构中的给定值类型的 "单一事实来源"。通过将 `@State` 属性应用于属性声明并提供初始值，在 [App](https://developer.apple.com/documentation/swiftui/app)、[Scene](https://developer.apple.com/documentation/swiftui/scene) 或 [View](https://developer.apple.com/documentation/swiftui/view) 中创建状态值。将状态声明为私有，以防止在成员初始化器（memberwise initializer）中设置它，这可能与 SwiftUI 提供的存储管理冲突：
+
+```swift
+struct PlayButton: View {
+    @State private var isPlaying: Bool = false  // Create the state.
+
+    var body: some View {
+        Button(isPlaying ? "Pause" : "Play") {  // Read the state.
+            isPlaying.toggle()                  // Write the state.
+        }
+    }
+}
+```
+
+SwiftUI 管理属性的存储。当值更改时，SwiftUI 会更新视图层次结构中依赖于该值的部分。要访问状态的基础值，你可以使用其 [wrappedValue](https://developer.apple.com/documentation/swiftui/state/wrappedvalue) 属性。然而，作为快捷方式，Swift 允许你通过直接引用状态实例来访问包装的值。上面的示例通过直接引用属性来读取和写入 `isPlaying` 状态属性的包装值。
+
+在需要访问该值的视图层次结构中的最高视图中，将状态声明为私有。然后，与也需要访问的任何子视图共享状态，可以直接进行只读访问，也可以作为读写访问的绑定。你可以安全地从任何线程改变状态属性。
+
+:::note
+如果你需要存储引用类型（例如类的实例），请改用 [StateObject](https://developer.apple.com/documentation/swiftui/stateobject)。
+:::
+
+### 与子视图共享状态
+
+如果将状态属性传递给子视图，则每当容器视图中的值发生更改时，SwiftUI 都会更新子视图，但子视图无法修改该值。要使子视图能够修改状态的存储值，请传递 [Binding](https://developer.apple.com/documentation/swiftui/binding)。你可以通过访问状态的 [projectedValue](https://developer.apple.com/documentation/swiftui/state/projectedvalue) 来获取与状态值的绑定，通过在属性名称前添加美元符号 `$` 来获取状态值。
+
+例如，你可以从上例中的播放按钮中删除 `isPlaying` 状态，而是使按钮采用绑定：
+
+```swift
+struct PlayButton: View {
+    // highlight-next-line
+    @Binding var isPlaying: Bool  // Play button now receives a binding.
+
+    var body: some View {
+        Button(isPlaying ? "Pause" : "Play") {
+            isPlaying.toggle()
+        }
+    }
+}
+```
+
+然后，你可以定义一个玩家视图来声明状态，并使用美元符号前缀创建到状态的绑定：
+
+```swift
+struct PlayerView: View {
+    @State private var isPlaying: Bool = false // Create the state here now.
+
+    var body: some View {
+        VStack {
+            // highlight-next-line
+            PlayButton(isPlaying: $isPlaying)  // Pass a binding.
+
+            // ...
+        }
+    }
+}
+```
+
+就像对 [StateObject](https://developer.apple.com/documentation/swiftui/stateobject) 所做的那样，将 [State](https://developer.apple.com/documentation/swiftui/state) 声明为私有，以防止在成员初始化器中设置它，这可能与 SwiftUI 提供的存储管理发生冲突。与状态对象不同，始终通过在状态声明中提供默认值来初始化状态，如上面的示例所示。仅将状态用于视图及其子视图的本地存储。
+
+## Binding
+
+一种属性包装类型，可以读取和写入真实来源拥有的值。
+
+```swift
+@frozen @propertyWrapper @dynamicMemberLookup public struct Binding<Value> {
+
+    // 绑定的事务
+    public var transaction: Transaction
+
+    // 创建一个绑定，其中包含从绑定值读取的闭包，以及在写入绑定值时应用事务的闭包
+    public init(get: @escaping () -> Value, set: @escaping (Value) -> Void)
+
+    // 创建一个带有读取和写入绑定值的闭包的绑定
+    public init(get: @escaping () -> Value, set: @escaping (Value, Transaction) -> Void)
+
+    // 创建具有不可变值的绑定
+    public static func constant(_ value: Value) -> Binding<Value>
+
+    // 绑定变量引用的基础值
+    public var wrappedValue: Value { get nonmutating set }
+
+    // 返回绑定的绑定值的投影
+    public var projectedValue: Binding<Value> { get }
+
+    // 根据另一个绑定的值创建一个绑定
+    public init(projectedValue: Binding<Value>)
+
+    // 返回对给定键路径的结果值的绑定
+    public subscript<Subject>(dynamicMember keyPath: WritableKeyPath<Value, Subject>) -> Binding<Subject> { get }
+}
+```
+
+### 概述
+
+使用绑定（binding）可以在 "保存数据的属性" 和 "显示并更改数据的视图" 之间创建双向连接。绑定将 "属性" 与 "存储在其它位置的真实数据源" 连接起来，而不是直接存储数据。例如，一个切换播放和暂停的按钮可以使用 `Binding` 属性包装器，创建与其父视图的属性绑定。
+
+```swift
+struct PlayButton: View {
+    @Binding var isPlaying: Bool
+
+    var body: some View {
+        Button(isPlaying ? "Pause" : "Play") {
+            isPlaying.toggle()
+        }
+    }
+}
+```
+
+父视图声明一个属性来保存播放状态，使用 [State](https://developer.apple.com/documentation/swiftui/state) 属性包装器来指示该属性是该值的真实来源。
+
+```swift
+struct PlayerView: View {
+    var episode: Episode
+    @State private var isPlaying: Bool = false
+
+    var body: some View {
+        VStack {
+            Text(episode.title)
+                .foregroundStyle(isPlaying ? .primary : .secondary)
+            // highlight-next-line
+            PlayButton(isPlaying: $isPlaying) // Pass a binding.
+        }
+    }
+}
+```
+
+当 `PlayerView` 初始化 `PlayButton` 时，它将其状态属性的绑定传递到按钮的绑定属性中。将 `$` 前缀应用于属性包装值会返回其 [projectedValue](https://developer.apple.com/documentation/swiftui/state/projectedvalue)，对于状态属性包装器，它会返回到该值的绑定。
+
+每当用户点击 `PlayButton` 时， `PlayerView` 就会更新其 `isPlaying` 状态。
+
+## Bindable
+
+一种属性包装类型，支持创建与可观察对象的可变属性的绑定。
+
+```swift
+@dynamicMemberLookup @propertyWrapper public struct Bindable<Value> {
+
+    // 被包装的对象
+    public var wrappedValue: Value
+
+    // 对象的可绑定包装器，使用动态成员查找（dynamic member lookup）创建与其属性的绑定
+    public var projectedValue: Bindable<Value> { get }
+}
+
+extension Bindable where Value : AnyObject, Value : Observable {
+
+    // 从可观察对象创建可绑定对象
+    public init(wrappedValue: Value)
+
+    // 从可观察对象创建可绑定对象
+    public init(_ wrappedValue: Value)
+
+    // 从另一个可绑定的值创建一个可绑定
+    public init(projectedValue: Bindable<Value>)
+}
+```
+
+### 概述
+
+使用此属性包装器创建 "符合 [Observable](https://developer.apple.com/documentation/Observation/Observable) 协议的数据模型对象的可变属性的" 绑定。例如，以下代码用 `@Bindable` 包装 `book` 输入。然后，它使用 `TextField` 更改图书的 `title` 属性，并使用 `Toggle` 更改 `isAvailable` 属性，使用 `$` 语法将每个属性的绑定传递给这些控件。
+
+<ScreenshotBlock src={require('./image_4.png')}>
+
+```swift
+@Observable
+class Book: Identifiable {
+    var title = "Sample Book Title"
+    var isAvailable = true
+}
+
+struct BookEditView: View {
+    @Bindable var book: Book
+    @Environment(\.dismiss) private var dismiss
+
+    var body: some View {
+        Form {
+            TextField("Title", text: $book.title)
+
+            Toggle("Book is available", isOn: $book.isAvailable)
+
+            Button("Close") {
+                dismiss()
+            }
+        }
+    }
+}
+
+struct ContentView: View {
+    @State private var book = Book()
+
+    var body: some View {
+        BookEditView(book: book)
+    }
+}
+```
+
+</ScreenshotBlock>
+
+你可以对 `Observable` 对象的属性和变量使用 `Bindable` 属性包装器。这包括全局变量、SwiftUI 类型之外存在的属性，甚至局部变量。例如，你可以在视图的 `body` 中创建 @Bindable 变量：
+
+<ScreenshotBlock src={require('./image_5.png')}>
+
+```swift
+struct LibraryView: View {
+    @State private var books = [Book(), Book(), Book()]
+
+    var body: some View {
+        List(books) { book in
+            @Bindable var book = book
+            TextField("Title", text: $book.title)
+        }
+    }
+}
+
+struct ContentView: View {
+    var body: some View {
+        LibraryView()
+    }
+}
+```
+
+</ScreenshotBlock>
+
+其中 `@Bindable` 变量 `book` 提供了一个绑定，将 `TextField` 连接到书籍的 `title` 属性，以便人们可以直接进行更改模型数据。
+
+当你需要绑定到 "存储在视图环境中的可观察对象的属性" 时，请使用相同的方式。例如，以下代码使用 `Environment` 属性包装器来检索可观察类型 `Book` 的实例。然后，代码创建一个 `@Bindable` 变量 book 并使用 `$` 语法。
+
+<ScreenshotBlock src={require('./image_6.png')}>
+
+```swift
+struct TitleEditView: View {
+    @Environment(Book.self) private var book
+
+    var body: some View {
+        @Bindable var book = book
+        TextField("Title", text: $book.title)
+    }
+}
+
+struct ContentView: View {
+    @State private var book = Book()
+
+    var body: some View {
+        VStack {
+            TitleEditView()
+                .padding()
+            Divider()
+            TitleEditView()
+                .padding()
+        }
+        .background(.gray.opacity(0.2))
+        .padding()
+        .environment(book)
+    }
+}
+
+// 当你修改其中一个 TextField 输入时，另外一个的值也跟着变
+```
+
+</ScreenshotBlock>
+
+## 总结
+
+如果基于 iOS 17 来理解的话：
+
+- `Binding` 包装的是 "值类型" 的绑定值。
+- `Bindable` 包装的是 "引用类型" 的绑定值。
+- `State` 可同时包装 "值类型" 和 "引用类型" 的值。

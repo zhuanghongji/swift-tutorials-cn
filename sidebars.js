@@ -114,6 +114,14 @@ const swiftuiSidebar = [
       },
       {
         type: "category",
+        label: "数据与存储",
+        collapsed: false,
+        items: [
+          "swiftui/data-and-storage/creating-and-sharing-view-state/index",
+        ],
+      },
+      {
+        type: "category",
         label: "视图",
         collapsed: false,
         items: [
