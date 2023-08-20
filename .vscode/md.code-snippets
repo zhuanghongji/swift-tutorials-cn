@@ -29,10 +29,28 @@
     "body": ["<Screenshot src={require('./$1.png')} size={$2} />"],
     "description": "Create Screenshot"
   },
+  "Create Screenshots": {
+    "scope": "md,mdx",
+    "prefix": "screenshots",
+    "body": ["<Screenshots data={[require('./$1.png')]} />"],
+    "description": "Create Screenshots"
+  },
   "Create ScreenshotBlock": {
     "scope": "md,mdx",
     "prefix": "screenshotblock",
     "body": ["<ScreenshotBlock src={require('./$1.png')}>$0</ScreenshotBlock>"],
     "description": "Create ScreenshotBlock"
+  },
+  "Create Admonitions Note": {
+    "scope": "md,mdx",
+    "prefix": ":::note",
+    "body": [":::note", "", "$1", "", ":::", "", "$0"],
+    "description": "Create Admonitions Note"
+  },
+  "Create Admonitions Caution": {
+    "scope": "md,mdx",
+    "prefix": ":::caution",
+    "body": [":::caution", "", "$1", "", ":::", "", "$0"],
+    "description": "Create Admonitions Caution"
   }
 }
