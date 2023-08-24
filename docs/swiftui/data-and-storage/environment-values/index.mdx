@@ -1,0 +1,319 @@
+# 环境值
+
+<OriginalLink
+  title="使用环境在整个视图层次结构中共享数据"
+  value="https://developer.apple.com/documentation/swiftui/environment-values"
+/>
+
+## 概述
+
+SwiftUI 中的视图可以使用 [Environment](https://developer.apple.com/documentation/swiftui/environment) 属性包装器对 "从环境中读取的配置信息" 做出反应。
+
+<Screenshot src={require("./hero.png")} size={720} />
+
+视图从其容器视图继承其环境，受到 [environment(_:_:)](<https://developer.apple.com/documentation/swiftui/view/environment(_:_:)>) 视图修饰器的显式更改（或来自 "其它对环境值进行操作的修饰器之一" 的隐式更改）的影响。因此，你可以通过修改 "组的容器（group's container）" 的环境来配置整个视图层次结构。
+
+你可以在 [EnvironmentValues](https://developer.apple.com/documentation/swiftui/environmentvalues) 结构体中找到许多内置环境值。你还可以使用 [EnvironmentKey](https://developer.apple.com/documentation/swiftui/environmentkey) 协议创建自定义值。
+
+## 获取环境值
+
+### Environment
+
+从视图环境读取值的属性包装器。
+
+```swift
+@available(iOS 13.0, macOS 10.15, tvOS 13.0, watchOS 6.0, *)
+@frozen @propertyWrapper public struct Environment<Value> : DynamicProperty {
+    // 1️⃣ 创建环境属性以读取指定的 key path 的值
+    @inlinable public init(_ keyPath: KeyPath<EnvironmentValues, Value>)
+
+    // 环境属性当前的值
+    @inlinable public var wrappedValue: Value { get }
+}
+```
+
+```swift
+extension Environment {
+    // 2️⃣ 创建一个环境属性以从环境中读取可观察对象
+    @available(iOS 17.0, macOS 14.0, tvOS 17.0, watchOS 10.0, *)
+    public init(_ objectType: Value.Type)
+            where Value : AnyObject, Value : Observable
+
+    // 3️⃣ 创建一个环境属性以从环境中读取可观察对象，如果当前视图的环境中没有设置相应的对象，则返回 nil
+    @available(iOS 17.0, macOS 14.0, tvOS 17.0, watchOS 10.0, *)
+    public init<T>(_ objectType: T.Type)
+            where Value == T?, T : AnyObject, T : Observable
+}
+```
+
+使用 `Environment` 属性包装器来读取 "存储在视图环境" 中的值。使用属性声明中的 `EnvironmentValues` key path 指示要读取的值。例如，你可以创建一个 "使用 `colorScheme` 属性的 key path 读取当前视图的配色方案（color scheme）" 的属性：
+
+```swift
+@Environment(\.colorScheme) var colorScheme: ColorScheme
+```
+
+然后，根据 "从声明的属性的 `wrappedValue` 中读取的关联值" 来调整视图的内容。与任何属性包装器一样，你可以通过直接引用属性来访问包装的值：
+
+```swift
+if colorScheme == .light { // Checks the wrapped value.
+    Text("light")
+} else {
+    Text("dark")
+}
+```
+
+完整示例如下：
+
+<ScreenshotBlock src={require('./image_1.png')} srcRight={require('./image_2.png')}>
+
+```swift
+struct ContentView: View {
+    @Environment(\.colorScheme) var colorScheme: ColorScheme
+
+    var body: some View {
+        VStack {
+            if colorScheme == .light {
+                Text("light")
+            } else {
+                Text("dark")
+            }
+        }
+        .font(.title)
+    }
+}
+```
+
+</ScreenshotBlock>
+
+如果值发生变化，SwiftUI 会更新视图中依赖于该值的任何部分。例如，如果用户更改外观设置（Appearance settings）为 `.light` 时，视图显示如上左图，为 `.dark` 时则如上右图。
+
+你可以使用此属性包装器来读取（但不能设置）环境值。 SwiftUI 根据系统设置自动更新一些环境值，并为其他环境值提供合理的默认值。你可以使用 `environment(_:_:)` 视图修饰符覆盖其中一些，也可以设置你定义的 "自定义环境值"。
+
+有关 SwiftUI 提供的环境值的完整列表，请参阅 `EnvironmentValues` 结构体的属性。有关创建 "自定义环境值" 的信息，请参阅 `EnvironmentKey` 协议。
+
+### EnvironmentValues
+
+通过视图层次结构传播的环境值的集合。
+
+```swift
+@available(iOS 13.0, macOS 10.15, tvOS 13.0, watchOS 6.0, *)
+public struct EnvironmentValues : CustomStringConvertible {
+    // ...
+
+    public init()
+
+    public subscript<K>(key: K.Type) -> K.Value where K : EnvironmentKey
+}
+```
+
+其部分环境值属性如下：
+
+```swift
+@available(iOS 15.0, macOS 12.0, tvOS 15.0, watchOS 8.0, *)
+extension EnvironmentValues {
+    // 取消当前 presentation 的操作（action）
+    public var dismiss: DismissAction { get }
+
+    // 一个布尔值，指示与此环境关联的视图当前是否 presented
+    public var isPresented: Bool { get }
+}
+
+@available(iOS 13.0, macOS 10.15, tvOS 13.0, watchOS 6.0, *)
+extension EnvironmentValues {
+    // 一个环境值，指示当 "内容换行" 或 "包含换行符" 时文本视图如何对齐其行
+    public var multilineTextAlignment: TextAlignment
+
+    // 指示布局如何截断最后一行文本以适应可用空间的值
+    public var truncationMode: Text.TruncationMode
+
+    // 一个线段（line fragment）底部与下一个线段顶部之间的距离（单位 point）
+    public var lineSpacing: CGFloat
+
+    // 一个布尔值，指示是否应收紧字符间距以使文本适应可用空间
+    public var allowsTightening: Bool
+
+    // 缩小字体大小以使文本适应可用空间的最小允许比例
+    public var minimumScaleFactor: CGFloat
+
+    // 使用环境的区域设置（environment’s locale）在显示时转换 Text 大小写的样式覆盖
+    @available(iOS 14.0, macOS 11.0, tvOS 14.0, watchOS 7.0, *)
+    public var textCase: Text.Case?
+}
+
+// ...
+```
+
+SwiftUI 以 `EnvironmentValues` 结构体向应用程序的视图暴露一组值。要从该结构体中读取值，可使用 [Environment](https://developer.apple.com/documentation/swiftui/environment) 属性包装器声明属性并指定该值的键路径。例如，你可以读取当前区域设置：
+
+```swift
+@Environment(\.locale) var locale: Locale
+```
+
+使用你声明的属性来动态控制视图的布局。 SwiftUI 根据设备特征、系统状态或用户设置自动设置或更新许多环境值，例如 [pixelLength](https://developer.apple.com/documentation/swiftui/environmentvalues/pixellength)、[scenePhase](https://developer.apple.com/documentation/swiftui/environmentvalues/scenephase) 或 [locale](https://developer.apple.com/documentation/swiftui/environmentvalues/locale)。对于其他的，比如 [lineLimit](https://developer.apple.com/documentation/swiftui/environmentvalues/linelimit)，SwiftUI 提供了一个合理的默认值。
+
+你可以使用 [environment(_:_:)](<https://developer.apple.com/documentation/swiftui/view/environment(_:_:)>) 视图修饰器设置或覆盖某些值：
+
+<ScreenshotBlock src={require('./image_3.png')}>
+
+```swift
+struct ContentView: View {
+
+    let text = "Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat. Duis aute irure dolor in reprehenderit in voluptate velit esse cillum dolore eu fugiat nulla pariatur. Excepteur sint occaecat cupidatat non proident, sunt in culpa qui officia deserunt mollit anim id est laborum."
+
+    var body: some View {
+        VStack {
+            Text(text)
+
+            Divider()
+
+            Text(text)
+                // highlight-next-line
+                .environment(\.lineLimit, 2)
+        }
+        .font(.title)
+    }
+}
+```
+
+</ScreenshotBlock>
+
+你设置的值会影响你修改的视图的环境（包括视图层次结构中的子视图），但仅限于你应用不同的环境修饰器。
+
+SwiftUI 提供了专用的视图修饰器来设置某些值，这通常会使你的代码更易于阅读。例如，你不应像前面的示例那样直接设置 `lineLimit` 值，而应使用 [lineLimit(\_:)](<https://developer.apple.com/documentation/swiftui/view/linelimit(_:)-513mb>) 修饰器：
+
+```swift
+Text(text)
+    // highlight-next-line
+    .lineLimit(2)
+```
+
+在某些情况下，使用专用的（dedicated）视图修饰器来提供附加功能。例如，你必须使用 `preferredColorScheme(\_:)` 修饰器而不是直接设置 `colorScheme`，以确保在 presenting popover 等视图时，新值能够传播到 presenting 容器：
+
+<ScreenshotBlock src={require('./image_4.png')} srcRight={require('./image_5.png')}>
+
+```swift
+struct ContentView: View {
+    @State private var isPresented = false
+
+    let text = "Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat. Duis aute irure dolor in reprehenderit in voluptate velit esse cillum dolore eu fugiat nulla pariatur. Excepteur sint occaecat cupidatat non proident, sunt in culpa qui officia deserunt mollit anim id est laborum."
+
+    var body: some View {
+        Button("Tap Me") {
+            isPresented = true
+        }
+        .font(.title)
+        .popover(
+            isPresented: $isPresented,
+            arrowEdge: .top,
+            content: {
+                Text(text)
+                    .padding()
+                    // highlight-next-line
+                    .preferredColorScheme(.dark)
+            }
+        )
+    }
+}
+```
+
+</ScreenshotBlock>
+
+## 创建自定义的环境值
+
+### EnvironmentKey
+
+访问环境中的值的 key 。
+
+```swift
+@available(iOS 13.0, macOS 10.15, tvOS 13.0, watchOS 6.0, *)
+public protocol EnvironmentKey {
+
+    // 表示环境 key 值类型的关联类型
+    associatedtype Value
+
+    // 环境键的默认值
+    static var defaultValue: Self.Value { get }
+}
+```
+
+要想创建自定义的环境值，首先声明一个新的环境 key 类型并为所需的 `defaultValue` 属性指定一个值：
+
+```swift
+private struct MyCountKey: EnvironmentKey {
+    static let defaultValue: Int = 0
+}
+```
+
+Swift 编译器会自动将 "关联的 [Value](https://developer.apple.com/documentation/swiftui/environmentkey/value) 类型（`associatedtype Value`）" 推断为你为 "默认值（`defaultValue`）" 指定的类型。
+
+然后，扩展 `EnvironmentValues` 结构体，使用 key 定义一个 "新的环境值属性"：
+
+```swift
+extension EnvironmentValues {
+    var myCount: Int {
+        get { self[MyCountKey.self] }
+        set { self[MyCountKey.self] = newValue }
+    }
+}
+```
+
+```swift
+// 3. 使用你的 key 来获取和设置值，并提供专用修饰器来供 "使用端" 在设置值时使用
+extension View {
+    func myCount(_ value: Int) -> some View {
+        environment(\.myCount, value)
+    }
+}
+```
+
+然后，使用该该环境值的 "使用端" 就可以以类似的方式来访问该值，即 "使用 `Environment` 属性包装器读取它，并使用 `myCount` 视图修饰器设置它"：
+
+<ScreenshotBlock src={require('./image_6.png')} srcRight={require('./image_7.png')}>
+
+```swift
+struct MyCountView: View {
+    @Environment(\.myCount) var myCount: Int
+
+    var body: some View {
+        Text("myCount is \(myCount)")
+    }
+}
+
+struct ContentView: View {
+    @State private var count = 0
+
+    var body: some View {
+        VStack {
+            Button("Plus Count") {
+                count += 1
+            }
+            MyCountView()
+        }
+        .font(.title)
+        .environment(\.myCount, count)
+    }
+}
+```
+
+</ScreenshotBlock>
+
+## 修改环境
+
+### environment(_:_:)
+
+```swift
+@available(iOS 13.0, macOS 10.15, tvOS 13.0, watchOS 6.0, *)
+extension View {
+    // - Parameters:
+    //   - keyPath: 指明要更新的 EnvironmentValues 结构体的属性的 key path
+    //   - value: 要给 `keyPath` 指定项设置的新值
+    @inlinable public func environment<V>(
+            _ keyPath: WritableKeyPath<EnvironmentValues, V>,
+            _ value: V
+    ) -> some View
+}
+```
+
+使用姿势正如上述示例中的 `.environment(\.myCount, count)` 所示。
+
+TODO ：补充 `environment<T>(T?)` 和 `transformenvironment(_:transform:)` 的使用。

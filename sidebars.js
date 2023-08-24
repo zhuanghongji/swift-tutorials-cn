@@ -120,6 +120,7 @@ const swiftuiSidebar = [
           "swiftui/data-and-storage/creating-and-sharing-view-state/index",
           "swiftui/data-and-storage/creating-model-data/index",
           "swiftui/data-and-storage/responding-to-data-changes/index",
+          "swiftui/data-and-storage/environment-values/index",
         ],
       },
       {
