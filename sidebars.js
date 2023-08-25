@@ -211,6 +211,64 @@ const swiftdataSidebar = [
   },
 ];
 
+/** @type {import('@docusaurus/plugin-content-docs').SidebarsConfig['']} */
+const metalprogrammingguideSidebar = [
+  {
+    type: "category",
+    label: "Metal 编程指南",
+    collapsible: false,
+    items: [
+      {
+        type: "category",
+        label: "引言",
+        collapsed: false,
+        items: ["metal-programming-guide/introdution/index"],
+      },
+      {
+        type: "category",
+        label: "Metal 基础",
+        collapsed: false,
+        items: [
+          "metal-programming-guide/1th-what-is-metal/index",
+          "metal-programming-guide/overview-of-rendering-and-raster-graphics/index",
+          "metal-programming-guide/your-first-metal-application/index",
+        ],
+      },
+      {
+        type: "category",
+        label: "渲染与图形",
+        collapsed: false,
+        items: [
+          "metal-programming-guide/essential-mathematics-for-graphics/index",
+          "metal-programming-guide/introduction-to-shaders/index",
+          "metal-programming-guide/metal-resources-and-memory-management/index",
+          "metal-programming-guide/libraries-functions-and-pipeline-states/index",
+          "metal-programming-guide/2d-drawing/index",
+          "metal-programming-guide/introduction-to-3d-drawing/index",
+          "metal-programming-guide/advanced-3d-drawing/index",
+          "metal-programming-guide/interfacing-with-model-io/index",
+          "metal-programming-guide/texturing-and-sampling/index",
+          "metal-programming-guide/multipass-rendering-techniques/index",
+          "metal-programming-guide/geometry-unleashed-tessellation-in-metal/index",
+        ],
+      },
+      {
+        type: "category",
+        label: "数据并行编程",
+        collapsed: false,
+        items: [
+          "metal-programming-guide/the-metal-compute-pipeline/index",
+          "metal-programming-guide/image-processing-in-metal/index",
+          "metal-programming-guide/machine-vision/index",
+          "metal-programming-guide/metal-performance-shaders-framework/index",
+          "metal-programming-guide/neural-network-concepts/index",
+          "metal-programming-guide/convolutional-neural-networks/index",
+        ],
+      },
+    ],
+  },
+];
+
 /** @type {import('@docusaurus/plugin-content-docs').SidebarsConfig} */
 const sidebars = {
   // By default, Docusaurus generates a sidebar from the docs folder structure
@@ -221,6 +279,7 @@ const sidebars = {
   swiftuiSidebar,
   swiftchartsSidebar,
   swiftdataSidebar,
+  metalprogrammingguideSidebar,
 };
 
 module.exports = sidebars;

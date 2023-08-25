@@ -126,6 +126,12 @@ const config = {
             position: "right",
           },
           {
+            type: "docSidebar",
+            label: "MetalProgrammingGuide",
+            sidebarId: "metalprogrammingguideSidebar",
+            position: "right",
+          },
+          {
             "aria-label": "GitHub repository",
             href: "https://github.com/zhuanghongji/swift-tutorials-cn",
             className: "navbar-github-link",
