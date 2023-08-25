@@ -6,12 +6,13 @@ type ScreenshotProps = {
   num: string 
   desc: string
   size?: number
+  edge?: 'white' | 'black'
 }
 
 /**
  * 图书插图
  */
-export default function Figure({ src, num, desc, size  }: ScreenshotProps) {
+export default function Figure({ src, num, desc, size, edge  }: ScreenshotProps) {
   // let width: string | number = '100%'
   let width: string | number = 720
   if (typeof size === 'number') {
@@ -19,7 +20,15 @@ export default function Figure({ src, num, desc, size  }: ScreenshotProps) {
   }
   return (
     <div style={{ display: 'flex', flexDirection: 'column', width: '100%', justifyContent: 'center', alignItems: 'center' }}>
-        <Image style={{ width }} img={src} />
+        {
+          edge ? (
+            <div style={{ width, padding: '1rem', backgroundColor: edge === 'white' ? 'white' : 'black' }}>
+              <Image style={{ width: '100%' }} img={src} />
+            </div>
+          ) : (
+            <Image style={{ width }} img={src} />
+          )
+        }
         <p style={{ marginTop: '0.5rem', fontSize: '1.0rem' }}><em>{`图 ${num} ${desc}`}</em></p>
     </div>
   )
