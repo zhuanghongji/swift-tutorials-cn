@@ -4,6 +4,7 @@ import Badge from "@site/src/components/Badge";
 import DocCaution from "@site/src/components/DocCaution";
 import OriginalLink from "@site/src/components/OriginalLink";
 import ExperimentBlock from "@site/src/components/ExperimentBlock";
+import Figure from "@site/src/components/Figure";
 import Screenshot from "@site/src/components/Screenshot";
 import Screenshots from "@site/src/components/Screenshots";
 import ScreenshotBlock from "@site/src/components/ScreenshotBlock";
@@ -11,6 +12,7 @@ import ScreenshotBlockVertical from "@site/src/components/ScreenshotBlockVertica
 import ScreenshotTable from "@site/src/components/ScreenshotTable";
 import ScreenshotTableList from "@site/src/components/ScreenshotTableList";
 import ToContinueBookmark from "@site/src/components/ToContinueBookmark";
+import Wisdom from "@site/src/components/Wisdom";
 
 export default {
   // Re-use the default mapping
@@ -19,6 +21,7 @@ export default {
   DocCaution,
   OriginalLink,
   ExperimentBlock,
+  Figure,
   Screenshot,
   Screenshots,
   ScreenshotBlock,
@@ -26,4 +29,5 @@ export default {
   ScreenshotTable,
   ScreenshotTableList,
   ToContinueBookmark,
+  Wisdom,
 };

@@ -1,1 +1,170 @@
-# 11. Interfacing with Model I/O
+# 与模型 I/O 接口
+
+<Wisdom
+  words="如何让惰性、沉默的物体的永恒变得有价值？在某种程度上，如何利用雕塑的愚蠢性来影响我们作为生物？"
+  author="安东尼·葛姆雷"
+/>
+
+如果你曾经玩过复杂的 3D 游戏，例如《质量效应》或《使命召唤》，你就会知道视频游戏世界充满了环境物体、人物和灯光。这些视频游戏的每一帧中都呈现出数百万个多边形。到目前为止，你已经使用了手动描述的极其简单的对象。完全装配和建模的人类角色极其复杂，不可能手动输入。建模程序通过创建描述这些对象的模式文件来解决这个问题，但是如何将它们放入你的应用程序中呢？ 2015 年之前，你会编写一个解析器。从 2015 年开始，这个问题有了更好的解决方案：Model I/O。本章将向你介绍如何将这些文件导入到你的应用程序中、自定义它们以及将数据连接到 Metal 以进行进一步的自定义。
+
+## 什么是模型文件？
+
+回到第 3 章“你的第一个 Metal 应用程序（你好，三角形！）”和第 8 章“2D 绘图”，你手动输入了所有顶点位置和颜色数据。如果你的物体很简单，这是可行的，但一旦你超越了原始形状，它就变成了一场噩梦。你唯一一次手动输入此数据是作为学习练习，了解如何设置顶点缓冲区。添加任何复杂的形状根本不是手工完成的。
+
+那么如果不是手工完成的话，是如何完成的呢？
+
+考虑一下 3D 建模程序，例如 Blender 和 Maya。这些程序导出的文件代表你在其中创建的模型。你可能没有意识到，你日常交互的许多文件只是描述项目中存在的各种设置的 XML 文件。 Xcode 中的 Interface Builder 由 XML 文件支持，这也是历史上很难将两个不同人所做的更改合并到故事板中的原因之一。 Adobe Illustrator 文件是描述项目中存在的每个矢量形状的 XML 文档。当你在保存文件后打开该文件时，基本应用程序（无论是 Xcode 还是 Illustrator）都会解析该 XML 文件以重新构建你的项目。
+
+来自 Maya 和 Blender 的模型文件包含有关模型的大量信息。它们包括所有顶点的位置、顶点如何连接、颜色、纹理、光照等等。在 Model I/O 之前，当你想要从这些程序之一导入模型文件时，你必须自己进去解析它。你必须查看该文件并弄清楚所有不同设置的含义。然后，你必须编写一个脚本来读取该文件并解析出你需要导入的每个设置。然后，你必须将这些设置连接到需要它们的代码部分。因此，如果你要导入一个简单的盒子，则必须为每个顶点位置设置一个顶点缓冲区、它们的组装方式、与每个顶点关联的颜色以及你选择包含在该模型中的任何其他信息。这是很多工作。由于有几种常用的文件格式，因此像你这样的其他人正在为他们正在处理的每个项目执行完全相同的工作。这是对开发者资源的不当利用，因此苹果创建了
+
+支持 3D 模型的五种常见文件格式：
+
+- **Alembic** : .abc - **波前对象** : .obj - **多边形** : .ply - **通用场景描述** : .usd - **标准曲面细分语言** : .stl
+
+在这些文件格式中，只有 USD 和 Alembic 支持导入动画。如果你正在处理一个复杂的沉浸式场景，其中的角色需要在项目中移动，那么能够导入这些动画对你的项目至关重要。
+
+查看这些文件只是为了了解它们在其中编码了哪些信息，这是很说明性的，但不再需要从里到外地理解它们。只需将这些文件导入到你的项目中并相信它们能够正常工作，你就可以减轻在 iOS 中完成最简单的 3D 任务的巨大压力。
+
+本章有一个与之相关的项目：导入模型、设置模型、添加一些自定义以及将其导出以在建模应用程序中使用。这个简单的项目使用 Newell Teapot，这是一种著名的 3D 图形编程开源模型。该项目仅专注于引入模型数据。设置着色器的工作在第 5 章“着色器简介”中详细介绍。
+
+**读取文件格式**
+
+模型文件只不过是一种专门的解析语言，类似于 XML 或 JSON，详细说明了有关模型的各种信息。有些可能很简单，仅包含顶点位置数据。其他的可能会因为纹理映射、光照和相机描述而变得复杂。某些模型文件格式（例如 .obj）可以从文本编辑器读取。其他的则以二进制表示，需要解析器才能理解，因为它们不是人类可读的。
+
+例如，典型的 .obj 文件可能如下所示：
+
+# 几何顶点列表，坐标为 (x,y,z[,w])，
+
+# w 是可选的，默认为 1.0。
+
+0.123 0.234 0.345 1.0
+
+# 纹理坐标列表，以 (u, v [,w]) 坐标表示，
+
+# 这些将在 0 和 1 之间变化，w 是可选的并且
+
+# 默认为 0。
+
+vt 0.500 1 [0]
+
+# (x,y,z) 形式的顶点法线列表；正常情况可能不是
+
+# 单位向量。
+
+越南 0.707 0.000 0.707
+
+# ( u [,v] [,w] ) 形式的参数空间顶点；
+
+# 自由形式几何声明（见下文）
+
+副总裁 0.310000 3.210000 2.100000
+
+# 多边形面元素（见下文）
+
+f 1 2 3 f 3/1 4/2 5/3 f 6/4/1 3/5/3 7/6/5 f 7//1 8//2 9//3
+
+你需要熟悉每个缩写代表的含义。 v 显然代表“顶点”，但是 f 和 mtllib 呢？你是否需要将模型文件中的所有内容都带入你的项目中，或者可以
+
+你只带来某些东西吗？
+
+互联网是你的朋友。这些和其他文件格式都有参考页面，因此你可以解码你要查找的内容。如果你使用的文件格式不受 Model I/O 支持，则需要确保你了解这些格式，因为你需要编写自己的解析器。也没有必要导入模型文件所具有的每条信息。在本章的示例项目中，着色器需要知道顶点位置和顶点法线，但仅此而已。你可以安全地引入所有内容，也可以确定你的需求并仅导入这些需求。由你决定。
+
+## 导入模型
+
+Model I/O 的基础是围绕 MDLAsset 类构建的。 MDLAsset 是 3D 对象和材质的索引容器。这些材质是 MDLObject 的实例。 MDLObject 具有代表模型各个方面的三个子类：MDLMesh、MDLCamera 和 MDLLight。
+
+在我们早期的简单项目中，我们没有设置自定义摄像机和灯光，因此在该实例中我们拥有的唯一 MDLObject 是表示对象几何形状的 MDLMesh 实例。
+
+MDLAsset 从 URL 初始化。它只是应用程序包内到资源的路径：
+
+让 teapotPath = Bundle.main.path(forResource: "wt_teapot", ofType: "obj") 让 teapotURL:URL = URL.init(fileURLWithPath: teapotPath!) 让 teapotModel = MDLAsset(url: teapotURL)
+
+MDLAsset 由多个属性和方法组成：
+
+- **分配器**：分配器是负责创建包含从资源加载的网格顶点数据的缓冲区的对象。 - **描述符**：MDLVertexDescriptor 描述如何从资源加载网格顶点数据。 - **导入和导出**：MDLAsset 支持资产对象的导入和导出。有一套方法支持此功能。 - **MDLObject 子对象**：这是当你想到 MDLAsset 时想到的核心内容。它包含资源中的所有网格、相机和照明对象。
+
+.obj 文件格式非常简单。它仅表示 3D 几何体，因此 .obj 文件中包含的所有子项都必须是 MDLMesh 的实例。
+
+什么是网格？很高兴你问了。接下来介绍网格。
+
+**MDLCamera 和 MDLLight**
+
+如果你在 2015 年观看过 Model I/O WWDC 视频（为什么不看？！），你会注意到很多演示文稿都讨论了 MDLCamera 和 MDLLight 对象。它回顾了设置相机来模仿现实世界镜头和光圈的所有方法。它也是
+
+讨论了如何在代码中重新创建办公室中的灯具。
+
+听起来很酷。你可能认为可以通过创建一堆 MDLCamera 和 MDLLight 对象来绕过一堆复杂的着色器代码，就像在 Unity 中一样。很抱歉打破了你的幻想，但事实并非如此。
+
+考虑 MDLMesh 对象。它是一个保存对象文件中所有顶点数据的容器。当你创建 MDLMesh 时，它不会创建你在茶壶中使用的所有顶点数据。它只是提供一个对象，为你解析模型文件并以一种可以轻松地将顶点提供给 GPU 的方式存储顶点。
+
+一些更复杂的文件格式（例如 Alembic）支持创建灯光和相机对象。 MDLCamera 和 MDLLight 是容器对象，用于保存已支持的文件格式中的数据。因此，如果你正在寻找一种快速方法来向 .obj 文件添加一些照明，那么你就不走运了。在 Metal 中，就像在生活中一样，没有免费的午餐。
+
+## 网格和子网格
+
+一个 MDLMesh 对象由至少一个 MDLSubmesh 组成。与我们之前的三角形和星形项目不同，大多数 3D 对象并非都是一体的。如果你玩像《模拟人生》这样的游戏，其中你的角色在不同情况下（例如工作或睡觉）有不同的服装，那么每个部分都是其自己的子网格。因为你的模拟市民不会穿泳衣去办公室，所以当角色不去泳池时，你的程序可以选择不向角色渲染该子网格。
+
+MDLMesh 不限于仅使用你通过模型文件与其共享的信息。它包括生成器、修改器和面包师，以增强模型中存在的数据。它可以生成超出模型文件中存在的附加几何图形。修改器可以计算法线和切线，并使顶点变得唯一。面包师可以生成环境光遮挡和光照贴图，这些贴图可以与模型一起导出回建模程序。
+
+MDLMesh 的工作是获取模型文件中存在的所有数据并使用该数据填充 MDLMeshBuffers。然后，该数据由 MDLVertexDescriptor 进行描述，以便顶点着色器知道如何理解缓冲区中的数据。最后，这些缓冲区将数据提供给顶点着色器，如第 2 章“渲染和光栅图形概述”中所述。
+
+MDLMesh 和 MDLSubmesh 之间最重要的区别之一是，网格保存由所有子网格引用的顶点缓冲区，而子网格保存对其相应索引缓冲区的引用。
+
+首先，你需要创建一个 MTKMesh 数组来保存使用茶壶模型创建的 MDLAsset 中的所有网格体：
+
+var 网格：[MTKMesh]！
+
+该数组将被类中的几个不同对象引用，因此它需要是类内部但所有方法外部的属性。
+
+## 渲染状态管道
+
+在前面的章节中，你使用手动输入的顶点数据来设置 MTLRenderPipelineDescriptor。因为你现在正在处理更加复杂的对象，所以你仍然需要设置这些顶点描述符，但是你将稍微不同地设置它们，以利用 Model I/O 为你提供的所有脚手架。
+
+你已指定从顶点描述符获取顶点数据。让我们进行设置：
+
+vertexDescriptor.attributes[0].offset = 0 // 位置 vertexDescriptor.attributes[0].format = MTLVertexFormat.float3 vertexDescriptor.attributes[1].offset = 12 // 顶点法线 vertexDescriptor.attributes[1].format = MTLVertexFormat. float3 vertexDescriptor.layouts[0].stride = 24
+
+此代码描述了顶点着色器如何布置每个顶点的数据。该位置具有 _x_ 、 _y_ 和 _z_ 坐标。每个坐标使用 4 个字节的数据，总共 12 个字节。因为位置是顶点描述符中描述的第一个属性，所以它的偏移量是 0。下一个属性是顶点法线，它也使用 12 字节的数据。它的偏移量是 12，因为前 12 个字节是由位置属性保留的。描述每个顶点的每个方面需要多少数据后，将步幅设置为分配每个顶点所需的字节总数（在本例中为 24）。
+
+分配所有内存后，你需要将其交给渲染管道状态：
+
+让 pipelineStateDescriptor = MTLRenderPipelineDescriptor() pipelineStateDescriptor.vertexFunction = vertexProgram pipelineStateDescriptor.fragmentFunction = fragmentProgram pipelineStateDescriptor.colorAttachments[0].pixelFormat = view.colorPixelFormat pipelineStateDescriptor.sampleCount = view.sampleCount pipelineStateDescriptor.vertexDescriptor = vertexDescriptor
+
+do { try pipelineState = device.makeRenderPipelineState(descriptor: pipelineStateDescriptor) } catch let error { print("创建管道状态失败，错误\(error)") }
+
+接下来，你需要设置资产初始化。
+
+## 资产初始化
+
+你为每个顶点的各种属性预留了内存。这一切都很好，但是程序需要一种方法来知道每个顶点中的每个字节代表什么。这组 1 和 0 是一个位置吗？一种颜色？纹理？ MetalKit 有一个函数可以解决这个问题：MTKModelIOVertexDescriptorFromMetal。该函数从 Metal 的特定顶点描述符转换为 Model I/O 更通用的顶点描述符，但我们需要提供更多信息，以便 Model I/O 知道模型中的哪个顶点属性与 Metal 描述符中的每个顶点属性相关联：
+
+让 desc = MTKModelIOVertexDescriptorFromMetal(vertexDescriptor) var attribute = desc.attributes[0] as！ MDLVertexAttribute attribute.name = MDLVertexAttributePosition attribute = desc.attributes[1] as！ MDLVertexAttribute attribute.name = MDLVertexAttributeNormal let mtkBufferAllocator = MTKMeshBufferAllocator(device: device!) let url = Bundle.main.url(forResource: "wt_teapot", withExtension: "obj")
+
+让 asset = MDLAsset(url: url!, vertexDescriptor: desc, bufferAllocator: mtkBufferAllocator)
+
+do { meshes = try MTKMesh.newMeshes(from: asset, device: device!, sourceMeshes: nil) } catch let error { fatalError("\(error)") }
+
+参考上一节，你为两种不同类型的数据创建并分配了内存：位置和顶点法线。每个都有一个相应的 MDLVertexAttribute，该属性被添加到顶点描述符中。如果你尚未为茶壶创建 MDLAsset，则可以在此处使用顶点描述符创建它。
+
+将导入的模型连接到 MetalKit 所需执行的最后一步是设置渲染状态并启动绘制调用。
+
+## 渲染状态设置和绘图
+
+所有渲染过程都必须通过绘制调用来完成。要绘制网格，应用程序必须指定需要引用哪些网格和子网格对象。此设置还利用了你在第 10 章“高级 3D 绘图”中学到的索引绘图。这是设置绘图调用的代码：
+
+让网格=（网格？.首先）！让 vertexBuffer = mesh.vertexBuffers[0] commandEncoder.setVertexBuffer(vertexBuffer.buffer, 偏移量: vertexBuffer.offset, at: 0)
+
+让 submesh = mesh.submeshes.first！ commandEncoder.drawIndexedPrimitives（submesh.primitiveType，indexCount：submesh.indexCount，indexType：submesh.indexType，indexBuffer：submesh.indexBuffer.buffer，indexBufferOffset：submesh.indexBuffer.offset）
+
+连接着色器超出了本章的范围。本章与第 5 章共享一个项目。如果你想了解如何在加载模型和编写着色器之间建立一个完整的项目，请参阅第 5 章中的项目和这一章。
+
+## 导出文件
+
+你可以使用 Model I/O 做的最后一件事是导出模型文件。你可能想知道为什么需要这样做。如果你正在与艺术家合作并且想要进行更改并发回给艺术家，你可以使用代码进行操作并导出修改后的模型。导出模型是一个简单的过程：
+
+url = URL(string: "/Users/YourUsername/Desktop/exported.obj") 尝试一下！ teapot.export（至：网址！）
+
+## 概括
+
+模型 I/O 是 iOS 将 3D 模型导入 Metal 应用程序的最简单方法。它旨在与 MetalKit 无缝集成。 Model I/O 支持五种常见文件类型。它还支持导入网格、相机和灯光。每个 MDLAsset 至少有一个
+
+子网格。程序员提供知道如何分配内存来存储模型数据的对象（分配器），模型 I/O 将数据加载到这些缓冲区中，然后可以使用 Metal 轻松渲染生成的网格。

@@ -1,1 +1,182 @@
-# 12. Texturing and Sampling
+# 纹理和采样
+
+<Wisdom
+  words="纹理是我们忘记的东西——它让服装看起来非常昂贵。如果你害怕色彩更丰富、印花更多的东西，但仍然能引起兴趣，你可以穿单色服装。"
+  author="史黛西·伦敦"
+/>
+
+着色器是非常强大的程序，能够显示许多有趣且逼真的效果。但是，添加的效果越多，程序所需的处理能力和时间就越多。每一毫秒都很宝贵，因此尽可能优化你的项目非常重要。获得最大收益的一种简单方法是将纹理映射到对象，而不是在着色器中按程序生成纹理。本章向你介绍 Metal 中的纹理映射和采样。
+
+## 纹理映射
+
+纹理类似于阴影。你的程序一次扫描表面一个像素，并确定该像素在该像素处的外观。在第 6 章“ Metal 资源和内存管理”中，你了解了缓冲区和纹理。到目前为止，你仅使用了缓冲区。该程序不是接收颜色信息缓冲区并通过算法运行它，而是接收纹理资源。资源一次一个像素地应用于表面。
+
+假设你正在墙上贴壁纸。你从一个角落开始。你确保壁纸是直的并与其两侧的部分对齐。如果此任务完成得当，壁纸将无缝应用并产生单一纹理的错觉。
+
+到目前为止，在本书中，你一直在使用笛卡尔坐标，其中每个点位于空间中的 x、y 和 z 轴上。为了区分网格的坐标和纹理的坐标，使用了不同的坐标空间。
+
+纹理坐标的坐标空间是 UV 坐标空间。这个空间类似于 XY。纹理作为标准化坐标空间存在，其中每个值都在 0.0 和 1.0 之间。为了区分世界空间中对象的表面和纹理上片段的位置，纹理的片段被称为*texels*。
+
+如果你有一个完美的方形表面和完美的方形纹理，这个过程就很有效。当你需要将纹理映射到曲面时，它效果不佳。无论你使用什么 3D 建模程序来创建资产，都有许多选项可用于应对这种意外情况。模型导出时带有包含模型皮肤的纹理图集。这些片段被放置在单个纹理文件中，并且指向每个纹理元素的指针包含在模型文件中。
+
+在 Metal 中创建纹理对象相当简单。有关 MTLTexture 对象的更深入解释，请参阅第 6 章。
+
+var 深度纹理：MTL 纹理！ = 零
+
+你的纹理需要一个纹理描述符，以便 Metal 可以按照你的意图处理它：
+
+让 heightTextureDescriptor = MTLTextureDescriptor.texture2DDescriptor( PixelFormat: .depth32Float, 宽度: Int(layerSize.width), 高度: Int(layerSize.height), mipmapped: false) heightTexture = device.makeTexture( 描述符: depthTextureDescriptor)
+
+正如其名称所示，该纹理是深度纹理。 MTLTextureDescriptor 设置为 2D 描述符并初始化。它需要纹理的像素格式、视图的大小以及是否要对其进行 mipmap。由于纹理与网格的大小和形状相同，因此将 mipmap 设置为 false。最后，使用深度纹理描述符初始化深度纹理。
+
+## 纹理贴图
+
+图形的一方面是它们会改变大小。如果你放大过低分辨率 JPEG，图像会出现像素化。很容易理解，当你放大片段时，它会逐渐占据屏幕上更多的像素。当你朝相反的方向前进并且屏幕上有四个或五个代表一个像素的片段时会发生什么？线性和最近的设置都不能适应这种情况。本节介绍 Metal 如何处理它。
+
+缩小具有重叠像素的纹理的解决方案称为 _mipmapping_。 mipmap 是一系列纹理，全部包含相同的图像，但分辨率越来越低。原始的全尺寸纹理存在于 mipmap 的基础级别。高于该级别的每个级别逐渐以 2 倍进行下采样。例如，如果你有一个 16 × 16 的纹理，则基本级别也将为 16 × 16。此纹理的完整 mip 链将由大小为 16 的级别组成 × 16（基础）、8 × 8、4 × 4、2 × 2 和 1 × 1，总共五个级别。然后，mipmap 生成器预先计算并存储不同大小和位置的各个区域上纹理的平均值。
+
+由于这是一个常见的操作，Metal 有一个内置实现来在 MTLBlitCommandEncoder 上生成 mipmap。
+
+funcgenerateMipmaps（对于纹理：MTLTexture）
+
+你无需指定需要多少级 mipmap。级别数是根据每个纹理中存在的片段数来计算的。
+
+## 采样
+
+在 Metal 中，一切都是关于打包要发送到 GPU 的状态信息。采样也不例外。采样器是一个对象，它封装了与读取纹理相关的各种渲染状态：坐标系、寻址模式和过滤。错误地设置这些状态可能会导致纹理采样不良和锯齿。
+
+在第 5 章“着色器简介”中，你从应用于每个像素的纯色开始。该颜色由着色器处理以考虑照明位置。使用纹理是类似的。你不是将纯色传递给着色器，而是在纹理中的该位置采样颜色。
+
+抽样是一个令人着迷且数学上复杂的过程，有足够的材料来证明它自己的书的合理性。第 16 章“ Metal 图像处理”进一步解释了采样。此时，理解围绕它的数学的每一个细微差别对你来说并不重要，因此这是一个非常简短的概述。
+
+你的程序检查纹理中的位置并插入纹理上该位置最有可能出现的颜色。如果没有获取足够的纹理样本，插值器将无法准确表示纹理的外观。当采样未正确完成并且程序无法正确重建纹理时，你会得到*锯齿*——你无疑在某些图像上看到的锯齿状边缘。
+
+**地址模式**
+
+你已经了解了标准化坐标系，其中使用百分比而不是对象或纹理的固定测量单位。这是处理纹理的一种常见方法，但不是唯一的方法。如果坐标为负或纹理的测量值超过 1，则需要一种方法来解决它。你猜对了，这种方式就是*地址模式*。
+
+Metal 框架有一个名为 MTLSamplerAddressMode 的地址模式枚举，它具有以下值（见图 12.1）：
+
+- **clampToEdge** ：纹理坐标被限制在 0.0 和 1.0 之间（包括 0.0 和 1.0）。 - **mirrorClampToEdge** ：在 -1.0 和 1.0 之间，纹理坐标沿轴镜像。在 -1.0 和 1.0 之外，纹理坐标被限制。 - **重复**：纹理坐标环绕到纹理的另一侧，有效地仅保留纹理坐标的小数部分。 - **mirrorRepeat** ：在 -1.0 和 1.0 之间，纹理坐标沿轴镜像。在 -1.0 和 1.0 之外，图像会重复。 - **clampToZero** ：超出范围的纹理坐标对于具有 Alpha 通道的图像返回透明零 (0,0,0,0)，对于没有 Alpha 的图像返回不透明零 (0,0,0,1)渠道。 - **clampToBorderColor** ：超出范围的纹理坐标返回 borderColor 属性指定的值。
+
+<Figure
+  src={require("../figures/033.jpg")}
+  num="12.1"
+  desc="不同地址模式的示例"
+/>
+
+确保你准确地处理纹理。正如你所看到的，通过更改地址模式可以获得几种不同的效果，选择错误的一种可能不会给你带来你想要的效果。
+
+**过滤模式**
+
+从格式化图像数据重建图像的过程称为*过滤*。有两种不同的过滤模式：线性和最近。
+
+最近的是最快且计算成本最低的。最近只是使用最接近像素中心的纹素颜色作为像素颜色。这是一种相当粗糙的方法，会导致锯齿和块状伪影。放大效果也比缩小效果好得多。在缩小方面，它的计算量可能非常大，并会产生可怕的结果。
+
+线性更准确，因为它对四个最近的像素进行采样并平均它们的值。因为你要采样更多纹理像素，所以这是一个更昂贵的操作。不过，它并没有贵到不能用于实时渲染。这是一个通常足够好的过滤器。
+
+**各向异性**
+
+如果你的纹理与相机成正方形，则前面讨论的概念效果很好，但这种情况很少见。如果你将纹理应用于风景，则纹理中纹理像素的视角在靠近相机时与你进一步移回地平线时的视角是不同的。
+
+*各向异性过滤*根据纹理在屏幕上的角度来调整对纹理进行的采样。当你越来越接近与相机完全平行的纹理时，你需要更多采样以避免锯齿和模糊。各向异性过滤非常智能，它会调整采样分布，以便在必要时进行更多采样，在不需要时减少采样。
+
+## 预编译采样器状态
+
+采样器与 Metal 中的纹理具有相同的优势，你可以创建预编译的纹理
+
+采样器状态。采样器和设置它的方式不会在渲染过程中发生改变，因此你可以通过将此状态预烘焙到命令编码器中来消除一些计算费用，就像任何其他资源函数一样。
+
+要设置采样器，你需要在类顶部有一个资源属性和一个采样器状态属性：
+
+var diffuseTexture: MTLTexture! = nil var SamplerState：MTLSamplerState！ = 零
+
+在此示例中，你使用将包含在 MTLTexture 资源中的漫反射纹理。你还可以创建一个 MTLSamplerState 来充当你要设置的状态的容器。接下来设置该状态：
+
+让 samplerDescriptor = MTLSamplerDescriptor（）samplerDescriptor.minFilter = .最近的 samplerDescriptor.magFilter = .线性
+
+SamplerState = device.makeSamplerState（描述符：samplerDescriptor）
+
+要设置 MTLSampler 的状态，你需要 MTLSamplerDescriptor。该描述符包含你可能希望为渲染通道指定的所有可能设置。其中包括
+
+- 纹理每个维度的地址模式 - 缩小、放大和 mipmap 滤镜的选项 - 细节级别钳位 - 各向异性滤镜的最大样本数
+
+在这个简单的示例中，你只需设置 samplerDescriptor.minFilter 和 samplerDescriptor.magFilter。如果你还记得本章前面的内容，.nearest 的工作方式会有所不同，具体取决于你是缩小还是放大纹理，因此在一个纹理上使用 .nearest 而在另一个上使用 .linear 是有意义的。
+
+最后，你需要向命令编码器指定你希望使用哪个片段纹理和片段采样器状态：
+
+commandEncoder.setFragmentTexture(diffuseTexture, at: 0) commandEncoder.setFragmentSamplerState(samplerState, at: 0)
+
+现在你已经向编码器指定了你正在使用的采样器状态和纹理，你需要告诉程序你希望它们对它们做什么。采样器也可以在着色器函数内部创建，而无需接触 GPU。
+
+## 将纹理和采样器传递给图形函数
+
+要将纹理传递给采样器，你需要有一个纹理对象。这比仅在应用程序包中包含图像稍微复杂一些。在第 6 章中，你了解了 MTLResource 对象。 MTLTexture 是 MTLResource 的一种类型。在下一节中，你将了解如何创建 MTLTexture 对象以及如何设置与纹理交互的着色器函数。
+
+**创建纹理**
+
+本节详细介绍了创建 MTLTexture 对象所需的代码。该方法被分解为几个易于管理的块，以便于解释它时不再那么令人畏惧。该方法的第一部分声明方法签名并设置创建纹理所需的本地属性：
+
+functextureForImage(\_ image:UIImage, device:MTLDevice) -> MTLTexture? { 让 imageRef = image.cgImage！
+
+让宽度 = imageRef.width 让高度 = imageRef.height 让 colorSpace = CGColorSpaceCreateDeviceRGB()
+
+让 rawData = calloc(高度 _ 宽度 _ 4, MemoryLayout.size)
+
+让 bytesPerPixel = 4 让 bytesPerRow = bytesPerPixel \* 宽度让 bitsPerComponent = 8
+
+你需要使用一些根据传递到函数中的图像而变化的属性，即指定图像大小的属性。由于图像大小可变，因此你需要计算需要分配多少内存来包含图像数据的原始值。然后指定每个组件存在多少位以及每行需要多少字节。
+
+接下来，你需要对 Core Graphics 上下文进行一些操作：
+
+让选项= CGImageAlphaInfo.premultipliedLast.rawValue | CGBitmapInfo.byteOrder32Big.rawValue
+
+让上下文= CGContext（数据：rawData，宽度：宽度，高度：高度，bitsPerComponent：bitsPerComponent，bytesPerRow：bytesPerRow，空间：colorSpace，bitmapInfo：选项）
+
+context?.draw(imageRef, in: CGRect(x: 0, y: 0, 宽度: CGFloat(width), 高度: CGFloat(height)))
+
+首先，设置位图和 Alpha 选项。当你创建 CGContext 时，它们以及你之前声明的几个本地属性将用作参数。你可以使用此上下文从传入的 UIImage 中绘制最初创建的 CGImage：
+
+让 textureDescriptor = MTLTextureDescriptor.texture2DDescriptor（pixelFormat：.rgba8Unorm，宽度：Int（宽度），高度：Int（高度），mipmapped：true）让 texture = device.makeTexture（描述符：textureDescriptor）
+
+让区域 = MTLRegionMake2D(0, 0, Int(宽度), Int(高度))
+
+纹理.替换（区域：区域，mipmapLevel：0，切片：0，withBytes：rawData！，bytesPerRow：bytesPerRow，bytesPerImage：bytesPerRow \ \*高度）
+
+免费（原始数据）
+
+返回纹理
+
+最后，你可以创建纹理对象。你可以通过传入纹理的宽度、高度和像素格式并指定是否对该对象进行 mipmap 来创建 MTLTextureDescriptor。此信息用于创建纹理。然后，你可以使用该纹理来替换你指定的区域。你不需要分配不再使用的内存，以便释放内存并返回纹理。
+
+使用此方法从图像创建新纹理很容易。你只需传入要使用的 UIImage 和 MTLDevice 即可。
+
+diffuseTexture = self.textureForImage(UIImage(named: "bluemarble")!, device: device)
+
+** Metal 质感功能**
+
+纹理数据与传递给着色器的其他数据类似。它是由一系列浮点值表示的资源。与任何着色器函数一样，你需要在 .metal 文件中创建与主程序传递的参数表中的值相协调的数据结构：
+
+struct TexturedInVertex { Packed_float4 位置 [[attribute(0)]]; Packed_float4 正常 [[属性(1)]]; Packed_float2 texCoords [[属性(2)]]; };
+
+struct TexturedColoredOutVertex { float4 位置 [[位置]]; float3 正常； float2 texCoords； };
+
+struct Uniforms { float4x4 投影矩阵; float4x4 模型视图矩阵； };
+
+在简单的采样器项目中，你在参数表中引用顶点位置、法线和纹理坐标。这些在主程序中设置并由着色器引用：
+
+顶点 TexturedColoredOutVertex vertex_sampler( 设备 TexturedInVertex \*vert [[buffer(0)]], 常量 Uniforms &uniforms [[buffer(1)]], uint vid [[vertex_id]]) { float4x4 MV =uniforms.modelViewMatrix; float3x3 法线矩阵(MV[0].xyz, MV[1].xyz, MV[2].xyz); float4 modelNormal = vert[vid].normal;
+
+TexturedColoredOutVertex outVertex; outVertex.position=uniforms.projectionMatrix_uniforms.modelViewMatrix_float4(vert[vid].position); outVertex.normal = normalMatrix \* modelNormal.xyz; outVertex.texCoords = vert[vid].texCoords;
+
+返回输出顶点； }
+
+顶点缓冲区计算如何将对象的位置转换为纹理内的相关位置。想想游戏*战舰*。每个玩家都有相应的位置网格。着色器确定对象网格中的哪个框与纹理网格中的当前位置相关。相应的颜色被传递到片段着色器：
+
+片段 half4fragment_sampler(TexturedColoredOutVertex vert [[stage_in]],texture2ddiffuseTexture[[texture(0)]],采样器 samplr[[sampler(0)]]){float4diffuseColor=diffuseTexture.sample( samplr, vert.texCoords);返回 half4（diffuseColor.r，diffuseColor.g，diffuseColor.b，1）； }
+
+片段着色器从顶点着色器获取当前颜色并计算片段的漫反射照明值。远离光源的物体的纹理区域被修改，以产生光存在的错觉，并且其行为与现实世界中的一样。
+
+## 概括
+
+纹理和采样是 Metal 工具箱中极其重要的工具。它们可以轻松地为你的 3D 场景添加大量兴趣和细节，而无需在应用程序中产生太多计算开销。 Metal 有许多内置方法来帮助调整纹理大小和采样，以避免伪影和锯齿。了解在放大或缩小时重新采样纹理的最佳方法可以帮助你创建外观更好的应用程序，而不影响性能。

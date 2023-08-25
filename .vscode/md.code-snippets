@@ -52,5 +52,23 @@
     "prefix": ":::caution",
     "body": [":::caution", "", "$1", "", ":::", "", "$0"],
     "description": "Create Admonitions Caution"
+  },
+  "Create Wisdom": {
+    "scope": "md,mdx",
+    "prefix": "wisdom",
+    "body": ["<Wisdom", "  words=\"$1\"", "  author=\"$2\"", "/>"],
+    "description": "Create Screenshot"
+  },
+  "Create Figures": {
+    "scope": "md,mdx",
+    "prefix": "figures",
+    "body": [
+      "<Figure",
+      "  src={require('../figures/$1.jpg')}",
+      "  num=\"$2\"",
+      "  desc=\"$3\"",
+      "/>"
+    ],
+    "description": "Create Screenshot"
   }
 }

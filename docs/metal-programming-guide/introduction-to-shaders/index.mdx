@@ -1,1 +1,307 @@
-# 5. Introduction to Shaders
+# 着色器简介
+
+<Wisdom words="颜色是我一整天的痴迷、欢乐和折磨。" author="克劳德·莫奈" />
+
+尽管第三章中的白色三角形很酷，但它的作用并不大。它没有任何阴影，不会移动，也不会改变颜色。此外，大部分工作都是在 CPU 上完成的，这否定了 GPU 加速图像处理的全部意义。这是严重的限制——你能做些什么呢？
+
+## Metal 着色语言概述
+
+_Shaders_ 是在 GPU 上运行的小程序。尽管你可以在主程序中设置大部分工作而不是着色器，但当 GPU 特别适合高效完成这项工作时，强制 CPU 完成这项工作是愚蠢的。 Metal 着色器是用基于 C++14 的 Metal 着色语言 (MSL) 编写的。它具有专门适合图形编程的专用数据类型和函数。如果你阅读了第 4 章“图形基础数学”，你会发现其中许多数据类型应该很熟悉。
+
+本章重点介绍 3D 图形渲染的着色器。稍后，我们将详细讨论如何使用着色器进行 GPGPU 编程。在图形编程中，需要使用两种类型的着色器：顶点和片段。
+
+如果你唯一接触着色器的是使用 ShaderToy 等工具，你可能会认为你只需要一个片段着色器，但事实并非如此。顶点着色器和片段着色器都是可编程图形管道的独立且重要的部分。到目前为止，你已经使用了直通着色器，它们实际上并没有更改传递给它们的任何顶点或片段信息。本章帮助你了解顶点和片段着色器主要负责哪些功能，并让你基本了解如何制作自己的着色器。
+
+尽管 MSL 是基于 C++14 的语言，但编写 MSL 并不需要流利地使用 C++14，但稍微熟悉一下会有所帮助。 Apple 的编程指南有 100 多页，因此这是一门庞大而广泛的语言。本节介绍你现在需要了解的一些内容。对 MSL 的更深入参考出现在相关章节中。
+
+MSL 具有向量和矩阵的数据类型。解码如何创建向量或矩阵的简单方法是找出要用于组件的数据类型以及需要多少个组件。例如，一个三项整数向量将被声明为 int3。对于 MSL，你通常会使用浮点数，因此你将主要使用大量 float3 和 float4 对象。
+
+矩阵遵循类似的方案。对于任何给定的矩阵，格式将为 floatNxM，其中 N 是列数，M 是行数。图形编程中最常见的矩阵类型是古老、可靠的 4×4 矩阵。在 MSL 中，这被写为 float4x4。
+
+除了 MSL 之外，还有 Metal 标准库。其他着色语言（例如 GLSL）中存在的大多数数学函数都可以直接映射到标准库。这包括 dot()、normalize() 等。你可以将其中一些用于你的着色器。
+
+尝试记住 MSL 和标准库是不切实际的，尤其是几十个数学概念，如果你试图在没有任何背景的情况下消化它们，这些概念很快就会变得令人不知所措。更好的方法是参考 MSL，这样你就可以根据你当前想要完成的任务查找特定信息。
+
+## 设置着色器
+
+在考虑如何编写着色器时，有用的一件事是弄清楚你的输入和输出是什么。这对于帮助你接近着色器有很大帮助。所有着色器的方法签名将如下所示：
+
+着色器类型 returnType 着色器名称(参数 1, 参数 2, 等等....) { }
+
+每个着色器必须以类型声明开始。它可以是顶点、片段或内核着色器。接下来，你需要声明你的返回类型。如果必须返回多个参数，通常为所有返回值创建结构并使返回类型成为该结构的实例。接下来，着色器需要一个名称。当你在主程序中设置渲染管道时，会访问该名称。与其他函数一样，你需要传入参数。对于顶点着色器，这些参数可以是位置、颜色或组成顶点着色器所需的其他数据位。
+
+## 你的第一个着色器：穿越
+
+着色器并不存在于真空中。它们需要连接到主程序，以便共享参数表。你可以创建的最简单的着色器程序从主程序接收所需的所有数据。该数据直接通过着色器而无需修改。要了解这些着色器的工作原理，你需要了解如何使用参数表连接着色器，如图 5.1 所示。
+
+<Figure src={require("../figures/018.jpg")} num="5.1" desc="参数表" />
+
+着色器需要从顶点缓冲区接收信息。顶点缓冲区需要分配内存并将顶点数据绑定到它。缓冲区还必须添加到参数表中，以便着色器可以访问它们。缓冲区需要在 MTKView 类中创建为实例变量，因为它们会受到几种不同方法的影响：
+
+var vertexBuffer: MTLBuffer! = nil var vertexColorBuffer: MTLBuffer! = 零
+
+首先，你需要指定该应用程序将使用的着色器的名称。然后，你需要生成一个管道状态描述符，其中包含你创建的 Metal 函数：
+
+Guard let defaultLibrary = device.newDefaultLibrary() else {return} Guard letfragmentProgram = defaultLibrary.makeFunction( name: "passThroughFragment") else {return} Guard let vertexProgram = defaultLibrary.makeFunction( name: "passThroughVertex") else {return}
+
+让 pipelineStateDescriptor = MTLRenderPipelineDescriptor() pipelineStateDescriptor.vertexFunction = vertexProgram pipelineStateDescriptor.fragmentFunction =fragmentProgram
+
+接下来，你需要为两个缓冲区分配必要的内存并给它们一个标签。
+
+// 生成足够大的缓冲区以允许流式传输 3 // 信号量控制帧的顶点 vertexBuffer = device.makeBuffer(length: ConstantBufferSize, options: []) vertexBuffer.label = "vertices"
+
+let vertexColorSize = vertexData.count \* MemoryLayout.size vertexColorBuffer = device.makeBuffer( 字节: vertexColorData, 长度: vertexColorSize, 选项: []) vertexColorBuffer.label = "颜色"
+
+最后，你需要设置顶点缓冲区。此步骤将这些缓冲区添加到主程序和着色器之间共享的参数表中。你通常在应用程序启动时预先创建缓冲区，但你将在每个帧的参数表中设置它们。你不需要每帧创建缓冲区。
+
+renderEncoder.setVertexBuffer(vertexBuffer, offset: 256\*bufferIndex, at: 0) renderEncoder.setVertexBuffer(vertexColorBuffer, offset:0 , at: 1)
+
+让我们看看从 Metal 模板启动新项目时获得的默认顶点和片段着色器：
+
+#include <metal_stdlib>
+
+使用命名空间 Metal ；
+
+struct VertexInOut { float4 位置 [[位置]];浮动 4 颜色； };
+
+顶点 VertexInOut passThroughVertex( uint vid [[vertex_id]], 常量 Packed_float4* 位置 [[buffer(0)]], 常量 Packed_float4* 颜色 [[buffer(1)]]) { VertexInOut outVertex;
+
+outVertex.position = 位置[vid]; outVertex.color = 颜色[vid];
+
+返回输出顶点； };
+
+片段 half4 passThroughFragment(VertexInOut inFrag [[stage_in]]) { return half4(inFrag.color); };
+
+该着色器文件具有三个组件。第一个是包含顶点着色器输出参数的结构。渲染到屏幕上所需的最少数据是一组位置数据，但对于这个简单的示例，你还传递了一组颜色数据。这些数据可以在主程序中创建并传递到着色器中，正如此处所做的那样，但这并不常见。该着色器集的要点是尽可能简单，因此程序员创建了一个结构来保存该位置和颜色数据，以便可以将其打包并在顶点着色器和片段着色器之间传递。
+
+着色器文件的第二个组件是顶点着色器。顶点着色器的输出是先前创建的结构体。它还接受三个参数：
+
+- vid **:** 该参数为顶点 ID，连接顶点缓冲区以带入当前顶点。 - 位置**：** 该参数连接到属性表。在默认的 Metal 模板中，属性表中有两个属性：位置和颜色。位置缓冲区是第一个属性。在这里，你将当前顶点的当前位置传递给顶点着色器。 - 颜色 **：** 这是属性表中的第二个属性。
+
+该顶点着色器创建需要返回的结构的实例。然后，它将结构体的每个成员设置为传入的参数并返回该结构体。没有处理
+
+发生 - 着色器只是获取当前位置和颜色并将结构传递给光栅器。
+
+此直通着色器示例中的第三个结构是片段着色器。片段着色器接收顶点着色器返回的结构。片段着色器只关心每个像素的颜色，因此它会选择结构体的颜色分量作为其返回值。
+
+**打包与未打包**
+
+你可能已经注意到，顶点着色器采用一种奇怪的数据类型：常量 Packed_float4。这意味着什么？它与普通的 float4 有什么不同？
+
+颜色和位置数据都存储在 float4 中，但它们只有三个组成部分。颜色数据有 RGB，位置数据有 XYZ。最后一个浮点是填充以使向量正确对齐。
+
+解压后的位置缓冲区（即由 float4 组成）的布局如下所示：
+
+XYZ*XYZ_XYZ_XYZ_XYZ_XYZ_XYZ_XYZ*
+
+打包的位置缓冲区（即由 Packed_float4s 组成）的布局如下所示：
+
+XYZXYZXYZXYZXYZXYZXYZXYZ
+
+其中每个 X、Y 或 Z 代表一个包含 4 个字节的浮点数。下划线字符表示向量消耗的空间，但实际上不用于填充以外的任何目的。由于没有浪费 4 个字节来处理 float4 布局中隐含的“缺失”第四个组件，因此打包数据大约缩小了 20%，因此可以进行 16 字节对齐。
+
+一般来说，如果可能，请使用打包数据类型。每个小字节都有帮助。
+
+直通着色器模型受到极大的限制。如果你想做任何有趣的事情，你需要深入研究着色器编程。
+
+## 编写你的第一个着色器
+
+本章的其余部分重点介绍一个简单的项目，该项目导入模型文件并应用逐顶点光照模型。第 11 章“与模型 I/O 的接口”详细介绍了为此项目导入数据模型的详细信息。目前，请注意模型 I/O 框架已引入顶点位置和法线数据，这些数据存储在将发送到着色器的缓冲区中。本节详细介绍如何设置使用顶点和片段着色器产生效果所需的其余参数。
+
+**每顶点照明**
+
+光照是 3D 图形最重要的方面之一，第 9 章“3D 绘图简介”中对此进行了介绍。目前，本节将引导你实现一个常见的光照效果。
+
+Metal 中的效果，并帮助你熟悉使用茶壶模型设置制服、投影矩阵和缓冲区。
+
+你将实现的着色技术是具有单点光源的漫反射、逐顶点着色模型。这意味着对于我们模型中的每个顶点，将确定它暴露在多少光线下。靠近光源的顶点比茶壶内部的顶点受到更多的光照。
+
+以下是计算每个顶点的光强度的公式：
+
+现在不要惊慌！你将了解这个方程式的含义以及如何创建将其转换为物理效果所需的所有对象和代码。该方程需要多个对象来计算每个顶点的照明值：
+
+- 顶点位置 - 顶点法线 - 光源位置 - 颜色 - 反射率 - 光源强度 - 模型视图矩阵 - 投影矩阵
+
+该着色器的基础是两个向量：来自光源的方向相对于表面法线向量。你需要确定这两个向量之间的角度的余弦。正如你在第 4 章中看到的，有一种简单的方法来计算余弦，即使用两个归一化向量的点积。
+
+余弦值介于 -1 和 1 之间。它决定了表面法线与光源的对齐程度。表面法线越接近光源，表面反射回来的光就越多，如图 5.2 所示。
+
+<Figure
+  src={require("../figures/019.jpg")}
+  num="5.2"
+  desc="漫反射照明模型的工作原理"
+/>
+
+此外，并非所有的光都会直接反射回来。所有物体，甚至镜子，都会吸收一定量的光。该着色器专门用于漫反射而不是闪亮。因此，等式的最后一点是设置反射率水平，以确定有多少光被吸收以及有多少光被发射。
+
+因此，回顾方程，你计算的是每个顶点的光强度。你可以将漫反射率 ( _Kd_ ) 乘以漫反射光强度 ( _Ld_ )，再乘以光方向相对于表面法线的余弦 ( _s_ • _n_ )。
+
+**模型 I/O 顶点缓冲区**
+
+如果你熟悉其他着色语言（例如 GLSL），MSL 的设计就很容易学习。一些常见的数据类型（例如向量和矩阵）以及一些常见的函数（例如点和十字）在所有着色语言中都是必需的。然而，由于 Metal 的设计，你不能直接将 GLSL 着色器复制并粘贴到 Metal 中。
+
+这是该项目所基于的原始 GLSL 着色器：
+
+vec3 VertexPosition 中的布局（位置 = 0）； vec3 VertexNormal 中的布局（位置 = 1）；
+
+输出 vec3 光强度；
+
+均匀 vec4 LightPosition； // 眼睛坐标中的灯光位置 uniform vec3 Kd; // 漫反射率 uniform vec3 Ld; // 漫射光强度
+
+统一 mat4 模型视图矩阵；统一 mat3 法线矩阵；统一 mat4 投影矩阵；制服 4 个 MVP；
+
+void main() { vec3 tnorm = normalize( NormalMatrix _ VertexNormal); vec4 eyeCoords = ModelViewMatrix _ vec4(VertexPosition,1.0); vec3 s = 标准化(vec3(LightPosition - eyeCoords));
+
+光强度 = Ld _ Kd _ max( 点( s, tnorm ), 0.0 );
+
+gl_Position = MVP \* vec4(VertexPosition,1.0); }
+
+查看此代码并且不熟悉 MSL，你可能会认为翻译此着色器需要在着色器文件中创建一堆常量，顶点着色器和片段着色器都将访问这些常量。这个假设是不正确的。着色器函数使用的所有数据都必须作为参数从参数表传入或硬编码到着色器本身中。
+
+有两组参数需要传递到顶点着色器中。一组参数（顶点位置和顶点法线）是从使用模型 I/O 引入项目的模型文件中提取的。其他参数是你（程序员）负责决定的参数。这些包括光位置和表面的反射率。如果你无法在着色器程序中将它们声明为全局制服，那么顶点着色器如何访问它们？
+
+它们的访问方式与访问位置和普通数据的方式相同：通过缓冲区。首先，你将查看视图控制器中的一些代码。当使用模型 I/O 将模型文件引入程序时，位置和法线被绑定到顶点描述符。
+
+让 desc = MTKModelIOVertexDescriptorFromMetal(vertexDescriptor) var attribute = desc.attributes[0] as！ MDLVertexAttribute attribute.name = MDLVertexAttributePosition attribute = desc.attributes[1] as！ MDLVertexAttribute attribute.name = MDLVertexAttributeNormal Guard let mtkBufferAllocator = MTKMeshBufferAllocator(device: device) else {return}
+
+该描述符用于设置一个顶点缓冲区，然后将其添加到参数表中：
+
+让 vertexBuffer = mesh.vertexBuffers[0] renderEncoder.setVertexBuffer(vertexBuffer.buffer, 偏移量: vertexBuffer.offset, at: 0)
+
+在顶点着色器中，你需要设置一个适合你刚刚创建的密钥的锁。位置和普通数据都在参数表的第一个缓冲区参数中交错。你需要在顶点着色器声明中指定该参数：
+
+顶点 VertexOut lightingVertex(uint vid [[vertex_id]], VertexIn \*position [[buffer(0)]] { }
+
+请注意，你告诉着色器在参数中期望的数据类型是 VertexIn 类型。你还告诉着色器该 VertexIn 数据类型是它期望在参数表中的第一个缓冲区参数中找到的数据类型。
+
+此时，你可能想知道当你有两条不同的信息并且需要位置和普通数据才能执行计算时，为什么只传递一个参数。如何访问参数的两个属性？
+
+对于传递给着色器的每个数据缓冲区，你需要为该数据创建一个关联结构。你通常不会为传入的每条数据创建一个新的缓冲区。你将“堆叠”并交错数据，并且着色器需要一种方法来了解哪些字节集与哪种类型相关的信息。现在，你正在传递 24 字节的数据块，着色器需要一种方法来理解这些字节如何分组以及如何
+
+应用它们。
+
+struct VertexIn { float3 位置 [[attribute(0)]]; float3 正常 [[属性(1)]]; };
+
+在这里，你将创建一个相关的数据结构，告诉顶点着色器如何划分这 16 个字节。它告诉着色器缓冲区参数中有两个属性。一个称为位置，它使用参数的前 12 个字节。第二个属性称为普通属性，它占用缓冲区的最后 12 个字节。
+
+## 统一缓冲区
+
+顶点位置和顶点法线已就位，但仍需要组装几个部分来实现此着色器：
+
+- 光源位置 - 颜色 - 反射率 - 光源强度 - 模型视图矩阵 - 投影矩阵
+
+与顶点位置和顶点法线一样，这些元素进入它们自己的缓冲区。你无需从模型创建顶点缓冲区，而是手动创建并设置此缓冲区。 MSL 有一组 Swift 中不存在的自定义数据类型和方法，因此你必须找到一种方法在视图控制器中创建可以连接到着色器中的数据类型的关联数据类型。你将使用单指令、多数据 (SIMD) 来解决这个问题。
+
+Apple 的框架之一是 Accelerate 框架。 Accelerate 包含用于矢量和矩阵数学、数字信号处理、大数处理和图像处理的 C API。 Accelerate 中的模块之一是 SIMD 库。 SIMD 中的数据类型与你需要在 MSL 中重新创建的数据类型完美匹配。
+
+该项目中使用了一种专门的数据类型：Matrix4x4。 SIMD 具有与 Metal float4x4 数据类型相关的 float4x4 类型，但你需要一些专门的矩阵类型，并且此自定义 Matrix4x4 数据类型包含用于创建这些类型的实例的便捷方法：
+
+struct Matrix4x4 { var X: float4 var Y: float4 var Z: float4 var W: float4
+
+init() { X = Vector4(x: 1, y: 0, z: 0, w: 0) Y = Vector4(x: 0, y: 1, z: 0, w: 0)
+
+Z = Vector4(x: 0, y: 0, z: 1, w: 0) W = Vector4(x: 0, y: 0, z: 0, w: 1) }
+
+static func spinAboutAxis(\_ axis: float4, byAngle 角度: Float32) -> Matrix4x4 { var mat = Matrix4x4()
+
+让 c = cos(角度) 让 s = sin(角度)
+
+mat.X.x = axis.x _ axis.x + (1 - axis.x _ axis.x) _ c mat.X.y = axis.x _ axis.y _ (1 - c) - axis.z _ s 垫。 X.z = 轴.x _ 轴.z _ (1 - c) + 轴.y \* s
+
+mat.Y.x = axis.x _ axis.y _ (1 - c) + axis.z _ s mat.Y.y = axis.y _ axis.y + (1 - axis.y _ axis.y) _ c Y.z = 轴.y _ 轴.z _ (1 - c) - 轴.x \* s
+
+mat.Z.x = axis.x _ axis.z _ (1 - c) - axis.y _ s mat.Z.y = axis.y _ axis.z _ (1 - c) + axis.x _ s mat.Z.z =轴.z _ 轴.z + (1 - 轴.z _ 轴.z) \* c
+
+返回垫子}
+
+static func 透视投影（\_方面：Float32，fieldOfViewY：Float32，近：Float32，远：Float32） - > Matrix4x4 { var mat = Matrix4x4（）
+
+让 fovRadians = fieldOfViewY \* Float32(M_PI / 180.0)
+
+让 yScale = 1 / tan(fovRadians _ 0.5) 让 xScale = yScale / 方面 让 zRange = 远 - 近 让 zScale = -(远 + 近) / zRange 让 wzScale = -2 _ 远 \* 近 / zRange
+
+mat.X.x = xScale mat.Y.y = yScale mat.Z.z = zScale mat.Z.w = -1 mat.W.z = wzScale
+
+返回垫； } }
+
+灯光位置和颜色由 float4 表示。光强度和反射率由 float3 表示。投影矩阵和模型视图矩阵均由 Matrix4x4 表示。
+
+现在，你有六个不同类型的对象需要捆绑在一起并发送给 GPU。如果它们都是相同的数据类型，那么很容易将它们捆绑到一个数组中，但它们是不同的类型。因此，你必须将它们捆绑到一个结构中：
+
+导入 SIMD
+
+struct Uniforms { 让 lightPosition:float4 让颜色:float4 让反射率:float3 让 lightIntensity:float3 让投影 Matrix:Matrix4x4 让 modelViewMatrix:Matrix4x4 }
+
+**投影矩阵**
+
+如果你完成了第 3 章“你的第一个 Metal 应用程序（你好，三角形！）”，你可能会想知道为什么现在需要投影和模型视图矩阵，而无需投影和模型视图矩阵就可以将三角形渲染到屏幕上。
+
+如果你回想一下三角形，它并没有按照你想象的方式出现。每个顶点与其他两个顶点等距，因此你应该有一个等边三角形。但如果你构建并渲染了代码，你会注意到三角形被拉伸了。
+
+如果你不提供投影矩阵，你的程序将根据屏幕尺寸进行偏差和缩放，导致图形失真，除非你使用缩放矩阵来补偿失真。因为你的屏幕不是方形的，所以你的所有模型都会扭曲。当你试图学习所有活动部分时，忽略这一点是一件好事，但你不想养成坏习惯。如果你的美术师花费了大量时间来完善你的游戏或应用程序的模型，你希望通过确保其纵横比正确来做到公正。
+
+为了使本章简单，这些制服中的每一个都将被硬编码。创建插座以允许用户更改这些值并不需要太多工作，但这会给本已复杂的章节增加额外的复杂性。你需要创建六个对象来填充统一结构：
+
+// 矢量制服 let teapotColor = float4(0.7, 0.47, 0.18, 1.0) let lightPosition = float4(5.0, 5.0, 2.0, 1.0) let Reflectivity = float3(0.9, 0.5, 0.3) lettensity = float3(1.0, 1.0, 1.0)
+
+// 矩阵统一 let yAxis = float4(0, -1, 0, 0) var modelViewMatrix = Matrix4x4.rotationAboutAxis(yAxis, byAngle:rotationAngle)
+
+modelViewMatrix.W.z = -2
+
+让方面 = Float32(self.view.bounds.width) / Float32(self.view.bounds.height)
+
+让 projectionMatrix = Matrix4x4.perspectiveProjection（方面，fieldOfViewY：60，近：0.1，远：100.0）
+
+创建每个制服后，你需要填充一个制服结构。要将这些硬编码信息添加到统一缓冲区，你需要为其分配足够的内存。你还需要将统一结构实例包装在数组中，以便可以将数据复制到缓冲区：
+
+让 uniform = Uniforms（lightPosition：lightPosition，颜色：teapotColor，反射率：反射率，lightIntensity：强度，projectionMatrix：projectionMatrix，modelViewMatrix：modelViewMatrix）
+
+让 uniforms = [uniform]uniformBuffer = device.makeBuffer（长度：MemoryLayout.size，选项：[]）memcpy（uniformBuffer.contents（），uniforms，MemoryLayout.size）
+
+在着色器程序中，正如你对位置数据所做的那样，你需要创建一个与 Swift 结构中的数据类型相关的结构：
+
+struct Uniforms { float4 lightPosition; }浮动 4 颜色； Packed_float3 反射率； Packed_float3 强度； float4x4 模型视图矩阵； float4x4 投影矩阵； };
+
+最后，将此缓冲区作为参数添加到片段着色器：
+
+顶点 VertexOut lightingVertex( VertexIn vertexIn [[stage_in]], 常量 Uniforms &uniforms [[buffer(1)]]) { }
+
+创建着色器所需的所有组件均已就位。是时候对 GPU 进行设置和编程了。
+
+**顶点着色器**
+
+之前，你看到了每个顶点的光源强度的方程。为了方便起见，这里重复一下：
+
+_L_ = _K_ d _L_ ds.n
+
+这很简单，但你需要做一些工作来确定表面点到光源的方向（_s_ 值）。你需要使用投影矩阵和正在计算的当前顶点法线来确定眼睛坐标。然后从传入的灯光位置中减去该操作的结果。
+
+这是你完成的顶点着色器：
+
+顶点 VertexOut lightingVertex( VertexIn vertexIn [[stage_in]], 常量 Uniforms &uniforms [[buffer(1)]]) { VertexOut outVertex;
+
+// 光照代码 float3 tnorm = normalize(uniforms.projectionMatrix _ vertexIn.normal); float4 eyeCoords = Uniforms.modelViewMatrix _ float4(vertexIn.position, 1.0); float3 s = 标准化(float3(uniforms.lightPosition – eyeCoords));
+
+outVertex.lightIntensity = uniforms.intensity _ uniforms.reflectivity _ max( dot(s, tnorm), 0.0); outVertex.position = uniforms.modelViewMatrix \* float4(vertexIn.position, 1.0);
+
+返回输出顶点； };
+
+**片段着色器**
+
+片段着色器的唯一职责是确定每个像素的颜色。这是通过将茶壶的颜色乘以每个像素的光强度来确定的。
+
+片段 half4 lightingFragment( VertexOut inFrag [[stage_in]], 常量 Uniforms &uniforms [[buffer(1)]]) { return half4(inFrag.lightIntensity \*uniforms.color); };
+
+一般来说，你希望片段着色器尽可能小。它比顶点着色器被调用的频率更高，因此片段着色器中的工作越多，渲染时间就越长。
+
+在某些情况下，例如照片级真实感照明，你希望将工作移至片段着色器，因为它可以更好地表示光线在现实世界中的行为方式。第 9 章对此进行了介绍。
+
+## 概括
+
+着色器是用 MSL 编写的简单程序。 MSL 基于 C++14，包含图形数学中常用的专门方法和数据类型，例如向量和点积。
+
+着色器程序就像冰山一样。你在着色器中看到的代码只是提示，掩盖了通过缓冲区内置到程序中的许多脚手架和支持。
+
+所有图形着色器都必须包含顶点着色器和片段着色器。顶点着色器的输出被发送到光栅器。光栅化器的输出被发送到片段着色器。
+
+着色器使用的所有数据都必须以缓冲区的形式输入其中。缓冲区使用统一数据和位置数据进行编码。它们被添加到参数表中，这是着色器和主程序来回传递数据的方式。着色器还需要与缓冲区中的数据相关的数据结构，以便着色器可以解码哪些字节与哪些参数相关。

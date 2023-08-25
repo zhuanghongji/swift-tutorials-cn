@@ -1,1 +1,195 @@
-# 14. Geometry Unleashed: Tessellation in Metal
+# 释放几何： Metal 中的镶嵌
+
+<Wisdom
+  words="只有那些尝试荒谬的人才能实现不可能的事情。我想它在我的地下室，让我上楼检查一下。"
+  author="M.C·埃舍尔"
+/>
+
+在图形编程中，你必须平衡细节与性能。拥有极其逼真的模型看起来令人惊叹，但它也会严重拖累你的帧速率。你已经学会了在没有几何体的情况下添加细节的一种方法是纹理映射，但这有其自身的局限性。当光源移动时，山腰的图像不会产生新的阴影，因为它是平面图像。还有另一种方法可以添加细节而不会对 GPU 造成拖累：_tessellation_。
+
+## 使用曲面细分消除瓶颈
+
+曲面细分是采用没有大量几何图形的描述符并使用程序生成缺失几何图形的过程。使用曲面细分时，三角形不会存储在内存中。通常，当三角形存储在内存中并且将三角形缓冲区传递给片段着色器时，它越大，传递三角形所需的时间就越长。曲面细分通过删除需要通过缓冲区馈送到顶点着色器的三角形来消除此瓶颈。因此，你可以获得性能。
+
+曲面细分允许你将低分辨率模型传递给着色器。它在管道中添加了几个步骤，将该几何体分割成更小、更精细的几何体。你不是将整个网格传递到管道，而是发送*patch*。面片是由样条曲线而不是三角形组成的参数曲面。这些曲线由一组控制点和控制顶点组成，如图 14.1 所示。控制点和顶点通常粗略地描述结构，没有太多细节。细节可以由曲面细分器进行插值，而不会降低顶点缓冲区的重量。
+
+<Figure
+  src={require("../figures/034.jpg")}
+  num="14.1"
+  desc="由控制点组成的补丁"
+/>
+
+## 卡特莫尔-克拉克分区
+
+本节涵盖计算机科学中最常用的方法：_Catmull-Clark 细分。_
+
+1978 年，Edwin Catmull 和 Jim Clark 发表了一篇关于使用细分递归生成曲面的论文。卡特穆尔早期职业生涯的一部分时间是在工业光魔公司的一个部门为乔治·卢卡斯工作，该部门最终以 1000 万美元的价格卖给了史蒂夫·乔布斯，并更名为皮克斯。 Catmull 是计算机图形学研究的先驱，他对该领域的贡献是无法估量的。
+
+细分控制点网格涉及四个基本步骤：
+
+1. 向每个面添加一个新点，称为 _面点_。
+2. 向每条边添加一个新点，称为 _边缘点_。
+3. 将控制点移动到另一个位置，称为 _顶点_。
+4. 连接新点。
+
+图 14.2 显示了镶嵌之前的面示例。人脸点需要位于人脸所有控制点的平均位置。该位置是通过将该面上的所有控制点的位置相加，然后将总数除以控制点的数量来确定的。对于每个边缘点，你需要取边缘两侧的两个控制点以及接触面的面点的平均值。
+
+<Figure
+  src={require("../figures/035.jpg")}
+  num="14.2"
+  desc="Catmull-Clark 细分之前的补丁"
+/>
+
+Source: [http://www.rorydriscoll.com/2008/08/01/catmull-clark-subdivision-the-basics](http://www.rorydriscoll.com/2008/08/01/catmull-clark-subdivision-the-basics)
+
+设置顶点比设置面和边缘点更复杂。你需要计算加权平均值，而不是像前面的点那样使用正常平均值。确定控制点移动到何处的方程：
+
+( _Q_ / _n_ ) + (2 _R_ / _n_ ) + ( _S_ ( _n_ − 3)/ _n_ )
+
+该方程中的变量代表以下内容：
+
+- _Q_ 是周围人脸点的平均值。 - _n_ 是价，这是一个奇特的术语，表示连接到该点的边的数量。 - _R_ 是所有周围边缘中点的平均值。 - _S_ 是控制点。
+
+在此加权方程中，最大权重赋予所有周围边缘中点的平均值。如果有许多边连接到该点，则控制点变得更加重要。如果边缘数量较少，则周围面点和控制点的平均值的贡献相当相等，但仍小于周围边缘中点的平均值。
+
+最后，连接所有点。这会平滑原始图像并创建更多数量的面，如图 14.3 所示。
+
+<Figure
+  src={require("../figures/036.jpg")}
+  num="14.3"
+  desc="Catmull-Clark 细分后的补丁"
+/>
+
+Source: [http://www.rorydriscoll.com/2008/08/01/catmull-clark-subdivision-the-basics](http://www.rorydriscoll.com/2008/08/01/catmull-clark-subdivision-the-basics)
+
+## 每面片镶嵌因子
+
+曲面细分的一个重要方面是指定你想要多少额外的细节。这就是*曲面细分因子*的用武之地。曲面细分因子是每个面片的细分数。细分越多，几何图形就越详细，模型就越平滑。这会产生一点性能成本，因此你需要选择获得所需效果所需的最小数字。
+
+你将在 Metal 中细分两种不同类型的镶嵌面片：三角形和四边形。每种类型都有一个 Metal 结构：MTLTriangleTessellationFactorsHalf 和 MTLQuadTessellationFactorsHalf。除了面片的形状之外，你还可以根据它是形状的边缘还是内部来指定镶嵌因子。
+
+MTLTriangleTessellationFactorsHalf 有两个属性：edgeTessellationFactor 和 insideTessellationFactor。 edgeTessellationFactor 指定三角形内每条边的因子。该属性是一个具有三个值的数组。对于三角形面片，面片中的位置是一个（u，v，w）坐标，表示三角形的三个顶点对顶点位置的相对影响，如图 14.4 所示。 (u, v, w) 值的范围为 0.0 到 1.0，其中 u+v+w=1.0。数组的第一个成员是 u 边的曲面细分因子，然后是 v 边，最后是 w 边。三角形面片只需设置一个内部镶嵌因子，因此相对简单。
+
+<Figure
+  src={require("../figures/037.jpg")}
+  num="14.4"
+  desc="三角形面片镶嵌因子"
+/>
+
+对于 MTLQuadTessellationFactorsHalf，面片中的位置是 (u, v) 笛卡尔坐标，指示顶点相对于四边形面片边界的水平和垂直位置。 (u, v) 值的范围均为 0.0 到 1.0，如图 14.5 所示。该结构体的 edgeTessellationFactor 是一个包含四个值的数组。第一个值针对块的边缘，其中 u=0（边缘 0）。接下来是面片边缘的镶嵌因子，其中 v=0（边缘 1），然后 u=1（边缘 2），最后 v=1（边缘 3）。与三角形补片不同，四边形补片指定两个内部镶嵌因子。数组中的第一个值提供 v 的所有内部值的水平细分因子。数组中的第二个值提供 u 的所有内部值的垂直细分因子。
+
+<Figure src={require("../figures/038.jpg")} num="14.5" desc="四面片镶嵌因子" />
+
+## Metal 镶嵌固定功能管道
+
+图 14.6 中所示的 Metal 曲面细分管道与你将在本书中了解的所有其他管道不同，因为它需要所有三种着色器类型的实例：顶点、片段和内核。本章简要概述了内核着色器在曲面细分管道中所扮演的角色。本书的第二部分对内核着色器和计算管道进行了更全面的概述。
+
+<Figure src={require("../figures/039.jpg")} num="14.6" desc="Metal 镶嵌管道" />
+
+在缓冲区到达顶点着色器之前，你需要实现一个计算内核。如果你还记得之前对曲面细分的解释，你就会知道最初进入曲面细分管道的几何体是相当原始的。曲面细分内核是该管道中的第一步是有道理的，因为如果你将原始几何体直接发送到顶点着色器，它不会让你到达任何地方。
+
+曲面细分流水线由一些固定功能阶段和一些可编程阶段组成。 _tessellator_ 是固定功能阶段。它创建面片表面的采样图案并生成连接这些样本的图形基元。这些固定功能选项是在你创建 MTLRenderPipelineDescriptor 时设置的。以下是渲染管道描述符在使用曲面细分的应用程序中的外观示例：
+
+让 renderPipelineDescriptor = MTLRenderPipelineDescriptor() renderPipelineDescriptor.vertexDescriptor = vertexDescriptor renderPipelineDescriptor.colorAttachments[0].pixelFormat = mtkView.colorPixelFormat renderPipelineDescriptor.fragmentFunction = 库?.makeFunction(name: "tessellation_fragment") renderPipelineDescriptor.isTessellationFactorScaleEnabled = false renderPi pelineDescriptor.tessellationFactorFormat = .half renderPipelineDescriptor .tessellationControlPointIndexType = .none
+
+renderPipelineDescriptor.tessellationFactorStepFunction = .constant renderPipelineDescriptor.tessellationOutputWindingOrder = .顺时针 renderPipelineDescriptor.tessellationPartitionMode = .fractionalEven renderPipelineDescriptor.maxTessellationFactor = 64; renderPipelineDescriptor.vertexFunction = 库？.makeFunction(name: "tessellation_vertex_triangle") var renderPipeline: MTLRenderPipelineState? do { renderPipeline = try device.makeRenderPipelineState(descriptor: renderPipelineDescriptor) } catch let error as NSError { print("渲染管道错误：" + error.description)
+
+}
+
+maxTessellationFactor 指定曲面细分器在曲面细分时要使用的最大曲面细分因子。默认因子为 16，最大因子为 64。如果选择 16 到 64 之间的值，则需要设置 tessellationPartitionMode 属性，该属性导出用于细分相应边的段的数量和间距。这些模式包含在 MTLTessellationPartitionMode 枚举中：
+
+- **pow2** ：这是默认值。结果向上舍入到最接近的整数 n，其中 n 是 2 的幂。例如，如果 maxTessellationFactor 设置为 30，则结果将向上舍入到 32。 - **整数** ：结果向上舍入到最接近的整数 n。该整数可以是偶数也可以是奇数。 - **fractionalOdd** ：曲面细分级别向上舍入到最接近的奇数整数 n。如果 n 为 1，则边缘不被细分。否则，将相应的边分成 n-2 段等长的段。 - **fractionalEven** ：曲面细分级别向上舍入到最接近的偶数 n。
+
+另一个固定函数属性是 isTessellationFactorScaleEnabled。它的默认值为 false。如果该值为 true，则在执行面片剔除检查之后但在将曲面细分因子钳位到 maxTessellationFactor 的值之前，将比例因子应用于曲面细分因子。仅当补丁未被剔除时才应用比例因子。
+
+tessellationFactorFormat 是在细分因子缓冲区中指定的细分因子的格式。这是 MTLTessellationFactorFormat 的一个实例，它必须具有默认值 .half。
+
+tessellationControlPointIndexType 是控制点索引缓冲区中控制点索引的大小。你可以选择 .none 作为选项，但仅当绘制没有控制点索引缓冲区的面片时才应使用此选项。否则，你的选项是 16 位或 32 位无符号整数。
+
+tessellationFactorStepFunction 从曲面细分因子缓冲区确定补丁的曲面细分因子。它有四个选项：
+
+- **常数**：默认值。对于所有实例，补丁绘制调用中所有补丁的曲面细分因子位于曲面细分因子缓冲区中的偏移位置。 - **perPatch** ：每个补丁步骤函数。对于所有实例，a 中所有补丁的镶嵌因子
+
+补丁绘制调用位于曲面细分因子缓冲区中的 offset + (drawPatchIndex \* tessellationFactorStride) 位置。
+
+- **perInstance** ：每个实例的步骤函数。对于给定的实例 ID，修补程序绘制调用中修补程序的曲面细分因子位于曲面细分因子缓冲区中的偏移量 + (instanceID \* instanceStride) 位置。 - **perPatchAndPerInstance** ：每个补丁和每个实例的步骤函数。对于给定的实例 ID，补丁绘制调用中补丁的曲面细分因子位于曲面细分因子缓冲区中的 offset + (drawPatchIndex _ tessellationFactorStride + instanceID _ instanceStride) 位置。
+
+你需要为曲面细分器设置的最后一个属性是 tessellationOutputWindingOrder。从其名称中可以清楚地看出，它设置镶嵌器输出的三角形的缠绕顺序。它由 MTLWinding 枚举表示。唯一的选择是顺时针和逆时针。默认为顺时针方向。
+
+## 设置曲面细分内核
+
+你的计算内核是管道的可编程部分。计算内核需要执行以下功能：
+
+- 计算每个面片镶嵌因子 - 计算每个面片用户数据（可选） - 计算或修改面片控制点数据（可选）
+
+与 Metal 中的每个着色器函数一样，你需要向文件添加一些数据结构，以接收主程序中设置并存储在参数表中的数据：
+
+// 控制点 struct struct ControlPoint { float4 位置 [[attribute(0)]]; };
+
+// 补丁结构 struct PatchIn { patch_control_point control_points; };
+
+第一个结构接收存储在属性缓冲区中的控制点。这些控制点组成一个补丁，馈送到顶点着色器。
+
+// 三角形计算内核 kernel void tessellation_kernel_triangle(constant float& edge_factor [[buffer(0)]],constant float& inside_factor [[buffer(1)]], device MTLTriangleTessellationFactorsHalf\* Factors [[buffer(2)]], uint pid [ [thread_position_in_grid]]) { // 简单直通操作 Factors[pid].edgeTessellationFactor[0] = edge_factor; Factors[pid].edgeTessellationFactor[1] = edge_factor; Factors[pid].edgeTessellationFactor[2] = edge_factor;因素[pid].insideTessellationFactor = inside_factor; }
+
+内核函数只是获取主程序中设置的边缘因子和内部因子，并将它们设置到 MTLTriangleTessellationFactorsHalf 属性中
+
+参数表。之后，每个补丁的曲面细分因子被发送到曲面细分器。曲面细分器的结果以及每个补丁用户数据的缓冲区和每个补丁曲面细分因子由曲面细分后顶点函数引用。
+
+## 曲面细分后顶点函数
+
+曲面细分后顶点函数与常规普通顶点函数类似，但必须配备它们以接收面片类型和控制点。曲面细分后顶点函数必须至少是以下类型的参数之一：
+
+- 缓冲区（在设备或常量地址空间中声明）、纹理或采样器等资源 - 每个补丁数据和补丁控制点数据，这些数据可以直接从缓冲区读取，也可以作为声明的输入传递到曲面细分后顶点函数带有 [[stage_in]] 限定符 - 补丁标识符，限定为 [[patch_id]] - 每个实例标识符，限定为 [[instance_id]] - 在读取每个实例之前添加到每个实例标识符的基本实例值 data ([[base_instance]]) - 正在评估的补丁上的位置，限定为 [[position_in_patch]]
+
+这是一个简单的遍历后曲面细分顶点函数：
+
+// 三角形细分后顶点函数 [[patch(triangle, 3)]] vertex FunctionOutIn tessellation_vertex_triangle( PatchIn patchIn [[stage_in]], float3 patch_coord [[position_in_patch]]) { // 重心坐标 float u = patch_coord.x;浮动 v = patch_coord.y;浮动 w = patch_coord.z;
+
+// 转换为笛卡尔坐标 float x = u _ patchIn.control_points[0].position.x + v _ patchIn.control*points[1].position.x + w * patchIn.control*points[2].position.x; float y = u * patchIn.control*points[0].position.y + v * patchIn.control*points[1].position.y + w * patchIn.control_points[2].position.y;
+
+// 输出 FunctionOutIn vertexOut; vertexOut.position = float4(x, y, 0.0, 1.0); vertexOut.color = half4(u, v, w, 1.0);返回顶点输出； }
+
+该函数使用本章前面创建的控制点结构来传递控制点。它还跟踪补丁中的当前位置。在适当的着色器函数中，它像往常一样将对象空间坐标转换为笛卡尔坐标并将顶点输出到光栅器。
+
+## 绘制补丁
+
+曲面细分的绘制调用与其他渲染编码器应用程序的绘制调用略有不同。在正常应用中，你告诉编码器你正在绘制什么类型的对象（点、线或三角形）。你可以使用 drawPatch 的变体来代替 drawPrimitives：
+
+renderCommandEncoder.drawPatches（numberOfPatchControlPoints：3，patchStart：0，patchCount：1，patchIndexBuffer：nil，patchIndexBufferOffset：0，instanceCount：1，baseInstance：0）
+
+曲面细分补丁的绘制调用有四种风格。第一个也是最直接的绘制补丁调用是上面详细介绍的。更复杂的绘制补丁如下：
+
+func drawPatches（numberOfPatchControlPoints：Int，patchStart：Int，patchCount：Int，patchIndexBuffer：MTLBuffer？，patchIndexBufferOffset：Int，instanceCount：Int，baseInstance：Int）
+
+该调用渲染了许多镶嵌补丁的实例，如图 14.7 所示。第一个参数是补丁控制点的数量。该值必须介于 0 和 32 之间。第二个参数是补丁的起始索引。下一个值是每个实例中的补丁数。接下来，指定包含补丁索引的 MTLBuffer（如果存在）。
+
+<Figure
+  src={require("../figures/040.jpg")}
+  num="14.7"
+  desc="每个补丁绘制调用"
+/>
+
+如果有偏移，你也可以设置它。接下来，指定要绘制的实例数，最后指定要绘制的第一个实例的索引。
+
+设置此绘制调用的另一种方法是使用间接缓冲区：
+
+func drawPatches（numberOfPatchControlPoints：Int，patchIndexBuffer：MTLBuffer？，patchIndexBufferOffset：Int，indirectBuffer：MTLBuffer，indirectBufferOffset：Int）
+
+你会注意到这个方法签名稍微短一些。许多属性被移至 indirectBuffer 参数。这利用了 MTLDrawPatchIndirectArguments 结构。它包含基本实例、实例计数、补丁开始和补丁计数。
+
+此绘制调用的另一个版本不仅需要此间接缓冲区，而且还使用控制点索引缓冲区而不是补丁：
+
+func drawIndexedPatches（numberOfPatchControlPoints：Int，patchIndexBuffer：MTLBuffer？，patchIndexBufferOffset：Int，controlPointIndexBuffer：MTLBuffer，controlPointIndexBufferOffset：Int，indirectBuffer：MTLBuffer，indirectBufferOffset：Int）
+
+请注意，你不仅需要包含补丁索引缓冲区，还需要包含控制点缓冲区，如图 14.8 所示。
+
+如果你想在绘图调用中利用控制点而不必使用间接缓冲区，则可以使用最后一种方法：
+
+func drawIndexedPatches（numberOfPatchControlPoints：Int，patchStart：Int，patchCount：Int，patchIndexBuffer：MTLBuffer？，patchIndexBufferOffset：Int，controlPointIndexBuffer：MTLBuffer，controlPointIndexBufferOffset：Int，instanceCount：Int，baseInstance：Int）
+
+<Figure src={require("../figures/041.jpg")} num="14.8" desc="控制点缓冲区" />
+
+## 概括
+
+曲面细分是一种为模型添加细微差别和细节的复杂方法，无需为 GPU 加载数百万个多边形。网格在 Catmull-Clark 细分的基础上进行细分，以按程序生成附加几何图形，从而平滑粗略绘制的模型。此过程使用框架中可用的所有三种类型的 Metal 着色器函数。

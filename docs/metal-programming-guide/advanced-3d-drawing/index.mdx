@@ -1,1 +1,180 @@
-# 10. Advanced 3D Drawing
+# 高级 3D 绘图
+
+<Wisdom
+  words="疯狂：一遍又一遍地做同样的事情却期待不同的结果。"
+  author="艾尔伯·特爱因斯坦"
+/>
+
+到目前为止，在本书中，你只渲染了一个对象，你可能会感到有点畏惧。如果你有一个完整的 3D 项目，例如首次使用 Metal 的 Zen Garden 项目，你可能会认为必须添加数百万行代码才能使项目如此复杂地工作。别担心—— Metal 可以满足你的需求。本章向你介绍创建大型复杂 3D 场景所需了解的概念。
+
+## 用场景图构建分层世界
+
+当场景中有数千个对象时，你必须决定的第一件事是如何组织它们。组织对象的最易于管理的方法是实现场景图。
+
+_场景图_ 是一种分层数据结构（见图 10.1）。如果你使用过 SpriteKit 框架，你就会知道它实现了场景图结构。 SKScene 节点拥有并负责其下面的所有对象。你通常会遇到角色和每个角色关联多个部分的情况。你可以将一个字符节点设为所有其他节点的父节点。然后，该父节点被添加到场景图中，并被该图视为一个对象，而不是多个对象的集合。这使得更容易一致地变换空间中的所有节点，而无需对对象的每个成员应用相同的变换。在微观层面上，可以在其自己的相对对象空间内平移每个单独的节点。
+
+<Figure src={require("../figures/031.jpg")} num="10.1" desc="场景图" />
+
+场景图是一种处理许多对象的优雅方式，这些对象需要响应与其他对象相关的整体世界空间和局部对象空间。
+
+## 实例化渲染
+
+并非应用程序中的每个几何图形都是唯一的。在你的应用程序中，几何形状更像是“苹果对苹果”，其中每一棵青苹果树都是一个克隆。如果你创建了粒子系统，你就会知道每个粒子都不是唯一的地理网格。每个粒子都有一个与其他粒子共享的基本几何形状。
+
+每个粒子都具有相似的几何形状，这一事实是有意为之的。当每个粒子都相同时，你可以进行一些优化。你不需要为每个对象设置单独的绘制调用。你可以为数千个对象设置整个渲染通道，其代码量几乎与设置一个通道所需的代码量相同。这种方法具有双重优点，即不占用大量代码并最大限度地减少 CPU 的负载。
+
+**环形缓冲器**
+
+在前面的示例中，你只有一次绘制调用，你按照以下过程设置该绘制调用：
+
+1. 将数据（例如制服或表面法线）推送到 GPU
+2. 绑定着色器、缓冲区和纹理
+3. 发出绘制调用
+
+这不是进行数千次绘制调用的最佳方法。这些步骤需要时间。在尝试发出绘制调用之前，最好准备好大量此类数据，这样你就不必为数万次绘制中的每一次都设置绘制调用。 （在发出绘图调用之前准备数据类似于*mise en place*的概念 - 在开始烹饪之前，提前准备好所有原料。这样，已经在锅中的蔬菜在准备时就不会烧焦稍后添加的。它使该过程更加高效。）
+
+与其浪费时间设置数万次代码，不如设置一个常量缓冲区来包含一个数据结构中的所有数据。该常量缓冲区设置在渲染循环之外，包含渲染一帧的数据。
+
+这项技术有几个优点。一是你可以为常量缓冲区中的每个对象使用相同数据的部分。例如，如果你要绘制 1,000 个共享相同网格的立方体，则可以让每一位数据引用相同的网格，而不是拥有大量重复数据。
+
+下面的代码创建了一个环形缓冲区，如图 10.2 所示。
+
+// 常量缓冲区环 var ConstantBuffers : Array = [MTLBuffer] () var ConstantBufferSlot : Int = 0 var frameCounter : UInt = 1
+
+<Figure
+  src={require("../figures/032.jpg")}
+  num="10.2"
+  desc="常量缓冲存储器是如何布局的"
+/>
+
+环形缓冲区是图形和音频编程中的常见概念。在 Metal 中，CPU 和 GPU 共享芯片上的空间。如果只有一个常量缓冲区，CPU 将花费一帧来设置要发送到 GPU 的所有数据。然后，在下一帧中，CPU 和 GPU 将引用内存中的同一位置。在 GPU 有机会处理数据之前，CPU 会覆盖这些设置。这可不行。因此，你不是只创建一个缓冲区来包含所有数据，而是创建一组 MTLBuffer 对象。当 GPU 处理第一个缓冲区中的数据时，CPU 正在将数据添加到下一个缓冲区。当 CPU 到达数组末尾时，它会循环返回并在第一个缓冲区上重新开始，因此称为“环”。
+
+你需要知道缓冲区环中的每个缓冲区必须有多大。这是通过获取对象的数量和每个对象的大小并为环中的每个常量缓冲区分配该内存量来计算的：
+
+让 CONSTANT*BUFFER_SIZE : Int = OBJECT_COUNT * MemoryLayout.size + SHADOW*PASS_COUNT * MemoryLayout.size + MAIN_PASS_COUNT \* MemoryLayout.size
+
+你不希望处理的可能帧太少，因为你不想覆盖
+
+数据。你也不希望创建无限数量的缓冲区。环形缓冲区中帧数的一个良好安全值是 3 — 一个由 CPU 处理，一个由 GPU 处理，还有一个等待被 CPU 拾取：
+
+让 MAX_FRAMES_IN_FLIGHT : Int = 3
+
+接下来，用正确的帧数填充常量环形缓冲区：
+
+for \_ in 1...MAX_FRAMES_IN_FLIGHT { if let buf : MTLBuffer = device!.makeBuffer( length: CONSTANT_BUFFER_SIZE, options: MTLResourceOptions.storageModeShared) else {return} constBuffers.append(buf) }
+
+这是一个简单的 for 循环，用于检查要实例化的缓冲区的最大数量。然后它创建这些缓冲区并将它们添加到常量缓冲区数组中。接下来，你需要找到某种方法来跟踪哪些缓冲区当前正在使用以及哪些缓冲区可用。
+
+信号量 = DispatchSemaphore（值：MAX_FRAMES_IN_FLIGHT）
+
+要跟踪正在使用的帧，你需要设置一个信号量。调度信号量可用于控制跨多个执行上下文对资源的访问。早在电子通信出现之前，信号量系统就被开发出来，作为一种远距离通信的手段，使用一系列位于不同位置的旗帜来代表字母和单词。这个概念已被应用到计算机科学中来控制对共享资源的访问。
+
+mainCommandBuffer.addCompletedHandler { 完成的 CommandBuffer in
+
+让 end = mach_absolute_time() self.gpuTiming[Int(currentFrame % 3)] = end – self.gpuTiming[Int(currentFrame % 3)]
+
+让秒 = self.machToMilliseconds \* Double(self.gpuTiming[Int(currentFrame % 3)])
+
+self.runningAverageGPU = (self.runningAverageGPU \* Double(currentFrame-1) + 秒) / Double(currentFrame)
+
+self.semaphore.signal() }
+
+每个帧都有一个二进制值 0 或 1。如果可以自由使用，信号量将其值显示为
+
+0。当它投入使用时，它会变为 1，这告诉编译器该缓冲区尚未打开以供 CPU 写入。一旦 GPU 完成一帧，该值就会设置回 0。
+
+最后一步是增加当前缓冲区：
+
+// 增加我们的常量缓冲区计数器 // 这将换行并且信号量将确保我们没有使用 // 已经在运行中的缓冲区 constantBufferSlot = (constantBufferSlot + 1) % MAX_FRAMES_IN_FLIGHT
+
+此代码增加当前缓冲区的索引。为了确保恒定环形缓冲区不会出现越界错误，请使用最大帧数运行模运算。
+
+**每帧数据**
+
+现在你已经设置了恒定环形缓冲区系统，你需要用数据填充它。你需要关注两种一般类型的数据：每帧数据和每个对象数据。每帧数据是不共享几何体的对象的数据，包括相机和灯光以及正确渲染场景所需的任何世界数据，例如投影矩阵。
+
+每帧数据存储在命令缓冲区的第一段中。创建代表每帧和每对象数据的数据结构以存储在缓冲区中是有意义的。以下示例是保存每帧数据的结构：
+
+struct ShadowPass {matrix_float4x4 ViewProjection;矩阵\_float4x4 pad1；矩阵\_float4x4 pad2；矩阵\_float4x4 pad3； };
+
+结构 MainPass {matrix_float4x4 ViewProjection; Matrix_float4x4 ViewShadow0Projection；矢量\_float4 灯光位置；矢量\_float4 pad00；矢量\_float4 pad01；矢量\_float4 pad02；矩阵\_float4x4 pad1； };
+
+此类结构保存的全局值不会被多次实例化。这假设有一个多通道渲染目标，并且每个结构体都保存每个通道所需的信息。第 13 章“多通道渲染技术”中介绍了多通道渲染。
+
+接下来，你需要填充当前的常量缓冲区。这与填充任何缓冲区的方式类似。你需要计算每个渲染通道的参数将占用多少空间。了解每个通道参数所需的空间可以让你正确计算每组数据的步幅和偏移量。例如，如果第一组数据占用 24 个字节，你可以指定下一组数据从下一个字节开始。
+
+// 选择要使用的常量缓冲区 let ConstantBufferForFrame = ConstantBuffers[currentConstantBuffer]
+
+// 计算阴影常量缓冲区的偏移量 // 传递数据、主传递数据和对象数据 let ShadowOffset = 0 let mainPassOffset = MemoryLayout.stride + ShadowOffset let objectDataOffset = MemoryLayout.stride + mainPassOffset
+
+// 将 shadow pass 数据写入常量缓冲区 constantBufferForFrame.contents().storeBytes(of:shadowPassData[0], toByteOffset:shadowOffset,as:ShadowPass.self)
+
+// 将主通道数据写入常量缓冲区 constantBufferForFrame.contents().storeBytes(of: mainPassFrameData, toByteOffset: mainPassOffset, as: MainPass.self)
+
+写入每帧数据后，就可以添加每对象数据了。
+
+**每个对象数据**
+
+每个对象的数据是每个对象唯一的数据。每个对象实例都将具有在这些实例之间共享并重用的某些方面。共享数据不包含在包含每个对象数据的结构中。 ObjectData 结构仅保存唯一的数据
+
+每个对象。
+
+结构 ObjectData {matrix_float4x4 LocalToWorld;矢量\_float4 颜色；矢量\_float4 pad0；矢量\_float4 pad01；矢量\_float4 pad02；矩阵\_float4x4 pad1；矩阵\_float4x4 pad2； };
+
+每个对象的数据成为可渲染对象的属性：
+
+类 RenderableObject { 让网格：MTLBuffer？让 indexBuffer：MTLBuffer？让纹理：MTLTexture？
+
+变量计数：整数
+
+var 比例：矢量\_float3 = float3(1.0) var 位置：矢量\_float4 var 旋转：矢量\_float3 var 旋转速率：矢量\_float3
+
+var objectData : 对象数据
+
+如果查看此类声明的顶部，你会看到此类所有实例中通用的属性列表：网格、索引缓冲区和比例。对象的更改方面包含在 ObjectData 结构的实例中。
+
+为了不仅跟踪每个对象，还跟踪必须处理的对象数量，创建一个数组来保存每个可渲染对象是有意义的：
+
+var renderables : 连续数组 = 连续数组())
+
+接下来，设置一个循环以将这些可渲染对象添加到数组中：
+
+// MARK: 对象创建 do { let (geo, index, indexCount, vertCount) = createCube(device!)
+
+for \_ in 0..
+
+让 cube = RenderableObject（m：geo，idx：index，count：indexCount，tex：nil）cube.position = float4（p，p1，p2，1.0）cube.count = vertCount
+
+让 r = 浮点（浮点（drand48（））） _ 2.0 让 r1 = 浮点（浮点（drand48（））） _ 2.0 让 r2 = 浮点（浮点（drand48（））） \* 2.0
+
+立方体.rotationRate = float3(r, r1, r2)
+
+让比例=浮点（drand48（）\ \* 5.0）
+
+立方体.scale = float3(scale)
+
+立方体.objectData.color = float4(Float(drand48()), Float(drand48()),
+
+浮动（drand48（）），1.0）renderables.append（立方体）}}
+
+前面的代码相当简单。它循环遍历程序中设置的对象计数，以创建一定数量的可渲染立方体实例。可渲染对象的所有属性均已创建。有些，例如位置和颜色，是按程序随机生成的。设置所有属性后，该对象将被追加到数组中。
+
+由于将网格绑定到缓冲区是一项计算成本较高的操作，因此你只需执行一次。你可以通过指定与数组中第一个对象关联的网格来实现此目的：
+
+```swift
+// 我们的所有对象都有一个管道，因此只需绑定一次 enc.setVertexBuffer(renderables[0].mesh, offset: 0, at: 0)
+```
+
+你即将完成渲染通道的编码。你只需要计算可渲染数组中所有对象的偏移量，结束编码并提交命令缓冲区。
+
+```swift
+var offset = objectDataOffset for index in 0..<objectsToRender { renderables[index].DrawZPass(enc, offset: offset) offset += MemoryLayout<ObjectData>.size }
+
+enc.endEncoding()
+
+commandBuffer.commit()
+```
+
+## 概括
+
+Metal 框架中内置了许多对象，可以对其进行扩展，以允许程序在 GPU 上执行更多工作，而不会对 GPU 产生负面影响。你可以使用场景图来组织帧中存在的对象的所有实例。你可以创建环形缓冲区来包含大量实例化渲染对象。你可以将所有数据设置在一次性绑定的缓冲区数组中，以避免 CPU 上昂贵的操作。这些实践符合 Metal 范式，即不经常执行昂贵的工作。

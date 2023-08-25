@@ -1,1 +1,206 @@
-# 20. Convolutional Neural Networks
+# 卷积神经网络
+
+<Wisdom
+  words={'老虎要狩猎，鸟要飞；男人必须坐下来思考 "为什么，为什么，为什么？"'}
+  author="库尔特·冯内古特"
+/>
+
+第 18 章“神经网络概念”在全连接神经网络的背景下对神经网络进行了高级概述。你可能已经注意到这种方法效率低下，并且可能认为也许有更好的方法。本章重点介绍一种创建神经网络的新方法：_卷积神经网络_。卷积神经网络是神经网络从低效的好奇心变成计算机科学研究前沿的原因。
+
+## 卷积神经网络的历史
+
+你的大脑处理信息的方式是一个迭代过程。当你看到一个物体时，你意识的顶层会吸收边缘和颜色等粗略特征。这种意识的下一个层次会细化这些细节，以检测鼻子和眼睛等个体特征。在最深的层面上，这些改进结合在一起，你的大脑就会识别出一个物体。这是卷积神经网络如何对图像进行分类的基础。
+
+在全连接的神经网络中，在每一层神经元中，每个神经元都与其前面和后面的每个神经元完全连接。如果你有一个只有 100 个像素正方形的小图像，并且每个像素都是一个输入，那么你就有一个包含 1,000 个神经元的输入层，并且这千个神经元中的每一个都连接到第一个隐藏层中的每个神经元。
+
+正如第 18 章所讨论的，周围的像素与选定的像素相加并进行处理，这导致大量像素被采样。当你移动到下一个像素时，你将对先前操作中已采样并求和的一定数量的像素进行重新采样。
+
+最早的卷积神经网络于 1994 年实现。第一个神经网络 _LeNet5_ 是由 Yann LeCun 创建的。 LeNet5 的突破在于认识到可识别的图像特征存在并且可以在整个图像中检测到（见图 20.1）。然后可以提取这些特征并将其用作训练参数，并与其他图像中的类似特征进行比较。
+
+<Figure
+  src={require("../figures/065.jpg")}
+  num="20.1"
+  desc="第一个卷积神经网络 LeNet5 的直观表示"
+/>
+
+1994 年，还没有 GPU 来训练神经网络，CPU 的速度也明显变慢。 LeNet5 允许你保存参数和计算，而不是使用每个像素作为单独的输入。 LeNet5 利用多层来过滤掉相关的潜在特征，而不是使用暴力方法来查找这些特征。
+
+LeNet5 为神经网络做出了多项进步：
+
+- 使用三层序列进行卷积神经网络：卷积、池化和最后的全连接 - 使用卷积提取空间特征 - 使用图像图的空间平均值进行子采样 - 使用 sigmoid 神经元 - 使用多层神经网络作为最终分类器 - 层之间的稀疏连接矩阵，以避免不必要的大量计算成本
+
+对人工智能的兴趣和研究潮起潮落。由于缺乏计算能力，神经网络并不实用，所以直到 2010 年，人们才对神经网络产生了很大的兴趣，也没有取得很大的进展。就在那时，科学家们意识到 GPU 可以用来训练数据模型；这一认识激起了人们对神经网络的新兴趣。
+
+Alex Krizhevsky 在 2012 年进一步激发了当前人们对卷积神经网络和使用 GPU 进行训练的兴趣。他在 ImageNet 竞赛中使用卷积神经网络参赛，并以比之前取得的任何成绩都令人难以置信的准确度飞跃获胜。最近对卷积神经网络的研究使得许多图像识别算法的准确性在短短 5 年内翻了一番。
+
+AlexNet 将 LeNet5 的见解提升到了一个新的水平，如图 20.2 所示。这些贡献使得能够创建更大的网络来识别更复杂的对象。这些贡献包括
+
+- 使用修正线性单元 (ReLU) 作为非线性 - 使用 dropout 技术在训练过程中有选择地忽略单个神经元，这是一种避免
+
+模型过度拟合
+
+- 重叠最大池化，避免平均池化的平均效应 - 使用 GPU NVidia GTX 580 来减少训练时间
+
+<Figure
+  src={require("../figures/066.jpg")}
+  num="20.2"
+  desc="使用 AlexNet，每一层都会细化图像，从基本组件（例如线条）到复杂图像（例如由基本组件组成的立方体）。"
+/>
+
+在完全连接的层中，输入和输出是一维数字向量。卷积层适用于 3D 数据。每个颜色通道的组件都位于自己的数据平面上。卷积核的工作方式与处理一维和二维数据的方式相似。它对输入周围的像素进行采样并对它们求和。卷积核不重叠，而不是每个像素都有一个输入。
+
+如果你有一个 100 像素见方的图像，并且具有传统的完全连接层，那么你将拥有 1,000 个输入。使用卷积层，你将只有 34 个输入，因为你不会一遍又一遍地对相同的 9 个像素进行重新采样。本章的其余部分详细介绍了它在 Metal 中的工作原理以及如何使用 Metal Performance Shaders (MPS) 框架进行设置。
+
+## MPSImage
+
+使用卷积神经网络需要熟悉的第一个对象是 MPSImage。卷积神经网络使用图像来提取特征并进行监督学习。正如你之前所读到的，每个图像都分为多个通道。神经网络的纹理可以有多达 64 个通道。 MTLTexture 对象未设置为发送超过四个通道，因此你需要一个特殊的纹理来包含网络的这些通道。
+
+要创建 MPSImage，你需要一个 MPSImageDescriptor。 Metal 编程中的一个常见模式是使用描述符对象创建各种对象。创建 MPSImage 有两种不同的方法：一种用于单个图像，另一种用于包含多个图像。创建 MPSImage 需要以下属性：
+
+- **通道格式**：由 MPSImageFeatureChannelFormat 枚举表示。此属性对图像中单个通道的表示进行编码。编码可以是无符号整数或浮点数，具体取决于网络所需的精度。 - **宽度**：图像的宽度。 - **高度**：图像的高度。 - **特征通道**：每个像素的特征通道数。
+
+- **图像数量**：批处理的图像数量。如果你只有一张图像，则不需要此属性。 - **Usage** ：由 MTLTextureUsage 结构表示。该属性包含描述如何使用纹理的选项。纹理只能按照其使用值指定的方式使用。这些使用值包括着色器读取、着色器写入和渲染目标。
+
+MPSImage 的另一种风格是 MPSTemporaryImage。此类的存在是为了存储立即使用和丢弃的瞬态数据。临时镜像的存储模式是私有的。它用于提高性能并减少内存占用。它只是一个要使用和丢弃的图像缓存。
+
+MPSImage 和 MPSTemporaryImage 构成发送到神经网络的数据。实际处理是由 MPS 框架中可用的各个层完成的，本章其余部分将详细介绍。
+
+## 卷积神经网络内核
+
+所有神经网络层的基类是 MPSCNNKernel。该类的主要作用是使用 MPSImage 对象，对其进行处理，然后返回一个新对象。处理图像的区域以及处理方式由 MPSCNNKernel 类的属性指定。
+
+MPSCNNKernel 的一项重要属性是 MPSOffset。这是一组有符号的 _x_ 、 _y_ 和 _z_ 坐标，指定处理将在距离左上角多远的地方进行。 MPSCNNKernel 上还有一个名为 ClipRect 的可选属性，它指定将覆盖像素数据的 MTLRegion。如果未指定此属性，则覆盖整个区域。
+
+你还需要指定 MPSImageEdgeMode。你想要指定过滤器在读取超出源图像范围时的行为。发生这种情况的原因可能是负 offset 属性，因为 offset + ClipRect.size 的值大于源图像，或者因为过滤器查看相邻像素，例如卷积过滤器。默认设置为 0。
+
+你需要在 MPSCNNKernel 上设置的最后一个属性是 destinationFeatureChannelOffset。它表示在写入输出数据之前要跳过的目标图像中的通道数。例如，假设目标图像有 24 个通道，内核输出 8 个通道。如果你希望该目标图像的通道 8 到 15 用于输出，则可以将 destinationFeatureChannelOffset 属性的值设置为 8。
+
+层类型有很多类别，但本章重点介绍三种最常见的类型：卷积、池化和全连接。
+
+**卷积层**
+
+_卷积层_（图 20.3）是神经网络中的基础层和最重要的层。该层负责从你提供的输入中提取特征。要创建卷积层，你需要一个 MPSCNNConvolutionDescriptor：
+
+// 创建具有适当步幅的卷积描述符 let convDesc = MPSCNNConvolutionDescriptor( kernelWidth: Int(kernelWidth), kernelHeight: Int(kernelHeight),
+
+inputFeatureChannels：Int（inputFeatureChannels），outputFeatureChannels：Int（outputFeatureChannels））
+
+convDesc.strideInPixelsX = Int(strideXY.0) convDesc.strideInPixelsY = Int(strideXY.1)
+
+以下是创建 MPSCNNConvolutionDescriptor 所需属性的更详细概述：
+
+- **kernelWidth** ：内核窗口的宽度 - **kernelHeight** ：内核窗口的高度 - **inputFeatureChannels** ：输入图像中每个像素的特征通道数 - **outputFeatureChannels** ：输出图像中每个像素的特征通道数
+
+输入和输出特征通道的大小不需要相同。然而，内核的宽度和高度确实需要相同的大小，如图 20.3 所示。宽度和高度不需要是奇数。
+
+<Figure
+  src={require("../figures/067.jpg")}
+  num="20.3"
+  desc="使用卷积层扫描输入图像"
+/>
+
+除了初始化器之外，你还必须设置卷积描述符的步幅。你需要
+
+设置 X 和 Y 方向的步幅。这些指定每个维度的下采样因子。
+
+接下来，你使用该卷积描述符来初始化 MPSCNNConvolution 内核：
+
+初始化（设备：MTLDevice，卷积描述符：MPSCNNConvolutionDescriptor，kernelWeights：UnsafePointer ，biasTerms：UnsafePointer ？，标志：MPSCNNConvolutionFlags）
+
+MPSCNNConvolution 是 MPSCNNKernel 的子类。它将默认的 MTLDevice 以及你刚刚创建的 MPSCNNConvolutionDescriptor 作为参数。接下来，你输入从训练的数据模型中获得的内核权重和偏差。 MPSCNNConvolutionFlags 是用于控制如何存储和使用内核权重的选项。目前，唯一的值是 .none。
+
+**池化层**
+
+*池化层*的作用是减少网络中图像的空间大小。该层将信息压缩在图像的某个区域中，如图 20.4 所示。在连续的卷积层之间插入池化层是很常见的。
+
+<Figure
+  src={require("../figures/068.jpg")}
+  num="20.4"
+  desc="池化层如何压缩其输入数据"
+/>
+
+池化层的基类是 MPSCNNPooling。这也是 MPSCNNKernel 以及用于构建神经网络的所有其他内核的子类。该基类有一个方法，encode(commandBuffer:sourceImage:)，用于将 MPSCNNPooling 对象编码为 MTLCommandBuffer 对象。
+
+有两种常用的池化层类型：最大池化层和平均池化层。 MPSCNNPoolingMax 滤波器返回图像中每个像素的滤波器区域中像素的最大值。 MPSCNNPoolingAverage 过滤器返回过滤区域中像素的平均值。
+
+池化层的实现看起来像这样：
+
+池= MPSCNNPoolingMax（设备：设备，内核宽度：2，内核高度：2，strideInPixelsX：2，strideInPixelsY：2）
+
+内核宽度和高度的默认行为是将两者设置为 2 像素。你不必将其设置为 2，但如果你没有充分的理由使其不同，那么 2 是一个很好的默认值。
+
+**全连接层**
+
+*全连接层*通常是流程中的最后一层。想想招聘是如何进行的：你收到数十份简历，这些简历经过过滤并缩小到接受电话面试的十几个人。这些人被筛选成几个接受现场采访的人。然后最终决定哪人获得工作机会。前面的层正在对数据进行缩小和筛选，而全连接层的工作是根据所有这些处理做出最终决定。
+
+之前，你了解了全连接层。全连接层的过滤器大小与输入大小相同。它们与卷积层类似，只不过你要过滤每个输入。神经网络通常具有多个卷积层和池化层，最终馈入一个全连接层，如图 20.5 所示。卷积层和池化层的目的是缩小输入，以便最终的全连接层可以将所有内容结合在一起。每个层都完全连接并不是最佳的，因为完全连接的层很昂贵。全连接层是你在神经网络上进行的所有处理的顶点。
+
+<Figure
+  src={require("../figures/069.jpg")}
+  num="20.5"
+  desc="神经网络中的全连接层"
+/>
+
+init（设备：MTLDevice， volvDescriptor fullConnectedDescriptor：MPSCNNConvolutionDescriptor，kernelWeights：UnsafePointer ，biasTerms：UnsafePointer ？，标志：MPSCNNConvolutionFlags）
+
+MPSCNNFullyConnected 层是一个卷积层，因此需要一个 MPSCNNConvolutionDescriptor。所有其他参数应该看起来很熟悉，因为它们与卷积层相同。
+
+## 卷积数据源
+
+全连接层还有另一个初始化程序，它具有替代的数据源：
+
+初始化（设备：MTLDevice，
+
+权重：MPSCNNConvolutionDataSource）
+
+MPSCNNConvolutionDataSource 协议是对卷积核的权重和偏差进行编码的另一种方法。该协议包括许多用于返回设置 MPSCNNConvolution 内核所需的对象的便利函数。这包括偏差项、数据类型和描述符。
+
+以下是如何执行此操作的示例：
+
+类数据源：NSObject，MPSCNNConvolutionDataSource { let name：String let kernelWidth：Int let kernelHeight：Int let inputFeatureChannels：Int let outputFeatureChannels：Int let useLeaky：Bool
+
+var 数据：数据？
+
+func load() -> Bool { if let url = Bundle.main.url(forResource: name, withExtension: "bin") { do { data = try Data(contentsOf: url) return true } catch { print("Error:无法加载 \(url): \(error)") } } 返回 false }
+
+func purge() { 数据 = nil }
+
+func Weights() -> UnsafeMutableRawPointer { return UnsafeMutableRawPointer(mutating: (data!as NSData).bytes) }
+
+funcbiasTerms() -> UnsafeMutablePointer? { 返回零 } }
+
+该数据源符合 MPSCNNConvolutionDataSource，因此具有许多处理和加载数据所需的方法。
+
+## 神经网络图
+
+在 iOS 11 之前，你需要使用各种卷积神经网络对象创建大型、复杂的结构。这些在心理上可视化为图表，但 MPS 框架中不存在这种结构来简化神经网络的创建。 iOS 11 的新增功能是引入了 MPSNNGraph 类。
+
+MPSNNGraph 是神经网络图像和过滤器节点图的优化表示。构成图的节点是
+
+- MPSNNImageNode - MPSNNFilterNode
+
+- MPSNN 状态节点
+
+它们充当 MPSNNGraph 的基本节点。 MPSNNImageNode 是用作图的基本节点的 MPSImage 的表示。 MPSNNFilterNode 指示以下节点将创建过滤器阶段。最后，MPSNNStateNode 表示状态对象。
+
+在 MPS 框架内，一组节点类代表每个图层类型中存在的类。例如，池化层中有一个名为 MPSCNNPoolingMax 的类，它创建池化层。有一个名为 MPSCNNPoolingAverageNode 的相关节点类。这些节点中的每一个都从其上方的层获取输入图像，并应用数据源的权重和偏差。这是一个例子：
+
+让 inputImage = MPSNNImageNode(句柄: nil)
+
+让 conv1 = MPSCNNConvolutionNode(来源: inputImage, 权重: DataSource("conv1", 3, 3, 3, 16))
+
+让 pool1 = MPSCNNPoolingMaxNode（来源：conv1.resultImage，filterSize：2）
+
+让 conv2 = MPSCNNConvolutionNode(来源: pool1.resultImage, 权重: DataSource("conv2", 3, 3, 16, 32))
+
+让 pool2 = MPSCNNPoolingMaxNode（来源：conv2.resultImage，filterSize：2）
+
+// ... 等等 ...
+
+Guard let graph = MPSNNGraph(device: device, resultImage: conv9.resultImage) else { fatalError("错误: 无法初始化图") }
+
+要开始 MPSNNGraph，你需要从一种基本节点类型开始。该节点充当第一个卷积节点的源节点。该节点的结果输入到池节点中。这一直持续到你声明了整个图表为止。最后一个节点用于初始化 MPSNNGraph 对象。
+
+## 概括
+
+卷积神经网络已经存在了 20 多年，但直到 GPU 的发展之后，它们才真正变得实用。卷积神经网络可以由多种不同类型的层组成，但最常见的层集包括卷积、池化和全连接。这些网络可以使用 MPSImage 对象创建，也可以使用 MPSNNGraph 对象连接。
