@@ -229,7 +229,7 @@ const metalprogrammingguideSidebar = [
         label: "Metal 基础",
         collapsed: false,
         items: [
-          "metal-programming-guide/1th-what-is-metal/index",
+          "metal-programming-guide/what-is-metal/index",
           "metal-programming-guide/overview-of-rendering-and-raster-graphics/index",
           "metal-programming-guide/your-first-metal-application/index",
         ],
