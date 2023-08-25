@@ -57,9 +57,10 @@ AlexNet 将 LeNet5 的见解提升到了一个新的水平，如图 20.2 所示�
 
 要创建 MPSImage，你需要一个 MPSImageDescriptor。 Metal 编程中的一个常见模式是使用描述符对象创建各种对象。创建 MPSImage 有两种不同的方法：一种用于单个图像，另一种用于包含多个图像。创建 MPSImage 需要以下属性：
 
-- **通道格式**：由 MPSImageFeatureChannelFormat 枚举表示。此属性对图像中单个通道的表示进行编码。编码可以是无符号整数或浮点数，具体取决于网络所需的精度。 - **宽度**：图像的宽度。 - **高度**：图像的高度。 - **特征通道**：每个像素的特征通道数。
-
-- **图像数量**：批处理的图像数量。如果你只有一张图像，则不需要此属性。 - **Usage** ：由 MTLTextureUsage 结构表示。该属性包含描述如何使用纹理的选项。纹理只能按照其使用值指定的方式使用。这些使用值包括着色器读取、着色器写入和渲染目标。
+- **通道格式**：由 MPSImageFeatureChannelFormat 枚举表示。此属性对图像中单个通道的表示进行编码。编码可以是无符号整数或浮点数，具体取决于网络所需的精度。 - **宽度**：图像的宽度。 - **高度**：图像的高度。
+- **特征通道**：每个像素的特征通道数。
+- **图像数量**：批处理的图像数量。如果你只有一张图像，则不需要此属性。
+- **Usage** ：由 MTLTextureUsage 结构表示。该属性包含描述如何使用纹理的选项。纹理只能按照其使用值指定的方式使用。这些使用值包括着色器读取、着色器写入和渲染目标。
 
 MPSImage 的另一种风格是 MPSTemporaryImage。此类的存在是为了存储立即使用和丢弃的瞬态数据。临时镜像的存储模式是私有的。它用于提高性能并减少内存占用。它只是一个要使用和丢弃的图像缓存。
 
@@ -77,7 +78,7 @@ MPSCNNKernel 的一项重要属性是 MPSOffset。这是一组有符号的 _x_ �
 
 层类型有很多类别，但本章重点介绍三种最常见的类型：卷积、池化和全连接。
 
-**卷积层**
+### 卷积层
 
 _卷积层_（图 20.3）是神经网络中的基础层和最重要的层。该层负责从你提供的输入中提取特征。要创建卷积层，你需要一个 MPSCNNConvolutionDescriptor：
 
@@ -89,7 +90,10 @@ convDesc.strideInPixelsX = Int(strideXY.0) convDesc.strideInPixelsY = Int(stride
 
 以下是创建 MPSCNNConvolutionDescriptor 所需属性的更详细概述：
 
-- **kernelWidth** ：内核窗口的宽度 - **kernelHeight** ：内核窗口的高度 - **inputFeatureChannels** ：输入图像中每个像素的特征通道数 - **outputFeatureChannels** ：输出图像中每个像素的特征通道数
+- **kernelWidth** ：内核窗口的宽度
+- **kernelHeight** ：内核窗口的高度
+- **inputFeatureChannels** ：输入图像中每个像素的特征通道数
+- **outputFeatureChannels** ：输出图像中每个像素的特征通道数
 
 输入和输出特征通道的大小不需要相同。然而，内核的宽度和高度确实需要相同的大小，如图 20.3 所示。宽度和高度不需要是奇数。
 
@@ -109,7 +113,7 @@ convDesc.strideInPixelsX = Int(strideXY.0) convDesc.strideInPixelsY = Int(stride
 
 MPSCNNConvolution 是 MPSCNNKernel 的子类。它将默认的 MTLDevice 以及你刚刚创建的 MPSCNNConvolutionDescriptor 作为参数。接下来，你输入从训练的数据模型中获得的内核权重和偏差。 MPSCNNConvolutionFlags 是用于控制如何存储和使用内核权重的选项。目前，唯一的值是 .none。
 
-**池化层**
+### 池化层
 
 *池化层*的作用是减少网络中图像的空间大小。该层将信息压缩在图像的某个区域中，如图 20.4 所示。在连续的卷积层之间插入池化层是很常见的。
 
@@ -129,7 +133,7 @@ MPSCNNConvolution 是 MPSCNNKernel 的子类。它将默认的 MTLDevice 以及�
 
 内核宽度和高度的默认行为是将两者设置为 2 像素。你不必将其设置为 2，但如果你没有充分的理由使其不同，那么 2 是一个很好的默认值。
 
-**全连接层**
+### 全连接层
 
 *全连接层*通常是流程中的最后一层。想想招聘是如何进行的：你收到数十份简历，这些简历经过过滤并缩小到接受电话面试的十几个人。这些人被筛选成几个接受现场采访的人。然后最终决定哪人获得工作机会。前面的层正在对数据进行缩小和筛选，而全连接层的工作是根据所有这些处理做出最终决定。
 
@@ -177,8 +181,8 @@ funcbiasTerms() -> UnsafeMutablePointer? { 返回零 } }
 
 MPSNNGraph 是神经网络图像和过滤器节点图的优化表示。构成图的节点是
 
-- MPSNNImageNode - MPSNNFilterNode
-
+- MPSNNImageNode
+- MPSNNFilterNode
 - MPSNN 状态节点
 
 它们充当 MPSNNGraph 的基本节点。 MPSNNImageNode 是用作图的基本节点的 MPSImage 的表示。 MPSNNFilterNode 指示以下节点将创建过滤器阶段。最后，MPSNNStateNode 表示状态对象。

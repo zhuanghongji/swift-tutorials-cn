@@ -11,23 +11,24 @@
 
 Metal 中的资源由 MTLResource 的实例表示。 MTLResource 协议定义了表示内存分配的任何资源对象的接口。资源属于两类之一：
 
-- **MTLBuffer** ：可包含任何类型数据的未格式化内存的分配 - **MTLTexture** ：具有指定纹理类型和像素格式的格式化图像数据的分配
+- **MTLBuffer**：可包含任何类型数据的未格式化内存的分配
+- **MTLTexture**：具有指定纹理类型和像素格式的格式化图像数据的分配
 
 MTLResource 的实例负责管理对 GPU 查询的数据的访问和更改权限。这些任务更加专业化，具体取决于你使用的是缓冲区还是纹理。对这些数据块的引用被添加到参数表中，以便可以在 CPU 和 GPU 之间对其进行管理和同步，以确保数据在读取时不会被修改。
 
-本章阐明了一些你 ​​ 已经使用过但可能尚未完全掌握的概念。了解如何格式化数据以发送到 GPU 是 Metal 的本质。牢牢掌握这一过程至关重要，并将为你的旅程提供帮助。
+本章阐明了一些你已经使用过但可能尚未完全掌握的概念。了解如何格式化数据以发送到 GPU 是 Metal 的本质。牢牢掌握这一过程至关重要，并将为你的旅程提供帮助。
 
 ## 参数表：着色器参数与
 
 ## 资源
 
-你需要了解的 Metal 编程中最重要的结构之一是*参数表*。参数表是编码器和着色器之间的联络人。它是内存中的共享空间，CPU 和 GPU 在此协调着色器引用和修改的数据。
+你需要了解的 Metal 编程中最重要的结构之一是 _参数表_。参数表是编码器和着色器之间的联络人。它是内存中的共享空间，CPU 和 GPU 在此协调着色器引用和修改的数据。
 
 参数表中的所有内容都是 MTLArgument 的实例。它包含参数的数据类型、访问限制和关联的资源类型。你不直接创建这些参数。它们是在你创建参数并将其绑定到 MTLRenderPipelineState 或 MTLComputePipelineState 时创建的。可以将三种类型的资源分配给参数表：
 
 - 缓冲器
-
-- 纹理 - 采样器状态
+- 纹理
+- 采样器状态
 
 采样器状态将在第 12 章“纹理和采样”中讨论。本章重点介绍前两种资源类型。截至 2017 年，iOS 设备上最多可以拥有 31 个不同的缓冲区和 31 个不同的纹理。它们可能会根据 GPU 的不同而发生变化，因此请务必查看文档。这些资源包含在一个数组中，可以通过元素编号进行访问。因此，例如，缓冲区数组中的第一个元素将位于位置 0。
 
@@ -39,7 +40,9 @@ MTLBuffer 对象是未格式化的内存块的分配。缓冲区数据可以是�
 
 与 MTLDevice 一样，MTLBuffer 也是一个协议。你不直接实例化它或对其进行子类化。相反，你可以使用一些工厂方法来创建缓冲区：
 
-- makeBuffer(length:options:) 创建一个具有新存储分配的 MTLBuffer 对象。 - makeBuffer(bytes:length:options:) 通过将数据从现有存储分配复制到新分配来创建 MTLBuffer 对象。 - makeBuffer(bytesNoCopy:length:options:deallocator:) 创建一个 MTLBuffer 对象，该对象重用现有的存储分配，并且不分配任何新的存储。
+- makeBuffer(length:options:) 创建一个具有新存储分配的 MTLBuffer 对象。
+- makeBuffer(bytes:length:options:) 通过将数据从现有存储分配复制到新分配来创建 MTLBuffer 对象。
+- makeBuffer(bytesNoCopy:length:options:deallocator:) 创建一个 MTLBuffer 对象，该对象重用现有的存储分配，并且不分配任何新的存储。
 
 同样，缓冲区并不关心它包含什么数据；它只关心它包含什么数据。它只关心知道它必须有多大才能包含数据。
 
@@ -47,8 +50,8 @@ MTLBuffer 对象是未格式化的内存块的分配。缓冲区数据可以是�
 
 不断地从 RAM 中检查和获取内存在计算上是昂贵的。 Metal 旨在为开发人员提供更多选择，让你可以根据自己的需要调整应用程序。 MTLResource 有几个关联的常量，可帮助你自定义数据的存储和缓存方式：
 
-- MTLCPUCache 模式 - MTLStorage 模式
-
+- MTLCPUCache 模式
+- MTLStorage 模式
 - MTLPurgeableState
 
 缓存模式决定了 CPU 如何映射资源。你希望尽可能连续地映射你的资源。在内存中跳转的计算成本很高，因此请尝试映射数据，以便在流中访问它。 MTLCPUCacheMode 有两个选项：defaultCache 和 writeCombined。默认缓存保证读写操作按预期顺序执行。你想要使用 writeCombined 的唯一时间是当你创建 CPU 将写入但稍后读取的资源时。
@@ -83,17 +86,21 @@ vertexDescriptor.attributes[0].offset = 0 vertexDescriptor.attributes[0].format 
 
 MTLTexture 对象表示格式化图像数据的分配，该数据可用作顶点着色器、片段着色器或计算函数的资源，或用作渲染目标的附件。纹理可以是以下类型之一：
 
-- 1D、2D 或 3D 图像 - 1D 或 2D 图像数组 - 六个 2D 图像的立方体
+- 1D、2D 或 3D 图像
+- 1D 或 2D 图像数组
+- 六个 2D 图像的立方体
 
 MTLResource 有一个纹理的实现：MTLTexture。与 MTLBuffer 和 MTLDevice 类似，这是一种协议，你可以使用指定的方法创建符合该协议的对象。创建 MTLTexture 有以下三种方法：
 
-- **newTextureWithDescriptor** ：此方法在 MTLDevice 上创建新纹理。它使用 MTLTextureDescriptor 来配置纹理对象。 - **makeTextureView(pixelFormat:)** ：此方法基于 MTLTexture 协议。它创建并返回一个新的纹理对象，该对象与源纹理对象共享相同的存储分配。由于它们共享相同的存储空间，因此对新纹理像素的任何更改都会反映在源纹理中，反之亦然。 - **newTextureWithDescriptor:offset:bytesPerRow** ：此方法基于另一个协议 MTLBuffer。它与 makeTextureView(pixelFormat:) 类似，因为新纹理与源缓冲区对象共享相同的存储分配，因此适用相同的规则。在 newTextureWithDescriptor:offset:bytesPerRow 中，你可以根据纹理描述符创建新纹理。 MTLTextureDescriptor 配置你的新纹理对象。这包括像素格式、高度和 mipmap 级别计数。到目前为止我们讨论的有关存储模式和类型的所有方面都在这里配置。
+- **newTextureWithDescriptor**：此方法在 MTLDevice 上创建新纹理。它使用 MTLTextureDescriptor 来配置纹理对象。
+- **makeTextureView(pixelFormat:)**：此方法基于 MTLTexture 协议。它创建并返回一个新的纹理对象，该对象与源纹理对象共享相同的存储分配。由于它们共享相同的存储空间，因此对新纹理像素的任何更改都会反映在源纹理中，反之亦然。
+- **newTextureWithDescriptor:offset:bytesPerRow**：此方法基于另一个协议 MTLBuffer。它与 makeTextureView(pixelFormat:) 类似，因为新纹理与源缓冲区对象共享相同的存储分配，因此适用相同的规则。在 newTextureWithDescriptor:offset:bytesPerRow 中，你可以根据纹理描述符创建新纹理。 MTLTextureDescriptor 配置你的新纹理对象。这包括像素格式、高度和 mipmap 级别计数。到目前为止我们讨论的有关存储模式和类型的所有方面都在这里配置。
 
 如果使用 makeTextureView(pixelFormat:) 方法，则必须指定像素格式。 MTLPixelFormat 描述了纹理的各个像素中颜色、深度或模板数据存储的组织。像素格式分为三种：普通、打包和压缩。对于普通格式和打包格式，你需要指定三个描述：颜色分量的顺序、颜色分量的位深度以及分量的数据类型。格式数据以小端顺序存储。本章稍后将介绍压缩格式。
 
 本节粗略地概述了作为资源的纹理。第 12 章更全面地介绍了纹理。
 
-**使用 MTKTextureLoader 加载图像数据**
+### 使用 MTKTextureLoader 加载图像数据
 
 2015 年，Apple 推出了 MetalKit，以简化 Metal 中一些最常见的功能。由于上传和应用纹理在图形编程中非常常见，因此 MetalKit 中有一个实现。
 
@@ -107,7 +114,7 @@ diffuseTexture = trytextureLoader.newTextureWithContentsOfURL(textureUrl, option
 
 还可以从资产目录、核心图形和模型 I/O 加载纹理。这些函数中的每一个都以 textureLoader.newTextureWith 开头。这完全取决于你选择纹理的来源。这样可以轻松简化从各种不同来源引入纹理的过程，而无需记住太多差异。
 
-**纹理视图**
+### 纹理视图
 
 在本章前面，你学习了如何创建 MTLTexture 对象。一种方法是调用 MTLTexture 协议上的方法来创建纹理视图。本节更深入地解释该过程。
 
@@ -121,7 +128,7 @@ func makeTextureView（pixelFormat：MTLPixelFormat，textureType：MTLTextureTy
 
 以前的方法仅允许你更改像素格式。此方法还允许你更改纹理类型。与 MTLPixelFormat 类似，MTLTextureType 具有可以将纹理转换为的有限数量的其他纹理。 type1D 纹理只能转换为另一个 type1D 纹理，而 type2D 纹理可以转换为另一个 type2D 或 type2DArray。
 
-**纹理数组**
+### 纹理数组
 
 在 3D 图形中，将多个纹理属性绑定到一个对象是很常见的。纹理图集只是为一个对象捆绑多个资源的常见做法的一个示例。到目前为止，你已经了解了 1D、2D 和 3D 纹理，但尚未了解如何存储这些资源包。这些是使用纹理数组捆绑的。
 
@@ -149,11 +156,12 @@ func 替换（区域：MTLRegion，mipmapLevel 级别：Int，切片：Int，wit
 
 Metal 支持三种压缩纹理格式：
 
-- **PVRTC** ：PVRTC（PowerVR 纹理压缩）通过将源图像下采样为两个较小的图像来进行操作，然后将其放大并混合以重建原始图像的近似值。在 iOS 上使用 PVRTC 格式时要记住的一件事是纹理
+- **PVRTC**：PVRTC（PowerVR 纹理压缩）通过将源图像下采样为两个较小的图像来进行操作，然后将其放大并混合以重建原始图像的近似值。在 iOS 上使用 PVRTC 格式时要记住的一件事是纹理
 
 必须是平方，并且每个维度必须是 2 的幂。
 
-- **ETC2**：ETC（爱立信纹理压缩）类似于 PVRTC。它将每个 4×4 像素块压缩为单个 64 位数量，但 PVRTC 通常质量更高。 - **ASTC** ：ASTC（高级可扩展纹理压缩）是一种更新且更灵活的纹理格式，但 A7 芯片不支持它。
+- **ETC2**：ETC（爱立信纹理压缩）类似于 PVRTC。它将每个 4×4 像素块压缩为单个 64 位数量，但 PVRTC 通常质量更高。
+- **ASTC**：ASTC（高级可扩展纹理压缩）是一种更新且更灵活的纹理格式，但 A7 芯片不支持它。
 
 ## Blit 命令编码器
 
@@ -163,7 +171,12 @@ MTLBlitCommandEncoder 用于将资源复制命令编码到命令缓冲区中。�
 
 你可以使用多种方法在不接触 CPU 的情况下管理数据：
 
-- 在两个缓冲区之间复制数据 - 在两个纹理之间复制数据 - 将数据从缓冲区复制到纹理 - 将数据从纹理复制到缓冲区 - 生成填充和 mipmap 数据 - 同步数据
+- 在两个缓冲区之间复制数据
+- 在两个纹理之间复制数据
+- 将数据从缓冲区复制到纹理
+- 将数据从纹理复制到缓冲区
+- 生成填充和 mipmap 数据
+- 同步数据
 
 任何将数据从一处复制到另一处的操作都使用 MTLBlitCommandEncoder 的复制方法。此方法被重载以反映复制数据的不同方式。这种复制方法最简单的示例是将一个缓冲区复制到另一个缓冲区：
 
@@ -181,7 +194,7 @@ Blit 命令编码器上的一项特殊生成器功能是生成 mipmap。下一�
 
 在图形编程中，你可能会遇到纹理与屏幕上的像素不完全匹配的情况。用户将放大你的模型，纹理将变得非常大且像素化。用户将缩小，原来 64 像素正方形的纹理将仅占用屏幕上的 20 像素。
 
-处理第二种情况的过程称为*mipmapping*。由于预计用户会放大和缩小纹理，因此 Metal 具有内置方法来生成这些 mipmap。 mipmap 背后的过程和逻辑将在第 12 章中进行更详细的解释。现在，只需了解 mipmap 是一种确保模型看起来漂亮而不是锯齿状的方法，无论它们的放大倍数是多少。
+处理第二种情况的过程称为 _mipmapping_。由于预计用户会放大和缩小纹理，因此 Metal 具有内置方法来生成这些 mipmap。 mipmap 背后的过程和逻辑将在第 12 章中进行更详细的解释。现在，只需了解 mipmap 是一种确保模型看起来漂亮而不是锯齿状的方法，无论它们的放大倍数是多少。
 
 MTLBlitCommandEncoder 有一个方法可以为你生成 mipmap：
 

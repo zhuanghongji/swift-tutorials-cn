@@ -41,7 +41,7 @@ func makeLibrary(filepath: String) 抛出 -> MTLLibrary
 
 func makeLibrary（来源：String，选项：MTLCompileOptions？，completionHandler：@escaping MTLNewLibraryCompletionHandler）
 
-**从库加载函数**
+### 从库加载函数
 
 成功创建一个库是一个很好的第一步，但如果你不能将这些功能集成到你的应用程序中，那么它不会给你带来任何好处。本节介绍如何将默认库中的函数加载到应用程序中。 MTLLibrary 有一个名为 makeFunction 的方法：
 
@@ -57,7 +57,10 @@ guard let vertexProgram = defaultLibrary.makeFunction( name: "lightingVertex") e
 
 MTLDevice 有一个装载有命令编码器的命令队列。每个编码器执行特定类型的工作。你不会使用图形编码器进行通用 GPU 编程。到目前为止，你主要遇到了渲染命令编码器，但这只是几个命令编码器之一。 Metal 支持以下编码器：
 
-- **MTLRenderCommandEncoder** ：该编码器旨在生成单个渲染通道。它访问顶点着色器和片段着色器。 - **MTLBlitCommandEncoder**：该编码器已在第 6 章“ Metal 资源和内存管理”中讨论。它仅用于在缓冲区和纹理之间复制资源。该编码器的工作不需要使用你编写的任何 MTLFunctions。 - **MTLComputeCommandEncoder** ：GPGPU 命令编码器专门访问内核函数。 - **MTLParallelRenderCommandEncoder** ：该编码器采用一个或多个 MTLRenderCommandEncoder 对象。它允许你将每个渲染编码器分配给其自己的线程，以便可以并行执行渲染命令。该编码器不直接访问 MTLLibrary。相反，它是访问 MTLLibrary 的编码器的管理对象。
+- **MTLRenderCommandEncoder**：该编码器旨在生成单个渲染通道。它访问顶点着色器和片段着色器。
+- **MTLBlitCommandEncoder**：该编码器已在第 6 章“ Metal 资源和内存管理”中讨论。它仅用于在缓冲区和纹理之间复制资源。该编码器的工作不需要使用你编写的任何 MTLFunctions。
+- **MTLComputeCommandEncoder**：GPGPU 命令编码器专门访问内核函数。
+- **MTLParallelRenderCommandEncoder**：该编码器采用一个或多个 MTLRenderCommandEncoder 对象。它允许你将每个渲染编码器分配给其自己的线程，以便可以并行执行渲染命令。该编码器不直接访问 MTLLibrary。相反，它是访问 MTLLibrary 的编码器的管理对象。
 
 在 Metal 中需要记住的最重要的事情之一是如何将数据设置为
 
@@ -81,7 +84,9 @@ do { try pipelineState = device.makeRenderPipelineState(descriptor: pipelineStat
 
 到目前为止，本章已经讨论了 MTLFunction 是一种访问在单独的 Metal 文件中编写的着色器的方法。 MTLFunction 对象不提供对函数参数的访问。你可以在 MTLFunction 上访问的唯一属性是
 
-- 名称 - 函数类型 - 顶点属性
+- 名称
+- 函数类型
+- 顶点属性
 
 该列表不包括着色器或计算函数参数的详细信息。这些参数必须使用 MTLRenderPipelineReflection 或 MTLComputePipelineReflection 获取。 MTLRenderPipelineReflection 只有两个属性：vertexArguments 和 fragmentArguments。两者都是 MTLArgument 对象的可选数组。如果你需要访问传递给顶点或片段着色器的任何参数，则必须通过管道反射访问它们，而不是直接从 MTLFunction 访问它们。
 

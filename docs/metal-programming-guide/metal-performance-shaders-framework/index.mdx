@@ -5,7 +5,7 @@
   author="Lord Kelvin"
 />
 
-机器学习和机器视觉是当前的热门话题。围绕这些主题的大部分对话都涉及 Python 和 OpenCV。这些框架可以让你快速启动并运行，因为它们的库将数千种算法放在你的指尖，因此你不必花时间做已经完成并且做得很好的工作。然而，OpenCV 是一个笨重的旧 C++ 框架，而 Python 无法在 iOS 上运行。在 Swift 中利用这些库不是很酷吗？你可以通过*Metal Performance Shaders (MPS) 框架*。
+机器学习和机器视觉是当前的热门话题。围绕这些主题的大部分对话都涉及 Python 和 OpenCV。这些框架可以让你快速启动并运行，因为它们的库将数千种算法放在你的指尖，因此你不必花时间做已经完成并且做得很好的工作。然而，OpenCV 是一个笨重的旧 C++ 框架，而 Python 无法在 iOS 上运行。在 Swift 中利用这些库不是很酷吗？你可以通过 _Metal Performance Shaders (MPS) 框架_。
 
 ## Metal Performance Shaders 框架概述
 
@@ -15,7 +15,9 @@ Metal 的另一个重要方面是它支持许多不同的设备。有多种方�
 
 MPS 框架中的每个着色器都源自 MPSKernel 类。该类是一个抽象类，永远不会直接实现，只能作为子类使用。 MPS 一般分为三类：
 
-- 图像处理 - 矩阵乘法运算 - 神经网络
+- 图像处理
+- 矩阵乘法运算
+- 神经网络
 
 每种类型的 MPS 的设置都遵循一个模式。每个 MPSKernel 实例都有一个初始化程序，它采用程序的 MTLDevice 实例：
 
@@ -33,15 +35,18 @@ sobel.offset = ... sobel.clipRect = ... sobel.options = ... sobel.encode（comma
 
 MPSKernel 有两个用于图像处理的抽象子类：
 
-- MPSBinaryImageKernel - MPSBinaryImageKernel
+- MPSBinaryImageKernel
+- MPSBinaryImageKernel
 
 这些子类之间的区别相当简单。 MPSUnaryImageKernel 消耗一张纹理并返回一张纹理。 MPSBinaryImageKernel 采用两个纹理并将它们合成以返回单个纹理。这些类都不是直接实例化的。相反，它们根据它们试图实现的效果进行子类化。本节介绍这些过滤器的功能。
 
-**通用可设置属性**
+### 通用可设置属性
 
 无论纹理数量有多少，许多可设置的属性对于所有 MPS 图像过滤器都是通用的：
 
-- **剪辑矩形**：剪辑矩形描述了被过滤器覆盖的目标纹理的子矩形。如果剪辑矩形大于目标纹理，则仅使用纹理描述的区域。这是一种优化，以避免做不被看到的工作。 - **偏移**：有两种不同类型的偏移，具体取决于你使用的是一元还是二进制图像内核。由于一元图像内核具有一个纹理，因此它们只有一个偏移量。二进制图像内核具有其主图像的主偏移量和次图像的次偏移量。偏移量表示剪辑矩形左上角在源坐标系中的位置。 - **边缘模式**：与偏移一样，有不同类型的边缘模式。一元图像只有一种边缘模式，二元图像具有主边缘模式和次边缘模式。边缘模式描述了偏离源图像边缘的纹理读取的行为。第 16 章详细介绍了这些内容。
+- **剪辑矩形**：剪辑矩形描述了被过滤器覆盖的目标纹理的子矩形。如果剪辑矩形大于目标纹理，则仅使用纹理描述的区域。这是一种优化，以避免做不被看到的工作。
+- **偏移**：有两种不同类型的偏移，具体取决于你使用的是一元还是二进制图像内核。由于一元图像内核具有一个纹理，因此它们只有一个偏移量。二进制图像内核具有其主图像的主偏移量和次图像的次偏移量。偏移量表示剪辑矩形左上角在源坐标系中的位置。
+- **边缘模式**：与偏移一样，有不同类型的边缘模式。一元图像只有一种边缘模式，二元图像具有主边缘模式和次边缘模式。边缘模式描述了偏离源图像边缘的纹理读取的行为。第 16 章详细介绍了这些内容。
 
 某些图像过滤器可以选择就地处理。使用此选项，你无需创建新的
 
@@ -49,23 +54,25 @@ MPSKernel 有两个用于图像处理的抽象子类：
 
 在以下部分中，你将了解图像处理滤镜的各种类别以及每个类别的一些具体示例。
 
-**形态图像过滤器**
+### 形态图像过滤器
 
 形态算子涵盖了广泛的图像处理算法。这些算法是图像处理的一个分支，已成功用于提供用于表示、描述和分析图像中的形状的工具。它们对于分离前景和背景特征很有用。这些算法假设使用二值图像并使用集合论来提取图像的相似点和差异。
 
 一些操作限制每个源在最大和最小方向上的图像区域：
 
-- MPSImageAreaMax - MPSImageAreaMin
+- MPSImageAreaMax
+- MPSImageAreaMin
 
 MPSImageAreaMax 是一个滤波器，用于查找以源图像中每个像素为中心的矩形区域中的最大像素值。该算子非常适合提取二值图像中的前景特征。相反，MPSImageAreaMin 是一个滤波器，用于查找以源图像中每个像素为中心的矩形区域中的最小像素值。该运算符擅长分离图像的背景。
 
 MPSImageAreaMax 和 MPSImageAreaMin 相当粗糙和简单。 _Dilation_ 和 _erosion_ 是更复杂的形态操作，作为形态性能着色器存在：
 
-- MPSImageDilate - MPSImageErode
+- MPSImageDilate
+- MPSImageErode
 
 MPSImageDilate 过滤器的行为类似于 MPSImageAreaMax 过滤器，不同之处在于，在确定最大像素值之前，相对于不同的值计算每个位置的强度，从而允许使用成形的非矩形形态探针。 MPSImageErode 也是如此。你可以为这些过滤器创建模拟 MPSImageAreaMax 和 MPSImageAreaMin 的值，但它们为你提供了更多选项来自定义形态操作。
 
-**卷积图像滤波器**
+### 卷积图像滤波器
 
 卷积是机器学习和计算机视觉的重要方面。 MPS 框架提供了多种基于卷积的图像滤波器。第一组卷积滤波器是称为 MPSImageConvolution 的通用卷积滤波器。像所有人一样
 
@@ -73,13 +80,16 @@ MPSImageDilate 过滤器的行为类似于 MPSImageAreaMax 过滤器，不同之
 
 Metal 还内置了许多常见卷积滤波器的实现。卷积的一大子集涉及各种模糊：
 
-- **MPSImageBox** ：这是最简单的模糊滤镜。每个像素在卷积核中具有相同的权重。 - **MPSImageTent** ：此过滤器的权重在中间列最强，当你远离中间时，权重减弱，因此权重呈帐篷状。 - **MPSImageGaussianBlur** ：这是第 16 章中介绍的高斯模糊滤镜的 MPS 实现。 - **MPSImageGaussianPyramid** ：高斯模糊的这种变体使用 mipmap 级别来实现更精细的模糊效果。
+- **MPSImageBox**：这是最简单的模糊滤镜。每个像素在卷积核中具有相同的权重。
+- **MPSImageTent**：此过滤器的权重在中间列最强，当你远离中间时，权重减弱，因此权重呈帐篷状。
+- **MPSImageGaussianBlur**：这是第 16 章中介绍的高斯模糊滤镜的 MPS 实现。
+- **MPSImageGaussianPyramid**：高斯模糊的这种变体使用 mipmap 级别来实现更精细的模糊效果。
 
 如果你想在不丢失清晰边缘的情况下获得去噪的优势，可以使用 MPSImageMedian 滤镜。
 
 卷积的另一个重要领域是边缘检测。 MPS 框架中提供的一种重要的通用过滤器是 MPSImageSobel。框架中包含的另一个用于边缘检测的过滤器是 MPSImageLaplacian。
 
-**直方图图像过滤器**
+### 直方图图像过滤器
 
 直方图是一种图形显示，其中数据按范围分组。在图像处理中，直方图表示图像中每种颜色和亮度的相对丰度。用于创建直方图的 MPS 类是 MPSImageHistogram。以下是创建 MPSImageHistogram 的代码片段：
 
@@ -93,7 +103,8 @@ let bufferLength = calculation.histogramSize( forSourceFormat: sourceTexture.pix
 
 然后将该计算馈送到两个 MPS 直方图实现之一：
 
-- MPSImageHistogramEqualization - MPSImageHistogramSpecification
+- MPSImageHistogramEqualization
+- MPSImageHistogramSpecification
 
 MPSImageHistogramEqualization 是一个均衡图像直方图的滤波器。这将创建一个私有的图像变换，用于均衡源图像的直方图的分布。创建均衡对象后，需要将此变换编码到命令缓冲区：
 
@@ -107,11 +118,15 @@ func 编码变换（到 commandBuffer：MTLCommandBuffer，sourceTexture 来源�
 
 两种实现之间最大的区别在于 MPSImageHistogramEqualization 是一元图像操作，而 MPSImageHistogramSpecification 是二元图像操作。
 
-**图像阈值滤波器**
+### 图像阈值滤波器
 
 阈值处理是边缘检测和机器视觉的重要组成部分。 MPS 框架提供五种不同风格的阈值：
 
-- MPSImageThresholdBinary - MPSImageThresholdBinaryInverse - MPSImageThresholdToZero - MPSImageThresholdToZeroInverse - MPSImageThresholdTruncate
+- MPSImageThresholdBinary
+- MPSImageThresholdBinaryInverse
+- MPSImageThresholdToZero
+- MPSImageThresholdToZeroInverse
+- MPSImageThresholdTruncate
 
 MPSImageThresholdBinary 是一个过滤器，它为每个像素返回指定值，该值大于指定阈值，否则返回 0。这是基线阈值过滤器，没有任何装饰，返回二进制图像。如果你想要一个相反的过滤器，并且在超过阈值后返回 0 并在该阈值以下返回不同的值，则需要使用 MPSImageThresholdBinaryInverse。
 
@@ -119,7 +134,7 @@ MPSImageThresholdBinary 是一个过滤器，它为每个像素返回指定值�
 
 框架中的最后一个阈值着色器是 MPSImageThresholdTruncate。该过滤器将返回值限制为指定上限。这通过检查源像素值是否大于阈值来防止源像素超过特定值。该着色器在视频制作中很有用。如果你的值使颜色通道达到最大，则会导致一些问题，因此你需要确保通道永远不会达到最大。
 
-**图像积分滤镜**
+### 图像积分滤镜
 
 积分图像是机器视觉的重要组成部分，第 17 章“机器视觉”中有更详细的解释。本节介绍创建积分图像的 MPS 实现。
 
@@ -127,7 +142,7 @@ MPS 框架中积分图像的第一个实现是 MPSImageIntegral。此过滤器�
 
 另一个实现是 MPSImageIntegralOfSquares。这是一个计算图像中指定区域的像素平方和的过滤器。它用于特征检测。此实现的设置与 MPSImageIntegral 的设置相同。
 
-**图像处理滤镜**
+### 图像处理滤镜
 
 图像处理中的一种常见操作是转换图像的大小、颜色或纵横比。 MPS 框架提供了五个着色器来简化此任务。本节中的第一个着色器是 MPSImageConversion 着色器。此过滤器执行颜色空间、Alpha 或像素格式的转换。有时，需要重新格式化资产才能与项目中的其他资产一起使用，而此过滤器可以为你做到这一点。 Metal 文档中有大量支持的像素格式。
 
@@ -137,25 +152,30 @@ MPS 框架中积分图像的第一个实现是 MPSImageIntegral。此过滤器�
 
 最后一个图像处理过滤器是 MPSImageTranspose。 MPSImageTranspose 过滤器通过交换源图像的行和列，对源图像应用矩阵转置。矩阵运算可以按行优先顺序或列优先顺序。确保你清楚其设置方式很重要，因为如果调换顺序，你将得到完全不同的结果。
 
-**图像统计过滤器**
+### 图像统计过滤器
 
 图像统计滤波器用于平滑算法，以平均化像素亮度的极端变化。 iOS 11 为此任务提供了三个新的着色器：
 
-- MPSImageStatisticsMean - MPSImageStatisticsMeanAndVariance - MPSImageStatisticsMinAndMax
+- MPSImageStatisticsMean
+- MPSImageStatisticsMeanAndVariance
+- MPSImageStatisticsMinAndMax
 
 最基本的过滤器是 MPSImageStatisticsMean 过滤器。该滤波器计算图像给定区域的平均值并将其应用于内核中的每个像素。这可以防止异常值导致计算失败。 MPSImageStatisticsMeanAndVariance 计算图像给定区域的均值和方差。均值写入像素位置 (0, 0)，方差写入像素位置 (1, 0)。最后一个过滤器是 MPSImageStatisticsMinAndMax。该过滤器查找区域内的最小值和最大值。最小值写入像素位置 (0, 0)，最大值写入像素位置 (1, 0)。
 
-**图像算术过滤器**
+### 图像算术过滤器
 
 如果你曾经使用过 Photoshop，你就会知道它的图层具有合成模式，允许顶部的图层与其下方的图层混合。通过此功能，用户可以创建许多有趣的效果。这些算术混合模式是 iOS 11 的新增功能，现在可在 MPS 中使用。
 
 每个算术过滤器都是 MPSImageArithmetic 过滤器的子类。该基类具有诸如缩放、步幅和偏差等属性。该类有四个子类，每个算术运算都有一个子类：
 
-- MPSImageAdd - MPSImageSubtract - MPSImageMultiply - MPSImageDivide
+- MPSImageAdd
+- MPSImageSubtract
+- MPSImageMultiply
+- MPSImageDivide
 
-  **关键点**
+### 关键点
 
-MPS 框架图像处理类别的最后一个部分是*keypoints*。关键点是图像中感兴趣的区域，在对图像应用变换时用作地标。如果旋转或缩放图像，你可以检查这些关键点以确保图像正确转换。
+MPS 框架图像处理类别的最后一个部分是 _keypoints_。关键点是图像中感兴趣的区域，在对图像应用变换时用作地标。如果旋转或缩放图像，你可以检查这些关键点以确保图像正确转换。
 
 你需要了解的第一个着色器是 MPSImageKeypointData。这是一个包含关键点信息的数据结构。使用 MPSImageKeypointRangeInfo 查找关键点。该结构采用两个参数：关键点的最大数量和关键点颜色必须具有的最小阈值。 MPSImageFindKeypoints 使用这两个结构来查找并存储图像中指定数量的关键点。
 
@@ -163,7 +183,7 @@ MPS 框架图像处理类别的最后一个部分是*keypoints*。关键点是�
 
 在 GPU 上编程的一大优势是可以进行快速矩阵线性代数运算。你在本章前面看到了更复杂效果的示例，例如 Sobel 边缘检测。这些效果建立在这些矩阵运算的基础上。即使你最喜欢的效果在 MPS 框架中尚不可用，你仍然可以利用该框架。其中很多操作都是今年新增的，因此着色器的种类每年都在增长。
 
-**矩阵和向量**
+### 矩阵和向量
 
 所有矩阵和向量构建的基础数据结构是 MPSMatrix 对象。它是存储数据值的二维数据数组。假设矩阵数据按行优先顺序存储。除了行和列之外，MPSMatrix 还具有数据类型属性以及矩阵中连续行的相应元素与存储矩阵数据的 MTLBuffer 之间的步长（以字节为单位）。
 
@@ -171,7 +191,7 @@ MPS 框架图像处理类别的最后一个部分是*keypoints*。关键点是�
 
 如果你只需要一维数据而不是两维，你可以选择使用 MPSVector 对象。初始化时需要指定向量的长度。这与 MPSMatrix 类似，你需要一个描述符来创建 MPSVector 对象。 MPSVectorDescriptor 可以创建单个向量或向量数组。
 
-**矩阵相乘运算**
+### 矩阵相乘运算
 
 一种主要的矩阵运算是矩阵对象相乘。这由 MPSMatrixMultiplication 着色器表示。该着色器计算以下方程：
 

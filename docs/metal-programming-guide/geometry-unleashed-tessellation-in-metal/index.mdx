@@ -48,7 +48,10 @@ Source: [http://www.rorydriscoll.com/2008/08/01/catmull-clark-subdivision-the-ba
 
 该方程中的变量代表以下内容：
 
-- _Q_ 是周围人脸点的平均值。 - _n_ 是价，这是一个奇特的术语，表示连接到该点的边的数量。 - _R_ 是所有周围边缘中点的平均值。 - _S_ 是控制点。
+- _Q_ 是周围人脸点的平均值。
+- _n_ 是价，这是一个奇特的术语，表示连接到该点的边的数量。
+- _R_ 是所有周围边缘中点的平均值。
+- _S_ 是控制点。
 
 在此加权方程中，最大权重赋予所有周围边缘中点的平均值。如果有许多边连接到该点，则控制点变得更加重要。如果边缘数量较少，则周围面点和控制点的平均值的贡献相当相等，但仍小于周围边缘中点的平均值。
 
@@ -98,7 +101,10 @@ renderPipelineDescriptor.tessellationFactorStepFunction = .constant renderPipeli
 
 maxTessellationFactor 指定曲面细分器在曲面细分时要使用的最大曲面细分因子。默认因子为 16，最大因子为 64。如果选择 16 到 64 之间的值，则需要设置 tessellationPartitionMode 属性，该属性导出用于细分相应边的段的数量和间距。这些模式包含在 MTLTessellationPartitionMode 枚举中：
 
-- **pow2** ：这是默认值。结果向上舍入到最接近的整数 n，其中 n 是 2 的幂。例如，如果 maxTessellationFactor 设置为 30，则结果将向上舍入到 32。 - **整数** ：结果向上舍入到最接近的整数 n。该整数可以是偶数也可以是奇数。 - **fractionalOdd** ：曲面细分级别向上舍入到最接近的奇数整数 n。如果 n 为 1，则边缘不被细分。否则，将相应的边分成 n-2 段等长的段。 - **fractionalEven** ：曲面细分级别向上舍入到最接近的偶数 n。
+- **pow2** ：这是默认值。结果向上舍入到最接近的整数 n，其中 n 是 2 的幂。例如，如果 maxTessellationFactor 设置为 30，则结果将向上舍入到 32。
+- **整数** ：结果向上舍入到最接近的整数 n。该整数可以是偶数也可以是奇数。
+- **fractionalOdd** ：曲面细分级别向上舍入到最接近的奇数整数 n。如果 n 为 1，则边缘不被细分。否则，将相应的边分成 n-2 段等长的段。
+- **fractionalEven** ：曲面细分级别向上舍入到最接近的偶数 n。
 
 另一个固定函数属性是 isTessellationFactorScaleEnabled。它的默认值为 false。如果该值为 true，则在执行面片剔除检查之后但在将曲面细分因子钳位到 maxTessellationFactor 的值之前，将比例因子应用于曲面细分因子。仅当补丁未被剔除时才应用比例因子。
 
@@ -108,11 +114,13 @@ tessellationControlPointIndexType 是控制点索引缓冲区中控制点索引�
 
 tessellationFactorStepFunction 从曲面细分因子缓冲区确定补丁的曲面细分因子。它有四个选项：
 
-- **常数**：默认值。对于所有实例，补丁绘制调用中所有补丁的曲面细分因子位于曲面细分因子缓冲区中的偏移位置。 - **perPatch** ：每个补丁步骤函数。对于所有实例，a 中所有补丁的镶嵌因子
+- **常数**：默认值。对于所有实例，补丁绘制调用中所有补丁的曲面细分因子位于曲面细分因子缓冲区中的偏移位置。
+- **perPatch** ：每个补丁步骤函数。对于所有实例，a 中所有补丁的镶嵌因子
 
 补丁绘制调用位于曲面细分因子缓冲区中的 offset + (drawPatchIndex \* tessellationFactorStride) 位置。
 
-- **perInstance** ：每个实例的步骤函数。对于给定的实例 ID，修补程序绘制调用中修补程序的曲面细分因子位于曲面细分因子缓冲区中的偏移量 + (instanceID \* instanceStride) 位置。 - **perPatchAndPerInstance** ：每个补丁和每个实例的步骤函数。对于给定的实例 ID，补丁绘制调用中补丁的曲面细分因子位于曲面细分因子缓冲区中的 offset + (drawPatchIndex _ tessellationFactorStride + instanceID _ instanceStride) 位置。
+- **perInstance** ：每个实例的步骤函数。对于给定的实例 ID，修补程序绘制调用中修补程序的曲面细分因子位于曲面细分因子缓冲区中的偏移量 + (instanceID \* instanceStride) 位置。
+- **perPatchAndPerInstance** ：每个补丁和每个实例的步骤函数。对于给定的实例 ID，补丁绘制调用中补丁的曲面细分因子位于曲面细分因子缓冲区中的 offset + (drawPatchIndex _ tessellationFactorStride + instanceID _ instanceStride) 位置。
 
 你需要为曲面细分器设置的最后一个属性是 tessellationOutputWindingOrder。从其名称中可以清楚地看出，它设置镶嵌器输出的三角形的缠绕顺序。它由 MTLWinding 枚举表示。唯一的选择是顺时针和逆时针。默认为顺时针方向。
 
@@ -120,7 +128,9 @@ tessellationFactorStepFunction 从曲面细分因子缓冲区确定补丁的曲�
 
 你的计算内核是管道的可编程部分。计算内核需要执行以下功能：
 
-- 计算每个面片镶嵌因子 - 计算每个面片用户数据（可选） - 计算或修改面片控制点数据（可选）
+- 计算每个面片镶嵌因子
+- 计算每个面片用户数据（可选）
+- 计算或修改面片控制点数据（可选）
 
 与 Metal 中的每个着色器函数一样，你需要向文件添加一些数据结构，以接收主程序中设置并存储在参数表中的数据：
 
@@ -140,7 +150,12 @@ tessellationFactorStepFunction 从曲面细分因子缓冲区确定补丁的曲�
 
 曲面细分后顶点函数与常规普通顶点函数类似，但必须配备它们以接收面片类型和控制点。曲面细分后顶点函数必须至少是以下类型的参数之一：
 
-- 缓冲区（在设备或常量地址空间中声明）、纹理或采样器等资源 - 每个补丁数据和补丁控制点数据，这些数据可以直接从缓冲区读取，也可以作为声明的输入传递到曲面细分后顶点函数带有 [[stage_in]] 限定符 - 补丁标识符，限定为 [[patch_id]] - 每个实例标识符，限定为 [[instance_id]] - 在读取每个实例之前添加到每个实例标识符的基本实例值 data ([[base_instance]]) - 正在评估的补丁上的位置，限定为 [[position_in_patch]]
+- 缓冲区（在设备或常量地址空间中声明）、纹理或采样器等资源
+- 每个补丁数据和补丁控制点数据，这些数据可以直接从缓冲区读取，也可以作为声明的输入传递到曲面细分后顶点函数带有 [[stage_in]] 限定符
+- 补丁标识符，限定为 [[patch_id]]
+- 每个实例标识符，限定为 [[instance_id]]
+- 在读取每个实例之前添加到每个实例标识符的基本实例值 data ([[base_instance]])
+- 正在评估的补丁上的位置，限定为 [[position_in_patch]]
 
 这是一个简单的遍历后曲面细分顶点函数：
 
