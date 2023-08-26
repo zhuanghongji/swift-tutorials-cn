@@ -2,7 +2,7 @@
 
 <Wisdom
   words="相反，如果是这样的话，也可能是这样；如果是这样的话，那就是这样了；但既然不是，那就不是。这就是逻辑。"
-  author="刘易斯·卡罗尔"
+  author="Lewis Carroll"
 />
 
 Metal 的一大承诺是它允许程序员进行通用 GPU 编程（GPGPU 编程）。多年来，随着 GPU 变得越来越强大，聪明的程序员已经意识到他们可以将大量不一定与图形相关的工作卸载到 GPU。本章重点介绍 Metal 中的 GPGPU 编程。
@@ -24,7 +24,13 @@ _中央处理单元 (CPU)_ 是计算机的大脑。它负责你计算机上的�
 
 GPU 通过算术逻辑单元 (ALU) 最大化其空间 ALU 是执行算术和按位运算的组合数字电子电路。在 CPU 上，这些运算主要是整数二进制数。在 GPU 上，这些运算主要是浮点数。我们人类对数学运算的看法与计算机不同。对我们来说，两个数字相乘是一次操作，但对计算机来说，它涉及位级别的多个操作。通过拥有宽内存总线和许多 ALU，GPU 可以一次获取更多操作，如图 15.1 所示。通过扩展，GPU 在处理大量操作时比仅处理一两个操作更高效。
 
-<Figure src={require("../figures/042.jpg")} num="15.1" desc="ALU 并行处理" />
+<Figure
+  src={require("./15_1.jpg")}
+  num="15.1"
+  desc="ALU 并行处理"
+  size={420}
+  edge="white"
+/>
 
 CPU 每个芯片上的内核数量也有限。拥有多个内核使得芯片能够实现并行编程。每个内核一次只能完成一项任务，因此双核处理器在任何给定时间点执行的工作量是单核处理器的两倍。然而，多个核心会增加复杂性，因为核心必须协调它们处理任务的方式，而不覆盖两个核心正在访问的内存。
 
@@ -44,7 +50,13 @@ GPU 将这种并行处理提升到了一个新的水平 GPU 不限于两个、�
 
 由于你一次只能执行一个线程，因此通过将工作委托给美工人员可以提高效率。现在想象一下，你有一个完整的艺术家工作室，他们可以同时处理游戏的不同部分 GPU 就像那个动画工作室。由于 GPU 有数千个核心，因此可以发送到 GPU 的工作越多，可以同时完成的工作就越多，如图 15.2 所示。
 
-<Figure src={require("../figures/043.jpg")} num="15.2" desc="并发与并行" />
+<Figure
+  src={require("./15_2.jpg")}
+  num="15.2"
+  desc="并发与并行"
+  size={420}
+  edge="white"
+/>
 
 你可能想知道如果在任何给定时刻只能执行一项任务，为什么还要有多个线程。不同的任务可以放在具有不同优先级的不同线程上。你很熟悉不要将所有工作都放在主线程上的警告。主线程的优先级是用户交互。在网络调用完成之前，你不想阻止用户交互。任何非用户界面函数调用都可以放在优先级较低的后台线程上。
 
@@ -83,25 +95,43 @@ GPU 旨在并行执行大量数学运算。例如，这需要将 1,000 个元素
 
 这是内核函数签名的典型示例：
 
-kernel void kernel_function(texture2d inTexture [[texture(0)]],texture2d outTexture [[texture(1)]], uint2 gid [[thread_position_in_grid]]) { }
+```cpp
+kernel void kernel_function(
+    texture2d<float, access::read> inTexture [[texture(0)]],
+    texture2d<float, access::write> outTexture [[texture(1)]],
+    uint2 gid [[thread_position_in_grid]])
+{
+    // ...
+}
+```
 
-该函数必须以名称 kernel 开头，以区别于顶点函数或片段函数。返回类型必须为 void。接下来是内核函数的名称。与处理其他类型的函数一样，你可以将参数表中的参数位置作为参数传递给内核函数。
+该函数必须以名称 kernel 开头，以区别于顶点函数或片段函数。返回类型必须为 `void`。接下来是内核函数的名称。与处理其他类型的函数一样，你可以将参数表中的参数位置作为参数传递给内核函数。
 
 ## Metal 计算命令编码器
 
-发送到 GPU 的所有工作都被编码到 MTLCommandEncoder 实例中。有四种不同类型的命令编码器。到目前为止，在本书中，你已经学会了如何使用其中三个。本章介绍第四个也是最后一个：Metal 计算命令编码器（MTLComputeCommandEncoder）。
+发送到 GPU 的所有工作都被编码到 `MTLCommandEncoder` 实例中。有四种不同类型的命令编码器。到目前为止，在本书中，你已经学会了如何使用其中三个。本章介绍第四个也是最后一个：Metal 计算命令编码器（MTLComputeCommandEncoder）。
 
-设置 MTLComputeCommandEncoder 比像任何其他对象一样简单地实例化它要复杂一些。它需要几个步骤并首先设置一些其他对象：
+设置 `MTLComputeCommandEncoder` 比像任何其他对象一样简单地实例化它要复杂一些。它需要几个步骤并首先设置一些其他对象：
 
-var 设备：MTLDevice！ var commandQueue: MTLCommandQueue! var 库：MTLLibrary！
+```swift
+var device: MTLDevice!
+var commandQueue: MTLCommandQueue!
+var library: MTLLibrary!
+func setupMetal() {
+    device = MTLCreateSystemDefaultDevice()
+    commandQueue = device.makeCommandQueue()
+    library = device.newDefaultLibrary()
+}
+```
 
-func setupMetal() { 设备 = MTLCreateSystemDefaultDevice() commandQueue = device.makeCommandQueue() 库 = device.newDefaultLibrary() }
+设置 `MTLComputeCommandEncoder` 的方法 `makeComputeCommandEncoder()` 存在于 `MTLCommandBuffer` 对象上 `MTLCommandBuffer` 对象由 `MTLCommandQueue` 上的 `makeCommandBuffer()` 方法初始化 `MTLCommandQueue` 又由 `MTLDevice` 上的 `makeCommandQueue()` 方法创建。因此，要初始化 `MTLComputeCommandEncoder`，你需要设置一系列其他 Metal 对象，所有这些对象都会初始化链中的下一个。
 
-设置 MTLComputeCommandEncoder 的方法 makeComputeCommandEncoder() 存在于 MTLCommandBuffer 对象上 MTLCommandBuffer 对象由 MTLCommandQueue 上的 makeCommandBuffer() 方法初始化 MTLCommandQueue 又由 MTLDevice 上的 makeCommandQueue() 方法创建。因此，要初始化 MTLComputeCommandEncoder，你需要设置一系列其他 Metal 对象，所有这些对象都会初始化链中的下一个。
+将这三个对象全部初始化并就位后，你可以调用 `MTLCommandBuffer` 上的方法来初始化 `MTLComputeCommandEncoder`：
 
-将这三个对象全部初始化并就位后，你可以调用 MTLCommandBuffer 上的方法来初始化 MTLComputeCommandEncoder：
-
-让 commandBuffer = commandQueue.makeCommandBuffer() 让 computeEncoder = commandBuffer.makeComputeCommandEncoder()
+```swift
+let commandBuffer = commandQueue.makeCommandBuffer()
+let computeEncoder = commandBuffer.makeComputeCommandEncoder()
+```
 
 乍一看这可能有点令人困惑，但无论如何，这些都是你需要创建的对象实例。尝试将其视为健全性检查，以确保你正确设置对象。
 
@@ -109,15 +139,31 @@ func setupMetal() { 设备 = MTLCreateSystemDefaultDevice() commandQueue = devic
 
 正如你对渲染管道所做的那样，你可以在此处为计算管道创建管道状态。在对 GPU 进行编程时，尽可能多地预先设置是提高效率的最佳方法。第一步是创建计算管道状态变量：
 
-varcomputePipelineState：MTLComputePipelineState！
+```swift
+var computePipelineState: MTLComputePipelineState!
+```
 
 创建该变量后，你需要对其进行设置：
 
-func setupPipeline() { if letcomputeFunction = library.makeFunction( name:computeFunctionName) { do {computePipelineState = try device.makeComputePipelineState(function:computeFunction) } catch let error as NSError { fatalError("Error: \(error.localizedDescription)" ) } } else { fatalError("运行时未找到内核函数") } }
+```swift
+func setupPipeline() {
+    if let computeFunction = library.makeFunction(name: computeFunctionName) {
+        do {
+            computePipelineState = try device.makeComputePipelineState(function: computeFunction)
+        } catch let error as NSError {
+          fatalError("Error: \(error.localizedDescription)")
+        }
+    } else {
+        fatalError("Kernel functions not found at runtime")
+    }
+}
+```
 
 设置状态所需的唯一部分是内核函数。你需要使用此函数来设置供管道状态使用的 Metal 库。如果由于某种原因你无法设置该库，你需要确保程序失败。最后，你需要将状态编码到计算管道中。
 
+```swift
 computeEncoder.setComputePipelineState(computePipelineState)
+```
 
 到目前为止，一切都有些熟悉了。接下来，你将学习如何设置并行工作组，这是计算编码器独有的功能。
 
@@ -136,24 +182,38 @@ computeEncoder.setComputePipelineState(computePipelineState)
 GPU 对 GPU 上的每个线程进行微观管理的效率并不高。相反，它们被组装在 _线程组_ 中。线程由一个或多个处理元素作为在计算单元上执行的线程组的一部分来执行，如图 15.3 所示。它们还共享一个指令指针，这意味着它们都同时执行相同的指令。线程组上可以执行的线程数就是 _线程执行宽度_。与计算机科学中的许多概念一样，最大执行宽度是 2 的幂。它根据你使用的 iPhone 版本而变化。功能更强大的 iPhone 具有更深的执行宽度。第 16 章“ Metal 图像处理”中探讨了这个概念。
 
 <Figure
-  src={require("../figures/044.jpg")}
+  src={require("./15_3.jpg")}
   num="15.3"
   desc="在管道中执行的线程"
+  edge="white"
 />
 
 首先，你需要线程组大小和线程组宽度的属性：
 
-var threadgroupSize，threadsPerThreadgroup：MTLSize！
+```swift
+var threadgroupSize, threadsPerThreadgroup: MTLSize!
+```
 
 接下来，你需要计算线程组大小和线程组宽度有多大：
 
-func setupThreads() { let threadgroupWidth = 8 let μ = side / threadgroupWidth + (side == threadgroupWidth? 0 : 1)
-
-threadgroupSize = MTLSize（宽度：μ，高度：μ，深度：1）threadsPerThreadgroup = MTLSize（宽度：threadgroupWidth，高度：threadgroupWidth，深度：1）}
+```swift
+func setupThreads() {
+    let threadgroupWidth = 8
+    let μ = side / threadgroupWidth + (side == threadgroupWidth ? 0 : 1)
+    threadgroupSize = MTLSize(width: μ, height: μ, depth: 1)
+    threadsPerThreadgroup = MTLSize(width: threadgroupWidth,
+                                    height: threadgroupWidth,
+                                    depth: 1)
+}
+```
 
 最后，你需要将它们编码到计算命令编码器中：
 
-computeEncoder.dispatchThreadgroups（threadgroupSize，threadsPerThreadgroup：threadsPerThreadgroup）
+```swift
+computeEncoder.dispatchThreadgroups(threadgroupSize,
+                                    threadsPerThreadgroup:
+                                    threadsPerThreadgroup)
+```
 
 这就是 CPU 方面所需的全部设置。其余的在 GPU 端设置。
 
@@ -163,7 +223,13 @@ computeEncoder.dispatchThreadgroups（threadgroupSize，threadsPerThreadgroup：
 
 每个网格的线程组。当你对工作网格进行编码时，这些会被传递。你还需要传入网格中当前线程的位置：
 
-void kernel myKernel( uint2 S [[threads_per_threadgroup]], uint2 W [[threadgroups_per_grid]], uint2 z [[thread_position_in_grid]]) { }
+```cpp
+void kernel myKernel(
+     uint2 S [[ threads_per_threadgroup ]],
+     uint2 W [[ threadgroups_per_grid ]],
+     uint2 z [[ thread_position_in_grid ]]) {
+}
+```
 
 这类似于片段着色器中跟踪当前正在处理的像素的参数。你不负责计算当前线程在网格或其各自线程组中的位置，但你可以通过向内核函数添加具有适当属性的参数来请求这些值。
 
@@ -172,9 +238,11 @@ void kernel myKernel( uint2 S [[threads_per_threadgroup]], uint2 W [[threadgroup
 与使用渲染命令函数一样，你需要协调 CPU 和 GPU 之间的资源。如果你还记得前面的章节，Metal 使用参数表（如图 15.4 所示）来保存 CPU 和 GPU 之间共享的资源。在渲染编码器中，可以对三种类型的数据进行编码。对于计算编码器，还有一个附加参数类别。
 
 <Figure
-  src={require("../figures/045.jpg")}
+  src={require("./15_4.jpg")}
   num="15.4"
   desc="计算编码器参数表"
+  size={420}
+  edge="white"
 />
 
 计算管道中 CPU 和 GPU 之间可以共享四种数据：

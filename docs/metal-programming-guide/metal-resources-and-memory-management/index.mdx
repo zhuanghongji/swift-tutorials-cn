@@ -24,7 +24,7 @@ MTLResource 的实例负责管理对 GPU 查询的数据的访问和更改权限
 
 你需要了解的 Metal 编程中最重要的结构之一是 _参数表_。参数表是编码器和着色器之间的联络人。它是内存中的共享空间，CPU 和 GPU 在此协调着色器引用和修改的数据。
 
-参数表中的所有内容都是 MTLArgument 的实例。它包含参数的数据类型、访问限制和关联的资源类型。你不直接创建这些参数。它们是在你创建参数并将其绑定到 MTLRenderPipelineState 或 MTLComputePipelineState 时创建的。可以将三种类型的资源分配给参数表：
+参数表中的所有内容都是 MTLArgument 的实例。它包含参数的数据类型、访问限制和关联的资源类型。你不直接创建这些参数。它们是在你创建参数并将其绑定到 `MTLRenderPipelineState` 或 `MTLComputePipelineState` 时创建的。可以将三种类型的资源分配给参数表：
 
 - 缓冲器
 - 纹理
@@ -40,9 +40,9 @@ MTLBuffer 对象是未格式化的内存块的分配。缓冲区数据可以是�
 
 与 MTLDevice 一样，MTLBuffer 也是一个协议。你不直接实例化它或对其进行子类化。相反，你可以使用一些工厂方法来创建缓冲区：
 
-- makeBuffer(length:options:) 创建一个具有新存储分配的 MTLBuffer 对象。
-- makeBuffer(bytes:length:options:) 通过将数据从现有存储分配复制到新分配来创建 MTLBuffer 对象。
-- makeBuffer(bytesNoCopy:length:options:deallocator:) 创建一个 MTLBuffer 对象，该对象重用现有的存储分配，并且不分配任何新的存储。
+- `makeBuffer(length:options:)`：创建一个具有新存储分配的 `MTLBuffer` 对象。
+- `makeBuffer(bytes:length:options:)`：通过将数据从现有存储分配复制到新分配来创建 `MTLBuffer` 对象。
+- `makeBuffer(bytesNoCopy:length:options:deallocator:)`：创建一个 `MTLBuffer` 对象，该对象重用现有的存储分配，并且不分配任何新的存储。
 
 同样，缓冲区并不关心它包含什么数据；它只关心它包含什么数据。它只关心知道它必须有多大才能包含数据。
 
@@ -50,27 +50,35 @@ MTLBuffer 对象是未格式化的内存块的分配。缓冲区数据可以是�
 
 不断地从 RAM 中检查和获取内存在计算上是昂贵的 Metal 旨在为开发人员提供更多选择，让你可以根据自己的需要调整应用程序 MTLResource 有几个关联的常量，可帮助你自定义数据的存储和缓存方式：
 
-- MTLCPUCache 模式
-- MTLStorage 模式
+- MTLCPUCacheMode
+- MTLStorageMode
 - MTLPurgeableState
 
-缓存模式决定了 CPU 如何映射资源。你希望尽可能连续地映射你的资源。在内存中跳转的计算成本很高，因此请尝试映射数据，以便在流中访问它 MTLCPUCacheMode 有两个选项：defaultCache 和 writeCombined。默认缓存保证读写操作按预期顺序执行。你想要使用 writeCombined 的唯一时间是当你创建 CPU 将写入但稍后读取的资源时。
+缓存模式决定了 CPU 如何映射资源。你希望尽可能连续地映射你的资源。在内存中跳转的计算成本很高，因此请尝试映射数据，以便在流中访问它 `MTLCPUCacheMode` `有两个选项：defaultCache` 和 `writeCombined`。默认缓存保证读写操作按预期顺序执行。你想要使用 `writeCombined` 的唯一时间是当你创建 CPU 将写入但稍后读取的资源时。
 
-缓存模式与存储模式密切相关 MTLStorageMode 定义资源的内存位置和访问权限。如果资源是共享的，则 CPU 和 GPU 都可以访问该资源。如果资源是私有的，则只能由 GPU 访问。如果资源受到管理，则 CPU 和 GPU 都拥有该资源的副本。这些副本被同步以反映资源的其他副本中的更改。最后的存储模式是无记忆的。无内存存储不受 CPU 和 GPU 的支持。这听起来可能毫无意义，但它用于临时渲染目标，例如渲染纹理。当你要渲染的数据不需要在生成它的通道之外持续存在时，可以使用它。
+缓存模式与存储模式密切相关 `MTLStorageMode` 定义资源的内存位置和访问权限。如果资源是共享的，则 CPU 和 GPU 都可以访问该资源。如果资源是私有的，则只能由 GPU 访问。如果资源受到管理，则 CPU 和 GPU 都拥有该资源的副本。这些副本被同步以反映资源的其他副本中的更改。最后的存储模式是无记忆的。无内存存储不受 CPU 和 GPU 的支持。这听起来可能毫无意义，但它用于临时渲染目标，例如渲染纹理。当你要渲染的数据不需要在生成它的通道之外持续存在时，可以使用它。
 
-你不会希望永远将所有这些对象保留在内存中，因此你需要制定一个计划来适当地删除它们 MTLPurgeableState 允许你更改资源的状态。你没有必要控制每个应用程序的可净化性。如果要访问资源而不更改其可清除状态，请将状态设置为 keepCurrent。如果你不希望资源从内存中被丢弃，请将状态设置为非易失性。易失性设置表明，如果不再需要资源，可以将其从内存中删除，但不会自动清除。一旦确定资源不再需要，状态将设置为空。
+你不会希望永远将所有这些对象保留在内存中，因此你需要制定一个计划来适当地删除它们 MTLPurgeableState 允许你更改资源的状态。你没有必要控制每个应用程序的可净化性。如果要访问资源而不更改其可清除状态，请将状态设置为 `keepCurrent`。如果你不希望资源从内存中被丢弃，请将状态设置为非易失性。易失性设置表明，如果不再需要资源，可以将其从内存中删除，但不会自动清除。一旦确定资源不再需要，状态将设置为空。
 
 ## 为顶点着色器和顶点描述符准备数据
 
 本章花了一些时间讨论如何将数据映射到内存。尽可能高效地映射内存的最终目的是尽可能快地将这些数据传递到 GPU 进行处理。你可以使用顶点描述符为顶点着色器准备数据。本节对此进行了更详细的介绍。
 
-MTLVertexDescriptor 对象用于配置存储在内存中的顶点数据如何映射到顶点着色器中的属性 MTLVertexDescriptor 是管道状态的一部分，它为与管道关联的函数建立顶点布局。每个管道状态只有一个 MTLVertexDescriptor。
+MTLVertexDescriptor 对象用于配置存储在内存中的顶点数据如何映射到顶点着色器中的属性 `MTLVertexDescriptor` 是管道状态的一部分，它为与管道关联的函数建立顶点布局。每个管道状态只有一个 MTLVertexDescriptor。
 
-顶点描述符用于描述顶点布局和顶点属性。顶点描述符有一个 MTLVertexAttributeDescriptorArray 属性，其中包含 MTLVertexAttributeDescriptor 对象。看这个例子：
+顶点描述符用于描述顶点布局和顶点属性。顶点描述符有一个 `MTLVertexAttributeDescriptorArray` 属性，其中包含 `MTLVertexAttributeDescriptor` 对象。看这个例子：
 
-vertexDescriptor.attributes[0].offset = 0 vertexDescriptor.attributes[0].format = .float3 // 位置 vertexDescriptor.attributes[1].offset = 12 // 顶点法线 vertexDescriptor.attributes[1].format = MTLVertexFormat.float3 vertexDescriptor.layouts[0].stride = 24
+```swift
+vertexDescriptor.attributes[0].offset = 0
+vertexDescriptor.attributes[0].format = .float3 // position
+vertexDescriptor.attributes[1].offset = 12
 
-让 pipelineStateDescriptor = MTLRenderPipelineDescriptor() pipelineStateDescriptor.vertexDescriptor = vertexDescriptor
+// Vertex normal
+vertexDescriptor.attributes[1].format = MTLVertexFormat.float3
+vertexDescriptor.layouts[0].stride = 24
+let pipelineStateDescriptor = MTLRenderPipelineDescriptor()
+pipelineStateDescriptor.vertexDescriptor = vertexDescriptor
+```
 
 在此示例中，你需要将两组信息编码到缓冲区中：顶点位置和顶点法线。每一个都作为属性存储在顶点描述符中。每个属性都有一个偏移量和一个格式。你负责告诉驱动程序你的属性位于内存中的哪个位置以及它期望具有什么类型的数据。
 
@@ -78,7 +86,7 @@ vertexDescriptor.attributes[0].offset = 0 vertexDescriptor.attributes[0].format 
 
 虽然缓冲区本身是不可变的，但其中的数据却不是。数据缓冲区由 CPU 准备，然后由 GPU 处理。这两件事不能在同一个缓冲区上同时发生。如果 CPU 覆盖 GPU 当前正在处理的数据，结果将是数据损坏。在 Metal 中，通常使用*三重缓冲系统*，如图 6.1 所示。这在实践中意味着你创建三个缓冲区 CPU 将其数据复制到第一个缓冲区，然后将其交给 GPU。当 GPU 在第一个缓冲区上工作时，CPU 开始将数据复制到第二个缓冲区。这会创建一个偏移量，以便 CPU 和 GPU 都不会只是等待处理某些内容。
 
-<Figure src={require("../figures/020.jpg")} num="6.1" desc="三重缓冲系统" />
+<Figure src={require("./6_1.jpg")} num="6.1" desc="三重缓冲系统" edge="white" />
 
 ## 纹理简介
 
@@ -90,13 +98,13 @@ MTLTexture 对象表示格式化图像数据的分配，该数据可用作顶点
 - 1D 或 2D 图像数组
 - 六个 2D 图像的立方体
 
-MTLResource 有一个纹理的实现：MTLTexture。与 MTLBuffer 和 MTLDevice 类似，这是一种协议，你可以使用指定的方法创建符合该协议的对象。创建 MTLTexture 有以下三种方法：
+MTLResource 有一个纹理的实现：`MTLTexture`。与 `MTLBuffer` 和 `MTLDevice` 类似，这是一种协议，你可以使用指定的方法创建符合该协议的对象。创建 `MTLTexture` 有以下三种方法：
 
-- **newTextureWithDescriptor**：此方法在 MTLDevice 上创建新纹理。它使用 MTLTextureDescriptor 来配置纹理对象。
-- **makeTextureView(pixelFormat:)**：此方法基于 MTLTexture 协议。它创建并返回一个新的纹理对象，该对象与源纹理对象共享相同的存储分配。由于它们共享相同的存储空间，因此对新纹理像素的任何更改都会反映在源纹理中，反之亦然。
-- **newTextureWithDescriptor:offset:bytesPerRow**：此方法基于另一个协议 MTLBuffer。它与 makeTextureView(pixelFormat:) 类似，因为新纹理与源缓冲区对象共享相同的存储分配，因此适用相同的规则。在 newTextureWithDescriptor:offset:bytesPerRow 中，你可以根据纹理描述符创建新纹理 MTLTextureDescriptor 配置你的新纹理对象。这包括像素格式、高度和 mipmap 级别计数。到目前为止我们讨论的有关存储模式和类型的所有方面都在这里配置。
+- **newTextureWithDescriptor**：此方法在 `MTLDevice` 上创建新纹理。它使用 `MTLTextureDescriptor` 来配置纹理对象。
+- **makeTextureView(pixelFormat:)**：此方法基于 `MTLTexture` 协议。它创建并返回一个新的纹理对象，该对象与源纹理对象共享相同的存储分配。由于它们共享相同的存储空间，因此对新纹理像素的任何更改都会反映在源纹理中，反之亦然。
+- **newTextureWithDescriptor:offset:bytesPerRow**：此方法基于另一个协议 `MTLBuffer`。它与 `makeTextureView(pixelFormat:)` 类似，因为新纹理与源缓冲区对象共享相同的存储分配，因此适用相同的规则。在 `newTextureWithDescriptor:offset:bytesPerRow` 中，你可以根据纹理描述符创建新纹理 `MTLTextureDescriptor` 配置你的新纹理对象。这包括像素格式、高度和 mipmap 级别计数。到目前为止我们讨论的有关存储模式和类型的所有方面都在这里配置。
 
-如果使用 makeTextureView(pixelFormat:) 方法，则必须指定像素格式 MTLPixelFormat 描述了纹理的各个像素中颜色、深度或模板数据存储的组织。像素格式分为三种：普通、打包和压缩。对于普通格式和打包格式，你需要指定三个描述：颜色分量的顺序、颜色分量的位深度以及分量的数据类型。格式数据以小端顺序存储。本章稍后将介绍压缩格式。
+如果使用 `makeTextureView(pixelFormat:)` 方法，则必须指定像素格式 `MTLPixelFormat` 描述了纹理的各个像素中颜色、深度或模板数据存储的组织。像素格式分为三种：普通、打包和压缩。对于普通格式和打包格式，你需要指定三个描述：颜色分量的顺序、颜色分量的位深度以及分量的数据类型。格式数据以小端顺序存储。本章稍后将介绍压缩格式。
 
 本节粗略地概述了作为资源的纹理。第 12 章更全面地介绍了纹理。
 
@@ -104,29 +112,41 @@ MTLResource 有一个纹理的实现：MTLTexture。与 MTLBuffer 和 MTLDevice 
 
 2015 年，Apple 推出了 MetalKit，以简化 Metal 中一些最常见的功能。由于上传和应用纹理在图形编程中非常常见，因此 MetalKit 中有一个实现。
 
-MTKTextureLoader 类简化了将纹理数据加载到 Metal 应用程序中所需的工作。此类可以加载常见文件格式（例如 PNG、JPEG 和 TIFF）的图像。所有使用 MTKTextureLoader 加载的纹理都符合 MTLTexture 协议。
+`MTKTextureLoader` 类简化了将纹理数据加载到 Metal 应用程序中所需的工作。此类可以加载常见文件格式（例如 PNG、JPEG 和 TIFF）的图像。所有使用 `MTKTextureLoader` 加载的纹理都符合 `MTLTexture` 协议。
 
-如果让 textureUrl = NSURL（字符串：文件位置）{让 textureLoader = MTKTextureLoader（设备：设备）做{
+```swift
+if let textureUrl = NSURL(string: fileLocation) {
+    let textureLoader = MTKTextureLoader(device: device)
+    do {
+        diffuseTexture = try textureLoader.newTextureWithContentsOfURL(textureUrl, options: nil)
+    } catch _ {
+       print("diffuseTexture assignment failed")
+    }
+}
+```
 
-diffuseTexture = trytextureLoader.newTextureWithContentsOfURL(textureUrl, options: nil) } catch \_ { print("diffuseTexture 分配失败") } }
+在此代码片段中，你将从默认的 `MTLDevice` 创建一个新的 `MTKTextureLoader`。该纹理位于你的应用程序包中。你可以通过在新纹理加载器上调用 `textureLoader.newTextureWithContentsOfURL` 来加载纹理。如果你尝试加载不可用的纹理或拼写错误，此方法可能会失败。如果发生这种情况，你不希望应用程序崩溃，因此你捕获错误并将错误消息打印到控制台。
 
-在此代码片段中，你将从默认的 MTLDevice 创建一个新的 MTKTextureLoader。该纹理位于你的应用程序包中。你可以通过在新纹理加载器上调用 textureLoader.newTextureWithContentsOfURL 来加载纹理。如果你尝试加载不可用的纹理或拼写错误，此方法可能会失败。如果发生这种情况，你不希望应用程序崩溃，因此你捕获错误并将错误消息打印到控制台。
-
-还可以从资产目录、核心图形和模型 I/O 加载纹理。这些函数中的每一个都以 textureLoader.newTextureWith 开头。这完全取决于你选择纹理的来源。这样可以轻松简化从各种不同来源引入纹理的过程，而无需记住太多差异。
+还可以从资产目录、核心图形和模型 I/O 加载纹理。这些函数中的每一个都以 `textureLoader.newTextureWith` 开头。这完全取决于你选择纹理的来源。这样可以轻松简化从各种不同来源引入纹理的过程，而无需记住太多差异。
 
 ### 纹理视图
 
-在本章前面，你学习了如何创建 MTLTexture 对象。一种方法是调用 MTLTexture 协议上的方法来创建纹理视图。本节更深入地解释该过程。
+在本章前面，你学习了如何创建 `MTLTexture` 对象。一种方法是调用 `MTLTexture` 协议上的方法来创建纹理视图。本节更深入地解释该过程。
 
 与设备方法不同，此方法不分配内存来复制纹理数据。该方法以新的指定像素格式重新解释现有纹理图像数据。它不会修改原始底层数据文件。新纹理的像素格式必须与源纹理的像素格式兼容。
 
-func makeTextureView(pixelFormat: MTLPixelFormat) -> MTLTexture 指定要将纹理转换为的新像素格式并返回该新纹理。并非所有像素格式都与所有其他像素格式兼容。你不能在不同大小的颜色像素格式之间使用此方法。
+`func makeTextureView(pixelFormat: MTLPixelFormat) -> MTLTexture` 指定要将纹理转换为的新像素格式并返回该新纹理。并非所有像素格式都与所有其他像素格式兼容。你不能在不同大小的颜色像素格式之间使用此方法。
 
 制作纹理视图的另一种方法是使用以下方法：
 
-func makeTextureView（pixelFormat：MTLPixelFormat，textureType：MTLTextureType，级别 levelRange：NSRange，切片 sliceRange：NSRange）-> MTLTexture
+```swift
+func makeTextureView(pixelFormat: MTLPixelFormat,
+                     textureType: MTLTextureType,
+                     levels levelRange: NSRange,
+                     slices sliceRange: NSRange) -> MTLTexture
+```
 
-以前的方法仅允许你更改像素格式。此方法还允许你更改纹理类型。与 MTLPixelFormat 类似，MTLTextureType 具有可以将纹理转换为的有限数量的其他纹理 type1D 纹理只能转换为另一个 type1D 纹理，而 type2D 纹理可以转换为另一个 type2D 或 type2DArray。
+以前的方法仅允许你更改像素格式。此方法还允许你更改纹理类型。与 `MTLPixelFormat` 类似，`MTLTextureType` 具有可以将纹理转换为的有限数量的其他纹理 `type1D` 纹理只能转换为另一个 `type1D` 纹理，而 `type2D` 纹理可以转换为另一个 `type2D` 或 `type2DArray`。
 
 ### 纹理数组
 
@@ -140,15 +160,27 @@ func makeTextureView（pixelFormat：MTLPixelFormat，textureType：MTLTextureTy
 
 此过程有两个步骤：检索要用于替换纹理区域的字节，然后用这些字节替换该区域。
 
-func getBytes(\_ PixelBytes: UnsafeMutableRawPointer, bytesPerRow: Int, from 区域: MTLRegion, mipmapLevel level: Int)
+```swift
+func getBytes(_ pixelBytes: UnsafeMutableRawPointer,
+              bytesPerRow: Int,
+              from region: MTLRegion,
+              mipmapLevel level: Int)
+```
 
 此函数所需的第一个参数是一个不安全的可变原始指针，指向你要访问的字节。如果你是一名 Swift 程序员，这可能看起来很可怕且不安全，但你现在是一名 Metal 程序员！接近 Metal 意味着可以轻松地直接使用原始内存指针。如果你知道自己在做什么，那就没问题了 bytePerRow 是纹理数据行之间的步幅。该区域是纹理切片中像素块的位置。最后，如果你的纹理经过了 mipmap，这就是关卡。如果你的纹理未进行 mipmap，则级别默认为零。
 
 接下来，你需要指定要替换的内容。
 
-func 替换（区域：MTLRegion，mipmapLevel 级别：Int，切片：Int，withBytes PixelBytes：UnsafeRawPointer，bytesPerRow：Int，bytesPerImage：Int）
+```swift
+func replace(region: MTLRegion,
+             mipmapLevel level: Int,
+             slice: Int,
+             withBytes pixelBytes: UnsafeRawPointer,
+             bytesPerRow: Int,
+             bytesPerImage: Int)
+```
 
-首先，你指定区域。该区域是图像或纹理中的矩形像素块，由其左上角及其大小定义。再次指定 mipmap 级别（如果适用）。该切片标识哪个纹理切片是复制操作的目的地。其余与 getBytes 方法相同。
+首先，你指定区域。该区域是图像或纹理中的矩形像素块，由其左上角及其大小定义。再次指定 mipmap 级别（如果适用）。该切片标识哪个纹理切片是复制操作的目的地。其余与 `getBytes` 方法相同。
 
 ## 压缩纹理支持
 
@@ -156,18 +188,15 @@ func 替换（区域：MTLRegion，mipmapLevel 级别：Int，切片：Int，wit
 
 Metal 支持三种压缩纹理格式：
 
-- **PVRTC**：PVRTC（PowerVR 纹理压缩）通过将源图像下采样为两个较小的图像来进行操作，然后将其放大并混合以重建原始图像的近似值。在 iOS 上使用 PVRTC 格式时要记住的一件事是纹理
-
-必须是平方，并且每个维度必须是 2 的幂。
-
-- **ETC2**：ETC（爱立信纹理压缩）类似于 PVRTC。它将每个 4×4 像素块压缩为单个 64 位数量，但 PVRTC 通常质量更高。
+- **PVRTC**：PVRTC（PowerVR 纹理压缩）通过将源图像下采样为两个较小的图像来进行操作，然后将其放大并混合以重建原始图像的近似值。在 iOS 上使用 PVRTC 格式时要记住的一件事是纹理必须是平方，并且每个维度必须是 2 的幂。
+- **ETC2**：ETC（爱立信纹理压缩）类似于 PVRTC。它将每个 4x4 像素块压缩为单个 64 位数量，但 PVRTC 通常质量更高。
 - **ASTC**：ASTC（高级可扩展纹理压缩）是一种更新且更灵活的纹理格式，但 A7 芯片不支持它。
 
 ## Blit 命令编码器
 
 此时，你可能想知道所有这些复制对 CPU 造成的影响。许多图形框架抽象了足够多的底层结构，作为图形程序员的新手，你并不确定你的代码主要是在 CPU 还是 GPU 上处理。由于 Metal 的目的是向你公开这些信息，因此你可以使用一个特殊的编码器来确保你的数据在 GPU 上进行处理。
 
-MTLBlitCommandEncoder 用于将资源复制命令编码到命令缓冲区中。这些命令用于管理纹理和缓冲区的内容。到目前为止，你只使用了 MTLRenderCommandEncoder。重要的是要记住，使用 Metal，你将使用多个命令编码器来打包和处理 GPU 的数据。当你设置另一个命令编码器时请记住这一点。
+`MTLBlitCommandEncoder` 用于将资源复制命令编码到命令缓冲区中。这些命令用于管理纹理和缓冲区的内容。到目前为止，你只使用了 `MTLRenderCommandEncoder`。重要的是要记住，使用 Metal，你将使用多个命令编码器来打包和处理 GPU 的数据。当你设置另一个命令编码器时请记住这一点。
 
 你可以使用多种方法在不接触 CPU 的情况下管理数据：
 
@@ -180,13 +209,27 @@ MTLBlitCommandEncoder 用于将资源复制命令编码到命令缓冲区中。�
 
 任何将数据从一处复制到另一处的操作都使用 MTLBlitCommandEncoder 的复制方法。此方法被重载以反映复制数据的不同方式。这种复制方法最简单的示例是将一个缓冲区复制到另一个缓冲区：
 
-func copy（从 sourceBuffer：MTLBuffer，sourceOffset：Int，到 destinationBuffer：MTLBuffer，destinationOffset：Int，大小：Int）
+```swift
+func copy(from sourceBuffer: MTLBuffer,
+          sourceOffset: Int,
+          to destinationBuffer: MTLBuffer,
+          destinationOffset: Int,
+          size: Int)
+```
 
 由于纹理比缓冲区更复杂，因此它们的复制功能将更复杂且可定制。
 
-func 复制（从 sourceBuffer：MTLBuffer，sourceOffset：Int，sourceBytesPerRow：Int，sourceBytesPerImage：Int，sourceSize：MTLSize，到 destinationTexture：MTLTexture，destinationSlice：Int，
-
-目的地级别：Int，目的地来源：MTLOrigin）
+```swift
+func copy(from sourceBuffer: MTLBuffer,
+          sourceOffset: Int,
+          sourceBytesPerRow: Int,
+          sourceBytesPerImage: Int,
+          sourceSize: MTLSize,
+          to destinationTexture: MTLTexture,
+          destinationSlice: Int,
+          destinationLevel: Int,
+          destinationOrigin: MTLOrigin)
+```
 
 Blit 命令编码器上的一项特殊生成器功能是生成 mipmap。下一节将介绍这种情况。
 
@@ -198,7 +241,9 @@ Blit 命令编码器上的一项特殊生成器功能是生成 mipmap。下一�
 
 MTLBlitCommandEncoder 有一个方法可以为你生成 mipmap：
 
-funcgenerateMipmaps（对于纹理：MTLTexture）
+```swift
+func generateMipmaps(for texture: MTLTexture)
+```
 
 Mipmap 是使用所有级别（最高级别）的缩放图像生成的。纹理的 mipmap 级别计数必须大于 1。Mipmap 生成仅适用于具有可颜色渲染和可颜色过滤像素格式的纹理。
 

@@ -1,6 +1,9 @@
 # 3D 绘图简介
 
-<Wisdom words="成长的关键是将更高维度的意识引入我们的意识中。" author="老子" />
+<Wisdom
+  words="成长的关键是将更高维度的意识引入我们的意识中。"
+  author="Lao Tzu"
+/>
 
 每个 Metal 的介绍都是从渲染由三角形组成的 2D 形状开始的。这是呈现框架的移动部分以使图像出现在屏幕上的好方法。当你从设计的 2D 项目转向真实的 3D 项目时，你会引入所有 3D 项目固有的复杂性，无论框架如何。本章向你介绍从二维跳转到三维时需要理解的概念。
 
@@ -13,9 +16,10 @@
 所有顶点数据都从对象空间开始。对象空间关注的是每个顶点在其自身上下文中如何与其他顶点相关。如果你查看顶点文件中的位置数据，它描述了对象空间中的位置。顶点着色器使用模型矩阵获取顶点数据并在对象空间中组装一个对象，然后将其传递到该过程的下一步，即世界空间。图 9.1 说明了转换和流程。
 
 <Figure
-  src={require("../figures/025.jpg")}
+  src={require("./9_1.jpg")}
   num="9.1"
   desc="从物体空间移动到眼睛空间再到剪辑空间"
+  edge="white"
 />
 
 复杂的 3D 场景可能在一个场景中包含数百个不同的对象。每个对象都需要表示为相对于世界空间中的原点的位置。在苹果的一个示例项目中，有数百个旋转立方体漂浮在太空中。这些立方体都是同一对象的实例，但它们具有自己独特的属性，例如颜色和位置。世界空间的目的是在这个空间内组合这些对象，就像放置顶点来组合对象一样。
@@ -24,29 +28,48 @@
 
 视图矩阵将对象从世界空间转换到眼睛空间。此平移将原点从对象的中间重新定向到相机位置。通常，模型矩阵和视图矩阵被组合成模型-视图矩阵。尽管模型视图矩阵是任何实现 3D 的 Metal 程序的必要组件，但 Metal 并不包含其内置实例。它并不假定知道你将如何选择放置对象，因此它让你自行决定。以下实现只是如何实现模型视图矩阵的一个示例：
 
-struct Matrix4x4 { var X: Vector4 var Y: Vector4 var Z: Vector4 var W: Vector4
-
-init() { X = Vector4(x: 1, y: 0, z: 0, w: 0) Y = Vector4(x: 0, y: 1, z: 0, w: 0) Z = Vector4(x: 0, y: 0, z: 1, w: 0) W = Vector4(x: 0, y: 0, z: 0, w: 1) }
-
-static func spinAboutAxis(\_ axis: Vector4, byAngle 角度: Float32) -> Matrix4x4 { var mat = Matrix4x4()
-
-令 c = cos(角度)
-
-让 s = sin(角度)
-
-mat.X.x = axis.x _ axis.x + (1 - axis.x _ axis.x) _ c mat.X.y = axis.x _ axis.y _ (1 - c) - axis.z _ s 垫 X.z = 轴.x _ 轴.z _ (1 - c) + 轴.y \* s
-
-mat.Y.x = axis.x _ axis.y _ (1 - c) + axis.z _ s mat.Y.y = axis.y _ axis.y + (1 - axis.y _ axis.y) _ c Y.z = 轴.y _ 轴.z _ (1 - c) - 轴.x \* s
-
-mat.Z.x = axis.x _ axis.z _ (1 - c) - axis.y _ s mat.Z.y = axis.y _ axis.z _ (1 - c) + axis.x _ s mat.Z.z =轴.z _ 轴.z + (1 - 轴.z _ 轴.z) \* c
-
-返回垫 } }
+```swift
+struct Matrix4x4
+{
+    var X: Vector4
+    var Y: Vector4
+    var Z: Vector4
+    var W: Vector4
+    init()
+    {
+        X = Vector4(x: 1, y: 0, z: 0, w: 0)
+        Y = Vector4(x: 0, y: 1, z: 0, w: 0)
+        Z = Vector4(x: 0, y: 0, z: 1, w: 0)
+        W = Vector4(x: 0, y: 0, z: 0, w: 1)
+    }
+    static func rotationAboutAxis(_ axis: Vector4,
+                                  byAngle angle: Float32) -> Matrix4x4 {
+        var mat = Matrix4x4()
+        let c = cos(angle)
+                let s = sin(angle)
+        mat.X.x = axis.x * axis.x + (1 - axis.x * axis.x) * c
+        mat.X.y = axis.x * axis.y * (1 - c) - axis.z * s
+        mat.X.z = axis.x * axis.z * (1 - c) + axis.y * s
+        mat.Y.x = axis.x * axis.y * (1 - c) + axis.z * s
+        mat.Y.y = axis.y * axis.y + (1 - axis.y * axis.y) * c
+        mat.Y.z = axis.y * axis.z * (1 - c) - axis.x * s
+        mat.Z.x = axis.x * axis.z * (1 - c) - axis.y * s
+        mat.Z.y = axis.y * axis.z * (1 - c) + axis.x * s
+        mat.Z.z = axis.z * axis.z + (1 - axis.z * axis.z) * c
+        return mat
+    }
+}
+```
 
 该结构代表一个矩阵对象。它使用单位矩阵进行初始化，这是计算机图形学中矩阵的安全默认值。然后，你可以将默认值更改为基于程序员传入的轴和角度将轴计算为旋转角度的值。此操作会重置单位矩阵以创建一个新矩阵，为顶点着色器提供将对象从对象空间转换到眼睛空间所需的信息。
 
 要实现这些更改，你需要选择旋转角度和旋转轴：
 
-var spinAngle: Float32 = 0 让 yAxis = Vector4(x: 0, y: -1, z: 0, w: 0) var modelViewMatrix = Matrix4x4.rotationAboutAxis(yAxis, byAngle: 旋转角度)
+```swift
+var rotationAngle: Float32 = 0
+let yAxis = Vector4(x: 0, y: -1, z: 0, w: 0)
+var modelViewMatrix = Matrix4x4.rotationAboutAxis(yAxis, byAngle: rotationAngle)
+```
 
 ### GLM 和其他数学库
 
@@ -57,9 +80,11 @@ var spinAngle: Float32 = 0 让 yAxis = Vector4(x: 0, y: -1, z: 0, w: 0) var mode
 现在你已成功将原点转换为世界空间，你需要确定哪些对象主动出现在屏幕上。图 9.2 说明了视锥体如何确定剪辑空间内的内容。回想一下商店演练的例子。当你穿过商店时，你会经过货架。这些架子以一种不会根据相机朝向的位置而改变的方式相互存在，因此你有两个独立的原点。当这些架子不在你的视野中时，它们不会停止存在，但渲染当前不可见的对象将是对处理时间的严重浪费。平均而言，你只需 16 毫秒即可渲染每一帧。你希望将每一毫秒都奉献给人们会看到的事情。为此，你需要另一个矩阵来确定当前对象是否可见。该矩阵是*投影矩阵*。
 
 <Figure
-  src={require("../figures/026.jpg")}
+  src={require("./9_2.jpg")}
   num="9.2"
   desc="将对象从眼睛空间转换到剪辑空间的视锥体"
+  size={420}
+  edge="white"
 />
 
 有两种不同的方法可以实现投影矩阵：
@@ -67,19 +92,43 @@ var spinAngle: Float32 = 0 让 yAxis = Vector4(x: 0, y: -1, z: 0, w: 0) var mode
 - **正交**丢弃场景中的所有深度感知并将其渲染为纯 2D。尽管正交投影是一种选择，但你更可能想要创建透视投影矩阵。
 - **透视**投影矩阵将远处的物体渲染得更小，并保持所构建的世界空间的总体感觉。投影矩阵示例如下：
 
-struct Matrix4x4 { var X: Vector4 var Y: Vector4 var Z: Vector4 var W: Vector4
+```swift
+struct Matrix4x4
+{
+    var X: Vector4
+    var Y: Vector4
+    var Z: Vector4
+    var W: Vector4
 
-init() { X = Vector4(x: 1, y: 0, z: 0, w: 0) Y = Vector4(x: 0, y: 1, z: 0, w: 0) Z = Vector4(x: 0, y: 0, z: 1, w: 0) W = Vector4(x: 0, y: 0, z: 0, w: 1) }
+    init()
+    {
+        X = Vector4(x: 1, y: 0, z: 0, w: 0)
+        Y = Vector4(x: 0, y: 1, z: 0, w: 0)
+        Z = Vector4(x: 0, y: 0, z: 1, w: 0)
+        W = Vector4(x: 0, y: 0, z: 0, w: 1)
+    }
+    static func perspectiveProjection(_ aspect: Float32,
+                                      fieldOfViewY: Float32,
+                                      near: Float32,
+                                      far: Float32
+    ) -> Matrix4x4 {
+        var mat = Matrix4x4()
+        let fovRadians = fieldOfViewY * Float32(M_PI / 180.0)
+        let yScale = 1 / tan(fovRadians * 0.5)
+        let xScale = yScale / aspect
+        let zRange = far - near
+        let zScale = -(far + near) / zRange
+        let wzScale = -2 * far * near / zRange
 
-static func 透视投影（\_方面：Float32，fieldOfViewY：Float32，近：Float32，远：Float32） - > Matrix4x4 { var mat = Matrix4x4（）
-
-让 fovRadians = fieldOfViewY \* Float32(M_PI / 180.0)
-
-让 yScale = 1 / tan(fovRadians _ 0.5) 让 xScale = yScale / 方面 让 zRange = 远 - 近 让 zScale = -(远 + 近) / zRange 让 wzScale = -2 _ 远 \* 近 / zRange
-
-mat.X.x = xScale mat.Y.y = yScale mat.Z.z = zScale mat.Z.w = -1 mat.W.z = wzScale
-
-返回垫； } }
+        mat.X.x = xScale
+        mat.Y.y = yScale
+        mat.Z.z = zScale
+        mat.Z.w = -1
+        mat.W.z = wzScale
+        return mat;
+    }
+}
+```
 
 投影矩阵需要四部分信息才能正确计算：
 
@@ -90,13 +139,23 @@ mat.X.x = xScale mat.Y.y = yScale mat.Z.z = zScale mat.Z.w = -1 mat.W.z = wzScal
 
 为了获得一个合适的投影矩阵，如图 9.3 所示，你需要获取当前可绘制对象的纵横比并将其传递到投影矩阵中。
 
-<Figure src={require("../figures/027.jpg")} num="9.3" desc="精确的透视矩阵" />
+<Figure
+  src={require("./9_3.jpg")}
+  num="9.3"
+  desc="精确的透视矩阵"
+  size={420}
+  edge="white"
+/>
 
-让方面 = Float32(metalLayer.drawableSize.width) / Float32(metalLayer.drawableSize.height)
+```swift
+let aspect = Float32(metalLayer.drawableSize.width) / Float32(metalLayer.drawableSize.height)
+let projectionMatrix = Matrix4x4.perspectiveProjection(aspect,
+                                                       fieldOfViewY: 60,
+                                                       near: 0.1,
+                                                       far: 100.0)
+```
 
-让 projectionMatrix = Matrix4x4.perspectiveProjection（方面，fieldOfViewY：60，近：0.1，远：100.0）
-
-现在你已经有了一个面向世界和相机空间的场景，你需要将计算机图形编程中最重要的东西应用到它上面：照明。
+现在你已经有了一个面向世界和相机空间的场景，你需要将计算机图形编程中最重要的东西应用到它上面：lighting。
 
 ## 着色模型
 
@@ -117,9 +176,11 @@ mat.X.x = xScale mat.Y.y = yScale mat.Z.z = zScale mat.Z.w = -1 mat.W.z = wzScal
 Gouraud 着色取决于插值，如图 9.4 所示。该算法获取每个顶点的光照，权衡每个顶点与其着色点的接近程度，并为其分配权重。然后，它根据该点相对于光源的位置来计算该点应具有多少照明。你在第 5 章“着色器简介”中实现的着色器使用了 Gouraud 着色，因为照明是按顶点计算的。
 
 <Figure
-  src={require("../figures/028.jpg")}
+  src={require("./9_4.jpg")}
   num="9.4"
   desc="Gouraud 着色中照明的线性插值"
+  size={420}
+  edge="white"
 />
 
 ### Phong 阴影
@@ -127,9 +188,11 @@ Gouraud 着色取决于插值，如图 9.4 所示。该算法获取每个顶点�
 Phong 着色甚至比 Gouraud 着色更好。它不是计算每个顶点的照明，而是计算每个片段的照明，如图 9.5 所示 Phong 着色也依赖于线性插值，但它不仅仅依赖于每个顶点的照明。它根据插值法线和反射模型计算像素颜色 Phong 着色使用线性插值，而不是跨多边形插值。
 
 <Figure
-  src={require("../figures/029.jpg")}
+  src={require("./9_5.jpg")}
   num="9.5"
   desc="Phong 着色中照明的线性插值。这种方法更准确，但需要更多处理。"
+  size={420}
+  edge="white"
 />
 
 Phong 着色比 Gouraud 着色更好，但它也更消耗处理器资源。特别是对于具有小镜面高光的反射模型，Phong 着色比 Gouraud 着色效果要好得多。如果你有特别大的多边形，并且镜面反射击中脸部的中间而不是任何顶点，则 Gouraud 着色模型将不会记录有要渲染的高光，并且高光将完全被渲染。丢失的。
@@ -170,7 +233,12 @@ Phong 着色比 Gouraud 着色更好，但它也更消耗处理器资源。特�
 
 要减慢汽车速度，你可以使用缓出功能。缓动方程使你能够模拟自然的运动。
 
-<Figure src={require("../figures/030.jpg")} num="9.6" desc="动画的缓入和缓出" />
+<Figure
+  src={require("./9_6.jpg")}
+  num="9.6"
+  desc="动画的缓入和缓出"
+  edge="white"
+/>
 
 ## 概括
 

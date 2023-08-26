@@ -2,7 +2,7 @@
 
 <Wisdom
   words="一个原创的想法。这不会太难。图书馆里一定充满了它们。"
-  author="史蒂芬·弗莱"
+  author="Stephen Fry"
 />
 
 当你从简单的应用程序转向更复杂的应用程序时，你开始需要更多且不同的着色器。尽管你已经阅读并使用了着色器，但你尚未学会如何以逻辑方式组织大量着色器。本章概述 Metal 如何存储、编译和访问着色器。
@@ -19,7 +19,12 @@
 
 你知道，当你在 Xcode 中构建或运行程序时，你正在编译代码。这与 JavaScript 等在运行时解释代码的语言不同。当你触发代码构建时，Xcode 会触发 Metal 前端编译器，类似于 C、C++ 和 Objective-C 中使用的 Clang 编译器。该编译器将你的源代码转换为抽象语法树（AST）。编译器从这棵树中创建一个中间表示（IR）。这是两阶段编译过程的第一步，如图 7.1 所示。
 
-<Figure src={require("../figures/021.jpg")} num="7.1" desc="两阶段编译架构" />
+<Figure
+  src={require("./7_1.jpg")}
+  num="7.1"
+  desc="两阶段编译架构"
+  edge="white"
+/>
 
 获得 IR 并不意味着你的代码已准备就绪。多个 GPU 支持 Metal，并且每个 GPU 都有自己独特的指令集。编译过程的第二阶段是获取此 IR 并将其转换为每个 GPU 的特定机器代码。第二阶段是在程序运行的特定设备上完成的。它采用 IR 并构建特定于 GPU 的后端命令。
 
@@ -35,19 +40,30 @@
 
 在某些情况下，你需要创建一个函数而无法添加 .metal 文件。一个例子是，如果你正在为 Unity 之类的东西创建插件。在这种情况下，你可以从文本文件创建着色器，该文本文件将被编译并添加到默认库中 MTLDevice 上同步执行该操作的方法如下：
 
-func makeLibrary(filepath: String) 抛出 -> MTLLibrary
+```swift
+func makeLibrary(filepath: String) throws -> MTLLibrary
+```
 
 此代码的变体允许使用完成处理程序创建异步库：
 
-func makeLibrary（来源：String，选项：MTLCompileOptions？，completionHandler：@escaping MTLNewLibraryCompletionHandler）
+```swift
+func makeLibrary(source: String,
+                 options: MTLCompileOptions?,
+                 completionHandler: @escaping MTLNewLibraryCompletionHandler)
+```
 
 ### 从库加载函数
 
 成功创建一个库是一个很好的第一步，但如果你不能将这些功能集成到你的应用程序中，那么它不会给你带来任何好处。本节介绍如何将默认库中的函数加载到应用程序中 `MTLLibrary` 有一个名为 makeFunction 的方法：
 
-Guard letfragmentProgram = defaultLibrary.makeFunction( name: "lightingFragment") else {return}
-
-guard let vertexProgram = defaultLibrary.makeFunction( name: "lightingVertex") else {return}
+```swift
+guard let fragmentProgram = defaultLibrary.makeFunction(name: "lightingFragment") else {
+    return
+}
+guard let vertexProgram = defaultLibrary.makeFunction(name: "lightingVertex") else {
+    return
+}
+```
 
 此方法是从默认库中提取特定函数的最简单方法 makeFunction 方法采用一个表示默认库中函数名称的字符串。如果你使用渲染器，则需要提取顶点和片段函数。如果你做计算，你需要拉出一个核函数。
 
@@ -70,7 +86,12 @@ MTLDevice 有一个装载有命令编码器的命令队列。每个编码器执�
 
 拥有 Metal 函数库固然很棒，但你需要一种方法将它们添加到渲染管道中。这是通过使用 MTLRenderPipelineDescriptor 对象来完成的 MTLRenderPipelineDescriptor 指定渲染通道期间使用的渲染配置状态，包括光栅化（例如多重采样）、可见性、混合、曲面细分和图形函数状态。以下是 MTLRenderPipelineDescriptor 的示例：
 
-让 pipelineStateDescriptor = MTLRenderPipelineDescriptor() pipelineStateDescriptor.vertexFunction = vertexProgram pipelineStateDescriptor.fragmentFunction = fragmentProgram pipelineStateDescriptor.vertexDescriptor = vertexDescriptor
+```swift
+let pipelineStateDescriptor = MTLRenderPipelineDescriptor()
+pipelineStateDescriptor.vertexFunction = vertexProgram
+pipelineStateDescriptor.fragmentFunction = fragmentProgram
+pipelineStateDescriptor.vertexDescriptor = vertexDescriptor
+```
 
 设置管道状态的第一件事是指定你正在使用默认库中的哪个顶点和片段程序。设置管道状态描述符后，需要使用它来初始化渲染管道状态。
 
@@ -78,7 +99,13 @@ MTLDevice 有一个装载有命令编码器的命令队列。每个编码器执�
 
 指定将进入管道状态的所有内容后，你需要将其添加到渲染管道中。此过程可能会失败，因此需要将其包含在 do-try-catch 块中。
 
-do { try pipelineState = device.makeRenderPipelineState(descriptor: pipelineStateDescriptor) } catch let error { print("创建管道状态失败，错误\(error)") }
+```swift
+do {
+    try pipelineState = device.makeRenderPipelineState(descriptor: pipelineStateDescriptor)
+} catch let error {
+    print("Failed to create pipeline state, error \(error)")
+}
+```
 
 ## 管道反射
 
@@ -88,7 +115,7 @@ do { try pipelineState = device.makeRenderPipelineState(descriptor: pipelineStat
 - 函数类型
 - 顶点属性
 
-该列表不包括着色器或计算函数参数的详细信息。这些参数必须使用 MTLRenderPipelineReflection 或 MTLComputePipelineReflection 获取 MTLRenderPipelineReflection 只有两个属性：vertexArguments 和 fragmentArguments。两者都是 MTLArgument 对象的可选数组。如果你需要访问传递给顶点或片段着色器的任何参数，则必须通过管道反射访问它们，而不是直接从 `MTLFunction` 访问它们。
+该列表不包括着色器或计算函数参数的详细信息。这些参数必须使用 `MTLRenderPipelineReflection` 或 `MTLComputePipelineReflection` 获取 `MTLRenderPipelineReflection` `只有两个属性：vertexArguments` 和 `fragmentArguments`。两者都是 `MTLArgument` 对象的可选数组。如果你需要访问传递给顶点或片段着色器的任何参数，则必须通过管道反射访问它们，而不是直接从 `MTLFunction` 访问它们。
 
 ## 概括
 

@@ -1,6 +1,6 @@
 # 2D 绘图
 
-<Wisdom words="从头开始，一直走到终点；然后停下来。" author="刘易斯·卡罗尔" />
+<Wisdom words="从头开始，一直走到终点；然后停下来。" author="Lewis Carroll" />
 
 虽然 Metal 主要被称为 3D 图形框架，但它也可以通过 GPGPU 编程将 2D 图像渲染到屏幕上。
 
@@ -20,9 +20,10 @@
 本章将引导你了解如何创建初始数据集、对其进行处理，并将其通过图 8.1 中所示的管道传递，直到将其呈现在屏幕上。
 
 <Figure
-  src={require("../figures/022.jpg")}
+  src={require("./8_1.jpg")}
   num="8.1"
   desc="Metal 图形渲染管线"
+  edge="white"
 />
 
 ## 示例项目：建造一颗星星
@@ -44,32 +45,53 @@
 星星由 10 个不同的三角形组成。外面的 5 个三角形很明显，但不太明显的是组合在一起形成中间星形的 5 个三角形。
 
 <Figure
-  src={require("../figures/023.jpg")}
+  src={require("./8_2.jpg")}
   num="8.2"
   desc="由三角形和顶点构成的星形"
+  size={420}
+  edge="white"
 />
 
 首先，为顶点数据创建一个浮点数组：
 
-let vertexData:[Float] = [ // 内部三角形 0.0, 0.0, 0.0, 1.0, -0.2, 0.2, 0.0, 1.0, 0.2, 0.2, 0.0, 1.0,
+```cpp
+let vertexData:[Float] =
+    [
+        // Internal Triangles
+        0.0, 0.0, 0.0, 1.0,
+        -0.2, 0.2, 0.0, 1.0,
+        0.2, 0.2, 0.0, 1.0,
+        0.0, 0.0, 0.0, 1.0,
+        0.2, 0.2, 0.0, 1.0,
+        0.3, 0.0, 0.0, 1.0,
+        0.0, 0.0, 0.0, 1.0,
+        0.3, 0.0, 0.0, 1.0,
+        0.0, -0.2, 0.0, 1.0,
+        0.0, 0.0, 0.0, 1.0,
+        0.0, -0.2, 0.0, 1.0,
+        -0.3, 0.0, 0.0, 1.0,
+        0.0, 0.0, 0.0, 1.0,
+        -0.3, 0.0, 0.0, 1.0,
+        -0.2, 0.2, 0.0, 1.0,
 
-0.0, 0.0, 0.0, 1.0, 0.2, 0.2, 0.0, 1.0, 0.3, 0.0, 0.0, 1.0,
-
-0.0, 0.0, 0.0, 1.0, 0.3, 0.0, 0.0, 1.0, 0.0, -0.2, 0.0, 1.0,
-
-0.0, 0.0, 0.0, 1.0, 0.0, -0.2, 0.0, 1.0, -0.3, 0.0, 0.0, 1.0,
-
-0.0, 0.0, 0.0, 1.0, -0.3, 0.0, 0.0, 1.0, -0.2, 0.2, 0.0, 1.0,
-
-// 外三角形 0.0, 0.6, 0.0, 1.0, -0.2, 0.2, 0.0, 1.0, 0.2, 0.2, 0.0, 1.0,
-
-0.6, 0.2, 0.0, 1.0, 0.2, 0.2, 0.0, 1.0, 0.3, 0.0, 0.0, 1.0,
-
-0.6, -0.6, 0.0, 1.0, 0.0, -0.2, 0.0, 1.0, 0.3, 0.0, 0.0, 1.0,
-
--0.6, -0.4, 0.0, 1.0, 0.0, -0.2, 0.0, 1.0, -0.3, 0.0, 0.0, 1.0,
-
--0.6, 0.2, 0.0, 1.0, -0.2, 0.2, 0.0, 1.0, -0.3, 0.0, 0.0, 1.0]
+        // External Triangles
+        0.0, 0.6, 0.0, 1.0,
+        -0.2, 0.2, 0.0, 1.0,
+        0.2, 0.2, 0.0, 1.0,
+        0.6, 0.2, 0.0, 1.0,
+        0.2, 0.2, 0.0, 1.0,
+        0.3, 0.0, 0.0, 1.0,
+        0.6, -0.6, 0.0, 1.0,
+        0.0, -0.2, 0.0, 1.0,
+        0.3, 0.0, 0.0, 1.0,
+        -0.6, -0.4, 0.0, 1.0,
+        0.0, -0.2, 0.0, 1.0,
+        -0.3, 0.0, 0.0, 1.0,
+        -0.6, 0.2, 0.0, 1.0,
+        -0.2, 0.2, 0.0, 1.0,
+        -0.3, 0.0, 0.0, 1.0
+]
+```
 
 即使有 10 个三角形和 11 个顶点，你也需要指定每组三角形。前 12 个值代表星形中间的 1 个三角形。
 
@@ -85,25 +107,43 @@ let vertexData:[Float] = [ // 内部三角形 0.0, 0.0, 0.0, 1.0, -0.2, 0.2, 0.0
 
 由于目标是使尖端为红色，而星形的其余部分为白色，因此还要指定顶点的颜色数据。
 
-let vertexColorData:[Float] = [ // 内部三角形 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0,
+```swift
+let vertexColorData:[Float] =     [
+        // Internal Triangles
+        1.0, 1.0, 1.0, 1.0,
+        1.0, 1.0, 1.0, 1.0,
+        1.0, 1.0, 1.0, 1.0,
+        1.0, 1.0, 1.0, 1.0,
+        1.0, 1.0, 1.0, 1.0,
+        1.0, 1.0, 1.0, 1.0,
+        1.0, 1.0, 1.0, 1.0,
+        1.0, 1.0, 1.0, 1.0,
+        1.0, 1.0, 1.0, 1.0,
+        1.0, 1.0, 1.0, 1.0,
+        1.0, 1.0, 1.0, 1.0,
+        1.0, 1.0, 1.0, 1.0,
+        1.0, 1.0, 1.0, 1.0,
+        1.0, 1.0, 1.0, 1.0,
+        1.0, 1.0, 1.0, 1.0,
 
-1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0,
-
-1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0,
-
-1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0,
-
-1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0,
-
-// 外三角形 1.0, 0.0, 0.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0,
-
-1.0, 0.0, 0.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0,
-
-1.0, 0.0, 0.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0,
-
-1.0, 0.0, 0.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0,
-
-1.0, 0.0, 0.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0]
+        // External Triangles
+        1.0, 0.0, 0.0, 1.0,
+        1.0, 1.0, 1.0, 1.0,
+        1.0, 1.0, 1.0, 1.0,
+        1.0, 0.0, 0.0, 1.0,
+        1.0, 1.0, 1.0, 1.0,
+        1.0, 1.0, 1.0, 1.0,
+        1.0, 0.0, 0.0, 1.0,
+        1.0, 1.0, 1.0, 1.0,
+        1.0, 1.0, 1.0, 1.0,
+        1.0, 0.0, 0.0, 1.0,
+        1.0, 1.0, 1.0, 1.0,
+        1.0, 1.0, 1.0, 1.0,
+        1.0, 0.0, 0.0, 1.0,
+        1.0, 1.0, 1.0, 1.0,
+        1.0, 1.0, 1.0, 1.0
+]
+```
 
 所有内部三角形的所有顶点都是白色的。在外部三角形中，只有点被着色，因此这些值在顶点的 RGB 值中被拒绝。
 
@@ -129,7 +169,7 @@ Metal 有一组原始对象，包含在 MTLPrimitiveType 枚举中：
 
 - 从技术上讲，_线_ 是线段，而不是连续延伸的线。一条线由两个顶点定义。如果在命令缓冲区中输入多行，它们将不会连接。
 
-如果你希望连接线，请将它们创建为*线带*。你输入所有顶点
+如果你希望连接线，请将它们创建为 _线带_。你输入所有顶点
 
 按照你希望绘制的顺序在条带的缓冲区中，顶点着色器将连接它们。
 
@@ -147,11 +187,11 @@ Metal 有一组原始对象，包含在 MTLPrimitiveType 枚举中：
 
 MetalKit 的创建简化了这个过程，而不是记住所有这些东西并编写相同的代码 MetalKit 提供了 CALayer、Metal-aware 视图、MKView。
 
-要使用 MetalKit，你需要使你的 UIViewController 符合 MTKViewDelegate 协议。这个协议相当简单。它有两个职责：
+要使用 MetalKit，你需要使你的 `UIViewController` 符合 `MTKViewDelegate` 协议。这个协议相当简单。它有两个职责：
 
 - 更改视图的布局 - 绘制视图的内容
 
-当应用程序通知布局、分辨率或大小发生变化时，drawableSizeWillChange() 负责响应可绘制尺寸即将发生的变化。即使将其留空，此方法也是必需的。
+当应用程序通知布局、分辨率或大小发生变化时，`drawableSizeWillChange()` 负责响应可绘制尺寸即将发生的变化。即使将其留空，此方法也是必需的。
 
 draw() 完全按照它所说的那样做。它负责绘制视图的内容。
 
@@ -159,19 +199,25 @@ draw() 完全按照它所说的那样做。它负责绘制视图的内容。
 
 ## 检索可绘制对象
 
-MTLDrawable 是一个表示可显示资源的对象，在渲染后可以向该资源发送绘图命令。这是完成渲染编码器编码后需要执行的最后一步，本章稍后将对此进行介绍。
+`MTLDrawable` 是一个表示可显示资源的对象，在渲染后可以向该资源发送绘图命令。这是完成渲染编码器编码后需要执行的最后一步，本章稍后将对此进行介绍。
 
-设置完要发送到渲染器的所有命令后，你需要某个地方来发送结果。那就是 MTLDrawable。
+设置完要发送到渲染器的所有命令后，你需要某个地方来发送结果。那就是 `MTLDrawable`。
 
-该协议上唯一的方法是 present()。你可以立即呈现，也可以将给定时间作为参数传递。
+该协议上唯一的方法是 `present()`。你可以立即呈现，也可以将给定时间作为参数传递。
 
-MTLDrawable 作为 MTKView 上的一个属性存在，因此你不必直接自行初始化它。相反，你可以通过从 MTKView 的 currentDrawable 属性中检索对可绘制对象的引用：
+`MTLDrawable` 作为 `MTKView` 上的一个属性存在，因此你不必直接自行初始化它。相反，你可以通过从 `MTKView` 的 `currentDrawable` 属性中检索对可绘制对象的引用：
 
-如果让 renderPassDescriptor = view.currentRenderPassDescriptor, 让 currentDrawable = view.currentDrawable { }
+```swift
+if let renderPassDescriptor = view.currentRenderPassDescriptor,
+    let currentDrawable = view.currentDrawable {
+}
+```
 
-将所有命令编码到渲染编码器后，你可以调用 present()：
+将所有命令编码到渲染编码器后，你可以调用 `present()`：
 
+```swift
 commandBuffer.present(currentDrawable)
+```
 
 ## 创建命令缓冲区
 
@@ -179,11 +225,14 @@ MTLCommandBuffer 是一组由 GPU 执行的命令。你需要安排和调度的�
 
 MTLCommandBuffer 负责创建命令编码器。命令编码器有四种风格：
 
-- MTLRenderCommandEncoder - MTLComputeCommandEncoder - MTLBlitCommandEncoder - MTLParallelRenderCommandEncoder
+- MTLRenderCommandEncoder
+- MTLComputeCommandEncoder
+- MTLBlitCommandEncoder
+- MTLParallelRenderCommandEncoder
 
 在任何给定时间点，只有一个命令编码器可以对命令缓冲区处于活动状态。可以创建多个命令编码器来将任务添加到缓冲区，但你需要先结束当前编码器的编码过程，然后才能创建另一个编码器。
 
-要将任务添加到命令队列，你需要使用 enqueue() 方法将它们排入队列。你可以根据需要将尽可能多的任务排入队列，然后通过调用 commit() 方法向编译器发出信号，表明你已完成。调用 commit() 告诉命令队列命令缓冲区不会有任何额外的命令编码到其中并准备好调度。
+要将任务添加到命令队列，你需要使用 `enqueue()` 方法将它们排入队列。你可以根据需要将尽可能多的任务排入队列，然后通过调用 commit() 方法向编译器发出信号，表明你已完成。调用 commit() 告诉命令队列命令缓冲区不会有任何额外的命令编码到其中并准备好调度。
 
 ## 创建命令编码器
 
@@ -191,16 +240,19 @@ MTLCommandBuffer 负责创建命令编码器。命令编码器有四种风格：
 
 你必须执行许多步骤才能使用命令编码器设置渲染通道：
 
-1. 创建一个 MTLRenderCommandEncoder 来配置你的渲染命令。
-2. 调用 setRenderPipelineState() 方法指定一个 MTLRenderPipelineState。渲染管道状态对象包含影响渲染的各种状态。由于是不可变的，它不会随着时间的推移真正跟踪任何内容。
+1. 创建一个 `MTLRenderCommandEncoder` 来配置你的渲染命令。
+2. 调用 `setRenderPipelineState()` 方法指定一个 `MTLRenderPipelineState`。渲染管道状态对象包含影响渲染的各种状态。由于是不可变的，它不会随着时间的推移真正跟踪任何内容。
 3. 指定这些顶点和片段函数的输入和输出资源。
 4. 指定任何其他固定功能状态。
 5. 绘制图元。
-6. 调用 endEncoding() 终止渲染命令编码器。
+6. 调用 `endEncoding()` 终止渲染命令编码器。
 
-因为这是一个绘图应用程序，所以本章介绍的是 MTLRenderCommandEncoder。每次调用 makeRenderCommandEncoder 时都会获得一个新的命令编码器，并且命令缓冲区之后不会存储它。它可以这样创建：
+因为这是一个绘图应用程序，所以本章介绍的是 `MTLRenderCommandEncoder`。每次调用 `makeRenderCommandEncoder` 时都会获得一个新的命令编码器，并且命令缓冲区之后不会存储它。它可以这样创建：
 
-让 renderEncoder = commandBuffer.makeRenderCommandEncoder( 描述符: renderPassDescriptor)
+```swift
+let renderEncoder = commandBuffer.makeRenderCommandEncoder(
+                        descriptor: renderPassDescriptor)
+```
 
 渲染命令编码器是从 API 调用转换为 GPU 原生命令的中间人。渲染通道描述符描述了渲染通道要渲染的纹理集，即由此处创建的渲染命令编码器执行的渲染通道。
 
@@ -208,43 +260,58 @@ MTLCommandBuffer 负责创建命令编码器。命令编码器有四种风格：
 
 对于这个简单的项目，你创建以下附件：
 
-让 renderEncoder = commandBuffer.makeRenderCommandEncoder( 描述符: renderPassDescriptor) renderEncoder.label = "渲染编码器"
+```swift
+let renderEncoder = commandBuffer.makeRenderCommandEncoder(
+                        descriptor: renderPassDescriptor)
+renderEncoder.label = "render encoder"
+renderEncoder.pushDebugGroup("draw morphing star")
+renderEncoder.setRenderPipelineState(pipelineState)
+renderEncoder.setVertexBuffer(vertexBuffer, offset: 256*bufferIndex, at: 0)
+renderEncoder.setVertexBuffer(vertexColorBuffer, offset:0 , at: 1)
+renderEncoder.drawPrimitives(type: .triangleStrip,
+                             vertexStart: 0,
+                             vertexCount: 10,
+                             instanceCount: 1)
+renderEncoder.popDebugGroup()
+renderEncoder.endEncoding()
+```
 
-renderEncoder.pushDebugGroup("绘制变形之星") renderEncoder.setRenderPipelineState(pipelineState) renderEncoder.setVertexBuffer(vertexBuffer, offset: 256\*bufferIndex, at: 0) renderEncoder.setVertexBuffer(vertexColorBuffer, offset:0 , at: 1) renderEncoder.drawPrimitives （类型：.triangleStrip，vertexStart：0，vertexCount：10，instanceCount：1）
-
-renderEncoder.popDebugGroup() renderEncoder.endEncoding()
-
-创建渲染编码器后，你将指定渲染管道状态是你为项目的其余部分创建的状态。如果你需要回顾一下管道状态的含义，请参阅第 3 章“你的第一个 Metal 应用程序（Hello Triangle！）”中的“库、函数和管道状态”。
+创建渲染编码器后，你将指定渲染管道状态是你为项目的其余部分创建的状态。如果你需要回顾一下管道状态的含义，请参阅第 3 章“你的第一个 Metal 应用程序”中的“库、函数和管道状态”。
 
 之后，你需要指定顶点和片段函数的资源。有两个顶点缓冲区，一个用于顶点的位置，另一个用于每个顶点的颜色，因此你需要在代码中设置这两个缓冲区。
 
 你需要传递给编码器的最后一件事是你需要绘制的图元。你将在项目开始时创建的三角形带传递到要绘制的渲染队列中。
 
-现在你已完成向编码器发送命令，你需要通过调用 endEncoding() 让它知道它已收到最后一个命令。
+现在你已完成向编码器发送命令，你需要通过调用 `endEncoding()` 让它知道它已收到最后一个命令。
 
 ## 命令编码器上的固定功能状态
 
-如果你在 OpenGL ES 1.1 时代，你就会知道 OpenGL EW 曾经拥有所谓的*固定功能管道*。没有片段或顶点着色器。回想一下，你已经在渲染通道描述符上设置了很多这种状态，并且它现在存在于管道状态对象中经过预先验证。然而，与在发出绘制调用之前在渲染命令编码器上设置某些属性相比，可以更灵活地设置某些状态。你可能会觉得这些功能就像恐龙一样，但事实并非如此。
+如果你在 OpenGL ES 1.1 时代，你就会知道 OpenGL EW 曾经拥有所谓的 _固定功能管道_。没有片段或顶点着色器。回想一下，你已经在渲染通道描述符上设置了很多这种状态，并且它现在存在于管道状态对象中经过预先验证。然而，与在发出绘制调用之前在渲染命令编码器上设置某些属性相比，可以更灵活地设置某些状态。你可能会觉得这些功能就像恐龙一样，但事实并非如此。
 
 MetalKit 实现并使用其中一些状态来使简单的事情变得更容易。
 
 如果你在 Xcode 中创建 Metal 模板后直接运行它，你会在视图中看到一个浮动三角形。代码没有显式设置任何这些状态，那么为什么着色仍然有效呢？
 
-renderPassDescriptor 便捷方法创建一个 MTLRenderPassDescriptor 对象，该对象具有颜色、深度和模板附件属性以及默认附件状态。即使你从未设置过这些状态，你也可以“免费”获得它们。
+`renderPassDescriptor` 便捷方法创建一个 `MTLRenderPassDescriptor` 对象，该对象具有颜色、深度和模板附件属性以及默认附件状态。即使你从未设置过这些状态，你也可以“免费”获得它们。
 
 MTKView 管理一组可渲染纹理（包括颜色渲染目标和深度渲染目标），这些纹理在为你生成的渲染通道描述符上设置。此外，这些固定功能属性不是在渲染通道描述符上设置的，而是在渲染命令编码器本身上设置的。
 
-- setBlendColor - setCullMode - setTriangleFillMode - setFrontFacing - setScissorRect - setRenderPipelineState
+- setBlendColor
+- setCullMode
+- setTriangleFillMode
+- setFrontFacing
+- setScissorRect
+- setRenderPipelineState
 
 其中一些状态（例如混合颜色）允许你在一定程度上自定义绘图。其中一些（例如正面）允许你通过不绘制用户永远看不到的对象来优化代码。
 
-你必须使用的一个是 setRenderPipelineState()。你需要确保你完成的设置渲染管道状态的所有工作都与命令编码器相关联。设置渲染管道状态告诉渲染命令编码器使用哪个顶点和片段函数进行绘制，以及其他预先验证的状态。
+你必须使用的一个是 `setRenderPipelineState()`。你需要确保你完成的设置渲染管道状态的所有工作都与命令编码器相关联。设置渲染管道状态告诉渲染命令编码器使用哪个顶点和片段函数进行绘制，以及其他预先验证的状态。
 
 ## 将数据传递给着色器
 
 渲染过程的下一步涉及将数据发送到着色器。
 
-每个图形程序都需要有两种不同类型的着色器：_vertex_ 和*fragment*。这两个程序是同一枚硬币的两面。它们不是独立的组件，而是共同协作将图像渲染到屏幕上的合作伙伴。
+每个图形程序都需要有两种不同类型的着色器：_vertex_ 和 _fragment_。这两个程序是同一枚硬币的两面。它们不是独立的组件，而是共同协作将图像渲染到屏幕上的合作伙伴。
 
 顶点着色器负责程序中每个顶点的颜色和位置。它从你在数组中放入的顶点读取你在本章前面创建的缓冲区中的数据并对其进行操作。这些顶点描述了每个顶点的位置和颜色。
 
@@ -260,25 +327,37 @@ MTKView 管理一组可渲染纹理（包括颜色渲染目标和深度渲染目
 
 着色器可以采用三种不同类型的数据：
 
-- **Buffers** ：符合 MTLBuffer 协议 MTLBuffer 是未格式化的内存块，可以包含任何类型的数据- **纹理**：符合 MTLTexture 协议 MTLTextures 是格式化的图像数据- **采样器状态**：符合 MTLSamplerState 协议。采样器状态包含影响纹理采样方式的属性。
+- **Buffers** ：符合 MTLBuffer 协议 MTLBuffer 是未格式化的内存块，可以包含任何类型的数据。
+- **纹理**：符合 MTLTexture 协议 MTLTextures 是格式化的图像数据。
+- **采样器状态**：符合 MTLSamplerState 协议。采样器状态包含影响纹理采样方式的属性。
 
-要在着色器中使用资源，你需要某种方法在资源对象和着色器函数参数之间动态映射。该映射称为*参数表*。你可以拥有多个缓冲区以及缓冲区、纹理和采样器状态的组合，如图 8.3 所示。
+要在着色器中使用资源，你需要某种方法在资源对象和着色器函数参数之间动态映射。该映射称为 _参数表_。你可以拥有多个缓冲区以及缓冲区、纹理和采样器状态的组合，如图 8.3 所示。
 
 <Figure
-  src={require("../figures/024.jpg")}
+  src={require("./8_3.jpg")}
   num="8.3"
   desc="命令缓冲区和着色器之间通信的参数表"
+  edge="white"
 />
 
 参数表对于每种资源类型都有有限数量的槽，这限制了一次可以绑定每种类型的资源数量：
 
-- **缓冲区**：31 个条目的上限 - **纹理**：31 个条目的上限 - **采样器状态**：16 个条目的上限
+- **缓冲区**：31 个条目的上限
+- **纹理**：31 个条目的上限
+- **采样器状态**：16 个条目的上限
 
 参数表的索引为零，因此参数表中的第一个缓冲区将位于槽 0 中。
 
 明星项目有两个顶点缓冲区，一个用于位置，一个用于颜色。在编码器方面，看一下设置这些缓冲区的代码：
 
-renderEncoder.setVertexBuffer(vertexBuffer, offset: 256\*bufferIndex, at: 0) renderEncoder.setVertexBuffer(vertexColorBuffer, offset:0 , at: 1)
+```swift
+renderEncoder.setVertexBuffer(vertexBuffer,
+                              offset: 256*bufferIndex,
+                              at: 0)
+renderEncoder.setVertexBuffer(vertexColorBuffer,
+                              offset: 0,
+                              at: 1)
+```
 
 第一个顶点缓冲区放置在缓冲区参数表的第一个槽中。顶点颜色缓冲区插入到下一个槽中，并且位于索引 1 处。
 
@@ -286,23 +365,38 @@ renderEncoder.setVertexBuffer(vertexBuffer, offset: 256\*bufferIndex, at: 0) ren
 
 当你编写着色器时，你需要了解参数表将发送哪些参数。这就像一把锁和钥匙。如果着色器没有收到它期望的参数，那么它将无法工作。你需要将与参数表中的对象匹配的参数添加到方法签名中：
 
-顶点 VertexInOut passThroughVertex(uint vid [[vertex_id]], 常量 Packed_float4* 位置 [[buffer(0)]], 常量 Packed_float4* 颜色 [[buffer(1)]])
+```cpp
+vertex VertexInOut passThroughVertex(
+    uint vid [[ vertex_id ]],
+    constant packed_float4* position [[ buffer(0) ]],
+    constant packed_float4* color [[ buffer(1) ]]
+)
+```
 
 有关着色器和光栅化过程的更全面的说明，请参阅第 2 章“渲染和光栅图形概述”。
 
 ## 发出绘制调用
 
-在命令编码器中对所有命令进行编码后，需要触发渲染和光栅化过程，在 Metal 中，该事件是*draw call*。
+在命令编码器中对所有命令进行编码后，需要触发渲染和光栅化过程，在 Metal 中，该事件是 _draw call_。
 
 Metal 中的绘制调用需要指示 GPU 正在绘制哪种 MTLPrimitive 类型以及在顶点缓冲区中的何处开始和结束绘制。
 
-func drawPrimitives（类型 primitiveType：MTLPrimitiveType，vertexStart：Int，vertexCount：Int）
+```swift
+func drawPrimitives(type primitiveType: MTLPrimitiveType,
+                    vertexStart: Int,
+                    vertexCount: Int)
+```
 
 如果你想创建一个星形实例，你可以调用这个方法，它看起来像这样：
 
-renderEncoder.drawPrimitives（类型：.triangle，vertexStart：0，vertexCount：29，instanceCount：1）
+```swift
+renderEncoder.drawPrimitives(type: .triangle,
+                             vertexStart: 0,
+                             vertexCount: 29,
+                             instanceCount: 1)
+```
 
-如果你想绘制星星的轮廓，你可以再次调用 drawPrimitives，但指定一条线而不是三角形。如果你想简化创建中间一组三角形的过程，你可以将它们创建为三角形带。在这些原始类型中，有许多选项可供你使用。
+如果你想绘制星星的轮廓，你可以再次调用 `drawPrimitives`，但指定一条线而不是三角形。如果你想简化创建中间一组三角形的过程，你可以将它们创建为三角形带。在这些原始类型中，有许多选项可供你使用。
 
 还有不同类型的绘制调用。你可以使用实例绘图，第 10 章“高级 3D 绘图”中对此进行了解释。
 
@@ -318,7 +412,9 @@ renderEncoder.drawPrimitives（类型：.triangle，vertexStart：0，vertexCoun
 
 启动编号列表的最简单方法是复制/键入此现有列表或插入样板并键入它。用短语或句子导入列表。如果你使用完整的句子，请以冒号结尾。如果你使用一个短语但不是一个完整的句子，请不要使用冒号。编号列表应用于线性或有序材料，例如步骤列表。这是一个例子：
 
-(void)addCompletedHandler:(MTLCommandBufferHandler)块；
+```cpp
+(void) addCompletedHandler:(MTLCommandBufferHandler) block;
+```
 
 当调用完成的处理程序时，它会向应用程序发出信号，告知着色器已完成且帧已完成。
 
@@ -326,19 +422,24 @@ renderEncoder.drawPrimitives（类型：.triangle，vertexStart：0，vertexCoun
 
 命令缓冲区在任何给定时间都有几种不同的状态：
 
-- 加入命令队列 - 提交给 GPU - 计划完成 - 在 GPU 上完成工作
+- 加入命令队列
+- 提交给 GPU
+- 计划完成
+- 在 GPU 上完成工作
 
 此状态作为命令缓冲区的属性存在。还有一个错误属性。如果命令执行顺利，则错误属性为零。如果出现问题，错误属性将设置为命令缓冲区错误代码列表中列出的值，以指示出现问题的原因。
 
 ### 呈现到屏幕
 
-此过程的最后一步是呈现到屏幕上。命令缓冲区和 MTKView 共享的对象是 MTLDrawable。创建渲染通道描述符时，当前可绘制对象被设置为视图上的属性。
+此过程的最后一步是呈现到屏幕上。命令缓冲区和 `MTKView` 共享的对象是 `MTLDrawable`。创建渲染通道描述符时，当前可绘制对象被设置为视图上的属性。
 
 GPU 上的所有工作都在此可绘制对象上执行，现在工作已完成，是时候将该可绘制对象返回给视图，以便可以将其渲染到屏幕上：
 
+```swift
 commandBuffer.present(currentDrawable)
+```
 
-MTKView 获取该可绘制对象并使用与其关联的纹理将图像呈现到屏幕上。
+`MTKView` 获取该可绘制对象并使用与其关联的纹理将图像呈现到屏幕上。
 
 ## 概括
 
