@@ -16,7 +16,7 @@
 
 本节重点介绍 Metal 渲染通道描述符。要设置多个渲染通道，你需要很好地掌握渲染通道描述符的构成以及当你拥有多个渲染通道时它如何变化。
 
-MTLRenderPassDescriptor 基本上是附件的集合。 GPU 编程从根本上讲是将数据与解释该数据的任何设置一起发送到 GPU。这些设置封装在 MTLRenderPassDescriptor 中。与只能拥有一个的 MTLPipelineDescriptor 不同，你可以拥有多个 MTLRenderPassDescriptor。事实上，如果你仅限于一种应用程序，那么大多数应用程序都会受到严重限制。这些描述符可用于纹理、阴影贴图和照明。它们可以是单一的，也可以收集在一起形成一个数组：
+MTLRenderPassDescriptor 基本上是附件的集合 GPU 编程从根本上讲是将数据与解释该数据的任何设置一起发送到 GPU。这些设置封装在 MTLRenderPassDescriptor 中。与只能拥有一个的 MTLPipelineDescriptor 不同，你可以拥有多个 MTLRenderPassDescriptor。事实上，如果你仅限于一种应用程序，那么大多数应用程序都会受到严重限制。这些描述符可用于纹理、阴影贴图和照明。它们可以是单一的，也可以收集在一起形成一个数组：
 
 ```swift
 let mainRPDesc = MTLRenderPassDescriptor() var ShadowRPs : Array = [MTLRenderPassDescriptor]()
@@ -30,7 +30,7 @@ let mainRPDesc = MTLRenderPassDescriptor() var ShadowRPs : Array = [MTLRenderPas
 
 颜色附件是 MTLRenderPassColorAttachmentDescriptor 对象的数组。附件描述符对象充当渲染通道生成的彩色像素的输出目的地。像素使用 _清晰颜色_ 指定。透明颜色虽然可以透明，但并不透明。清除颜色指定清除先前颜色附件时要使用的颜色。
 
-深度附件对象充当渲染通道生成的深度像素的输出目标。该深度存储为双精度值，称为 _清除深度_。与透明颜色一样，这是清除深度附件时要使用的深度。深度附件还包括“多重采样抗锯齿 (MSAA) 深度解析”功能。 MSAA 深度分辨率是一种计算成本较低的图像重采样方式，可避免锯齿。
+深度附件对象充当渲染通道生成的深度像素的输出目标。该深度存储为双精度值，称为 _清除深度_。与透明颜色一样，这是清除深度附件时要使用的深度。深度附件还包括“多重采样抗锯齿 (MSAA) 深度解析”功能 MSAA 深度分辨率是一种计算成本较低的图像重采样方式，可避免锯齿。
 
 最后一个附件类型是 MTLRenderPassStencilAttachmentDescriptor。模板就像一个蒙版，你可能在 Photoshop 中使用过。它具有可以在其上绘制或模印效果的形状，其中存在接收效果的图像区域和不接收效果的区域。
 
@@ -48,7 +48,7 @@ mainPassFramebuffer = device!.makeTexture(描述符: texDesc)
 
 self.mainRPDesc.colorAttachments[0].texture = mainPassFramebuffer }
 
-在此代码片段中，MTLTextureDescriptor 描述了由主渲染通道帧缓冲 ​​ 区创建的纹理。由于颜色附件是 MTLRenderPassAttachmentDescriptor 的子类，因此你需要设置其纹理属性。
+在此代码片段中，MTLTextureDescriptor 描述了由主渲染通道帧缓冲区创建的纹理。由于颜色附件是 MTLRenderPassAttachmentDescriptor 的子类，因此你需要设置其纹理属性。
 
 GPU 编程的一大优势是能够启用多线程渲染。如果选择多线程，则需要在调度队列上异步设置渲染通道编码：
 
@@ -67,7 +67,7 @@ GPU 编程的一大优势是能够启用多线程渲染。如果选择多线程�
 
 ## 重新审视加载-存储操作
 
-关于 MTLRenderPassAttachmentDescriptor 你需要了解的最后一点是 _load_ 和 _store actions_。 MTLLoadAction 是渲染命令编码器的渲染通道开始时执行的操作。这是一个具有三个值的枚举：load、clear 和 dontCare。 load 保留纹理的现有内容。清除将新值写入附件中的每个像素。 dontCare 允许每个像素在渲染过程开始时采用任何值，因为你不关心它是什么。
+关于 MTLRenderPassAttachmentDescriptor 你需要了解的最后一点是 _load_ 和 \_store actions_MTLLoadAction 是渲染命令编码器的渲染通道开始时执行的操作。这是一个具有三个值的枚举：load、clear 和 dontCareload 保留纹理的现有内容。清除将新值写入附件中的每个像素 dontCare 允许每个像素在渲染过程开始时采用任何值，因为你不关心它是什么。
 
 为渲染目标选择正确的加载操作非常重要。如果你选择不必要的计算成本高昂的操作，那么你就会浪费原本可以更好地用在其他地方的计算时间。如果所有渲染目标像素均已渲染，请选择 dontCare 操作。此操作没有任何相关成本，并且纹理数据始终被解释为未定义。如果不需要保留渲染目标之前的内容并且仅渲染其部分像素，请选择清除操作。最后，如果需要保留渲染目标的先前内容并且仅渲染其部分像素，请选择加载操作。
 

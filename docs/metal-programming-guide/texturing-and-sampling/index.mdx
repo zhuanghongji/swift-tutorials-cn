@@ -27,13 +27,13 @@ var 深度纹理：MTL 纹理！ = 零
 
 让 heightTextureDescriptor = MTLTextureDescriptor.texture2DDescriptor( PixelFormat: .depth32Float, 宽度: Int(layerSize.width), 高度: Int(layerSize.height), mipmapped: false) heightTexture = device.makeTexture( 描述符: depthTextureDescriptor)
 
-正如其名称所示，该纹理是深度纹理。 MTLTextureDescriptor 设置为 2D 描述符并初始化。它需要纹理的像素格式、视图的大小以及是否要对其进行 mipmap。由于纹理与网格的大小和形状相同，因此将 mipmap 设置为 false。最后，使用深度纹理描述符初始化深度纹理。
+正如其名称所示，该纹理是深度纹理 MTLTextureDescriptor 设置为 2D 描述符并初始化。它需要纹理的像素格式、视图的大小以及是否要对其进行 mipmap。由于纹理与网格的大小和形状相同，因此将 mipmap 设置为 false。最后，使用深度纹理描述符初始化深度纹理。
 
 ## 纹理贴图
 
 图形的一方面是它们会改变大小。如果你放大过低分辨率 JPEG，图像会出现像素化。很容易理解，当你放大片段时，它会逐渐占据屏幕上更多的像素。当你朝相反的方向前进并且屏幕上有四个或五个代表一个像素的片段时会发生什么？线性和最近的设置都不能适应这种情况。本节介绍 Metal 如何处理它。
 
-缩小具有重叠像素的纹理的解决方案称为 _mipmapping_。 mipmap 是一系列纹理，全部包含相同的图像，但分辨率越来越低。原始的全尺寸纹理存在于 mipmap 的基础级别。高于该级别的每个级别逐渐以 2 倍进行下采样。例如，如果你有一个 16 × 16 的纹理，则基本级别也将为 16 × 16。此纹理的完整 mip 链将由大小为 16 的级别组成 × 16（基础）、8 × 8、4 × 4、2 × 2 和 1 × 1，总共五个级别。然后，mipmap 生成器预先计算并存储不同大小和位置的各个区域上纹理的平均值。
+缩小具有重叠像素的纹理的解决方案称为 \_mipmapping_mipmap 是一系列纹理，全部包含相同的图像，但分辨率越来越低。原始的全尺寸纹理存在于 mipmap 的基础级别。高于该级别的每个级别逐渐以 2 倍进行下采样。例如，如果你有一个 16 × 16 的纹理，则基本级别也将为 16 × 16。此纹理的完整 mip 链将由大小为 16 的级别组成 × 16（基础）、8 × 8、4 × 4、2 × 2 和 1 × 1，总共五个级别。然后，mipmap 生成器预先计算并存储不同大小和位置的各个区域上纹理的平均值。
 
 由于这是一个常见的操作，Metal 有一个内置实现来在 MTLBlitCommandEncoder 上生成 mipmap。
 
@@ -118,7 +118,7 @@ commandEncoder.setFragmentTexture(diffuseTexture, at: 0) commandEncoder.setFragm
 
 ## 将纹理和采样器传递给图形函数
 
-要将纹理传递给采样器，你需要有一个纹理对象。这比仅在应用程序包中包含图像稍微复杂一些。在第 6 章中，你了解了 MTLResource 对象。 MTLTexture 是 MTLResource 的一种类型。在下一节中，你将了解如何创建 MTLTexture 对象以及如何设置与纹理交互的着色器函数。
+要将纹理传递给采样器，你需要有一个纹理对象。这比仅在应用程序包中包含图像稍微复杂一些。在第 6 章中，你了解了 MTLResource 对象 MTLTexture 是 MTLResource 的一种类型。在下一节中，你将了解如何创建 MTLTexture 对象以及如何设置与纹理交互的着色器函数。
 
 ### 创建纹理
 
@@ -186,4 +186,4 @@ TexturedColoredOutVertex outVertex; outVertex.position=uniforms.projectionMatrix
 
 ## 概括
 
-纹理和采样是 Metal 工具箱中极其重要的工具。它们可以轻松地为你的 3D 场景添加大量兴趣和细节，而无需在应用程序中产生太多计算开销。 Metal 有许多内置方法来帮助调整纹理大小和采样，以避免伪影和锯齿。了解在放大或缩小时重新采样纹理的最佳方法可以帮助你创建外观更好的应用程序，而不影响性能。
+纹理和采样是 Metal 工具箱中极其重要的工具。它们可以轻松地为你的 3D 场景添加大量兴趣和细节，而无需在应用程序中产生太多计算开销 Metal 有许多内置方法来帮助调整纹理大小和采样，以避免伪影和锯齿。了解在放大或缩小时重新采样纹理的最佳方法可以帮助你创建外观更好的应用程序，而不影响性能。

@@ -29,7 +29,9 @@ export default function Figure({ src, num, desc, size, edge  }: ScreenshotProps)
             <Image style={{ width }} img={src} />
           )
         }
-        <p style={{ marginTop: '0.5rem', fontSize: '1.0rem' }}><em>{`图 ${num} ${desc}`}</em></p>
+        {num && desc ? (
+          <p style={{ marginTop: '0.5rem', fontSize: '1.0rem' }}><em>{`图 ${num} ${desc}`}</em></p>
+        ) : <p></p>}
     </div>
   )
 }

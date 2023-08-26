@@ -4,17 +4,17 @@
 
 为了更好地感受 Metal 的工作原理，我们参观了一个充当 Hello, World! 的老栗子。图形编程：将三角形渲染到屏幕上。本章是一个高级概述，涉及 Metal 生态系统中的各个参与者。本书稍后将对绘制 2D 和 3D 图形进行更深入的探索。本章帮助你打下坚实的基础，在此基础上构建更有用和更复杂的程序。
 
-## 在 Xcode 中创建 Metal 应用程序（不使用模板）
+## 在 Xcode 中创建 Metal 应用程序
 
 本章首先在不使用内置 Apple 模板的情况下设置 Metal。你可能想知道为什么你想要重新发明轮子而不是仅仅使用苹果提供给你的东西。
 
-首先，亲自设置各个部件可以让你对 Metal 中的每个移动部件有良好的感觉。你负责以你不习惯的方式管理内存，因此最好熟悉你将来要配置的所有对象。其次，Apple 的模板和示例代码往往包含一些你的项目中不一定需要的脚手架。当你刚开始时，可 ​​ 能很难区分什么是绝对必要的，什么是多余的。重新开始可以让你知道什么是最基本的必要对象。就这样，我们开始吧。
+首先，亲自设置各个部件可以让你对 Metal 中的每个移动部件有良好的感觉。你负责以你不习惯的方式管理内存，因此最好熟悉你将来要配置的所有对象。其次，Apple 的模板和示例代码往往包含一些你的项目中不一定需要的脚手架。当你刚开始时，可能很难区分什么是绝对必要的，什么是多余的。重新开始可以让你知道什么是最基本的必要对象。就这样，我们开始吧。
 
 ### 在 Xcode 中创建项目
 
-Xcode 是 Apple 的集成设计环境 (IDE)，程序员可以在其中为 Apple 设备开发应用程序。它是一款免费应用程序，可以从 Mac App Store 下载。是的，这意味着 Xcode 是仅适用于 Mac 的 IDE。要开发 iOS 应用程序，你必须拥有（或有权访问）运行 Metal 的 Mac 和 iOS 设备。 Xcode 是一个大型且复杂的应用程序。深入探讨 Xcode 超出了本书的范围。如果你想要或需要更加熟悉它，可以使用许多资源。如果你是一位经验丰富的 iOS 开发人员，则可以跳至下一部分。
+Xcode 是 Apple 的集成设计环境 (IDE)，程序员可以在其中为 Apple 设备开发应用程序。它是一款免费应用程序，可以从 Mac App Store 下载。是的，这意味着 Xcode 是仅适用于 Mac 的 IDE。要开发 iOS 应用程序，你必须拥有（或有权访问）运行 Metal 的 Mac 和 iOS 设备 Xcode 是一个大型且复杂的应用程序。深入探讨 Xcode 超出了本书的范围。如果你想要或需要更加熟悉它，可以使用许多资源。如果你是一位经验丰富的 iOS 开发人员，则可以跳至下一部分。
 
-应用程序启动后，你将获得几个选项来创建新项目或打开一个项目。选择 _创建新项目_。这将打开另一个窗口，你可以在其中选择模板。 Metal 模板巧妙地隐藏在 Game 模板中。由于我们不打算从模板生成 Metal 项目，因此选择 _单视图应用程序_。对于你未来的任何项目来说，这通常是一个不错的选择作为入门模板。
+应用程序启动后，你将获得几个选项来创建新项目或打开一个项目。选择 _创建新项目_。这将打开另一个窗口，你可以在其中选择模板 Metal 模板巧妙地隐藏在 Game 模板中。由于我们不打算从模板生成 Metal 项目，因此选择 _单视图应用程序_。对于你未来的任何项目来说，这通常是一个不错的选择作为入门模板。
 
 选择单一视图应用程序后，系统会要求你命名应用程序。确保你有公司标识符。如果你不是 Apple 开发者并且只是进行探索，只需输入你的名字即可。你不需要选择核心数据或任何其他选项。
 
@@ -28,19 +28,26 @@ Xcode 附带一个模拟器，允许你测试应用程序，而无需将它们�
 
 你的新项目中有许多文件。你现在可以忽略其中的大部分。你将主要在 ViewController.swift 中工作。在视图控制器的顶部，你需要导入 Metal。你应该直接在 UIKit 的导入下执行此操作：
 
-导入 Metal 导入 UIKit
+```swift
+import Metal
+import UIKit
+```
 
 Xcode 要求你导入要在项目中引用的每个框架。这不是你要导入的唯一框架，但目前就足够了。
 
 ## 创建 MTLDevice
 
-Metal 的基础是 GPU。要与 GPU 交互，你需要在代码中为其创建软件接口。这个接口就是 MTLDevice 协议。符合 MTLDevice 协议的对象代表 Mac 或 iOS 设备中的 GPU。 Apple 不希望你尝试对 MTLDevice 进行子类化，因为它非常接近 Metal ，覆盖此协议上的内置函数可能会导致你的应用程序出现严重问题。在视图控制器类的顶部，你需要创建 MTLDevice 的实例：
+Metal 的基础是 GPU。要与 GPU 交互，你需要在代码中为其创建软件接口。这个接口就是 MTLDevice 协议。符合 MTLDevice 协议的对象代表 Mac 或 iOS 设备中的 GPUApple 不希望你尝试对 MTLDevice 进行子类化，因为它非常接近 Metal ，覆盖此协议上的内置函数可能会导致你的应用程序出现严重问题。在视图控制器类的顶部，你需要创建 MTLDevice 的实例：
 
-var 设备：MTL 设备！ = 零
+```swift
+var device:MTLDevice! = nil
+```
 
-当你在类顶部创建属性时，无法初始化该设备。 MTLDevice 有一种（也是唯一一种）安全的初始化方法。该方法应该在函数 viewDidLoad() 中调用。在视图加载时但用户可以与应用程序交互之前需要进行的任何设置都应该放在 viewDidLoad() 中。
+当你在类顶部创建属性时，无法初始化该设备 MTLDevice 有一种（也是唯一一种）安全的初始化方法。该方法应该在函数 viewDidLoad() 中调用。在视图加载时但用户可以与应用程序交互之前需要进行的任何设置都应该放在 viewDidLoad() 中。
 
-设备 = MTLCreateSystemDefaultDevice()
+```swift
+device = MTLCreateSystemDefaultDevice()
+```
 
 这就是设置与 GPU 的软件接口所需要做的全部工作。应用程序的其余部分将引用该设备对象。
 
@@ -50,43 +57,69 @@ Metal 可以将图像渲染到屏幕上，但它不允许你与它们交互。�
 
 Metal 和之前的 OpenGL 都有特殊的核心动画层，你需要创建这些层并将其附加到视图。首先，你需要导入另一个框架：
 
-导入 QuartzCore
+```swift
+import QuartzCore
+```
 
 接下来，你需要创建特殊的核心动画支持的 Metal 层的实例：
 
-var metalLayer: CAMetalLayer
+```swift
+var metalLayer: CAMetalLayers
+```
 
-再次，正如你在初始化 MTLDevice 时所做的那样，你将在 viewDidLoad() 中初始化你的 CAMetalLayer：
+再次，正如你在初始化 `MTLDevice` 时所做的那样，你将在 `viewDidLoad()` 中初始化你的 `CAMetalLayer：`
 
-metalLayer = CAMetalLayer() metalLayer.device = 设备 metalLayer.pixelFormat = .bgra8Unorm metalLayer.framebufferOnly = true metalLayer.frame = view.layer.frame view.layer.addSublayer(metalLayer)
+```swift
+metalLayer = CAMetalLayer()
+metalLayer.device = device
+metalLayer.pixelFormat = .bgra8Unorm
+metalLayer.framebufferOnly = true
+metalLayer.frame = view.layer.frame
+view.layer.addSublayer(metalLayer)
+```
 
-首先，你要初始化 CAMetalLayer。然后，你告诉它要连接的层是你之前创建的 MTLDevice。你正在该图层上设置一些其他属性。这些默认值很好，如果你想自己进一步研究它们，请继续。最后，视图需要将该图层与其自身关联起来，因此在设置其所有属性后，你需要将其添加为子图层。
+首先，你要初始化 `CAMetalLayer`。然后，你告诉它要连接的层是你之前创建的 `MTLDevice`。你正在该图层上设置一些其他属性。这些默认值很好，如果你想自己进一步研究它们，请继续。最后，视图需要将该图层与其自身关联起来，因此在设置其所有属性后，你需要将其添加为子图层。
 
 ## 创建顶点缓冲区
 
-Metal 中的所有图像都是由原始形状组成的。 Metal 中最常见的原始形状是三角形。所有形状都可以由三角形组成。你不能只将一堆三角形输入到软件程序中。你需要某种方法在代码中表示这些三角形。这是通过使用 _vertices_ 来完成的。顶点是图形编程中描述属性的数据结构。这些可以是颜色或纹理位置数据。在这个简单的示例中，顶点描述了三角形尖端处的空间二维位置。
+Metal 中的所有图像都是由原始形状组成的 Metal 中最常见的原始形状是三角形。所有形状都可以由三角形组成。你不能只将一堆三角形输入到软件程序中。你需要某种方法在代码中表示这些三角形。这是通过使用 _vertices_ 来完成的。顶点是图形编程中描述属性的数据结构。这些可以是颜色或纹理位置数据。在这个简单的示例中，顶点描述了三角形尖端处的空间二维位置。
 
-Metal 使用 _标准化坐标系_。坐标不是使用英寸或克罗波格等离散的测量单位，而是以与整体的比例来表示。如果你看一下 iPhone，你会发现它的高度大于宽度。尽管它的高度大于宽度，但它仍被视为一单位宽乘一单位高。这些单位的比例在不同形状的屏幕上代表不同的数量。 Metal 的标准化坐标系是两个单位乘两个单位乘一个单位。这意味着左上角的坐标是(1, 1, 1)。右下角的坐标是(−1,−1,0)。坐标系的中心由 (0, 0, 0.5) 表示，如图 3.1 所示。
+Metal 使用 _标准化坐标系_。坐标不是使用英寸或克罗波格等离散的测量单位，而是以与整体的比例来表示。如果你看一下 iPhone，你会发现它的高度大于宽度。尽管它的高度大于宽度，但它仍被视为一单位宽乘一单位高。这些单位的比例在不同形状的屏幕上代表不同的数量 Metal 的标准化坐标系是两个单位乘两个单位乘一个单位。这意味着左上角的坐标是 `(1, 1, 1)`。右下角的坐标是 `(-1, -1, 0)`。坐标系的中心由 `(0, 0, 0.5)` 表示，如图 3.1 所示。
 
 <Figure
-  src={require("../figures/009.jpg")}
+  src={require("./3_1.jpg")}
   num="3.1"
   desc="Metal 的标准化坐标系，映射了一个三角形"
+  size={320}
+  edge="white"
 />
 
 无论屏幕的长宽比是多少，Metal 都会使用标准化坐标系统。无论你看的是高度是宽度两倍的 iPhone，还是完美方形的 Apple Watch，这一点都适用。
 
 你需要创建一个数组来保存绘制三角形所需的所有位置数据。你将创建的三角形大约是屏幕大小的一半，因此你的三角形数据将如下所示：
 
-让 vertexData:[Float] = [ 0.0, 0.5, 0.0, -0.5, -0.5, 0.0, 0.5, -0.5, 0.0]
+```swift
+let vertexData:[Float] = [
+    0.0,  0.5,  0.0,
+    -0.5, -0.5, 0.0,
+    0.5,  -0.5, 0.0
+]
+```
 
 GPU 无法访问当前形式的数据。数据必须编码到缓冲区中，因此你需要创建一个 _vertex buffer_ 来保存它：
 
-var vertexBuffer: MTLBuffer! = 零
+```swift
+var vertexBuffer: MTLBuffer! = nil
+```
 
-正如对 MTLDevice 实例所做的那样，你必须在 viewDidLoad() 方法中设置顶点缓冲区的数据：
+正如对 `MTLDevice` 实例所做的那样，你必须在 `viewDidLoad()` 方法中设置顶点缓冲区的数据：
 
-let dataSize = vertexData.count \* MemoryLayout.size(ofValue: vertexData[0]) vertexBuffer = device.makeBuffer(字节: vertexData, 长度: dataSize, 选项: .storageModePrivate)
+```swift
+let dataSize = vertexData.count * MemoryLayout.size(ofValue: vertexData[0])
+vertexBuffer = device.makeBuffer(bytes: vertexData,
+                                 length: dataSize,
+                                 options: .storageModePrivate)
+```
 
 要创建足够大的缓冲区来容纳数据，你需要确定顶点数组的大小。接下来，根据数组大小，指定需要多少字节并将缓冲区指向顶点数据。该顶点缓冲区已准备好可供 GPU 处理的数据。这项工作是由着色器完成的，我们接下来将介绍它。
 
@@ -104,25 +137,36 @@ let dataSize = vertexData.count \* MemoryLayout.size(ofValue: vertexData[0]) ver
 
 ### 创建顶点着色器
 
-所有顶点着色器必须以关键字 _vertex_ 开头。它们还必须至少以 float4 对象的形式返回顶点的位置数据。将以下代码添加到着色器文件的底部：
+所有顶点着色器必须以关键字 _vertex_ 开头。它们还必须至少以 `float4` 对象的形式返回顶点的位置数据。将以下代码添加到着色器文件的底部：
 
-顶点 float4 basic_vertex( const device Packed_float3\* vertex_array [[buffer(0)]], unsigned int vid [[vertex_id]]) { return float4(vertex_array[vid], 1.0); }
+```cpp
+vertex float4 basic_vertex(const device packed_float3* vertex_array [[ buffer(0) ]],
+                           unsigned int vid [[ vertex_id ]]
+) {
+        return float4(vertex_array[vid], 1.0);
+}
+```
 
-该顶点着色器接收两个参数。第一个参数是每个顶点的位置。 [[buffer(0)]] 代码指定顶点着色器从发送到着色器的第一个顶点缓冲区中提取数据。因为你只创建了一个顶点缓冲区，所以很容易找出哪个是第一个。第二个参数是顶点数组中顶点的索引。
+该顶点着色器接收两个参数。第一个参数是每个顶点的位置 `[[ buffer(0) ]]` 代码指定顶点着色器从发送到着色器的第一个顶点缓冲区中提取数据。因为你只创建了一个顶点缓冲区，所以很容易找出哪个是第一个。第二个参数是顶点数组中顶点的索引。
 
 ### 创建片段着色器
 
 片段着色器负责计算屏幕上每个像素的颜色，如图 3.2 所示。它根据从顶点接收的颜色数据计算颜色。如果一个顶点为红色，另一个顶点为绿色，则这些顶点之间的每个像素都将按渐变着色。红色和绿色的数量是根据每个顶点的远近来计算的。
 
 <Figure
-  src={require("../figures/010.jpg")}
+  src={require("./3_2.jpg")}
   num="3.2"
   desc="顶点和片段着色器负责的工作"
+  size={420}
 />
 
 每个片段着色器程序都以关键字 _fragment_ 开头。将此代码添加到着色器文件的底部：
 
-片段 half4 basic_fragment() { return half4(1.0); }
+```cpp
+fragment half4 basic_fragment() {
+    return half4(1.0);
+}
+```
 
 至少，每个片段着色器必须返回它正在着色的像素的颜色。这由 half4 类型表示。该着色器只是将颜色设置为白色。
 
@@ -130,38 +174,62 @@ let dataSize = vertexData.count \* MemoryLayout.size(ofValue: vertexData[0]) ver
 
 ## 库、函数和管道状态
 
-着色器是 MTLFunction 对象的示例。 MTLFunction 对象以 MSL 编写并在 GPU 上执行。 MTLFunction 共有三种不同类型：顶点、片段和内核。我们已经看到了顶点函数和片段函数。
+着色器是 `MTLFunction` 对象的示例 `MTLFunction` 对象以 MSL 编写并在 GPU 上执行 `MTLFunction` 共有三种不同类型：顶点、片段和内核。我们已经看到了顶点函数和片段函数。
 
-MTLFunction 收集在 MTLLibrary 对象中。 MTLLibrary 中可以有一个或多个 MTLFunction。这些函数可以从应用程序构建过程中创建的已编译二进制库或从运行时编译的文本字符串创建。
+`MTLFunction` 收集在 `MTLLibrary` 对象中 `MTLLibrary` 中可以有一个或多个 `MTLFunction`。这些函数可以从应用程序构建过程中创建的已编译二进制库或从运行时编译的文本字符串创建。
 
 你需要创建一个库来保存着色器程序：
 
-让 defaultLibrary = device.newDefaultLibrary() 让 fragmentProgram = defaultLibrary!.makeFunction(name: "basic_fragment") 让 vertexProgram = defaultLibrary!.makeFunction(name: "basic_vertex")
+```cpp
+let defaultLibrary = device.newDefaultLibrary()
+let fragmentProgram = defaultLibrary!.makeFunction(name: "basic_fragment")
+let vertexProgram = defaultLibrary!.makeFunction(name: "basic_vertex")
+```
 
-在这段代码中，你将创建一个新的默认 MTLLibrary 来保存着色器程序。然后，你将创建两个 MTLFunction 来保存片段和顶点着色器。这些函数名称应该看起来很熟悉，因为它们是你在上一节中编写的着色器。由于这些函数位于扩展名为 .metal 的文件中，因此库将知道在哪里查找它们。
+在这段代码中，你将创建一个新的默认 `MTLLibrary` 来保存着色器程序。然后，你将创建两个 `MTLFunction` 来保存片段和顶点着色器。这些函数名称应该看起来很熟悉，因为它们是你在上一节中编写的着色器。由于这些函数位于扩展名为 .metal 的文件中，因此库将知道在哪里查找它们。
 
 现在你已经有了一个包含着色器的默认库，你可以将它们添加到渲染管道中。渲染管道包含将三角形渲染到
 
 屏幕。首先，你需要设置一个对象来保存渲染管道需要引用的所有状态。将其添加到所有其他属性下方：
 
-var pipelineState: MTLRenderPipelineState! = 零
+```cpp
+var pipelineState: MTLRenderPipelineState! = nil
+```
 
-接下来，将以下代码添加到 viewDidLoad() 的末尾：
+接下来，将以下代码添加到 `viewDidLoad()` 的末尾：
 
-让 pipelineStateDescriptor = MTLRenderPipelineDescriptor() pipelineStateDescriptor.vertexFunction = vertexProgram pipelineStateDescriptor.fragmentFunction = fragmentProgram pipelineStateDescriptor.colorAttachments[0].pixelFormat = .bgra8Unorm
+```swift
+let pipelineStateDescriptor = MTLRenderPipelineDescriptor()
+pipelineStateDescriptor.vertexFunction = vertexProgram
+pipelineStateDescriptor.fragmentFunction = fragmentProgram
+pipelineStateDescriptor.colorAttachments[0].pixelFormat = .bgra8Unorm
 
-do { try pipelineState = device.makeRenderPipelineState(descriptor: pipelineStateDescriptor) } catch let error { print("无法创建管道状态，错误 \(error)") }
+do {
+  try pipelineState = device.makeRenderPipelineState(descriptor: pipelineStateDescriptor)
+} catch let error {
+    print("Failed to create pipeline state, error \(error)")
+}
+```
 
-使用此代码，你首先初始化渲染管道描述符。接下来，你将添加在创建库时创建的顶点和片段程序。由于管道状态容易出错，因此你需要进行错误处理以确保初始化有效的管道状态。这对于 Metal 来说非常重要。 Metal 可用的优化之一是预先验证渲染管道状态。如果你的管道状态设置不正确，你希望此操作立即失败，而不是在开始向 GPU 发送数据之后失败。
+使用此代码，你首先初始化渲染管道描述符。接下来，你将添加在创建库时创建的顶点和片段程序。由于管道状态容易出错，因此你需要进行错误处理以确保初始化有效的管道状态。这对于 Metal 来说非常重要 Metal 可用的优化之一是预先验证渲染管道状态。如果你的管道状态设置不正确，你希望此操作立即失败，而不是在开始向 GPU 发送数据之后失败。
 
 ## 渲染通道简介
 
 现在渲染管道已经设置完毕，是时候考虑设置渲染通道了。渲染通道是组成场景的机制。可以进行多次传递来添加其他对象和细节。例如，你可以渲染不同的对象或在单独的通道中添加照明和突出显示效果。
 
-你需要创建的第一件事是渲染通道描述符。将此代码放在一个单独的方法中是有意义的，该方法可以在每次需要渲染新帧时运行。在视图类中创建一个名为 render() 的新方法：
+你需要创建的第一件事是渲染通道描述符。将此代码放在一个单独的方法中是有意义的，该方法可以在每次需要渲染新帧时运行。在视图类中创建一个名为 `render()` 的新方法：
 
 ```swift
-func render() { let renderPassDescriptor = MTLRenderPassDescriptor() Guard let drawable = metalLayer.nextDrawable() else {return} renderPassDescriptor.colorAttachments[0].texture = drawable.texture renderPassDescriptor.colorAttachments[0].loadAction = .clear renderPassDescriptor.colorAttachments [0].clearColor = MTLClearColor(红色：221.0/255.0，绿色：160.0/255.0，蓝色：221.0/255.0，alpha：1.0) }
+func render() {
+    let renderPassDescriptor = MTLRenderPassDescriptor()
+    guard let drawable = metalLayer.nextDrawable() else {
+      return
+    }
+    renderPassDescriptor.colorAttachments[0].texture = drawable.texture
+    renderPassDescriptor.colorAttachments[0].loadAction = .clear
+    renderPassDescriptor.colorAttachments[0].clearColor =
+        MTLClearColor(red: 221.0/255.0, green: 160.0/255.0, blue: 221.0/255.0, alpha: 1.0)
+}
 ```
 
 render() 方法设置渲染通道描述符。该描述符包含描述颜色、深度和模板数据的附件集合。在我们的简单程序中，我们只设置颜色数据。我们的描述符针对的是数组中的第一个颜色附件。它正在设置渲染通道以清除之前存在的任何颜色，并用漂亮的梅子色填充屏幕。
@@ -172,41 +240,64 @@ render() 方法设置渲染通道描述符。该描述符包含描述颜色、�
 
 将此属性与其他属性一起添加到类的顶部：
 
-var commandQueue: MTLCommandQueue! = 零
+```swift
+var commandQueue: MTLCommandQueue! = nil
+```
 
-再次在 viewDidLoad() 中初始化命令队列：
+再次在 `viewDidLoad()` 中初始化命令队列：
 
-命令队列 = device.makeCommandQueue()
+```swift
+commandQueue = device.makeCommandQueue()
+```
 
-命令队列是一个创建成本昂贵的对象，因此你只想创建一个并重用它。命令队列不直接接受渲染通道。相反，它采用命令缓冲区对象。命令缓冲区对象的创建成本很低。当你使用完它们后，它们就会被使用和处理掉。将此行添加到 render() 方法的底部：
+命令队列是一个创建成本昂贵的对象，因此你只想创建一个并重用它。命令队列不直接接受渲染通道。相反，它采用命令缓冲区对象。命令缓冲区对象的创建成本很低。当你使用完它们后，它们就会被使用和处理掉。将此行添加到 `render()` 方法的底部：
 
-让 commandBuffer = commandQueue.makeCommandBuffer()
+```swift
+let commandBuffer = commandQueue.makeCommandBuffer()
+```
 
 ### 发出绘图调用
 
 命令缓冲区需要对渲染命令进行编码，以便知道要发送到 GPU 的工作。这是你在整个项目中所做的所有设置的集合点。它获取你设置的所有管道状态和你处理过的所有顶点数据并对渲染通道进行编码。通过将以下代码添加到方法末尾来完成 render() 函数：
 
-让 renderEncoder = commandBuffer.makeRenderCommandEncoder（描述符：renderPassDescriptor） renderEncoder.setRenderPipelineState（pipelineState） renderEncoder.setVertexBuffer（vertexBuffer，偏移量：0，在：0） renderEncoder.drawPrimitives（类型：.triangle，vertexStart：0，vertexCount：3） renderEncoder。结束编码()
+```swift
+let renderEncoder = commandBuffer.makeRenderCommandEncoder(descriptor: renderPassDescriptor)
+renderEncoder.setRenderPipelineState(pipelineState)
+renderEncoder.setVertexBuffer(vertexBuffer, offset: 0, at: 0)
+renderEncoder.drawPrimitives(type: .triangle, vertexStart: 0, vertexCount: 3)
+renderEncoder.endEncoding()
+commandBuffer.present(drawable)
+commandBuffer.commit()
+```
 
-commandBuffer.present(drawable) commandBuffer.commit()
+`renderEncoder` 对象使用管道状态和顶点缓冲区进行编码。这也是你的绘图调用所在的位置。在 `drawPrimitives()` 中，你告诉 GPU 它需要绘制什么类型的图元，以便它知道有多少个顶点构成一个形状。第 8 章“二维绘图”对此进行了更详细的解释。
 
-renderEncoder 对象使用管道状态和顶点缓冲区进行编码。这也是你的绘图调用所在的位置。在 drawPrimitives()中，你告诉 GPU 它需要绘制什么类型的图元，以便它知道有多少个顶点构成一个形状。第 8 章“二维绘图”对此进行了更详细的解释。
+`render()` 方法现已完成。你需要从某个地方调用它，因此设置一个游戏循环：
 
-render() 方法现已完成。你需要从某个地方调用它，因此设置一个游戏循环：
-
-func gameloop() { autoreleasepool { self.render() } }
+```swift
+func gameloop() {
+    autoreleasepool {
+        self.render()
+    }
+}
+```
 
 你的所有数据均已准备好并准备发送到 GPU。此过程的最后一步是将三角形实际呈现在屏幕上。
 
 ### 在屏幕上呈现 Metal 内容
 
-每次渲染过程创建一个帧时，你都需要视图控制器类知道它需要刷新屏幕。这是使用 CADisplayLink 完成的。 CADisplayLink 是一个特殊的计时器，用于协调绘制调用与屏幕的刷新率。在视图控制器类的顶部创建计时器属性：
+每次渲染过程创建一个帧时，你都需要视图控制器类知道它需要刷新屏幕。这是使用 `CADisplayLink` 完成的 `CADisplayLink` 是一个特殊的计时器，用于协调绘制调用与屏幕的刷新率。在视图控制器类的顶部创建计时器属性：
 
-var 计时器：CADisplayLink！ = 零
+```swift
+var timer: CADisplayLink! = nil
+```
 
-在 viewDidLoad() 的底部，创建计时器。每次屏幕刷新时，计时器都会调用游戏循环，这会向 GPU 发出它有工作要做的信号：
+在 `viewDidLoad()` 的底部，创建计时器。每次屏幕刷新时，计时器都会调用游戏循环，这会向 GPU 发出它有工作要做的信号：
 
-计时器= CADisplayLink（目标：self，选择器：#selector（ViewController.gameloop））timer.add（到：RunLoop.main，forMode：RunLoopMode.defaultRunLoopMode）
+```swift
+timer = CADisplayLink(target: self, selector: #selector(ViewController.gameloop))
+timer.add(to: RunLoop.main, forMode: RunLoopMode.defaultRunLoopMode)
+```
 
 每次屏幕刷新时，都会发生一些事情。屏幕被清除并替换为紫色背景。然后绘制调用开始，告诉 GPU 获取准备好的顶点数据并构建三角形。然后将其发送到片段着色器，该片段着色器将三角形内的每个像素着色为白色。渲染通道获取此数据并将其绘制到屏幕上。
 
@@ -222,9 +313,9 @@ MetalKit 旨在减少三个关键领域的工作量：
 
 本书稍后将更深入地介绍纹理加载和模型处理。在这里，我们重点关注视图管理。你必须进行大量设置才能创建 CAMetalLayer 并将其附加到视图。你还必须设置渲染循环并将其连接到 CADisplayLink。这些任务必须为你创建的每个 Metal 应用程序完成，并且为每个应用程序重写该样板是没有意义的。因此，样板代码由 MTKView 和 MTKViewDelegate 负责。
 
-MTKView 无需设置 CAMetalLayer 或 CADisplayLink。 MTKView 具有三种不同的模式，可用于在屏幕上绘制。默认模式根据内部计时器进行绘制，类似于你在“Hello，Triangle！”中设置的模式。应用。第二种模式使用通知，仅当被告知某些内容已更改并且需要重绘时，视图才会重绘。最后一种模式使用 MTKView 方法，draw()。仅当调用 draw()时视图才会绘制。第 8 章将更深入地探讨这种模式。
+`MTKView` 无需设置 `CAMetalLayer` 或 `CADisplayLinkMTKView` 具有三种不同的模式，可用于在屏幕上绘制。默认模式根据内部计时器进行绘制，类似于你在“Hello，Triangle！”中设置的模式。应用。第二种模式使用通知，仅当被告知某些内容已更改并且需要重绘时，视图才会重绘。最后一种模式使用 `MTKView` 方法，`draw()`。仅当调用 `draw()` 时视图才会绘制。第 8 章将更深入地探讨这种模式。
 
-你可以选择子类化 MTKView 或使视图符合 MTKViewDelegate。 MTKViewDelegate 还有一个 draw()方法，可以代替 MTKView 的 draw 方法来实现。做你喜欢做的事；这个选择由你。
+你可以选择子类化 MTKView 或使视图符合 MTKViewDelegateMTKViewDelegate 还有一个 `draw()` 方法，可以代替 `MTKView` 的 `draw` 方法来实现。做你喜欢做的事；这个选择由你。
 
 ## 概括
 

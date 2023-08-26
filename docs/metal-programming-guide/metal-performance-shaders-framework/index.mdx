@@ -9,11 +9,11 @@
 
 ## Metal Performance Shaders 框架概述
 
-MPS 框架于 ​​ 2015 年推出。最初，它仅在 iOS 上可用，但截至 2017 年，它也可在 macOS 上使用。 MPS 框架背后有一些想法。一是大多数使用 Metal 进行计算管道（而不是渲染）的人都会使用许多常见操作。在第 16 章“Metal 中的图像处理”中，你学习了如何实现高斯模糊。高斯模糊是许多图像处理操作中的常见步骤，因此在这个框架中包含它们的实现是有意义的，这样程序员就不必继续做已经完成的工作。
+MPS 框架于 2015 年推出。最初，它仅在 iOS 上可用，但截至 2017 年，它也可在 macOS 上使用 MPS 框架背后有一些想法。一是大多数使用 Metal 进行计算管道（而不是渲染）的人都会使用许多常见操作。在第 16 章“Metal 中的图像处理”中，你学习了如何实现高斯模糊。高斯模糊是许多图像处理操作中的常见步骤，因此在这个框架中包含它们的实现是有意义的，这样程序员就不必继续做已经完成的工作。
 
 Metal 的另一个重要方面是它支持许多不同的设备。有多种方法可以实现高斯模糊。有些在 iPhone 5S 的 A7 芯片上工作效率更高，而另一些在 A9 芯片上工作效率更高。大多数程序员没有时间在具有不同芯片的多个设备上调整高斯模糊着色器。此外，购买如此多的设备并花费数小时对每个芯片进行调整的成本很高。苹果决定为我们省去这部分流程。在框架调用下抽象出的是每种效果的多个实现。作为程序员，你不需要知道你的用户正在使用哪个 GPU。该框架将检测 GPU 并为该类 GPU 选择最有效的实现。
 
-MPS 框架中的每个着色器都源自 MPSKernel 类。该类是一个抽象类，永远不会直接实现，只能作为子类使用。 MPS 一般分为三类：
+MPS 框架中的每个着色器都源自 MPSKernel 类。该类是一个抽象类，永远不会直接实现，只能作为子类使用 MPS 一般分为三类：
 
 - 图像处理
 - 矩阵乘法运算
@@ -38,7 +38,7 @@ MPSKernel 有两个用于图像处理的抽象子类：
 - MPSBinaryImageKernel
 - MPSBinaryImageKernel
 
-这些子类之间的区别相当简单。 MPSUnaryImageKernel 消耗一张纹理并返回一张纹理。 MPSBinaryImageKernel 采用两个纹理并将它们合成以返回单个纹理。这些类都不是直接实例化的。相反，它们根据它们试图实现的效果进行子类化。本节介绍这些过滤器的功能。
+这些子类之间的区别相当简单 MPSUnaryImageKernel 消耗一张纹理并返回一张纹理 MPSBinaryImageKernel 采用两个纹理并将它们合成以返回单个纹理。这些类都不是直接实例化的。相反，它们根据它们试图实现的效果进行子类化。本节介绍这些过滤器的功能。
 
 ### 通用可设置属性
 
@@ -65,16 +65,16 @@ MPSKernel 有两个用于图像处理的抽象子类：
 
 MPSImageAreaMax 是一个滤波器，用于查找以源图像中每个像素为中心的矩形区域中的最大像素值。该算子非常适合提取二值图像中的前景特征。相反，MPSImageAreaMin 是一个滤波器，用于查找以源图像中每个像素为中心的矩形区域中的最小像素值。该运算符擅长分离图像的背景。
 
-MPSImageAreaMax 和 MPSImageAreaMin 相当粗糙和简单。 _Dilation_ 和 _erosion_ 是更复杂的形态操作，作为形态性能着色器存在：
+MPSImageAreaMax 和 MPSImageAreaMin 相当粗糙和简单*Dilation* 和 _erosion_ 是更复杂的形态操作，作为形态性能着色器存在：
 
 - MPSImageDilate
 - MPSImageErode
 
-MPSImageDilate 过滤器的行为类似于 MPSImageAreaMax 过滤器，不同之处在于，在确定最大像素值之前，相对于不同的值计算每个位置的强度，从而允许使用成形的非矩形形态探针。 MPSImageErode 也是如此。你可以为这些过滤器创建模拟 MPSImageAreaMax 和 MPSImageAreaMin 的值，但它们为你提供了更多选项来自定义形态操作。
+MPSImageDilate 过滤器的行为类似于 MPSImageAreaMax 过滤器，不同之处在于，在确定最大像素值之前，相对于不同的值计算每个位置的强度，从而允许使用成形的非矩形形态探针 MPSImageErode 也是如此。你可以为这些过滤器创建模拟 MPSImageAreaMax 和 MPSImageAreaMin 的值，但它们为你提供了更多选项来自定义形态操作。
 
 ### 卷积图像滤波器
 
-卷积是机器学习和计算机视觉的重要方面。 MPS 框架提供了多种基于卷积的图像滤波器。第一组卷积滤波器是称为 MPSImageConvolution 的通用卷积滤波器。像所有人一样
+卷积是机器学习和计算机视觉的重要方面 MPS 框架提供了多种基于卷积的图像滤波器。第一组卷积滤波器是称为 MPSImageConvolution 的通用卷积滤波器。像所有人一样
 
 卷积滤波器，它需要奇数的宽度和高度。该数字可以是 3、5、7 或 9。你可以传入宽度、高度和指向像素权重数组的指针来设置卷积核的权重。
 
@@ -87,7 +87,7 @@ Metal 还内置了许多常见卷积滤波器的实现。卷积的一大子集�
 
 如果你想在不丢失清晰边缘的情况下获得去噪的优势，可以使用 MPSImageMedian 滤镜。
 
-卷积的另一个重要领域是边缘检测。 MPS 框架中提供的一种重要的通用过滤器是 MPSImageSobel。框架中包含的另一个用于边缘检测的过滤器是 MPSImageLaplacian。
+卷积的另一个重要领域是边缘检测 MPS 框架中提供的一种重要的通用过滤器是 MPSImageSobel。框架中包含的另一个用于边缘检测的过滤器是 MPSImageLaplacian。
 
 ### 直方图图像过滤器
 
@@ -120,7 +120,7 @@ func 编码变换（到 commandBuffer：MTLCommandBuffer，sourceTexture 来源�
 
 ### 图像阈值滤波器
 
-阈值处理是边缘检测和机器视觉的重要组成部分。 MPS 框架提供五种不同风格的阈值：
+阈值处理是边缘检测和机器视觉的重要组成部分 MPS 框架提供五种不同风格的阈值：
 
 - MPSImageThresholdBinary
 - MPSImageThresholdBinaryInverse
@@ -144,23 +144,23 @@ MPS 框架中积分图像的第一个实现是 MPSImageIntegral。此过滤器�
 
 ### 图像处理滤镜
 
-图像处理中的一种常见操作是转换图像的大小、颜色或纵横比。 MPS 框架提供了五个着色器来简化此任务。本节中的第一个着色器是 MPSImageConversion 着色器。此过滤器执行颜色空间、Alpha 或像素格式的转换。有时，需要重新格式化资产才能与项目中的其他资产一起使用，而此过滤器可以为你做到这一点。 Metal 文档中有大量支持的像素格式。
+图像处理中的一种常见操作是转换图像的大小、颜色或纵横比 MPS 框架提供了五个着色器来简化此任务。本节中的第一个着色器是 MPSImageConversion 着色器。此过滤器执行颜色空间、Alpha 或像素格式的转换。有时，需要重新格式化资产才能与项目中的其他资产一起使用，而此过滤器可以为你做到这一点 Metal 文档中有大量支持的像素格式。
 
-缩放图像是图像处理的重要组成部分，MPS 框架提供了三种不同的着色器用于缩放。 MPSImageScale 是 iOS 11 中的一个新着色器。此滤镜可调整图像的大小并更改图像的纵横比。它有一个实例属性，这是一个指向 MPSScaleTransform 的不安全指针。这是一个结构体，包含描述缩放变换所需的所有属性，即缩放因子和平移因子。
+缩放图像是图像处理的重要组成部分，MPS 框架提供了三种不同的着色器用于缩放 MPSImageScale 是 iOS 11 中的一个新着色器。此滤镜可调整图像的大小并更改图像的纵横比。它有一个实例属性，这是一个指向 MPSScaleTransform 的不安全指针。这是一个结构体，包含描述缩放变换所需的所有属性，即缩放因子和平移因子。
 
-下一个缩放着色器是 MPSImageLanczosScale。该缩放滤波器利用 Lanczos 重采样。它还使用与 MPSImageScale 过滤器相同的属性，但在底层执行的计算略有不同。 MPSImageBilinearScale 也是如此，它是 iOS 11 中的另一个新着色器。
+下一个缩放着色器是 MPSImageLanczosScale。该缩放滤波器利用 Lanczos 重采样。它还使用与 MPSImageScale 过滤器相同的属性，但在底层执行的计算略有不同 MPSImageBilinearScale 也是如此，它是 iOS 11 中的另一个新着色器。
 
-最后一个图像处理过滤器是 MPSImageTranspose。 MPSImageTranspose 过滤器通过交换源图像的行和列，对源图像应用矩阵转置。矩阵运算可以按行优先顺序或列优先顺序。确保你清楚其设置方式很重要，因为如果调换顺序，你将得到完全不同的结果。
+最后一个图像处理过滤器是 MPSImageTransposeMPSImageTranspose 过滤器通过交换源图像的行和列，对源图像应用矩阵转置。矩阵运算可以按行优先顺序或列优先顺序。确保你清楚其设置方式很重要，因为如果调换顺序，你将得到完全不同的结果。
 
 ### 图像统计过滤器
 
-图像统计滤波器用于平滑算法，以平均化像素亮度的极端变化。 iOS 11 为此任务提供了三个新的着色器：
+图像统计滤波器用于平滑算法，以平均化像素亮度的极端变化 iOS 11 为此任务提供了三个新的着色器：
 
 - MPSImageStatisticsMean
 - MPSImageStatisticsMeanAndVariance
 - MPSImageStatisticsMinAndMax
 
-最基本的过滤器是 MPSImageStatisticsMean 过滤器。该滤波器计算图像给定区域的平均值并将其应用于内核中的每个像素。这可以防止异常值导致计算失败。 MPSImageStatisticsMeanAndVariance 计算图像给定区域的均值和方差。均值写入像素位置 (0, 0)，方差写入像素位置 (1, 0)。最后一个过滤器是 MPSImageStatisticsMinAndMax。该过滤器查找区域内的最小值和最大值。最小值写入像素位置 (0, 0)，最大值写入像素位置 (1, 0)。
+最基本的过滤器是 MPSImageStatisticsMean 过滤器。该滤波器计算图像给定区域的平均值并将其应用于内核中的每个像素。这可以防止异常值导致计算失败 MPSImageStatisticsMeanAndVariance 计算图像给定区域的均值和方差。均值写入像素位置 (0, 0)，方差写入像素位置 (1, 0)。最后一个过滤器是 MPSImageStatisticsMinAndMax。该过滤器查找区域内的最小值和最大值。最小值写入像素位置 (0, 0)，最大值写入像素位置 (1, 0)。
 
 ### 图像算术过滤器
 
@@ -177,7 +177,7 @@ MPS 框架中积分图像的第一个实现是 MPSImageIntegral。此过滤器�
 
 MPS 框架图像处理类别的最后一个部分是 _keypoints_。关键点是图像中感兴趣的区域，在对图像应用变换时用作地标。如果旋转或缩放图像，你可以检查这些关键点以确保图像正确转换。
 
-你需要了解的第一个着色器是 MPSImageKeypointData。这是一个包含关键点信息的数据结构。使用 MPSImageKeypointRangeInfo 查找关键点。该结构采用两个参数：关键点的最大数量和关键点颜色必须具有的最小阈值。 MPSImageFindKeypoints 使用这两个结构来查找并存储图像中指定数量的关键点。
+你需要了解的第一个着色器是 MPSImageKeypointData。这是一个包含关键点信息的数据结构。使用 MPSImageKeypointRangeInfo 查找关键点。该结构采用两个参数：关键点的最大数量和关键点颜色必须具有的最小阈值 MPSImageFindKeypoints 使用这两个结构来查找并存储图像中指定数量的关键点。
 
 ## 使用 MPS 进行矩阵运算
 
@@ -189,7 +189,7 @@ MPS 框架图像处理类别的最后一个部分是 _keypoints_。关键点是�
 
 要创建 MPSMatrix，你需要使用 MPSMatrixDescriptor，它会初始化 MPSMatrix。你可以将其初始化为具有一组行、列和数据类型的一个矩阵，也可以创建一个矩阵矩阵。在后一种情况下，你需要指定矩阵的数量以及这些矩阵中每行的步长。
 
-如果你只需要一维数据而不是两维，你可以选择使用 MPSVector 对象。初始化时需要指定向量的长度。这与 MPSMatrix 类似，你需要一个描述符来创建 MPSVector 对象。 MPSVectorDescriptor 可以创建单个向量或向量数组。
+如果你只需要一维数据而不是两维，你可以选择使用 MPSVector 对象。初始化时需要指定向量的长度。这与 MPSMatrix 类似，你需要一个描述符来创建 MPSVector 对象 MPSVectorDescriptor 可以创建单个向量或向量数组。
 
 ### 矩阵相乘运算
 
@@ -211,4 +211,4 @@ func 编码（commandBuffer：MTLCommandBuffer，左矩阵：MPSMatrix，右矩�
 
 ## 概括
 
-MPS 框架提供了强大的功能，无需进行大量设置。它包括针对性能进行优化的常见矩阵运算。它还具有一个大型的常见图像处理操作库，因此你不必每次想要使用边缘检测着色器时都编写新代码。 MPS 框架的大型库使创建和实现神经网络变得更容易、更强大。
+MPS 框架提供了强大的功能，无需进行大量设置。它包括针对性能进行优化的常见矩阵运算。它还具有一个大型的常见图像处理操作库，因此你不必每次想要使用边缘检测着色器时都编写新代码 MPS 框架的大型库使创建和实现神经网络变得更容易、更强大。

@@ -9,7 +9,7 @@
 
 ## Metal 资源简介
 
-Metal 中的资源由 MTLResource 的实例表示。 MTLResource 协议定义了表示内存分配的任何资源对象的接口。资源属于两类之一：
+Metal 中的资源由 MTLResource 的实例表示 MTLResource 协议定义了表示内存分配的任何资源对象的接口。资源属于两类之一：
 
 - **MTLBuffer**：可包含任何类型数据的未格式化内存的分配
 - **MTLTexture**：具有指定纹理类型和像素格式的格式化图像数据的分配
@@ -48,23 +48,23 @@ MTLBuffer 对象是未格式化的内存块的分配。缓冲区数据可以是�
 
 ## 资源选项：存储模式、缓存模式、可清除性
 
-不断地从 RAM 中检查和获取内存在计算上是昂贵的。 Metal 旨在为开发人员提供更多选择，让你可以根据自己的需要调整应用程序。 MTLResource 有几个关联的常量，可帮助你自定义数据的存储和缓存方式：
+不断地从 RAM 中检查和获取内存在计算上是昂贵的 Metal 旨在为开发人员提供更多选择，让你可以根据自己的需要调整应用程序 MTLResource 有几个关联的常量，可帮助你自定义数据的存储和缓存方式：
 
 - MTLCPUCache 模式
 - MTLStorage 模式
 - MTLPurgeableState
 
-缓存模式决定了 CPU 如何映射资源。你希望尽可能连续地映射你的资源。在内存中跳转的计算成本很高，因此请尝试映射数据，以便在流中访问它。 MTLCPUCacheMode 有两个选项：defaultCache 和 writeCombined。默认缓存保证读写操作按预期顺序执行。你想要使用 writeCombined 的唯一时间是当你创建 CPU 将写入但稍后读取的资源时。
+缓存模式决定了 CPU 如何映射资源。你希望尽可能连续地映射你的资源。在内存中跳转的计算成本很高，因此请尝试映射数据，以便在流中访问它 MTLCPUCacheMode 有两个选项：defaultCache 和 writeCombined。默认缓存保证读写操作按预期顺序执行。你想要使用 writeCombined 的唯一时间是当你创建 CPU 将写入但稍后读取的资源时。
 
-缓存模式与存储模式密切相关。 MTLStorageMode 定义资源的内存位置和访问权限。如果资源是共享的，则 CPU 和 GPU 都可以访问该资源。如果资源是私有的，则只能由 GPU 访问。如果资源受到管理，则 CPU 和 GPU 都拥有该资源的副本。这些副本被同步以反映资源的其他副本中的更改。最后的存储模式是无记忆的。无内存存储不受 CPU 和 GPU 的支持。这听起来可能毫无意义，但它用于临时渲染目标，例如渲染纹理。当你要渲染的数据不需要在生成它的通道之外持续存在时，可以使用它。
+缓存模式与存储模式密切相关 MTLStorageMode 定义资源的内存位置和访问权限。如果资源是共享的，则 CPU 和 GPU 都可以访问该资源。如果资源是私有的，则只能由 GPU 访问。如果资源受到管理，则 CPU 和 GPU 都拥有该资源的副本。这些副本被同步以反映资源的其他副本中的更改。最后的存储模式是无记忆的。无内存存储不受 CPU 和 GPU 的支持。这听起来可能毫无意义，但它用于临时渲染目标，例如渲染纹理。当你要渲染的数据不需要在生成它的通道之外持续存在时，可以使用它。
 
-你不会希望永远将所有这些对象保留在内存中，因此你需要制定一个计划来适当地删除它们。 MTLPurgeableState 允许你更改资源的状态。你没有必要控制每个应用程序的可净化性。如果要访问资源而不更改其可清除状态，请将状态设置为 keepCurrent。如果你不希望资源从内存中被丢弃，请将状态设置为非易失性。易失性设置表明，如果不再需要资源，可以将其从内存中删除，但不会自动清除。一旦确定资源不再需要，状态将设置为空。
+你不会希望永远将所有这些对象保留在内存中，因此你需要制定一个计划来适当地删除它们 MTLPurgeableState 允许你更改资源的状态。你没有必要控制每个应用程序的可净化性。如果要访问资源而不更改其可清除状态，请将状态设置为 keepCurrent。如果你不希望资源从内存中被丢弃，请将状态设置为非易失性。易失性设置表明，如果不再需要资源，可以将其从内存中删除，但不会自动清除。一旦确定资源不再需要，状态将设置为空。
 
 ## 为顶点着色器和顶点描述符准备数据
 
 本章花了一些时间讨论如何将数据映射到内存。尽可能高效地映射内存的最终目的是尽可能快地将这些数据传递到 GPU 进行处理。你可以使用顶点描述符为顶点着色器准备数据。本节对此进行了更详细的介绍。
 
-MTLVertexDescriptor 对象用于配置存储在内存中的顶点数据如何映射到顶点着色器中的属性。 MTLVertexDescriptor 是管道状态的一部分，它为与管道关联的函数建立顶点布局。每个管道状态只有一个 MTLVertexDescriptor。
+MTLVertexDescriptor 对象用于配置存储在内存中的顶点数据如何映射到顶点着色器中的属性 MTLVertexDescriptor 是管道状态的一部分，它为与管道关联的函数建立顶点布局。每个管道状态只有一个 MTLVertexDescriptor。
 
 顶点描述符用于描述顶点布局和顶点属性。顶点描述符有一个 MTLVertexAttributeDescriptorArray 属性，其中包含 MTLVertexAttributeDescriptor 对象。看这个例子：
 
@@ -76,7 +76,7 @@ vertexDescriptor.attributes[0].offset = 0 vertexDescriptor.attributes[0].format 
 
 ## 复制到缓冲区或从缓冲区复制
 
-虽然缓冲区本身是不可变的，但其中的数据却不是。数据缓冲区由 CPU 准备，然后由 GPU 处理。这两件事不能在同一个缓冲区上同时发生。如果 CPU 覆盖 GPU 当前正在处理的数据，结果将是数据损坏。在 Metal 中，通常使用*三重缓冲系统*，如图 6.1 所示。这在实践中意味着你创建三个缓冲区。 CPU 将其数据复制到第一个缓冲区，然后将其交给 GPU。当 GPU 在第一个缓冲区上工作时，CPU 开始将数据复制到第二个缓冲区。这会创建一个偏移量，以便 CPU 和 GPU 都不会只是等待处理某些内容。
+虽然缓冲区本身是不可变的，但其中的数据却不是。数据缓冲区由 CPU 准备，然后由 GPU 处理。这两件事不能在同一个缓冲区上同时发生。如果 CPU 覆盖 GPU 当前正在处理的数据，结果将是数据损坏。在 Metal 中，通常使用*三重缓冲系统*，如图 6.1 所示。这在实践中意味着你创建三个缓冲区 CPU 将其数据复制到第一个缓冲区，然后将其交给 GPU。当 GPU 在第一个缓冲区上工作时，CPU 开始将数据复制到第二个缓冲区。这会创建一个偏移量，以便 CPU 和 GPU 都不会只是等待处理某些内容。
 
 <Figure src={require("../figures/020.jpg")} num="6.1" desc="三重缓冲系统" />
 
@@ -94,9 +94,9 @@ MTLResource 有一个纹理的实现：MTLTexture。与 MTLBuffer 和 MTLDevice 
 
 - **newTextureWithDescriptor**：此方法在 MTLDevice 上创建新纹理。它使用 MTLTextureDescriptor 来配置纹理对象。
 - **makeTextureView(pixelFormat:)**：此方法基于 MTLTexture 协议。它创建并返回一个新的纹理对象，该对象与源纹理对象共享相同的存储分配。由于它们共享相同的存储空间，因此对新纹理像素的任何更改都会反映在源纹理中，反之亦然。
-- **newTextureWithDescriptor:offset:bytesPerRow**：此方法基于另一个协议 MTLBuffer。它与 makeTextureView(pixelFormat:) 类似，因为新纹理与源缓冲区对象共享相同的存储分配，因此适用相同的规则。在 newTextureWithDescriptor:offset:bytesPerRow 中，你可以根据纹理描述符创建新纹理。 MTLTextureDescriptor 配置你的新纹理对象。这包括像素格式、高度和 mipmap 级别计数。到目前为止我们讨论的有关存储模式和类型的所有方面都在这里配置。
+- **newTextureWithDescriptor:offset:bytesPerRow**：此方法基于另一个协议 MTLBuffer。它与 makeTextureView(pixelFormat:) 类似，因为新纹理与源缓冲区对象共享相同的存储分配，因此适用相同的规则。在 newTextureWithDescriptor:offset:bytesPerRow 中，你可以根据纹理描述符创建新纹理 MTLTextureDescriptor 配置你的新纹理对象。这包括像素格式、高度和 mipmap 级别计数。到目前为止我们讨论的有关存储模式和类型的所有方面都在这里配置。
 
-如果使用 makeTextureView(pixelFormat:) 方法，则必须指定像素格式。 MTLPixelFormat 描述了纹理的各个像素中颜色、深度或模板数据存储的组织。像素格式分为三种：普通、打包和压缩。对于普通格式和打包格式，你需要指定三个描述：颜色分量的顺序、颜色分量的位深度以及分量的数据类型。格式数据以小端顺序存储。本章稍后将介绍压缩格式。
+如果使用 makeTextureView(pixelFormat:) 方法，则必须指定像素格式 MTLPixelFormat 描述了纹理的各个像素中颜色、深度或模板数据存储的组织。像素格式分为三种：普通、打包和压缩。对于普通格式和打包格式，你需要指定三个描述：颜色分量的顺序、颜色分量的位深度以及分量的数据类型。格式数据以小端顺序存储。本章稍后将介绍压缩格式。
 
 本节粗略地概述了作为资源的纹理。第 12 章更全面地介绍了纹理。
 
@@ -126,7 +126,7 @@ func makeTextureView(pixelFormat: MTLPixelFormat) -> MTLTexture 指定要将纹�
 
 func makeTextureView（pixelFormat：MTLPixelFormat，textureType：MTLTextureType，级别 levelRange：NSRange，切片 sliceRange：NSRange）-> MTLTexture
 
-以前的方法仅允许你更改像素格式。此方法还允许你更改纹理类型。与 MTLPixelFormat 类似，MTLTextureType 具有可以将纹理转换为的有限数量的其他纹理。 type1D 纹理只能转换为另一个 type1D 纹理，而 type2D 纹理可以转换为另一个 type2D 或 type2DArray。
+以前的方法仅允许你更改像素格式。此方法还允许你更改纹理类型。与 MTLPixelFormat 类似，MTLTextureType 具有可以将纹理转换为的有限数量的其他纹理 type1D 纹理只能转换为另一个 type1D 纹理，而 type2D 纹理可以转换为另一个 type2D 或 type2DArray。
 
 ### 纹理数组
 
@@ -142,7 +142,7 @@ func makeTextureView（pixelFormat：MTLPixelFormat，textureType：MTLTextureTy
 
 func getBytes(\_ PixelBytes: UnsafeMutableRawPointer, bytesPerRow: Int, from 区域: MTLRegion, mipmapLevel level: Int)
 
-此函数所需的第一个参数是一个不安全的可变原始指针，指向你要访问的字节。如果你是一名 Swift 程序员，这可能看起来很可怕且不安全，但你现在是一名 Metal 程序员！接近 Metal 意味着可以轻松地直接使用原始内存指针。如果你知道自己在做什么，那就没问题了。 bytePerRow 是纹理数据行之间的步幅。该区域是纹理切片中像素块的位置。最后，如果你的纹理经过了 mipmap，这就是关卡。如果你的纹理未进行 mipmap，则级别默认为零。
+此函数所需的第一个参数是一个不安全的可变原始指针，指向你要访问的字节。如果你是一名 Swift 程序员，这可能看起来很可怕且不安全，但你现在是一名 Metal 程序员！接近 Metal 意味着可以轻松地直接使用原始内存指针。如果你知道自己在做什么，那就没问题了 bytePerRow 是纹理数据行之间的步幅。该区域是纹理切片中像素块的位置。最后，如果你的纹理经过了 mipmap，这就是关卡。如果你的纹理未进行 mipmap，则级别默认为零。
 
 接下来，你需要指定要替换的内容。
 
@@ -194,7 +194,7 @@ Blit 命令编码器上的一项特殊生成器功能是生成 mipmap。下一�
 
 在图形编程中，你可能会遇到纹理与屏幕上的像素不完全匹配的情况。用户将放大你的模型，纹理将变得非常大且像素化。用户将缩小，原来 64 像素正方形的纹理将仅占用屏幕上的 20 像素。
 
-处理第二种情况的过程称为 _mipmapping_。由于预计用户会放大和缩小纹理，因此 Metal 具有内置方法来生成这些 mipmap。 mipmap 背后的过程和逻辑将在第 12 章中进行更详细的解释。现在，只需了解 mipmap 是一种确保模型看起来漂亮而不是锯齿状的方法，无论它们的放大倍数是多少。
+处理第二种情况的过程称为 _mipmapping_。由于预计用户会放大和缩小纹理，因此 Metal 具有内置方法来生成这些 mipmapmipmap 背后的过程和逻辑将在第 12 章中进行更详细的解释。现在，只需了解 mipmap 是一种确保模型看起来漂亮而不是锯齿状的方法，无论它们的放大倍数是多少。
 
 MTLBlitCommandEncoder 有一个方法可以为你生成 mipmap：
 

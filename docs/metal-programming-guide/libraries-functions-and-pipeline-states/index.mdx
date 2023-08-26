@@ -9,9 +9,9 @@
 
 ## 什么是库和函数？
 
-你可能会想，如果函数如此重要，为什么你还没有了解它们，但事实上，你一直在使用它们而没有意识到。 MTLFunction 是你的着色器函数。 MTLFunction 是用 Metal Shading Language (MTL) 编写并包含在 .metal 文件中的任何内容。函数分为三种类型：_vertex、fragment_ 和 _kernel_。顶点和片段函数与 MTLRenderPipelineState 关联，内核函数与 MTLComputePipelineState 关联。
+你可能会想，如果函数如此重要，为什么你还没有了解它们，但事实上，你一直在使用它们而没有意识到 `MTLFunction` 是你的着色器函数 `MTLFunction` 是用 Metal Shading Language (MTL) 编写并包含在 .metal 文件中的任何内容。函数分为三种类型：_vertex、fragment_ 和 _kernel_。顶点和片段函数与 MTLRenderPipelineState 关联，内核函数与 MTLComputePipelineState 关联。
 
-函数被收集到 MTLLibrary 对象中。 MTLLibrary 协议定义了表示图形或计算函数库的对象的接口。库可以由编译的代码组成，也可以从从字符串读取的源代码中检索。本章介绍如何确定程序的最佳选项的实现细节。
+函数被收集到 `MTLLibrary` 对象中 `MTLLibrary` 协议定义了表示图形或计算函数库的对象的接口。库可以由编译的代码组成，也可以从从字符串读取的源代码中检索。本章介绍如何确定程序的最佳选项的实现细节。
 
 ## Metal 两阶段编译架构
 
@@ -27,13 +27,13 @@
 
 ## 在编译时和运行时创建库
 
-图形编程中计算成本最高的操作之一是构建着色器。 Metal 提供的优化之一是能够在编译时而不是运行时构建着色器。这样做会将极其昂贵的操作（可能只需要执行一次）转移到不会影响用户的过程中。你甚至可以使用命令行工具在 Xcode 之外构建你的库。
+图形编程中计算成本最高的操作之一是构建着色器 Metal 提供的优化之一是能够在编译时而不是运行时构建着色器。这样做会将极其昂贵的操作（可能只需要执行一次）转移到不会影响用户的过程中。你甚至可以使用命令行工具在 Xcode 之外构建你的库。
 
 在构建时，应用程序目标的编译源阶段中存在的任何 .metal 文件都将由 Metal 前端编译器进行编译，并且它们包含的任何函数都将构成默认库。该库可通过默认 MTLDevice 上的方法访问：newDefaultLibrary()。此方法的返回类型是可选的，因此如果在编译时没有构建默认库，它不会使应用程序崩溃。
 
 还可以将 Metal 库二进制文件引入你的项目中。例如，如果你创建了一个开源图像处理框架，则可以将该 Metal 库导入其他人的项目中。库可以作为文件或数据导入。
 
-在某些情况下，你需要创建一个函数而无法添加 .metal 文件。一个例子是，如果你正在为 Unity 之类的东西创建插件。在这种情况下，你可以从文本文件创建着色器，该文本文件将被编译并添加到默认库中。 MTLDevice 上同步执行该操作的方法如下：
+在某些情况下，你需要创建一个函数而无法添加 .metal 文件。一个例子是，如果你正在为 Unity 之类的东西创建插件。在这种情况下，你可以从文本文件创建着色器，该文本文件将被编译并添加到默认库中 MTLDevice 上同步执行该操作的方法如下：
 
 func makeLibrary(filepath: String) 抛出 -> MTLLibrary
 
@@ -43,24 +43,24 @@ func makeLibrary（来源：String，选项：MTLCompileOptions？，completionH
 
 ### 从库加载函数
 
-成功创建一个库是一个很好的第一步，但如果你不能将这些功能集成到你的应用程序中，那么它不会给你带来任何好处。本节介绍如何将默认库中的函数加载到应用程序中。 MTLLibrary 有一个名为 makeFunction 的方法：
+成功创建一个库是一个很好的第一步，但如果你不能将这些功能集成到你的应用程序中，那么它不会给你带来任何好处。本节介绍如何将默认库中的函数加载到应用程序中 `MTLLibrary` 有一个名为 makeFunction 的方法：
 
 Guard letfragmentProgram = defaultLibrary.makeFunction( name: "lightingFragment") else {return}
 
 guard let vertexProgram = defaultLibrary.makeFunction( name: "lightingVertex") else {return}
 
-此方法是从默认库中提取特定函数的最简单方法。 makeFunction 方法采用一个表示默认库中函数名称的字符串。如果你使用渲染器，则需要提取顶点和片段函数。如果你做计算，你需要拉出一个核函数。
+此方法是从默认库中提取特定函数的最简单方法 makeFunction 方法采用一个表示默认库中函数名称的字符串。如果你使用渲染器，则需要提取顶点和片段函数。如果你做计算，你需要拉出一个核函数。
 
 ## 命令编码器
 
-将库中的函数连接到处理管道对于图形处理的工作原理来说是直观的，但如果你对通用 GPU 编程感兴趣怎么办？如果你想建立一个神经网络并拥有一堆与之关联的 MTLFunction 对象，你会使用什么？
+将库中的函数连接到处理管道对于图形处理的工作原理来说是直观的，但如果你对通用 GPU 编程感兴趣怎么办？如果你想建立一个神经网络并拥有一堆与之关联的 `MTLFunction` 对象，你会使用什么？
 
-MTLDevice 有一个装载有命令编码器的命令队列。每个编码器执行特定类型的工作。你不会使用图形编码器进行通用 GPU 编程。到目前为止，你主要遇到了渲染命令编码器，但这只是几个命令编码器之一。 Metal 支持以下编码器：
+MTLDevice 有一个装载有命令编码器的命令队列。每个编码器执行特定类型的工作。你不会使用图形编码器进行通用 GPU 编程。到目前为止，你主要遇到了渲染命令编码器，但这只是几个命令编码器之一 Metal 支持以下编码器：
 
 - **MTLRenderCommandEncoder**：该编码器旨在生成单个渲染通道。它访问顶点着色器和片段着色器。
-- **MTLBlitCommandEncoder**：该编码器已在第 6 章“ Metal 资源和内存管理”中讨论。它仅用于在缓冲区和纹理之间复制资源。该编码器的工作不需要使用你编写的任何 MTLFunctions。
+- **MTLBlitCommandEncoder**：该编码器已在第 6 章“ Metal 资源和内存管理”中讨论。它仅用于在缓冲区和纹理之间复制资源。该编码器的工作不需要使用你编写的任何 `MTLFunction`s。
 - **MTLComputeCommandEncoder**：GPGPU 命令编码器专门访问内核函数。
-- **MTLParallelRenderCommandEncoder**：该编码器采用一个或多个 MTLRenderCommandEncoder 对象。它允许你将每个渲染编码器分配给其自己的线程，以便可以并行执行渲染命令。该编码器不直接访问 MTLLibrary。相反，它是访问 MTLLibrary 的编码器的管理对象。
+- **MTLParallelRenderCommandEncoder**：该编码器采用一个或多个 MTLRenderCommandEncoder 对象。它允许你将每个渲染编码器分配给其自己的线程，以便可以并行执行渲染命令。该编码器不直接访问 MTLLibrary。相反，它是访问 `MTLLibrary` 的编码器的管理对象。
 
 在 Metal 中需要记住的最重要的事情之一是如何将数据设置为
 
@@ -68,7 +68,7 @@ MTLDevice 有一个装载有命令编码器的命令队列。每个编码器执�
 
 ## 渲染管线描述符和状态
 
-拥有 Metal 函数库固然很棒，但你需要一种方法将它们添加到渲染管道中。这是通过使用 MTLRenderPipelineDescriptor 对象来完成的。 MTLRenderPipelineDescriptor 指定渲染通道期间使用的渲染配置状态，包括光栅化（例如多重采样）、可见性、混合、曲面细分和图形函数状态。以下是 MTLRenderPipelineDescriptor 的示例：
+拥有 Metal 函数库固然很棒，但你需要一种方法将它们添加到渲染管道中。这是通过使用 MTLRenderPipelineDescriptor 对象来完成的 MTLRenderPipelineDescriptor 指定渲染通道期间使用的渲染配置状态，包括光栅化（例如多重采样）、可见性、混合、曲面细分和图形函数状态。以下是 MTLRenderPipelineDescriptor 的示例：
 
 让 pipelineStateDescriptor = MTLRenderPipelineDescriptor() pipelineStateDescriptor.vertexFunction = vertexProgram pipelineStateDescriptor.fragmentFunction = fragmentProgram pipelineStateDescriptor.vertexDescriptor = vertexDescriptor
 
@@ -82,14 +82,14 @@ do { try pipelineState = device.makeRenderPipelineState(descriptor: pipelineStat
 
 ## 管道反射
 
-到目前为止，本章已经讨论了 MTLFunction 是一种访问在单独的 Metal 文件中编写的着色器的方法。 MTLFunction 对象不提供对函数参数的访问。你可以在 MTLFunction 上访问的唯一属性是
+到目前为止，本章已经讨论了 `MTLFunction` 是一种访问在单独的 Metal 文件中编写的着色器的方法 `MTLFunction` 对象不提供对函数参数的访问。你可以在 `MTLFunction` 上访问的唯一属性是
 
 - 名称
 - 函数类型
 - 顶点属性
 
-该列表不包括着色器或计算函数参数的详细信息。这些参数必须使用 MTLRenderPipelineReflection 或 MTLComputePipelineReflection 获取。 MTLRenderPipelineReflection 只有两个属性：vertexArguments 和 fragmentArguments。两者都是 MTLArgument 对象的可选数组。如果你需要访问传递给顶点或片段着色器的任何参数，则必须通过管道反射访问它们，而不是直接从 MTLFunction 访问它们。
+该列表不包括着色器或计算函数参数的详细信息。这些参数必须使用 MTLRenderPipelineReflection 或 MTLComputePipelineReflection 获取 MTLRenderPipelineReflection 只有两个属性：vertexArguments 和 fragmentArguments。两者都是 MTLArgument 对象的可选数组。如果你需要访问传递给顶点或片段着色器的任何参数，则必须通过管道反射访问它们，而不是直接从 `MTLFunction` 访问它们。
 
 ## 概括
 
-充分理解 Metal 如何构建和访问着色器库至关重要。 Metal 认为着色器是函数对象。 Metal 必须考虑到许多不同的 GPU 架构，同时还要确保你不会捆绑不需要的代码。了解决定实施着色器编译时的成本和收益也很重要。
+充分理解 Metal 如何构建和访问着色器库至关重要 Metal 认为着色器是函数对象 Metal 必须考虑到许多不同的 GPU 架构，同时还要确保你不会捆绑不需要的代码。了解决定实施着色器编译时的成本和收益也很重要。

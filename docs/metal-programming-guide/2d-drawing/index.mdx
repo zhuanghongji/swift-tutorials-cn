@@ -145,7 +145,7 @@ Metal 有一组原始对象，包含在 MTLPrimitiveType 枚举中：
 
 该项目使用 MetalKit。当 Metal 第一次被引入时，有很多样板代码是由程序员负责的。除此之外，你需要记住导入 Quartz Core 框架，以便为 Metal 创建 CALayer 的子类。
 
-MetalKit 的创建简化了这个过程，而不是记住所有这些东西并编写相同的代码。 MetalKit 提供了 CALayer、Metal-aware 视图、MKView。
+MetalKit 的创建简化了这个过程，而不是记住所有这些东西并编写相同的代码 MetalKit 提供了 CALayer、Metal-aware 视图、MKView。
 
 要使用 MetalKit，你需要使你的 UIViewController 符合 MTKViewDelegate 协议。这个协议相当简单。它有两个职责：
 
@@ -260,7 +260,7 @@ MTKView 管理一组可渲染纹理（包括颜色渲染目标和深度渲染目
 
 着色器可以采用三种不同类型的数据：
 
-- **Buffers** ：符合 MTLBuffer 协议。 MTLBuffer 是未格式化的内存块，可以包含任何类型的数据。 - **纹理**：符合 MTLTexture 协议。 MTLTextures 是格式化的图像数据。 - **采样器状态**：符合 MTLSamplerState 协议。采样器状态包含影响纹理采样方式的属性。
+- **Buffers** ：符合 MTLBuffer 协议 MTLBuffer 是未格式化的内存块，可以包含任何类型的数据- **纹理**：符合 MTLTexture 协议 MTLTextures 是格式化的图像数据- **采样器状态**：符合 MTLSamplerState 协议。采样器状态包含影响纹理采样方式的属性。
 
 要在着色器中使用资源，你需要某种方法在资源对象和着色器函数参数之间动态映射。该映射称为*参数表*。你可以拥有多个缓冲区以及缓冲区、纹理和采样器状态的组合，如图 8.3 所示。
 

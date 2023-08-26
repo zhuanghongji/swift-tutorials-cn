@@ -15,7 +15,7 @@
 
 正如第 18 章所讨论的，周围的像素与选定的像素相加并进行处理，这导致大量像素被采样。当你移动到下一个像素时，你将对先前操作中已采样并求和的一定数量的像素进行重新采样。
 
-最早的卷积神经网络于 1994 年实现。第一个神经网络 _LeNet5_ 是由 Yann LeCun 创建的。 LeNet5 的突破在于认识到可识别的图像特征存在并且可以在整个图像中检测到（见图 20.1）。然后可以提取这些特征并将其用作训练参数，并与其他图像中的类似特征进行比较。
+最早的卷积神经网络于 1994 年实现。第一个神经网络 _LeNet5_ 是由 Yann LeCun 创建的 LeNet5 的突破在于认识到可识别的图像特征存在并且可以在整个图像中检测到（见图 20.1）。然后可以提取这些特征并将其用作训练参数，并与其他图像中的类似特征进行比较。
 
 <Figure
   src={require("../figures/065.jpg")}
@@ -23,7 +23,7 @@
   desc="第一个卷积神经网络 LeNet5 的直观表示"
 />
 
-1994 年，还没有 GPU 来训练神经网络，CPU 的速度也明显变慢。 LeNet5 允许你保存参数和计算，而不是使用每个像素作为单独的输入。 LeNet5 利用多层来过滤掉相关的潜在特征，而不是使用暴力方法来查找这些特征。
+1994 年，还没有 GPU 来训练神经网络，CPU 的速度也明显变慢 LeNet5 允许你保存参数和计算，而不是使用每个像素作为单独的输入 LeNet5 利用多层来过滤掉相关的潜在特征，而不是使用暴力方法来查找这些特征。
 
 LeNet5 为神经网络做出了多项进步：
 
@@ -53,11 +53,11 @@ AlexNet 将 LeNet5 的见解提升到了一个新的水平，如图 20.2 所示�
 
 ## MPSImage
 
-使用卷积神经网络需要熟悉的第一个对象是 MPSImage。卷积神经网络使用图像来提取特征并进行监督学习。正如你之前所读到的，每个图像都分为多个通道。神经网络的纹理可以有多达 64 个通道。 MTLTexture 对象未设置为发送超过四个通道，因此你需要一个特殊的纹理来包含网络的这些通道。
+使用卷积神经网络需要熟悉的第一个对象是 MPSImage。卷积神经网络使用图像来提取特征并进行监督学习。正如你之前所读到的，每个图像都分为多个通道。神经网络的纹理可以有多达 64 个通道 MTLTexture 对象未设置为发送超过四个通道，因此你需要一个特殊的纹理来包含网络的这些通道。
 
-要创建 MPSImage，你需要一个 MPSImageDescriptor。 Metal 编程中的一个常见模式是使用描述符对象创建各种对象。创建 MPSImage 有两种不同的方法：一种用于单个图像，另一种用于包含多个图像。创建 MPSImage 需要以下属性：
+要创建 MPSImage，你需要一个 MPSImageDescriptorMetal 编程中的一个常见模式是使用描述符对象创建各种对象。创建 MPSImage 有两种不同的方法：一种用于单个图像，另一种用于包含多个图像。创建 MPSImage 需要以下属性：
 
-- **通道格式**：由 MPSImageFeatureChannelFormat 枚举表示。此属性对图像中单个通道的表示进行编码。编码可以是无符号整数或浮点数，具体取决于网络所需的精度。 - **宽度**：图像的宽度。 - **高度**：图像的高度。
+- **通道格式**：由 MPSImageFeatureChannelFormat 枚举表示。此属性对图像中单个通道的表示进行编码。编码可以是无符号整数或浮点数，具体取决于网络所需的精度- **宽度**：图像的宽度- **高度**：图像的高度。
 - **特征通道**：每个像素的特征通道数。
 - **图像数量**：批处理的图像数量。如果你只有一张图像，则不需要此属性。
 - **Usage** ：由 MTLTextureUsage 结构表示。该属性包含描述如何使用纹理的选项。纹理只能按照其使用值指定的方式使用。这些使用值包括着色器读取、着色器写入和渲染目标。
@@ -70,7 +70,7 @@ MPSImage 和 MPSTemporaryImage 构成发送到神经网络的数据。实际处�
 
 所有神经网络层的基类是 MPSCNNKernel。该类的主要作用是使用 MPSImage 对象，对其进行处理，然后返回一个新对象。处理图像的区域以及处理方式由 MPSCNNKernel 类的属性指定。
 
-MPSCNNKernel 的一项重要属性是 MPSOffset。这是一组有符号的 _x_ 、 _y_ 和 _z_ 坐标，指定处理将在距离左上角多远的地方进行。 MPSCNNKernel 上还有一个名为 ClipRect 的可选属性，它指定将覆盖像素数据的 MTLRegion。如果未指定此属性，则覆盖整个区域。
+MPSCNNKernel 的一项重要属性是 MPSOffset。这是一组有符号的 _x_ 、 _y_ 和 _z_ 坐标，指定处理将在距离左上角多远的地方进行 MPSCNNKernel 上还有一个名为 ClipRect 的可选属性，它指定将覆盖像素数据的 MTLRegion。如果未指定此属性，则覆盖整个区域。
 
 你还需要指定 MPSImageEdgeMode。你想要指定过滤器在读取超出源图像范围时的行为。发生这种情况的原因可能是负 offset 属性，因为 offset + ClipRect.size 的值大于源图像，或者因为过滤器查看相邻像素，例如卷积过滤器。默认设置为 0。
 
@@ -111,7 +111,7 @@ convDesc.strideInPixelsX = Int(strideXY.0) convDesc.strideInPixelsY = Int(stride
 
 初始化（设备：MTLDevice，卷积描述符：MPSCNNConvolutionDescriptor，kernelWeights：UnsafePointer ，biasTerms：UnsafePointer ？，标志：MPSCNNConvolutionFlags）
 
-MPSCNNConvolution 是 MPSCNNKernel 的子类。它将默认的 MTLDevice 以及你刚刚创建的 MPSCNNConvolutionDescriptor 作为参数。接下来，你输入从训练的数据模型中获得的内核权重和偏差。 MPSCNNConvolutionFlags 是用于控制如何存储和使用内核权重的选项。目前，唯一的值是 .none。
+MPSCNNConvolution 是 MPSCNNKernel 的子类。它将默认的 MTLDevice 以及你刚刚创建的 MPSCNNConvolutionDescriptor 作为参数。接下来，你输入从训练的数据模型中获得的内核权重和偏差 MPSCNNConvolutionFlags 是用于控制如何存储和使用内核权重的选项。目前，唯一的值是 .none。
 
 ### 池化层
 
@@ -125,7 +125,7 @@ MPSCNNConvolution 是 MPSCNNKernel 的子类。它将默认的 MTLDevice 以及�
 
 池化层的基类是 MPSCNNPooling。这也是 MPSCNNKernel 以及用于构建神经网络的所有其他内核的子类。该基类有一个方法，encode(commandBuffer:sourceImage:)，用于将 MPSCNNPooling 对象编码为 MTLCommandBuffer 对象。
 
-有两种常用的池化层类型：最大池化层和平均池化层。 MPSCNNPoolingMax 滤波器返回图像中每个像素的滤波器区域中像素的最大值。 MPSCNNPoolingAverage 过滤器返回过滤区域中像素的平均值。
+有两种常用的池化层类型：最大池化层和平均池化层 MPSCNNPoolingMax 滤波器返回图像中每个像素的滤波器区域中像素的最大值 MPSCNNPoolingAverage 过滤器返回过滤区域中像素的平均值。
 
 池化层的实现看起来像这样：
 
@@ -177,7 +177,7 @@ funcbiasTerms() -> UnsafeMutablePointer? { 返回零 } }
 
 ## 神经网络图
 
-在 iOS 11 之前，你需要使用各种卷积神经网络对象创建大型、复杂的结构。这些在心理上可视化为图表，但 MPS 框架中不存在这种结构来简化神经网络的创建。 iOS 11 的新增功能是引入了 MPSNNGraph 类。
+在 iOS 11 之前，你需要使用各种卷积神经网络对象创建大型、复杂的结构。这些在心理上可视化为图表，但 MPS 框架中不存在这种结构来简化神经网络的创建 iOS 11 的新增功能是引入了 MPSNNGraph 类。
 
 MPSNNGraph 是神经网络图像和过滤器节点图的优化表示。构成图的节点是
 
@@ -185,7 +185,7 @@ MPSNNGraph 是神经网络图像和过滤器节点图的优化表示。构成图
 - MPSNNFilterNode
 - MPSNN 状态节点
 
-它们充当 MPSNNGraph 的基本节点。 MPSNNImageNode 是用作图的基本节点的 MPSImage 的表示。 MPSNNFilterNode 指示以下节点将创建过滤器阶段。最后，MPSNNStateNode 表示状态对象。
+它们充当 MPSNNGraph 的基本节点 MPSNNImageNode 是用作图的基本节点的 MPSImage 的表示 MPSNNFilterNode 指示以下节点将创建过滤器阶段。最后，MPSNNStateNode 表示状态对象。
 
 在 MPS 框架内，一组节点类代表每个图层类型中存在的类。例如，池化层中有一个名为 MPSCNNPoolingMax 的类，它创建池化层。有一个名为 MPSCNNPoolingAverageNode 的相关节点类。这些节点中的每一个都从其上方的层获取输入图像，并应用数据源的权重和偏差。这是一个例子：
 

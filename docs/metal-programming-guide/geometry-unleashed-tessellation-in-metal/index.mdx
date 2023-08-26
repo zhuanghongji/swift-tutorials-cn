@@ -23,7 +23,7 @@
 
 本节涵盖计算机科学中最常用的方法：_Catmull-Clark 细分。_
 
-1978 年，Edwin Catmull 和 Jim Clark 发表了一篇关于使用细分递归生成曲面的论文。卡特穆尔早期职业生涯的一部分时间是在工业光魔公司的一个部门为乔治·卢卡斯工作，该部门最终以 1000 万美元的价格卖给了史蒂夫·乔布斯，并更名为皮克斯。 Catmull 是计算机图形学研究的先驱，他对该领域的贡献是无法估量的。
+1978 年，Edwin Catmull 和 Jim Clark 发表了一篇关于使用细分递归生成曲面的论文。卡特穆尔早期职业生涯的一部分时间是在工业光魔公司的一个部门为乔治·卢卡斯工作，该部门最终以 1000 万美元的价格卖给了史蒂夫·乔布斯，并更名为皮克斯 Catmull 是计算机图形学研究的先驱，他对该领域的贡献是无法估量的。
 
 细分控制点网格涉及四个基本步骤：
 
@@ -44,7 +44,7 @@ Source: [http://www.rorydriscoll.com/2008/08/01/catmull-clark-subdivision-the-ba
 
 设置顶点比设置面和边缘点更复杂。你需要计算加权平均值，而不是像前面的点那样使用正常平均值。确定控制点移动到何处的方程：
 
-( _Q_ / _n_ ) + (2 _R_ / _n_ ) + ( _S_ ( _n_ − 3)/ _n_ )
+( _Q_ / _n_ ) + (2 _R_ / _n_ ) + ( _S_ ( _n_ - 3)/ _n_ )
 
 该方程中的变量代表以下内容：
 
@@ -71,7 +71,7 @@ Source: [http://www.rorydriscoll.com/2008/08/01/catmull-clark-subdivision-the-ba
 
 你将在 Metal 中细分两种不同类型的镶嵌面片：三角形和四边形。每种类型都有一个 Metal 结构：MTLTriangleTessellationFactorsHalf 和 MTLQuadTessellationFactorsHalf。除了面片的形状之外，你还可以根据它是形状的边缘还是内部来指定镶嵌因子。
 
-MTLTriangleTessellationFactorsHalf 有两个属性：edgeTessellationFactor 和 insideTessellationFactor。 edgeTessellationFactor 指定三角形内每条边的因子。该属性是一个具有三个值的数组。对于三角形面片，面片中的位置是一个（u，v，w）坐标，表示三角形的三个顶点对顶点位置的相对影响，如图 14.4 所示。 (u, v, w) 值的范围为 0.0 到 1.0，其中 u+v+w=1.0。数组的第一个成员是 u 边的曲面细分因子，然后是 v 边，最后是 w 边。三角形面片只需设置一个内部镶嵌因子，因此相对简单。
+MTLTriangleTessellationFactorsHalf 有两个属性：edgeTessellationFactor 和 insideTessellationFactoredgeTessellationFactor 指定三角形内每条边的因子。该属性是一个具有三个值的数组。对于三角形面片，面片中的位置是一个（u，v，w）坐标，表示三角形的三个顶点对顶点位置的相对影响，如图 14.4 所示(u, v, w) 值的范围为 0.0 到 1.0，其中 u+v+w=1.0。数组的第一个成员是 u 边的曲面细分因子，然后是 v 边，最后是 w 边。三角形面片只需设置一个内部镶嵌因子，因此相对简单。
 
 <Figure
   src={require("../figures/037.jpg")}
@@ -79,7 +79,7 @@ MTLTriangleTessellationFactorsHalf 有两个属性：edgeTessellationFactor 和 
   desc="三角形面片镶嵌因子"
 />
 
-对于 MTLQuadTessellationFactorsHalf，面片中的位置是 (u, v) 笛卡尔坐标，指示顶点相对于四边形面片边界的水平和垂直位置。 (u, v) 值的范围均为 0.0 到 1.0，如图 14.5 所示。该结构体的 edgeTessellationFactor 是一个包含四个值的数组。第一个值针对块的边缘，其中 u=0（边缘 0）。接下来是面片边缘的镶嵌因子，其中 v=0（边缘 1），然后 u=1（边缘 2），最后 v=1（边缘 3）。与三角形补片不同，四边形补片指定两个内部镶嵌因子。数组中的第一个值提供 v 的所有内部值的水平细分因子。数组中的第二个值提供 u 的所有内部值的垂直细分因子。
+对于 MTLQuadTessellationFactorsHalf，面片中的位置是 (u, v) 笛卡尔坐标，指示顶点相对于四边形面片边界的水平和垂直位置(u, v) 值的范围均为 0.0 到 1.0，如图 14.5 所示。该结构体的 edgeTessellationFactor 是一个包含四个值的数组。第一个值针对块的边缘，其中 u=0（边缘 0）。接下来是面片边缘的镶嵌因子，其中 v=0（边缘 1），然后 u=1（边缘 2），最后 v=1（边缘 3）。与三角形补片不同，四边形补片指定两个内部镶嵌因子。数组中的第一个值提供 v 的所有内部值的水平细分因子。数组中的第二个值提供 u 的所有内部值的垂直细分因子。
 
 <Figure src={require("../figures/038.jpg")} num="14.5" desc="四面片镶嵌因子" />
 
@@ -91,7 +91,7 @@ MTLTriangleTessellationFactorsHalf 有两个属性：edgeTessellationFactor 和 
 
 在缓冲区到达顶点着色器之前，你需要实现一个计算内核。如果你还记得之前对曲面细分的解释，你就会知道最初进入曲面细分管道的几何体是相当原始的。曲面细分内核是该管道中的第一步是有道理的，因为如果你将原始几何体直接发送到顶点着色器，它不会让你到达任何地方。
 
-曲面细分流水线由一些固定功能阶段和一些可编程阶段组成。 _tessellator_ 是固定功能阶段。它创建面片表面的采样图案并生成连接这些样本的图形基元。这些固定功能选项是在你创建 MTLRenderPipelineDescriptor 时设置的。以下是渲染管道描述符在使用曲面细分的应用程序中的外观示例：
+曲面细分流水线由一些固定功能阶段和一些可编程阶段组成*tessellator* 是固定功能阶段。它创建面片表面的采样图案并生成连接这些样本的图形基元。这些固定功能选项是在你创建 MTLRenderPipelineDescriptor 时设置的。以下是渲染管道描述符在使用曲面细分的应用程序中的外观示例：
 
 让 renderPipelineDescriptor = MTLRenderPipelineDescriptor() renderPipelineDescriptor.vertexDescriptor = vertexDescriptor renderPipelineDescriptor.colorAttachments[0].pixelFormat = mtkView.colorPixelFormat renderPipelineDescriptor.fragmentFunction = 库?.makeFunction(name: "tessellation_fragment") renderPipelineDescriptor.isTessellationFactorScaleEnabled = false renderPi pelineDescriptor.tessellationFactorFormat = .half renderPipelineDescriptor .tessellationControlPointIndexType = .none
 
