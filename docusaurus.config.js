@@ -135,6 +135,16 @@ const config = {
                 label: "Core Graphics",
                 sidebarId: "coregraphicsSidebar",
               },
+              {
+                type: "docSidebar",
+                label: "Metal",
+                sidebarId: "metalSidebar",
+              },
+              {
+                type: "docSidebar",
+                label: "MetalKit",
+                sidebarId: "metalkitSidebar",
+              },
             ],
           },
           {

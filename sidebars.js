@@ -230,6 +230,26 @@ const coregraphicsSidebar = [
 ];
 
 /** @type {import('@docusaurus/plugin-content-docs').SidebarsConfig['']} */
+const metalSidebar = [
+  {
+    type: "category",
+    label: "Metal",
+    collapsible: false,
+    items: ["metal/overview/index", "metal/gpu-devices/index"],
+  },
+];
+
+/** @type {import('@docusaurus/plugin-content-docs').SidebarsConfig['']} */
+const metalkitSidebar = [
+  {
+    type: "category",
+    label: "MetalKit",
+    collapsible: false,
+    items: ["metalkit/overview/index"],
+  },
+];
+
+/** @type {import('@docusaurus/plugin-content-docs').SidebarsConfig['']} */
 const metalprogrammingguideSidebar = [
   {
     type: "category",
@@ -436,6 +456,8 @@ const sidebars = {
   swiftchartsSidebar,
   swiftdataSidebar,
   coregraphicsSidebar,
+  metalSidebar,
+  metalkitSidebar,
   metalprogrammingguideSidebar,
   metalshadinglanguagespecificationSidebar,
 };
