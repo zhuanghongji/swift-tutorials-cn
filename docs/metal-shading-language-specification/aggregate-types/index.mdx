@@ -1,1 +1,123 @@
-# Placeholder
+## 2.12 聚合类型
+
+Metal 支持多种聚合类型：数组、结构、类和联合。
+
+不要指定具有地址空间属性的结构成员，除非该成员是指针类型。聚合类型的所有成员必须属于同一地址空间。 （有关地址空间的更多信息，请参阅第 4 节。）
+
+## 2.12.1 纹理数组、纹理缓冲区和采样器
+
+iOS：自 Metal 1.2 起支持纹理数组；自 Metal 2 以来的采样器阵列；自 Metal 2.1 以来的纹理缓冲区数组。 macOS：自 Metal 2 起支持纹理数组；自 Metal 2 以来的采样器阵列；自 Metal 2.1 以来的纹理缓冲区数组。
+
+将纹理数组声明为：
+
+``2023 - 06 - 02 |版权所有 © 2023 苹果公司 |版权所有。 ````
+
+数组<类型名称 T, 大小\_t N>
+
+const array<类型名称 T, size_t N>
+
+typename 应是使用 access::read 或 access::sample 属性声明的纹理类型。在自 Metal 2 起的 macOS 上以及自 Metal 2.2 起至少具有 A12 硬件的 iOS 上，还提供了对可写纹理数组 (access::write) 的支持。 （有关纹理类型的更多信息，请参阅第 2.9 节。）
+
+使用 access::read 限定符构造一个纹理缓冲区数组（参见第 2.9.1 节）：
+
+数组 ，大小 t N>
+
+将采样器数组声明为：
+
+数组<采样器，size_t N>
+
+const array<采样器, size_t N>
+
+你可以将纹理数组或采样器数组作为参数传递给函数（图形、内核或用户函数），或者将纹理或样本数组声明为函数内的局部变量。你还可以在程序范围内声明采样器数组。除非在参数缓冲区中使用（请参阅第 2.13 节），否则不能在结构中声明 array 类型（纹理、纹理缓冲区或采样器的数组）。
+
+MSL 还添加了对 array_ref 的支持。 array_ref 表示 T 类型的 size() 元素的不可变数组。T 必须是采样器类型或受支持的纹理类型，包括纹理缓冲区。数组的存储不属于 array_ref 对象。隐式转换是由具有连续迭代器（例如 metal::array）的类型提供的。 array_ref 的常见用途是将纹理数组作为参数传递给函数，以便它们可以接受各种数组类型。
+
+array_ref 类型不能作为参数传递给图形和内核函数。但是， array_ref 类型可以作为参数传递给用户函数。 array_ref 类型不能在函数内声明为局部变量。
+
+2.12.1.1 到 2.12.1.3 节中列出的成员函数可用于纹理数组、采样器数组和 array_ref 类型。
+
+## 2 .12.1.1 使用运算符访问数组元素
+
+可以使用 [] 运算符访问纹理、纹理缓冲区或采样器数组的元素：
+
+引用运算符[] (size_t pos);
+
+可以使用 [] 运算符的以下变体来访问纹理、纹理缓冲区或采样器数组的元素或模板化类型 array_ref ：
+
+constexpr const_reference 运算符[] (size_t pos) const;
+
+``2023 - 06 - 02 |版权所有 © 2023 苹果公司 |版权所有。 ````
+
+## 2.12.1.2 阵列容量
+
+size() 返回纹理、纹理缓冲区或采样器数组中的元素数量。
+
+constexpr size_t size();
+
+constexpr size_t size() const；
+
+例子：
+
+内核 void my_kernel(const array, 10> src [[texture(0)]],texture2d dst [[texture(10)]], ...) { for ( int i=0; i
+
+## 2.12.1.3 模板化数组的构造函数
+
+constexpr array_ref(); constexpr array_ref(const array_ref &); array_ref & 运算符=(const array_ref &); constexpr array_ref(const T \* array, size_t length);
+
+template<size_t N> constexpr array_ref(const T(&a)[N]);
+
+template<typename T> constexpr array_ref<T> make_array_ref(const T \* array, size_t length)
+
+template<类型名称 T, size_t N> constexpr array_ref make_array_ref(const T(&a)[N])
+
+构造数组的示例： float4 foo(array_ref> src) { float4 clr(0.0f); for (int i=0; i
+
+内核 void my_kernel_A(const array, 10> src [[texture(0)]],
+
+``2023 - 06 - 02 |版权所有 © 2023 苹果公司 |版权所有。 ````
+
+texture2d<float, access::write> dst [[texture(10)]], ...) { float4 clr = foo(src);
+
+}
+
+内核 void my_kernel_B(const array, 20> src [[texture(0)]],texture2d dst [[texture(10)]], ...) { float4 clr = foo(src);
+
+}
+
+下面是在程序范围内声明的采样器数组的示例：
+
+constexpr array = { 采样器(地址::clamp_to_zero), 采样器(坐标::像素) };
+
+## 2.12.2 缓冲区、纹理和采样器的结构
+
+图形、内核、可见函数或用户函数的参数可以是结构或嵌套结构，其成员仅为缓冲区、纹理或采样器。你必须按值传递这样的结构。作为参数类型传递给图形或内核函数的此类结构的每个成员都可以有一个属性来指定其位置（如第 5.2.1 节所述）。
+
+作为参数传递的结构示例：
+
+struct Foo { [[texture(0)]] 中的 texture2d; height2d<浮点> b [[纹理(1)]]; };
+
+[[内核]] void my_kernel(Foo f)
+
+{...}
+
+你还可以嵌套结构，如以下示例所示：
+
+struct Foo { [[texture(0)]] 中的 texture2d; height2d<浮点> b [[纹理(1)]]; };
+
+结构栏{
+
+`` Foo f; ````
+
+``2023 - 06 - 02 |版权所有 © 2023 苹果公司 |版权所有。 ````
+
+采样器 s [[采样器(0)]]; };
+
+[[kernel]] void my_kernel(Bar b) {...}
+
+以下是导致编译错误的无效用例的示例：
+
+[[kernel]] void my_kernel(device Foo& f) // 这是非法使用。 {...}
+
+struct MyResources {texture2d a [[texture(0)]]; height2d<浮点> b [[纹理(1)]];整数 c； };
+
+[[kernel]] void my_kernel(MyResources r) // 这是非法使用。 {...}

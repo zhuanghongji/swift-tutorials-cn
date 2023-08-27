@@ -1,1 +1,71 @@
-# Placeholder
+## 6.7 SIMD 组矩阵函数
+
+SIMD 组矩阵函数在标头 中定义。
+
+## 6.7.1 创建、加载和存储矩阵元素
+
+Metal Shading Library 支持以下函数来用值初始化 SIMD 组矩阵、从线程组或设备内存加载数据以及将数据存储到线程组或设备内存。
+
+## 表 6.9.SIMD 组矩阵加载和存储
+
+` 函数说明`
+
+``` simdgroup_matrix(T dval) 使用给定值创建对角矩阵。 ````
+
+`simdgroup_matrix make_filled_simdgroup_matrix(T 值)`
+
+``` 初始化一个用给定值填充的 SIMD 组矩阵。 ````
+
+`void simdgroup_load( 线程 simdgroup_matrix& d, const threadgroup T *src, ulong elements_per_row = Cols, ulong2 matrix_origin = 0, bool transpose_matrix = false)`
+
+``` 将数据从线程组内存加载到 SIMD 组矩阵中。 elements_per_row 参数指示源内存布局中的元素数量。 ````
+
+`void simdgroup_load( 线程 simdgroup_matrix& d, const device T *src, ulong elements_per_row = Cols, ulong2 matrix_origin = 0, bool transpose_matrix = false)`
+
+``` 将数据从设备内存加载到 SIMD 组矩阵中。 elements_per_row 参数指示源内存布局中的元素数量。 ````
+
+`void simdgroup_store( 线程 simdgroup_matrix a, const threadgroup T *dst,`
+
+``` 将 SIMD 组矩阵中的数据存储到线程组内存中。每行的元素````
+
+``2023 - 06 - 02 |版权所有 © 2023 苹果公司 |版权所有。 ````
+
+` 函数说明`
+
+`ulong elements_per_row = Cols，ulong2 matrix_origin = 0，bool transpose_matrix = false)`
+
+``` 参数表示目标内存布局中的元素数量。 ````
+
+`void simdgroup_store( 线程 simdgroup_matrix a, const device T *dst, ulong elements_per_row = Cols, ulong2 matrix_origin = 0, bool transpose_matrix = false)`
+
+`` 将 SIMD 组矩阵中的数据存储到设备内存中。 elements_per_row 参数指示目标内存布局中的元素数量。 ````
+
+## 6.7.2 矩阵运算
+
+SIMD 组矩阵支持乘法累加和多重运算。
+
+## 表 6.10.SIMD 组操作
+
+` 操作说明`
+
+`void simdgroup_multiply_accumulate( 线程 simdgroup_matrix& d, 线程 simdgroup_matrix& a, 线程 simdgroup_matrix& b, 线程 simdgroup_matrix&c)`
+
+`返回 d = a * b + c`
+
+`void simdgroup_multiply( 线程 simdgroup_matrix& d, 线程 simdgroup_matrix& a, 线程 simdgroup_matrix& b)`
+
+`返回 d = a * b`
+
+`* 返回 a * b`
+
+以下是如何使用 SIMD 组矩阵的示例。
+
+内核无效 float_matmad（设备浮动* pMatA，设备浮动* pMatB 设备浮动* pMatC，设备浮动* pMatR）{ simdgroup_float8x8 sgMatA; simdgroup_float8x8 sgMatB； simdgroup_float8x8 sgMatC； simdgroup_float8x8 sgMatR；
+
+simdgroup_load(sgMatA, pMatA); simdgroup_load(sgMatB, pMatB); simdgroup_load(sgMatC, pMatC);
+
+``2023 - 06 - 02 |版权所有 © 2023 苹果公司 |版权所有。 ````
+
+simdgroup_multiply_accumulate(sgMatR, sgMatA, sgMatB, sgMatC);
+
+simdgroup_store(sgMatR, pMatR); }

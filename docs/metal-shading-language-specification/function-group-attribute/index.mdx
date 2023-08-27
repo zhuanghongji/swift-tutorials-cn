@@ -1,1 +1,15 @@
-# Placeholder
+## 2.16 功能组属性
+
+所有操作系统：从 Metal 2. 3 开始支持 [[function_group]]。
+
+可选的[[function_group]]属性可用于指示通过函数指针或 visible_function_table 进行间接调用时可能调用的函数组。这是编译器提示，使编译器能够优化调用站点。函数组被指定为属性的字符串文字参数。该属性可以应用于三种不同的上下文：
+
+- 带有初始值设定项表达式的变量声明 - 它影响初始值设定项表达式中的所有间接调用表达式。 - 表达式语句——它影响给定表达式的所有间接调用表达式。 - return 语句 -- 它影响返回值表达式的所有间接调用表达式。
+
+以下示例显示了如何使用 [[function_group]]。
+
+float h(visible_function_table table, float (\*fnptr[3])(float)) { // 对 table[0] 的间接调用仅限于“group1” [[function_groups("group1")] ] 浮点数 x = 表[0](1.0f);
+
+// 间接调用 `fnptr[0]` 可以调用任何函数 x += fnptr[0](2.0f);
+
+// 对 `fnptr[1]` 的间接调用仅限于 "group2"+"group3" [[function_groups("group2", "group3")]] return x + fnptr[1](3.0f); }

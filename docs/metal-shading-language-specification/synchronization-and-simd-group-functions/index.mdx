@@ -1,1 +1,654 @@
-# Placeholder
+## 6.9 同步和 SIMD 组功能
+
+你可以在以下位置使用同步和 SIMD 组功能：
+
+- 内核函数 - 片段函数 - 内核或片段函数调用的可见函数
+
+## 6.9.1 线程组和 SIMD 组同步函数
+
+标头定义了表 6. 12 中的同步函数，其中列出了它支持的线程组和 SIMD 组同步函数。
+
+## 表 6.12。 Metal 标准库中的同步计算函数
+
+`内置线程组函数说明`
+
+`void threadgroup_barrier(mem_flags 标志)`
+
+``` 执行内核、片段、网格或对象的线程组中的所有线程都需要执行此函数，然后任何线程才能在 threadgroup_barrier 之外继续执行。 ````
+
+``` void simdgroup_barrier(mem_flags flags) macOS：自 Metal 2 起。 iOS：自 Metal 1 .2 起。 ````
+
+``` SIMD 组中执行内核、片段、网格或对象的所有线程都需要执行此函数，然后任何线程才能继续执行超出 simdgroup_barrier 的操作。 ````
+
+_barrier 函数_（threadgroup_barrier 或 simdgroup_barrier）充当执行和内存屏障。执行内核的线程组（或 SIMD 组）中的所有线程都需要遇到 threadgroup_barrier（或 simdgroup_barrier）函数。
+
+``2023 - 06 - 02 |版权所有 © 2023 苹果公司 |版权所有。 ````
+
+如果 threadgroup_barrier（或 simdgroup_barrier）位于条件语句内，并且任何线程进入条件语句并执行屏障函数，则线程组（或 SIMD 组）中的所有线程都需要输入条件并执行屏障函数。
+
+如果 threadgroup_barrier（或 simdgroup_barrier）位于循环内，则对于循环的每次迭代，线程组（或 SIMD 组）中的所有线程都需要在任何线程继续执行超出屏障函数之前执行屏障函数。
+
+threadgroup_barrier（或 simdgroup_barrier）函数还可以对内存栅栏进行排队（用于读取和写入），以确保对线程组或设备内存的内存操作的正确顺序。
+
+表 6.13 描述了 threadgroup_barrier 和 simdgroup_barrier 的 mem_flags 参数的位字段值。 mem_flags 参数确保线程组或 simdgroup（对于 threadgroup_barrier 或 simdgroup_barrier）中的线程之间的内存顺序正确。
+
+## 表 6.13。屏障函数的内存标志枚举值
+
+`mem_flags 描述`
+
+``` mem_none 该标志将 threadgroup_barrier 或 simdgroup_barrier 设置为仅充当执行屏障，并且不应用内存栅栏。 ````
+
+``` mem_device 该标志确保 GPU 正确地将内存操作排序到线程组或 simdgroup 中线程的设备内存。 ````
+
+``` mem_threadgroup 该标志确保 GPU 正确地将内存操作排序到线程组或 simdgroup 中线程的线程组内存。 ````
+
+` mem_texture macOS：自 Metal 1 .2 起。 iOS：从 Metal 2 开始。`
+
+``` 该标志确保 GPU 正确地对具有 read_write 访问限定符的纹理的线程组或 simdgroup 中的线程的纹理内存进行内存操作排序。 ````
+
+`mem_threadgroup_image 块`
+
+``` 该标志确保 GPU 正确地将内存操作排序到线程组或 simdgroup 中线程的线程组图像块内存。 ````
+
+``` mem_object_data 该标志确保 GPU 正确地将内存操作排序到线程组或 simdgroup 中线程的 object_data 内存。 ````
+
+## 6.9.2 SIMD 组函数
+
+标头定义内核和片段函数的 SIMD 组函数。 macOS 支持 Metal 2 及更高版本中的 SIMD 组函数，iOS 支持大多数
+
+``2023 - 06 - 02 |版权所有 © 2023 苹果公司 |版权所有。 ````
+
+SIMD 组在 Metal 2.2 及更高版本中起作用。表 6. 14 和表 6. 15 列出了 SIMD 组函数及其在 iOS 和 macOS 中的可用性。请参阅 Metal 功能集表以确定哪些 GPU 支持每个表。
+
+SIMD 组函数允许 SIMD 组中的线程（请参阅第 4.4.1 节）共享数据，而无需使用线程组内存或需要任何同步操作（例如屏障）。
+
+_active_ 线程是正在执行的线程。 *非活动*线程是*未*执行的线程。例如，由于流控制或任务没有足够的工作来填充组，线程可能不处于活动状态。线程只需从 SIMD 组中的另一个活动线程读取数据。
+
+辅助线程也可以是*active*和*inactive*。例如，如果辅助线程完成执行，它将变为非活动辅助线程。 SIMD 组函数的辅助线程可以是活动的或非活动的。使用 simd_is_helper_thread() （参见表 6. 14 ）检查线程是否为辅助线程。
+
+表 6. 14 使用占位符 T 表示任何整数或浮点类型的标量或向量，但以下情况除外：
+
+- 布尔 - 无效 - size_t - ptrdiff_t
+
+对于按位运算，Ti 需要是整数标量或向量。
+
+有关使用 SIMD 组函数的示例，请参阅表后的 6.9.2.1。
+
+## 表 6.14。 Metal 标准库中的 SIMD 组置换函数
+
+`内置 SIMD 组函数说明`
+
+``` simd_vote simd_active_threads_mask() macOS：自 Metal 2.1 起。 iOS：自 Metal 2.2 起。 ````
+
+`````返回代表活动线程的 simd_vote 掩码。该函数相当于 simd_ballot (true)，并将表示活动线程的位设置为 1 ，将不活动线程的位设置为 0 。
+
+``` bool simd_all(bool expr) ```
+
+``` macOS：自 Metal 2.1 起。 iOS：自 Metal 2.2 起。 ````
+
+``` 如果所有活动线程将 expr 计算为 true，则返回 true。 ````
+
+``` bool simd_any(bool expr) macOS：自 Metal 2.1 起。 iOS：自 Metal 2.2 起。 ````
+
+`` 如果至少一个活动线程将 Expr 计算为 true，则返回 true。 ````
+
+``2023 - 06 - 02 |版权所有 © 2023 苹果公司 |版权所有。 ````
+
+**内置SIMD组功能说明**
+
+simd_vote simd_ballot (布尔表达式)
+
+macOS：自 Metal 2.1 起。 iOS：自 Metal 2.2 起。
+
+``` 返回一个包装类型 - 请参阅 simd_vote 示例 - 围绕 SIMD 组中 expr 为 true 的所有活动线程的布尔表达式求值的位掩码。该函数将与不活动线程对应的位设置为 0。````
+
+T simd_broadcast(T 数据, ushortbroadcast_lane_id)
+
+macOS：自 Metal 2 起。iOS：自 Metal 2.2 起。
+
+``` 从SIMD 通道ID 等于broadcast_lane_id 的线程广播数据。该规范没有定义当broadcast_lane_id不是有效的SIMD通道ID或者对于SIMD组中的所有线程来说不同时的行为。 ````
+
+T simd_broadcast_first(T 数据)
+
+macOS：自 Metal 2.1 起。 iOS：自 Metal 2.2 起。
+
+``` 将数据从 SIMD 组中的第一个活动线程（索引最小的活动线程）广播到所有活动线程。 ````
+
+bool simd_is_first()
+
+macOS：自 Metal 2.1 起。 iOS：自 Metal 2.2 起。
+
+``` 如果当前线程是当前 SIMD 组中的第一个活动线程（索引最小的活动线程），则返回 true；否则为假。 ````
+
+T simd_shuffle(T 数据, ushort simd_lane_id)
+
+macOS：自 Metal 2 起。iOS：自 Metal 2.2 起。
+
+``` 从 SIMD 通道 ID 为 simd_lane_id 的线程返回数据。 simd_lane_id 需要是有效的 SIMD 通道 ID，但不必对于 SIMD 组中的所有线程都相同。 ````
+
+T simd_shuffle_and_fill_down(T 数据, T 填充数据, ushort 增量)
+
+所有操作系统：自 Metal 2.4 起。
+
+``` 从线程返回 data 或 fill_data，其 SIMD 通道 ID 是调用者的 SIMD 通道 ID 和增量之和。如果总和大于 SIMD 组大小，则该函数会将 fill_data 较低增量通道中的值复制到 data 较高增量通道中。 SIMD 组中的所有线程的 delta 值必须相同。 ````
+
+``2023 - 06 - 02 |版权所有 © 2023 苹果公司 |版权所有。 ````
+
+**内置SIMD组功能说明**
+
+T simd_shuffle_and_fill_down（T 数据，T 填充数据，ushort 增量，ushort 模）
+
+所有操作系统：自 Metal 2.4 起。
+
+``` 从线程中返回每个向量的 data 或 fill_data，其 SIMD 通道 ID 是调用者的 SIMD 通道 ID 和增量之和。如果总和大于模数，则该函数将填充数据的较低增量通道中的值复制到数据的较高增量通道中。 SIMD 组中的所有线程的 delta 值必须相同。模参数定义将 SIMD 组分割为单独向量的向量宽度。 ````
+
+T simd_shuffle_and_fill_up(T 数据, T 填充数据, ushort 增量)
+
+所有操作系统：自 Metal 2.4 起。
+
+``` 从线程返回 data 或 fill_data，其 SIMD 通道 ID 是调用者的 SIMD 通道 ID 减去 delta 的差值。如果差值为负，则该操作将值从 fill_data 的上部增量通道复制到 data 的下部增量通道。 SIMD 组中的所有线程的 delta 值必须相同。 ````
+
+T simd_shuffle_and_fill_up（T 数据，T 填充数据，ushort 增量，ushort 模数）
+
+所有操作系统：自 Metal 2.4 起。
+
+``` 从线程中返回每个向量的 data 或 fill_data，其 SIMD 通道 ID 是调用者的 SIMD 通道 ID 减去 delta 的差值。如果差值为负，则该操作将值从 fill_data 的上部增量通道复制到 data 的下部增量通道。 SIMD 组中的所有线程的 delta 值必须相同。模参数定义将 SIMD 组分割为单独向量的向量宽度。 ````
+
+T simd_shuffle_down(T 数据，ushort 增量)
+
+macOS：自 Metal 2 起。iOS：自 Metal 2.2 起。
+
+``` 从线程返回数据，该线程的 SIMD 通道 ID 是调用者的 SIMD 通道 ID 和增量之和。 SIMD 组中的所有线程的 delta 值必须相同。此函数不会修改数据的上增量通道，因为它不会将值包装在 SIMD 组周围。 ````
+
+``2023 - 06 - 02 |版权所有 © 2023 苹果公司 |版权所有。 ````
+
+**内置SIMD组功能说明**
+
+T simd_shuffle_rotate_down(T 数据，ushort 增量)
+
+macOS：自 Metal 2.1 起。 iOS：自 Metal 2.2 起。
+
+``` 从线程返回数据，该线程的 SIMD 通道 ID 是调用者的 SIMD 通道 ID 和增量之和。 SIMD 组中的所有线程的 delta 值必须相同。该函数将值包装在 SIMD 组周围。 ````
+
+T simd_shuffle_rotate_up(T 数据，ushort 增量)
+
+macOS：自 Metal 2.1 起。 iOS：自 Metal 2.2 起。
+
+``` 从线程返回数据，该线程的 SIMD 通道 ID 与调用方的 SIMD 通道 ID 减去 delta 的差值。 SIMD 组中的所有线程的 delta 值必须相同。该函数将值包装在 SIMD 组周围。 ````
+
+T simd_shuffle_up(T 数据，ushort 增量)
+
+macOS：自 Metal 2 起。iOS：自 Metal 2.2 起。
+
+``` 从线程返回数据，该线程的 SIMD 通道 ID 与调用方的 SIMD 通道 ID 减去 delta 的差值。 SIMD 组中的所有线程的 delta 值必须相同。此函数不会修改数据的较低增量通道，因为它不会将值包装在 SIMD 组周围。 ````
+
+Ti simd_shuffle_xor(Ti 值，ushort 掩码)
+
+macOS：自 Metal 2 起。iOS：自 Metal 2.2 起。
+
+``` 从线程返回数据，该线程的 SIMD 通道 ID 等于调用者的 SIMD 通道 ID 和掩码的按位异或 (^)。 SIMD 组中的所有线程的掩码值必须相同。 ````
+
+## 表 6.15。 Metal 标准库中的 SIMD 组归约函数
+
+**内置SIMD组功能说明**
+
+ Ti simd_and(Ti 数据)
+
+macOS：自 Metal 2.1 起。 iOS：自 Metal 2.3 起。
+
+``` 返回 SIMD 组中所有活动线程之间的数据按位 AND (&)，并将结果广播到 SIMD 组中的所有活动线程。 ````
+
+``2023 - 06 - 02 |版权所有 © 2023 苹果公司 |版权所有。 ````
+
+**内置SIMD组功能说明**
+
+bool simd_is_helper_thread()
+
+macOS：自 Metal 2.1 起。 iOS：自 Metal 2.3 起。
+
+``` 如果当前线程是辅助线程，则返回 true；否则为假。你需要从片段函数或片段函数调用的另一个函数中调用此函数；否则，可能会引发编译时错误。 ````
+
+ T simd_max(T 数据)
+
+macOS：自 Metal 2.1 起。 iOS：自 Metal 2.3 起。
+
+``` 返回 SIMD 组中所有活动线程中具有最高值的数据，并将该值广播到 SIMD 组中的所有活动线程。 ````
+
+ T simd_min(T 数据)
+
+macOS：自 Metal 2.1 起。 iOS：自 Metal 2.3 起。
+
+``` 返回 SIMD 组中所有活动线程中最低值的数据，并将该值广播到 SIMD 组中的所有活动线程。 ````
+
+ Ti simd_or(Ti 数据)
+
+macOS：自 Metal 2.1 起。 iOS：自 Metal 2.3 起。
+
+``` 返回 SIMD 组中所有活动线程之间数据的按位 OR (|)，并将结果广播到 SIMD 组中的所有活动线程。 ````
+
+T simd_prefix_exclusive_product（T 数据）
+
+macOS：自 Metal 2.1 起。 iOS：自 Metal 2.3 起。
+
+``` 对于给定线程，返回 SIMD 组中索引较低的所有活动线程的数据输入值的乘积。组中的第一个线程返回 T(1)。 ````
+
+T simd_prefix_exclusive_sum（T 数据）
+
+macOS：自 Metal 2.1 起。 iOS：自 Metal 2.3 起。
+
+``` 对于给定线程，返回 SIMD 组中索引较低的所有活动线程的数据输入值之和。组中的第一个线程返回 T(0)。 ````
+
+T simd_prefix_inclusive_product（T 数据）
+
+macOS：自 Metal 2.1 起。 iOS：自 Metal 2.3 起。
+
+``` 对于给定线程，返回 SIMD 组中具有较低或相同索引的所有活动线程的数据输入值的乘积。 ````
+
+T simd_prefix_inclusive_sum（T 数据）
+
+macOS：自 Metal 2.1 起。 iOS：自 Metal 2.3 起。
+
+``` 对于给定线程，返回 SIMD 组中具有较低或相同索引的所有活动线程的数据输入值之和。 ````
+
+``2023 - 06 - 02 |版权所有 © 2023 苹果公司 |版权所有。 ````
+
+``内置 SIMD 组函数说明``
+
+``` T simd_product(T data) macOS：自 Metal 2.1 起。 iOS：自 Metal 2.3 起。 ````
+
+``` 返回 SIMD 组中所有活动线程的数据输入值的乘积，并将结果广播到 SIMD 组中的所有活动线程。 ````
+
+``` T simd_sum(T data) macOS：自 Metal 2.1 起。 iOS：自 Metal 2.3 起。 ````
+
+``` 返回 SIMD 组中所有活动线程的数据输入值之和，并将结果广播到 SIMD 组中的所有活动线程。 ````
+
+``` Ti simd_xor(Ti 数据) macOS：自 Metal 2.1 起。 iOS：自 Metal 2.3 起。 ````
+
+``` 返回 SIMD 组中所有活动线程之间数据的按位异或 (^)，并将结果广播到 SIMD 组中的所有活动线程。 ````
+
+ ## 6.9.2.1 示例
+
+为了演示随机播放功能，请从该 SIMD 组的初始状态开始：
+
+``SIMD 通道 ID 0 1 2 3 4 5 6 7 8 9 10 11 12 13 14 15``
+
+``` 数据 a b c d e f g h i j K l m nop ```
+
+simd_shuffle_up() 函数将每个 SIMD 组向上移动增量线程。例如，当 delta 值为 2 时，函数：
+
+- 将 SIMD 通道 ID 下移两位 - 将下面的两个通道标记为无效
+
+``` 计算的 SIMD 通道 ID - 2 - 1 0 1 2 3 4 5 6 7 8 9 10 11 12 13 ```
+
+``` 有效 0 0 1 1 1 1 1 1 1 1 1 1 1 1 1 1 ```
+
+``` 数据 a b a b c d e f g h i j k l m n ```
+
+simd_shuffle_up() 函数是一种非包装操作，不会影响较低的增量通道。
+
+类似地，simd_shuffle_down() 函数将每个 SIMD 组向下移动增量线程。从相同的初始 SIMD 组状态开始，增量值为 2 ，该函数：
+
+- 将 SIMD 通道 ID 向上移动两位 - 将上面的两个通道标记为无效
+
+``` 计算的 SIMD 通道 ID 2 3 4 5 6 7 8 9 10 11 12 13 14 15 16 17 ```
+
+``` 有效 1 1 1 1 1 1 1 1 1 1 1 1 1 1 0 0 ```
+
+``数据 c def g h i j k l m no pop ``
+
+``2023 - 06 - 02 |版权所有 © 2023 苹果公司 |版权所有。 ````
+
+simd_shuffle_down() 函数是一种非包装操作，不会影响上增量通道。
+
+为了演示 shuffle-and-fill 函数，启动该 SIMD 组的初始状态：
+
+``SIMD 通道 ID 0 1 2 3 4 5 6 7 8 9 10 11 12 13 14 15``
+
+``` 数据 a b c d e f g h s t u v w x y z ```
+
+``` 填充 fa fb fc fd fe ff fg fh fs ft fu fv fw fx fy fz ```
+
+simd_shuffle_and_fill_up() 函数通过增量线程向上移动每个 SIMD 组（类似于 simd_shuffle_up()），并通过包装 SIMD 通道 ID 将上填充通道的值分配给下数据通道。例如，当 delta 值为 2 时，函数：
+
+- 将 SIMD 通道 ID 下移两位 - 将上面两个填充通道分配给下面两个数据通道
+
+``` 计算的 SIMD 通道 ID - 2 - 1 0 1 2 3 4 5 6 7 8 9 10 11 12 13 ```
+
+``` 数据 fy fz a b c d e f g h s t u v w x ```
+
+带有模参数的 simd_shuffle_and_fill_up() 函数将 SIMD 组拆分为向量，每个向量的大小均以模为模，并按增量线程移位每个向量。例如，模值为 8 且增量值为 2 时，函数：
+
+- 将 SIMD 通道 ID 下移两位 - 将填充中每个向量的上面两个通道分配给数据中每个向量的下面两个通道
+
+``` 计算的 SIMD 通道 ID - 2 - 1 0 1 2 3 4 5 - 2 - 1 0 1 2 3 4 5 ```
+
+``` 数据 fg fh a b c d e f fy fz s t u v w x ```
+
+simd_shuffle_and_fill_down() 函数通过增量线程向下移动每个 SIMD 组（类似于 simd_shuffle_down()），并通过包装 SIMD 通道 ID 将较低填充通道中的值分配给较高数据通道。例如，当 delta 值为 2 时，函数：
+
+- 将 SIMD 通道 ID 上移两位 - 将下面两个填充通道分配给上面两个数据通道
+
+``` 计算的 SIMD 通道 ID 2 3 4 5 6 7 8 9 10 11 12 13 14 15 16 17 ```
+
+``` 数据 c def g h s t u v w x y z fa fb ```
+
+带有模参数的 simd_shuffle_and_fill_down() 函数将 SIMD 组拆分为向量，每个向量的大小均以模为模，并按增量线程移位每个向量。例如，模值为 8 且增量值为 2 时，函数：
+
+- 将 SIMD 通道 ID 向上移动两位
+
+``2023 - 06 - 02 |版权所有 © 2023 苹果公司 |版权所有。 ````
+
+- 将填充中每个向量的下两个泳道分配给数据中每个向量的上两个泳道
+
+``` 计算的 SIMD 通道 ID 2 3 4 5 6 7 8 9 10 11 12 13 14 15 16 17 ```
+
+``` 数据 c def g h fa fb u v w x y z fs ft ```
+
+下面是如何使用这些 SIMD 函数执行归约操作的示例：
+
+kernel void reduce(const device int *input [[buffer(0)]], deviceatomic_int *output [[buffer(1)]], threadgroup int \*ldata [[threadgroup(0)]], uint gid [[thread_position_in_grid ]], uint lit [[thread_position_in_threadgroup]], uint lsize [[threads_per_threadgroup]], uint simd_size [[threads_per_simdgroup]], uint simd_lane_id [[thread_index_in_simdgroup]], uint simd_group_id [[simdgroup_index_in_threadgroup]]) { // 执行第一级的减少。 // 从设备内存读取，写入线程组内存。 int val = 输入[gid] + 输入[gid + lsize]; for (uint s=lsize/simd_size; s>simd_size; s/=simd_size) { // 执行每个 SIMD 部分缩减。 for (uint offset=simd_size/2; offset>0; offset/=2) val += simd_shuffle_down(val, offset); // 将每个 SIMD 部分缩减值写入线程组内存。 if (simd_lane_id == 0) ldata[simd_group_id] = val; // 等待所有部分归约完成。 threadgroup_barrier(mem_flags::mem_threadgroup);
+
+val = (盖子 < s)? ldata[盖子]：0； } // 执行最终的每SIMD 部分缩减来计算 // 线程组部分缩减结果。 for (uint offset=simd_size/2; offset>0; offset/=2) val += simd_shuffle_down(val, offset); // 原子更新归约结果。 if (lid == 0)atomic_fetch_add_explicit(输出, val, memory_order_relaxed); }
+
+``2023 - 06 - 02 |版权所有 © 2023 苹果公司 |版权所有。 ````
+
+simd_active_threads_mask 和 simd_ballot 函数使用 simd_vote 包装类型（见下文），它可以显式转换为其由 vote_t 表示的基础类型。
+
+类 simd_vote { 公共：显式 constexpr simd_vote(vote_t v = 0);显式 constexpr 运算符 vote_t() const;
+
+// 如果与 SIMD 组中的线程对应的所有位均已设置，则返回 true。 // 你可以使用 all() 和 simd_ballot(expr) 的返回值来确定是否所有线程都处于活动状态。 bool all() const;
+
+// 如果设置了与 SIMD 组中的有效线程对应的任何位，则返回 true。 // 你可以使用any() 与simd_ballot(expr) 的返回值 // 来确定是否至少有一个线程处于活动状态。布尔任何（）常量；
+
+private: // v 中的位 i 代表 // SIMD 组中索引 i 处线程的“投票” uint64_t v; };
+
+请注意，simd_all(expr) 与 simd_ballot(expr).all() 不同：
+
+- 如果所有 \_active* 线程将 expr 计算为 true，则 simd*all(expr) 返回 true。 - 如果所有线程 \_were* 都处于活动状态并且将 expr 计算为 true，则 simd*ballot(expr).all() 返回 true。 （simd_vote::all() 不会查看哪些线程处于活动状态。）
+
+相同的逻辑适用于 simd_any、simd_vote::any() 以及第 6.9.3 节中列出的等效四元函数。
+
+在 SIMD 组中线程少于 64 个的硬件上，simd_vote 中最高位的值未定义。特别是，由于你可以初始化这些位，因此不要假设最高位设置为 0。
+
+## 6.9.3 四组函数
+
+macOS：自 Metal 2.1 起支持四组函数。
+
+iOS：自 Metal 2 起支持一些四组函数，包括quad_broadcast、quad_shuffle、quad_shuffle_up、quad_shuffle_down 和quad_shuffle_xor。
+
+四组函数是一个 SIMD 组函数（参见第 6.9.2 节），执行宽度为
+
+4. _active_ 和 _inactive_ 线程术语与第 6.9.2 节中的相同。
+
+``2023 - 06 - 02 |版权所有 © 2023 苹果公司 |版权所有。 ````
+
+辅助线程仅执行以计算片段着色器中四组的梯度，然后变为非活动状态。
+
+内核和片段函数可以调用表 6. 16 和表 6. 17 中列出的四元组函数。线程只能从四元组中的另一个活动线程读取数据。请参阅 Metal 功能集表以确定哪些 GPU 支持每个表。
+
+表 6. 16 和表 6. 17 的占位符 T 表示任何整数或浮点类型的标量或向量，但以下情况除外：
+
+- 布尔 - 无效 - size_t - ptrdiff_t
+
+对于按位运算，T 需要是整数标量或向量。
+
+## 表 6.16。 Metal 标准库中的四组置换函数
+
+```` 内置四组功能说明````
+
+```quad_votequad_ballot (bool expr) macOS：自 Metal 2.1 起。 iOS：自 Metal 2.2 起。 ````
+
+``` 返回一个包装器类型 - 请参阅quad_vote 示例 - 围绕四元组中 expr 为 true 的所有活动线程的布尔表达式求值的位掩码。该函数将与不活动线程对应的位设置为 0。````
+
+``` Tquad_broadcast(T data, ushortbroadcast_lane_id) macOS：自 Metal 2 以来。iOS：自 Metal 2 以来。```
+
+``` 从四通道 ID 为broadcast_lane_id 的线程广播数据。 Broadcast_lane_id 的值必须是有效的四通道 ID，该 ID 对于四组中的所有线程都相同。 ````
+
+``` Tquad_broadcast_first(T data) macOS：自 Metal 2.1 起。 iOS：自 Metal 2.2 起。 ````
+
+``` 将数据从四元组中的第一个活动线程（索引最小的活动线程）广播到所有活动线程。 ````
+
+``` Tquad_shuffle(T data, ushortquad_lane_id) macOS：自 Metal 2 以来。iOS：自 Metal 2 以来。```
+
+``` 从线程返回数据，该线程的四通道 ID 是调用者的四通道 ID 和增量之和。 Quad_lane_id 的值必须是有效的 Land ID，并且可能与四元组中的其他线程不同。 ````
+
+``2023 - 06 - 02 |版权所有 © 2023 苹果公司 |版权所有。 ````
+
+**内置四组功能说明**
+
+Tquad_shuffle_and_fill_down（T数据，T填充数据，ushort增量）
+
+所有操作系统：自 Metal 2. 4.
+
+``` 从四通道 ID 为调用者的四通道 ID 和增量之和的线程返回 data 或 fill_data。如果总和大于四元组大小，则该函数将填充_data 的较低增量通道中的值复制到数据的较高增量通道中。四元组中所有线程的 delta 值必须相同。 ````
+
+Tquad_shuffle_and_fill_down（T数据，T填充数据，ushort增量，ushort模数）
+
+所有操作系统：自 Metal 2. 4.
+
+``` 从四通道 ID 为调用者四通道 ID 和增量之和的线程返回每个向量的 data 或 fill_data。如果总和大于四元组大小，则该函数将填充_data 的较低增量通道中的值复制到数据的较高增量通道中。四元组中所有线程的 delta 值必须相同。模参数定义将四元组分割成单独向量的向量宽度。 ````
+
+Tquad_shuffle_and_fill_up（T数据，T填充数据，ushort增量）
+
+所有操作系统：自 Metal 2. 4.
+
+``` 从线程返回 data 或 fill_data，其四通道 ID 与调用者的四通道 ID 减去 delta 的差值。如果差值为负，则该操作将值从 fill_data 的上部增量通道复制到 data 的下部增量通道。如果差值为负，该函数会将数据从 fill_data 混洗到较低的增量通道中。四元组中所有线程的 delta 值必须相同。 ````
+
+Tquad_shuffle_and_fill_up（T数据，T填充数据，ushort增量，ushort模数）
+
+所有操作系统：自 Metal 2. 4.
+
+``` 从线程中返回每个向量的 data 或 fill_data ，其四通道 ID 与调用者的四通道 ID 减去 delta 的差值。如果差值为负，则该操作将值从 fill_data 的上部增量通道复制到 data 的下部增量通道。四元组中所有线程的 delta 值必须相同。模参数定义将四元组分割成单独向量的宽度。 ````
+
+``2023 - 06 - 02 |版权所有 © 2023 苹果公司 |版权所有。 ````
+
+**内置四组功能说明**
+
+Tquad_shuffle_down（T数据，ushort增量）
+
+macOS：自 Metal 2 起。iOS：自 Metal 2 起。
+
+``` 从线程返回数据，该线程的四通道 ID 是调用者的四通道 ID 和增量之和。四元组中所有线程的 delta 值必须相同。该函数不会修改数据的上增量通道，因为它不会将值包裹在四元组周围。 ````
+
+Tquad_shuffle_rotate_down（T数据，ushort增量）
+
+macOS：自 Metal 2.1 起。 iOS：自 Metal 2.2.
+
+``` 从线程返回数据，该线程的四通道 ID 是调用者的四通道 ID 和增量之和。四元组中所有线程的 delta 值必须相同。该函数将值包裹在四元组周围。 ````
+
+Tquad_shuffle_rotate_up（T数据，ushort增量）
+
+macOS：自 Metal 2.1 起。 iOS：自 Metal 2.2.
+
+``` 从线程返回数据，该线程的四通道 ID 与调用者的四通道 ID 减去 delta 的差值。四元组中所有线程的 delta 值必须相同。该函数将值包裹在四元组周围。 ````
+
+Tquad_shuffle_up（T数据，ushort增量）
+
+macOS：自 Metal 2 起。iOS：自 Metal 2 起。
+
+``` 从线程返回数据，该线程的四通道 ID 与调用者的四通道 ID 减去 delta 的差值。四元组中所有线程的 delta 值必须相同。此函数不会修改数据的较低增量通道，因为它不会将值包裹在四元组周围。 ````
+
+Tquad_shuffle_xor（T值，ushort掩码）
+
+macOS：自 Metal 2 起。iOS：自 Metal 2 起。
+
+``` 从线程返回数据，该线程的四通道 ID 是调用者的四通道 ID 和掩码的按位异或 (^)。四元组中所有线程的 mask 值必须相同。 ````
+
+``2023 - 06 - 02 |版权所有 © 2023 苹果公司 |版权所有。 ````
+
+## 表 6.17。 Metal 标准库中的四组归约函数
+
+**内置四组功能说明**
+
+quad_votequad_active_threads_mask()
+
+macOS：自 Metal 2.1 起。 iOS：自 Metal 2.3.
+
+``` 返回代表活动线程的quad_vote 掩码。该函数相当于quad_ballot(true)，并将表示活动线程的位设置为1，将不活动线程的位设置为0。
+
+ 布尔四元全部（布尔表达式）
+
+macOS：自 Metal 2.1 起。 iOS：自 Metal 2.3.
+
+``` 如果所有活动线程将 expr 计算为 true，则返回 true。 ````
+
+ Tquad_and(T数据)
+
+macOS：自 Metal 2.1 起。 iOS：自 Metal 2.3.
+
+``` 返回四元组中所有活动线程之间数据的按位与 (&) 并将结果广播到四元组中的所有活动线程。 ````
+
+ 布尔四元任意（布尔表达式）
+
+macOS：自 Metal 2.1 起。 iOS：自 Metal 2.3.
+
+`` 如果至少有一个活动线程将 expr 计算为 true，则返回 true。 ````
+
+ boolquad_is_first()
+
+macOS：自 Metal 2.1 起。 iOS：自 Metal 2.3.
+
+``` 如果当前线程是当前四元组中的第一个活动线程（索引最小的活动线程），则返回 true；否则为假。 ````
+
+boolquad_is_helper_thread()
+
+macOS：自 Metal 2.1 起。 iOS：自 Metal 2.3.
+
+``` 如果当前线程是辅助线程，则返回 true；否则为假。你需要从片段函数或片段函数调用的另一个函数中调用此函数；否则，可能会引发编译时错误。 ````
+
+ Tquad_max(T数据)
+
+macOS：自 Metal 2.1 起。 iOS：自 Metal 2.3.
+
+``` 返回四元组中所有活动线程中具有最高值的数据，并将该值广播到四元组中的所有活动线程。 ````
+
+ Tquad_min(T数据)
+
+macOS：自 Metal 2.1 起。 iOS：自 Metal 2.3.
+
+``` 返回四元组中所有活动线程中具有最低值的数据，并将该值广播到四元组中的所有活动线程。 ````
+
+``2023 - 06 - 02 |版权所有 © 2023 苹果公司 |版权所有。 ````
+
+```` 内置四组功能说明````
+
+``` T four_or(T data) macOS：自 Metal 2.1 起。 iOS：自 Metal 2.3.``
+
+``` 返回四元组中所有活动线程之间数据的按位或 (|) 并将结果广播到四元组中的所有活动线程。 ````
+
+``` Tquad_prefix_exclusive_product（T 数据）macOS：自 Metal 2.1 起。 iOS：自 Metal 2.3.``
+
+``` 对于给定线程，返回四元组中具有较低索引的所有活动线程的数据输入值的乘积。对于组中的第一个线程，返回 T(1)。 ````
+
+``` Tquad_prefix_exclusive_sum（T 数据）macOS：自 Metal 2.1 起。 iOS：自 Metal 2.3.``
+
+``` 对于给定线程，返回四元组中具有较低索引的所有活动线程的数据输入值的总和。对于组中的第一个线程，返回 T(0)。 ````
+
+``` Tquad_prefix_inclusive_product（T 数据）macOS：自 Metal 2.1 起。 iOS：自 Metal 2.3.``
+
+``` 对于给定线程，返回四元组中具有较低或相同索引的所有活动线程的数据输入值的乘积。 ````
+
+``` Tquad_prefix_inclusive_sum（T 数据）macOS：自 Metal 2.1 起。 iOS：自 Metal 2.3.``
+
+``` 对于给定线程，返回四元组中具有较低或相同索引的所有活动线程的数据输入值的总和。 ````
+
+``` T four_product(T data) macOS：自 Metal 2.1 起。 iOS：自 Metal 2.3.``
+
+``` 返回四元组中所有活动线程的数据输入值的乘积，并将结果广播到四元组中的所有活动线程。 ````
+
+``` T four_sum(T data) macOS：自 Metal 2.1 起。 iOS：自 Metal 2.3.``
+
+``` 返回四元组中所有活动线程的数据输入值之和，并将结果广播到四元组中的所有活动线程。 ````
+
+``` T four_xor(T data) macOS：自 Metal 2.1 起。 iOS：自 Metal 2.3.``
+
+``` 返回四元组中所有活动线程之间数据的按位异或 (^)，并将结果广播到四元组中的所有活动线程。 ````
+
+在核函数中，四边形除以 SIMD 组。在片段函数中，通道 ID 表示 2 x 2 四边形中的片段位置：
+
+- 泳道 ID 0 是左上像素 - 泳道 ID 1 是右上像素
+
+``2023 - 06 - 02 |版权所有 © 2023 苹果公司 |版权所有。 ````
+
+- 泳道 ID 2 是左下像素 - 泳道 ID 3 是右下像素
+
+为了演示随机播放功能，请从该四元组的初始状态开始：
+
+``` 四通道 ID 0 1 2 3 ```
+
+``` 数据 a b c d ```
+
+quad_shuffle_up() 函数将每个四组向上移动增量线程。例如，当 delta 值为 2 时，函数：
+
+- 将四通道 ID 下移两位 - 将下面的两个通道标记为无效
+
+``` 计算的四通道 ID - 2 - 1 0 1 ```
+
+``` 有效 0 0 1 1 ```
+
+``` 数据 a b a b ```
+
+quad_shuffle_up() 函数是一个非包装操作，不会影响较低的增量通道。
+
+类似地，quad_shuffle_down() 函数将每个四组向下移动增量线程。从相同的初始四组状态开始，增量为 2 ，函数：
+
+- 将四通道 ID 向上移动两位 - 将上面的两个通道标记为无效
+
+`` 计算出的四通道 ID 2 3 4 5 ``
+
+``` 有效 1 1 0 0 ```
+
+``` 数据 c d c d ```
+
+quad_shuffle_down() 函数是一个非包装操作，不会影响上部 delta 通道。
+
+为了演示洗牌和填充功能，启动该四元组的初始状态：
+
+**Quad Lane ID** (^0 1 2 3) data a b c d fill fa fb fc fdquad_shuffle_and_fill_up() 函数通过 delta 线程向上移动每个四边组 — 类似于quad_shuffle_up() — 并从上层分配值通过包装四通道 ID 将通道填充到较低的数据通道。例如，当 delta 值为 2 时，函数：
+
+- 将四车道 ID 向下移动两位
+
+``2023 - 06 - 02 |版权所有 © 2023 苹果公司 |版权所有。 ````
+
+- 将上两道填充分配给下两道数据
+
+``` 计算的四通道 ID - 2 - 1 0 1 ```
+
+``` 数据 fc fd a b ```
+
+带有模参数的quad_shuffle_and_fill_up()函数将四元组分割成向量，每个向量的大小都以模为模，并按增量线程移位每个向量。例如，模值为 2 且增量值为 1 时，该函数：
+
+- 将四通道 ID 下移一位 - 将填充中每个向量的上通道分配给数据中每个向量的下通道
+
+``` 计算的四通道 ID - 1 0 - 1 0 ```
+
+``` 数据 fb a fd c ```
+
+quad_shuffle_and_fill_down() 函数通过增量线程将每个四组向下移动（类似于quad_shuffle_down()），并通过包装四通道 ID 将较低填充通道中的值分配给较高数据通道。例如，当 delta 值为 2 时，函数：
+
+- 将四通道 ID 向上移动两位 - 将下面两个填充通道分配给上面两个数据通道
+
+`` 计算出的四通道 ID 2 3 4 5 ``
+
+``` 数据 c d fa fb ```
+
+带有模参数的quad_shuffle_and_fill_down()函数将四元组分割成向量，每个向量的大小都以模为模，并按增量线程移位每个向量。例如，模值为 2 且增量值为 1 时，该函数：
+
+- 将四通道 ID 上移一位 - 将填充中每个向量的下通道分配给数据中每个向量的上通道
+
+`` 计算出的四通道 ID 1 2 1 2 ``
+
+``` 数据 b fa d fc ```
+
+quad_ballot 函数使用quad_vote 包装类型，可以显式转换为其基础类型。 （在以下示例中，请注意使用 vote_t 来表示基础类型 XXX。）
+
+``2023 - 06 - 02 |版权所有 © 2023 苹果公司 |版权所有。 ````
+
+类quad_vote { public: typedef XXX vote_t;显式 constexprquad_vote(vote_t v = 0);显式 constexpr 运算符 vote_t() const;
+
+// 如果与四元组中的线程对应的所有位（底部四个位）均已设置，则返回 true。 bool all() const;
+
+// 如果设置了与四元组中的线程对应的任何位，则返回 true。布尔任何（）常量； };
+
+quad_vote 构造函数屏蔽了顶部位（即，底部四个位除外）。因此，当投射到 vote_t 时，非底部四位保证不会被设置。
+`````

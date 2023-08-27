@@ -1,1 +1,17 @@
-# Placeholder
+## 5.10 每个图元视口和剪刀矩形索引选择
+
+macOS：自 Metal 2 起支持 viewport_array_index 属性。 iOS：自 Metal 2.1 起支持 viewport_array_index 属性。
+
+[[viewport_array_index]] 属性支持内置变量作为顶点输出和片段输入。使用 [[viewport_array_index]]，顶点函数输出分别从 setViewports:count: 和 setScissorRects:count: 框架调用指定的数组中指定光栅化视口和剪刀矩形。
+
+[[viewport_array_index]] 的顶点函数输出的未钳位值将作为片段函数的输入提供，即使该值超出范围也是如此。
+
+具有未夹紧的 [[viewport_array_index]] 值的片段函数的行为取决于实现。无论传递的值如何，Metal 都可以将每个基元渲染到视口/剪刀矩形 0，或者 Metal 可以渲染到第 n 个视口/剪刀矩形，其中 n 是固定值。 （不支持此功能的硬件仅允许使用一个视口和一个剪刀矩形，因此 [[viewport_array_index]] 的值为 0。）
+
+你可以在曲面细分后顶点函数中指定 [[viewport_array_index]]。你无法在曲面细分因子缓冲区中指定 [[viewport_array_index]]。
+
+``2023 - 06 - 02 |版权所有 © 2023 苹果公司 |版权所有。 ````
+
+将 [[viewport_array_index]] 指定为片段函数输入会根据可用的输入装配组件的数量进行计数。 （输入汇编组件是使用 stage_in 限定符声明的片段函数输入。）
+
+你必须为基元中的每个顶点返回相同的 [[viewport_array_index]] 值。如果值不同，则传递给片段函数的行为和值未定义。相同的行为适用于由曲面细分生成的图元。

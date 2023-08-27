@@ -1,1 +1,1543 @@
-# Placeholder
+## 6.12 纹理函数
+
+纹理成员函数在头文件 中定义，在本节及其针对不同纹理类型的小节中列出，包括：
+
+-sample - 从纹理中采样，-sample_compare - 从纹理中进行采样比较，-gather - 从纹理中收集，-gather_compare - 从纹理中收集比较，-read - 从纹理中进行无采样器读取，-write - 写入纹理， - 纹理查询（例如 get_width、get_height、get_num_mip_levels、get_array_size），以及 - 纹理栅栏。
+
+Metal 3.1 引入了新的原子纹理成员函数，支持 1D 纹理、1D 纹理数组、2D 纹理、2D 纹理数组、3D 纹理以及 int、uint、ulong 颜色类型的纹理缓冲区：
+
+-atomic*load - 从纹理的原子加载， -atomic_store - 原子存储到纹理， -atomic_exchange - 原子交换纹理的值， -atomic_compare_exchange_weak - 纹理中的原子比较和交换， -atomic*fetch* \_op* _explicit - 原子获取并修改 \_op_ 可以添加的位置，and、max、min、or、sub 或 xor（对于 int 和 uint 颜色类型）。 -atomic_max - ulong 颜色类型纹理中的原子最大值。 -atomic_min - ulong 颜色类型纹理中的原子最小值。
+
+纹理样本、sample_compare、gather 和 gather_compare 函数采用 2D 纹理、2D 纹理数组和 3D 纹理的偏移量参数。偏移量是一个整数
+
+``2023 - 06 - 02 |版权所有 © 2023 苹果公司 |版权所有。 ````
+
+在查找每个像素之前应用于纹理坐标的值。该整数值的范围可以是 - 8 到 +7。默认值为 0。
+
+纹理样本、sample_compare、gather 和 gather_compare 函数要求你使用样本访问属性声明纹理。纹理读取函数要求你使用 Sample、read 或 read_write 访问属性声明纹理。纹理写入函数要求你使用 write 或 read_write 访问属性声明纹理。 （有关访问属性的更多信息，请参阅第 2.9 节。）
+
+纹理 sample_compare 和 gather_compare 函数仅适用于深度纹理类型。
+
+Compare_func 设置 sample_compare 和 gather_compare 函数的比较测试。有关 compare_func 的更多信息，请参见第 2.10 节。
+
+带有 lod_options 参数的纹理样本和 sample_compare 函数的重载变体可用于 2D 纹理、2D 纹理数组、2D 深度纹理、2D 深度纹理数组、3D 纹理、立方体纹理、立方体纹理数组、立方体深度纹理和立方体深度纹理数组。 （LOD/lod 是 level-of-detail 的缩写。）lod_options 的值为：
+
+- level(float lod) - 从指定的 mipmap 级别进行采样 -bias(float value) - 在采样之前将指定的偏差应用到 mipmap 级别 -gradient\*(T dPdx, T dPdy) - 根据指定的 mipmap 级别应用指定的梯度 x 和 y 方向。纹理类型更改名称和参数；例如，对于 3D 纹理，名称是 gradient3d，参数是 float3 类型。 - min_lod_clamp(float lod) - 指定采样器访问的最低 mipmap 级别，这将采样器访问限制为一定范围的 mipmap 级别。 （所有操作系统：自 Metal 2.2 起支持。）
+
+在 Metal 2.2 之前的 macOS 上，对于 sample_compare 函数，不支持偏差和梯度\*，并且 lod 需要为零常数。在 Metal 2.3 中，某些硬件取消了此限制。
+
+从 Metal 2.2 开始，你可以为采样器指定 LOD 范围。你可以指定最小和最大 mipmap 级别，也可以使用 min_lod_clamp 指定开放范围的最小 mipmap 级别。当采样器确定要采样哪些 mipmap 时，选择范围将被限制在指定范围内。
+
+当某些纹理数据并非始终可用时（例如纹理流），限制 LOD 非常有用。你可以使用所有必需的 mipmap 创建纹理，然后可以从最小的 mipmap 开始流式传输图像数据。当 GPU 对纹理进行采样时，它会锁定已具有有效数据的 mipmap。将较大的 mipmap 复制到纹理中时，会降低最小 LOD 级别。当新数据准备就绪时，你可以更改 LOD 钳位，从而更改采样分辨率。
+
+不采用显式 LOD 或渐变的纹理样本和 sample_compare 函数的默认 LOD 为 0。从内核或顶点函数调用的 gather 和 gather_compare 函数的默认 LOD 也为 0。
+
+对于 gather 和 gather_compare 函数，将有助于过滤成 xyzw 分量的四个样本按逆时针顺序放置，从查询位置左下角的样本开始。这与在以下位置使用非标准化纹理坐标增量的最近采样相同：(-,+), (+,+),(+,-),(-,-)，其中增量的大小始终是一半一个像素。
+
+``2023 - 06 - 02 |版权所有 © 2023 苹果公司 |版权所有。 ````
+
+当且仅当满足以下任何条件时，对纹理的读取或写入是越界的：
+
+- 访问的坐标越界， - 细节级别参数越界， - 纹理是纹理数组（texture?d_array 类型），并且数组切片参数越界， - 纹理是 texturecube 或 texturecube_array 类型，并且 face 参数越界，或者 - 纹理是多重采样纹理，并且 sample 参数越界。
+
+对于所有纹理类型，对纹理的越界写入将被忽略。
+
+对于所有纹理类型：
+
+- 对于以像素格式指定的组件，越界读取将返回组件值为零的颜色。 - 对于未以像素格式指定的组件，越界读取将返回默认值。
+
+对于像素格式中未指定的颜色分量，默认值为：
+
+- 零，对于 alpha 以外的组件。 - 一，用于 alpha 分量。
+
+在具有整数分量的像素格式中，alpha 默认值表示为整数值 0x1。对于具有浮点或归一化分量的像素格式，alpha 默认值表示为浮点值 1.0。
+
+例如，对于具有 MTLPixelFormatR8Uint 像素格式的纹理，未指定整数分量的默认值为 G = 0、B = 0 和 A = 1。对于具有 MTLPixelFormatR8Unorm 像素格式的纹理，未指定标准化分量的默认值为 G = 0.0，B = 0.0，A = 1.0。对于具有深度或模板像素格式（例如 MTLPixelFormatDepth24Unorm_Stencil8 或 MTLPixelFormatStencil8）的纹理，未指定组件的默认值是未定义的。
+
+在 Metal 2.2 之前的 macOS 上，对于纹理写入功能，lod 需要为 0。在 Metal 2.3 中，某些硬件取消了此限制。
+
+以下纹理成员函数可用于支持稀疏纹理：
+
+macOS：自 Metal 2.3 起支持稀疏纹理函数。 iOS：从 Metal 2.2 开始支持稀疏纹理函数。
+
+-稀疏样本-来自稀疏纹理的样本，-稀疏样本比较-来自稀疏纹理的样本比较，-稀疏收集-从稀疏纹理收集，以及-稀疏收集比较-从稀疏纹理收集比较。
+
+这些稀疏纹理成员函数返回一个稀疏颜色结构，其中包含一个或多个颜色值和一个驻留标志。如果任何访问的像素未映射，则 resident 设置为 false。
+
+``2023 - 06 - 02 |版权所有 © 2023 苹果公司 |版权所有。 ````
+
+template struct 稀疏\_color { public: constexpr 稀疏\_color(T value, bool resident) thread;
+
+// 指示是否映射了检索值的所有内存地址。 constexpr bool resident() const 线程；
+
+// 检索颜色值。 constexpr T const value() const 线程； };
+
+对于稀疏纹理，要指定采样器可以访问的最小 LOD 级别，请使用 min_lod_clamp。
+
+笔记：
+
+对于第 6.12.1 节到第 6.12.16 节，函数参数和返回值的数据类型使用以下缩写：
+
+Tv 表示基于模板类型 的 4 分量向量类型，用于声明纹理类型：
+
+- 如果 T 为 float，则 Tv 为 float4。 - 如果 T 为 half，则 Tv 为 half4。 - 如果 T 为 int，则 Tv 为 int4。 - 如果 T 为 uint，则 Tv 为 uint4。 - 如果 T 为 ushort，则 Tv 为 ushort4。 - 如果 T 为 ulong，则 Tv 为 ulong 4（自 Metal 3.1 起）
+
+当 T 为 ulong 时，Metal 不支持纹理采样。请注意，并非所有类型都支持所有操作。
+
+从 Metal 3.1 开始，纹理支持元素 T 的原子函数，其中 T 是 int、uint 或 ulong：
+
+- 当元素 T 为 int 或 uint 时，Metal 上的纹理需要为 MTLPixelFormatR32Uint 或 MTLPixelFormatR32Sint， - 当元素 T 为 ulong 时，Metal 上的纹理需要为 MTLPixelFormatRG32Uint。
+
+原子纹理函数的语义与第 6.15 节中定义的原子函数相同。
+
+稀疏颜色-Tv 表示稀疏颜色结构，其中包含基于模板化类型的颜色值的 4 分量向量和驻留标志。这些表示许多稀疏纹理成员函数的返回值。
+
+``2023 - 06 - 02 |版权所有 © 2023 苹果公司 |版权所有。 ````
+
+稀疏颜色-T 表示稀疏颜色结构，其中包含基于模板化类型的单个值和驻留标志。 T 通常表示稀疏纹理成员函数返回的深度值。
+
+以下函数可用于返回模拟纹理获取的 LOD（mip 级别）计算结果：
+
+macOS：自 Metal 2.2 起支持稀疏纹理函数。 iOS：从 Metal 2. 3 开始支持稀疏纹理函数。
+
+calculate_unclamped_lod - 计算给定坐标采样的细节级别，忽略任何采样器参数。该值的小数部分包含 Mip 级别混合权重，即使采样器指示最近的 Mip 选择也是如此。
+
+calculate_clamped_lod - 与 calculate_unclamped_lod 类似，但额外限制 LOD 以保持不变：
+
+- 在纹理 mip 计数限制内， - 在采样器的 lod_clamp 最小值和最大值内 - 小于或等于采样器的 max_anisotropy 值
+
+## 6.12.1 一维纹理
+
+该成员函数从一维纹理中采样。
+
+电视样本（采样器 s，浮点坐标）常量
+
+这些成员函数从一维纹理执行无采样器读取。由于 1D 纹理不支持 mipmap，因此 lod 需要为 0。
+
+电视读取（uint coord，uint lod = 0）const
+
+Tv read(ushort coord, ushort lod = 0) const // 所有操作系统：自 Metal 1 .2 起。
+
+这些成员函数可以写入一维纹理。由于 1D 纹理不支持 mipmap，因此 lod 需要为 0。
+
+void write(电视颜色，uint 坐标，uint lod = 0)
+
+void write(Tv color, ushort coord, ushort lod = 0) // 所有操作系统：自 Metal 1 .2 起。
+
+这些成员函数查询一维纹理。由于 1D 纹理不支持 mipmap，因此 get_num_mip_levels() 始终返回 0 ，并且 get_width() 的 lod 需要为 0：
+
+uint get_width(uint lod = 0) const
+
+uint get_num_mip_levels() const
+
+此成员函数从稀疏一维纹理中采样，从 iOS 中的 Metal 2.2 和 macOS 中的 Metal 2.3 开始。
+
+``2023 - 06 - 02 |版权所有 © 2023 苹果公司 |版权所有。 ````
+
+稀疏颜色-电视稀疏样本（采样器 s，浮点坐标）常量
+
+这些成员函数从 iOS 中的 Metal 2.2 和 macOS 中的 Metal 2.3 开始，对稀疏一维纹理执行无采样器读取。由于 1D 纹理不支持 mipmap，因此 lod 需要为 0。
+
+稀疏*颜色-电视稀疏*读取（ushort coord，ushort lod = 0）const
+
+稀疏*颜色-电视稀疏*读取（uint coord，uint lod = 0）const
+
+从 Metal 3.1 开始，这些成员函数从 1D 纹理执行原子加载：
+
+电视 atomic_load(uint coord) const
+
+电视 atomic_load(ushort coord) const
+
+从 Metal 3.1 开始，这些成员函数对 1D 纹理执行原子存储：
+
+voidatomic_store（电视颜色，uint 坐标）const
+
+voidatomic_store（电视颜色，ushort 坐标）const
+
+从 Metal 3.1 开始，这些成员函数执行与 1D 纹理的原子比较和交换：
+
+boolatomic_compare_exchange_weak(uint coord, 线程 Tv \*预期, Tv 期望) const
+
+boolatomic_compare_exchange_weak(ushort coord, 线程 Tv \*预期, Tv 期望) const
+
+从 Metal 3.1 开始，这些成员函数对 1D 纹理执行原子交换：
+
+电视 atomic_exchange(uint coord, 需要电视) const
+
+电视原子交换（ushort coord，需要电视）const
+
+这些成员函数从 Metal 3.1 开始执行原子获取并修改为 1D 纹理，其中 _op_ 是 add、max、min、or、sub 或 xor（对于 int 和 uint 颜色类型）：
+
+电视原子*获取* _op_（uint 坐标，电视操作数）
+
+电视原子*获取* _op_（ushort 坐标，电视操作数）const
+
+从 Metal 3.1 开始，这些成员函数对 1D 纹理执行原子最小值或最大值：
+
+voidatomic_min(uint 坐标，ulong4 操作数)
+
+voidatomic_min(ushort 坐标，ulong4 操作数)
+
+voidatomic_max(uint 坐标，ulong4 操作数)
+
+``2023 - 06 - 02 |版权所有 © 2023 苹果公司 |版权所有。 ````
+
+voidatomic_max(ushort 坐标，ulong4 操作数)
+
+## 6.12.2 一维纹理数组
+
+该成员函数从一维纹理数组中采样：
+
+电视样本（采样器 s，浮点坐标，uint 数组）const
+
+这些成员函数从一维纹理数组执行无采样器读取。由于 1D 纹理不支持 mipmap，因此 lod 必须为 0。
+
+电视读取（uint 坐标，uint 数组，uint lod = 0）const
+
+Tv read(ushort coord, ushort array, ushort lod = 0) const // 所有操作系统：自 Metal 1 .2 起。
+
+这些成员函数写入一维纹理数组。由于 1D 纹理不支持 mipmap，因此 Lod 必须为 0。
+
+void write(电视颜色、uint 坐标、uint 数组、uint lod = 0)
+
+void write(Tv color, ushort coord, ushort array, ushort lod = 0) // 所有操作系统：自 Metal 1 .2 起。
+
+这些成员函数查询一维纹理数组。由于 1D 纹理不支持 mipmap，因此 get_num_mip_levels() 始终返回 0 ，而 get_width() 的 lod 必须为 0。
+
+uint get_width(uint lod = 0) const
+
+uint get_array_size() const
+
+uint get_num_mip_levels() const
+
+此函数从稀疏一维纹理数组中采样，从 iOS 中的 Metal 2.2 和 macOS 中的 Metal 2.3 开始。
+
+稀疏颜色-电视稀疏样本（采样器 s，浮点坐标，uint 数组）const
+
+这些函数从 iOS 中的 Metal 2.2 和 macOS 中的 Metal 2.3 开始，对稀疏一维纹理数组执行无采样器读取。由于 1D 纹理数组不支持 mipmap，因此 Lod 必须为 0。
+
+稀疏*颜色-电视稀疏*读取（ushort 坐标，ushort 数组，ushort lod = 0）const
+
+稀疏*颜色-电视稀疏*读取（uint 坐标，uint 数组，uint lod = 0）const
+
+``2023 - 06 - 02 |版权所有 © 2023 苹果公司 |版权所有。 ````
+
+从 Metal 3.1 开始，这些成员函数从 1D 纹理数组执行原子加载：
+
+电视 atomic_load（uint 坐标，uint 数组）const
+
+电视 atomic_load(ushort coord, ushort array) const
+
+从 Metal 3.1 开始，这些成员函数对 1D 纹理数组执行原子存储：
+
+voidatomic_store（电视颜色，uint 坐标，uint 数组）const
+
+voidatomic_store（电视颜色，ushort 坐标，ushort 数组）const
+
+从 Metal 3.1 开始，这些成员函数执行原子比较并交换到 1D 纹理数组：
+
+boolatomic_compare_exchange_weak(uint coord, uint array, thread Tv \*expected, Tvdesired) const
+
+boolatomic_compare_exchange_weak(ushort coord, ushort array, 线程 Tv \*expected, Tvdesired) const
+
+从 Metal 3.1 开始，这些成员函数对 1D 纹理数组执行原子交换：
+
+电视原子交换（uint 坐标，uint 数组，所需电视）const
+
+电视原子交换（ushort 坐标，ushort 数组，所需电视） const
+
+这些成员函数执行原子获取并修改从 Metal 3.1 开始的 1D 纹理数组，其中 _op_ 是 add、and、max、min、or、sub 或 xor：
+
+Tv 原子*获取* _op_（uint 坐标、uint 数组、Tv 操作数）
+
+Tv 原子*获取* _op_ (ushort 坐标，ushort 数组，Tv 操作数) const
+
+从 Metal 3.1 开始，这些成员函数对 1D 纹理数组执行原子最小值或最大值：
+
+voidatomic_min(uint 坐标、uint 数组、ulong4 操作数)
+
+voidatomic_min(ushort 坐标，ushort 数组，ulong4 操作数)
+
+voidatomic_max(uint 坐标、uint 数组、ulong4 操作数)
+
+voidatomic_max(ushort 坐标，ushort 数组，ulong4 操作数)
+
+``2023 - 06 - 02 |版权所有 © 2023 苹果公司 |版权所有。 ````
+
+## 6.12.3 2D 纹理
+
+对于本节中的函数，以下数据类型和相应的构造函数可以指定采样选项（lod_options）：
+
+偏差（浮点值）
+
+水平（浮点数）
+
+梯度 2d（浮点 2 dPdx，浮点 2 dPdy）
+
+min_lod_clamp(float lod) // 所有操作系统：自 Metal 2.2 起支持
+
+这些成员函数从 2D 纹理中采样：
+
+电视样本(采样器 s, float2 坐标, int2 偏移量 = int2(0)) const
+
+电视样本(采样器 s, float2 坐标, lod_options 选项, int2 偏移量 = int2(0)) const
+
+电视样本（采样器 s，float2 坐标，偏置 bias_options，min_lod_clamp min_lod_clamp_options，int2 偏移= int2（0））const
+
+电视样本（采样器 s，float2 坐标，gradient2d grad_options，min_lod_clamp min_lod_clamp_options，int2 偏移 = int2（0）） const
+
+这些成员函数从 2D 纹理执行无采样器读取：
+
+电视读取（uint2 坐标，uint lod = 0）const
+
+Tv read(ushort2 coord, ushort lod = 0) const //所有操作系统：自 Metal 1 .2 起。
+
+这些成员函数写入 2D 纹理。在 Metal 2.2 之前的 macOS 上，lod 必须为 0。在 Metal 2.3 中，某些硬件取消了此限制。
+
+void write(电视颜色，uint2 坐标，uint lod = 0)
+
+void write(Tv color, ushort2 coord, ushort lod = 0) // 所有操作系统：自 Metal 1 .2 起。
+
+在对 2D 纹理进行采样时，该成员函数会收集四个样本以进行双线性插值：
+
+枚举类组件 {x, y, z, w};
+
+电视收集（采样器 s，float2 坐标，int2 偏移量 = int2（0），组件 c = 组件::x） const
+
+这些成员函数查询 2D 纹理查询：
+
+uint get_width(uint lod = 0) const
+
+``2023 - 06 - 02 |版权所有 © 2023 苹果公司 |版权所有。 ````
+
+uint get_height(uint lod = 0) const
+
+uint get_num_mip_levels() const
+
+这些成员函数从稀疏的 2D 纹理中采样，从 iOS 中的 Metal 2.2 和 macOS 中的 Metal 2.3 开始。
+
+稀疏*颜色-Tv 稀疏*样本（采样器 s，浮点 2 坐标，int2 偏移= int2（0））const
+
+稀疏颜色-Tv 稀疏样本（采样器 s，浮点 2 坐标，偏差选项，int2 偏移= int2（0））常量
+
+稀疏颜色-Tv 稀疏样本（采样器 s，浮点 2 坐标，级别选项，int2 偏移= int2（0））常量
+
+稀疏颜色-电视稀疏样本（采样器 s，浮点 2 坐标，min_lod_clamp min_lod_clamp_options，int2 偏移= int2（0））常量
+
+稀疏颜色-电视稀疏样本（采样器 s，浮点 2 坐标，偏差 bias_options，min_lod_clamp min_lod_clamp_options，int2 偏移= int2（0））const
+
+稀疏颜色-电视稀疏样本（采样器 s，浮点 2 坐标，gradient2d grad_options，int2 偏移= int2（0））常量
+
+稀疏颜色-电视稀疏样本（采样器 s，浮点 2 坐标，gradient2d grad_options，min_lod_clamp min_lod_clamp_options，int2 偏移= int2（0））常量
+
+这些成员函数从 iOS 中的 Metal 2.2 和 macOS 中的 Metal 2.3 开始，对稀疏 2D 纹理执行无采样器读取。
+
+稀疏*颜色-电视稀疏*读取（ushort 2 坐标，ushort lod = 0）const
+
+稀疏*颜色-电视稀疏*读取（uint 2 坐标，uint lod = 0）const
+
+此成员函数从稀疏 2D 纹理中收集四个样本以进行双线性插值，从 iOS 中的 Metal 2.2 和 macOS 中的 Metal 2.3 开始。
+
+稀疏*颜色-Tv 稀疏*收集（采样器 s，浮点 2 坐标，int2 偏移= int2（0），组件 c =组件::x）const
+
+这些成员函数模拟纹理获取并返回 LOD（mip 级别）计算结果，从 iOS 中的 Metal 2.3 和 macOS 中的 Metal 2.2 开始。
+
+``2023 - 06 - 02 |版权所有 © 2023 苹果公司 |版权所有。 ````
+
+浮点 calculate_clamped_lod（采样器 s，float2 坐标）；
+
+浮点 calculate_unclamped_lod（采样器 s，float2 坐标）；
+
+从 Metal 3.1 开始，这些成员函数从 2D 纹理执行原子加载：
+
+电视 atomic_load(uint 2 coord) const
+
+电视 atomic_load(ushort 2 coord) const
+
+从 Metal 3.1 开始，这些成员函数对 2D 纹理执行原子存储：
+
+voidatomic_store（电视颜色，uint 2 坐标）const
+
+voidatomic_store（电视颜色，ushort 2 坐标）const
+
+从 Metal 3.1 开始，这些成员函数执行与 2D 纹理的原子比较和交换：
+
+boolatomic_compare_exchange_weak(uint 2 coord, 线程 Tv \*预期, Tv 所需) const
+
+boolatomic_compare_exchange_weak(ushort 2 coord,线程电视\*预期，电视所需) const
+
+从 Metal 3.1 开始，这些成员函数执行到 2D 纹理的原子交换：
+
+电视 atomic_exchange（uint 2 坐标，电视所需）常量
+
+电视 atomic_exchange（ushort 2 坐标，电视所需）常量
+
+这些成员函数执行原子获取并修改为从 Metal 3.1 开始的 2D 纹理，其中 _op_ 是 add、max、min、or、sub 或 xor（对于 int 和 uint 颜色类型）：
+
+电视原子*获取* _op_（uint 2 坐标，电视操作数）
+
+Tv 原子*获取* _op_ (ushort 2 坐标，Tv 操作数) const
+
+从 Metal 3.1 开始，这些成员函数对 2 D 纹理执行原子最小值或最大值：
+
+voidatomic_min(uint 2 坐标，ulong4 操作数)
+
+voidatomic_min(ushort 2 坐标，ulong4 操作数)
+
+voidatomic_max(uint 2 坐标，ulong4 操作数)
+
+voidatomic_max(ushort 2 坐标，ulong4 操作数)
+
+``2023 - 06 - 02 |版权所有 © 2023 苹果公司 |版权所有。 ````
+
+## 6.12.3.1 2D 纹理采样示例
+
+以下代码显示了 2D 纹理示例函数的几种用法，具体取决于其参数：
+
+texture2d tex;采样器；浮点数 2 坐标； int2 偏移量；浮动罗德；
+
+// 没有可选参数。 float4 clr = tex.sample(s, 坐标);
+
+// 使用 Mipmap 级别的示例。 clr = tex.sample(s, 坐标, 水平(lod));
+
+// 带有偏移量的样本。 clr = tex.sample(s, 坐标, 偏移量);
+
+// 使用 mipmap 级别和偏移量进行采样。 clr = tex.sample(s, 坐标, 水平(lod), 偏移量);
+
+## 6.12.4 2D 纹理数组
+
+对于本节中的函数，以下数据类型和相应的构造函数可以指定采样选项（lod_options）：
+
+偏差（浮点值）
+
+水平（浮点数）
+
+梯度 2d（浮点 2 dPdx，浮点 2 dPdy）
+
+min_lod_clamp(float lod) // 所有操作系统：自 Metal 2.2 起支持
+
+这些成员函数从 2D 纹理数组中采样：
+
+电视样本(采样器 s, float2 坐标, uint 数组, int2 偏移量 = int2(0)) const
+
+电视样本（采样器 s，float2 坐标，uint 数组，lod_options 选项，int2 偏移量 = int2(0)） const
+
+电视样本（采样器 s，float2 坐标，uint 数组，偏差 bias_options，min_lod_clamp min_lod_clamp_options，int2 偏移= int2（0））const
+
+电视样本（采样器 s，float2 坐标，uint 数组，gradient2d grad_options，min_lod_clamp min_lod_clamp_options，int2 偏移= int2（0））常量
+
+``2023 - 06 - 02 |版权所有 © 2023 苹果公司 |版权所有。 ````
+
+这些成员函数从 2D 纹理数组执行无采样器读取：
+
+电视读取（uint2 坐标，uint 数组，uint lod = 0）const
+
+Tv read(ushort2 coord, ushort array, ushort lod = 0) const // 所有操作系统：自 Metal 1 .2 起。
+
+这些成员函数写入 2D 纹理数组。在 Metal 2.2 之前的 macOS 上，lod 必须为 0。在 Metal 2.3 中，某些硬件取消了此限制。
+
+void write(电视颜色，uint2 坐标，uint 数组，uint lod = 0)
+
+void write(Tv color, ushort2 coord, ushort array, ushort lod = 0) // 所有操作系统：自 Metal 1 .2 起。
+
+在对 2D 纹理数组进行采样时，该成员函数会收集四个样本以进行双线性插值：
+
+电视收集（采样器 s，float2 坐标，uint 数组，int2 偏移量 = int2（0），组件 c = 组件::x） const
+
+这些成员函数查询 2D 纹理数组：
+
+uint get_width(uint lod = 0) const
+
+uint get_height(uint lod = 0) const
+
+uint get_array_size() const
+
+uint get_num_mip_levels() const
+
+这些成员函数从稀疏 2D 纹理数组中采样，从 iOS 中的 Metal 2.2 和 macOS 中的 Metal 2.3 开始。
+
+稀疏颜色-Tv 稀疏样本（采样器 s，浮点 2 坐标，uint 数组，int2 偏移= int2（0））const
+
+稀疏*颜色-Tv 稀疏*样本（采样器 s，浮点 2 坐标，uint 数组，偏差选项，int2 偏移= int2（0））常量
+
+稀疏*颜色-Tv 稀疏*样本（采样器 s，浮点 2 坐标，uint 数组，级别选项，int2 偏移= int2（0））const
+
+稀疏颜色-电视稀疏样本（采样器 s，浮点 2 坐标，uint 数组，min_lod_clamp min_lod_clamp_options，int2 偏移= int2（0））常量
+
+稀疏颜色-电视稀疏样本（采样器 s，浮点 2 坐标，uint 数组，偏差 bias_options，
+
+``2023 - 06 - 02 |版权所有 © 2023 苹果公司 |版权所有。 ````
+
+min_lod_clamp min_lod_clamp_options, int2 偏移量 = int2(0)) const
+
+稀疏*颜色-Tv 稀疏*样本（采样器 s，浮点 2 坐标，uint 数组，gradient2d 选项，int2 偏移= int2（0））const
+
+稀疏颜色-电视稀疏样本（采样器 s，浮点 2 坐标，uint 数组，gradient2d grad_options，min_lod_clamp min_lod_clamp_options，int2 偏移= int2（0））const
+
+这些函数从 iOS 中的 Metal 2.2 和 macOS 中的 Metal 2.3 开始，对稀疏 2D 纹理数组执行无采样器读取。
+
+稀疏*颜色-电视稀疏*读取（ushort 2 坐标，ushort 数组，ushort lod = 0）const
+
+稀疏*颜色-电视稀疏*读取（uint 2 坐标，uint 数组，uint lod = 0）const
+
+此函数从稀疏 2D 纹理数组中收集四个样本进行双线性插值，从 iOS 中的 Metal 2.2 和 macOS 中的 Metal 2.3 开始。
+
+稀疏颜色-Tv 稀疏收集（采样器 s，浮点 2 坐标，uint 数组，int2 偏移量= int2（0），组件 c =组件::x）常量
+
+这些成员函数模拟纹理获取并返回 LOD（mip 级别）计算结果，从 iOS 中的 Metal 2.3 和 macOS 中的 Metal 2.2 开始。
+
+浮点 calculate_clamped_lod（采样器 s，float2 坐标）；
+
+浮点 calculate_unclamped_lod（采样器 s，float2 坐标）；
+
+从 Metal 3.1 开始，这些成员函数从 2D 纹理数组执行原子加载：
+
+电视 atomic_load（uint 2 坐标，uint 数组）const
+
+电视 atomic_load（ushort 2 坐标，ushort 数组）const
+
+从 Metal 3.1 开始，这些成员函数对 2D 纹理数组执行原子存储：
+
+voidatomic_store（电视颜色，uint 2 坐标，uint 数组）const
+
+voidatomic_store（电视颜色，ushort 2 坐标，ushort 数组）const
+
+从 Metal 3.1 开始，这些成员函数执行原子比较并交换到 2 D 纹理数组：
+
+``2023 - 06 - 02 |版权所有 © 2023 苹果公司 |版权所有。 ````
+
+boolatomic_compare_exchange_weak(uint 2 坐标，uint 数组，线程 Tv \* 预期，Tv 所需) const
+
+boolatomic_compare_exchange_weak(ushort 2 坐标，ushort 数组，线程 Tv \* 预期，Tv 期望) const
+
+从 Metal 3.1 开始，这些成员函数对 2D 纹理数组执行原子交换：
+
+电视原子交换（uint 2 坐标，uint 数组，所需电视）const
+
+电视原子交换（ushort 2 坐标，ushort 数组，所需电视） const
+
+这些成员函数执行原子获取并修改从 Metal 3.1 开始的 2D 纹理数组，其中 _op_ 是 add、max、min、or、sub 或 xor（对于 int 和 uint 颜色类型）：
+
+Tv 原子*获取* _op_（uint 2 坐标，uint 数组，Tv 操作数）
+
+Tv 原子*获取* _op_ (ushort 2 坐标，ushort 数组，Tv 操作数) const
+
+从 Metal 3.1 开始，这些成员函数对 2 D 纹理数组执行原子最小值或最大值：
+
+voidatomic_min(uint 2 坐标，uint 数组，ulong4 操作数)
+
+voidatomic_min(ushort 2 坐标，ushort 数组，ulong4 操作数)
+
+voidatomic_max(uint 2 坐标，uint 数组，ulong4 操作数)
+
+voidatomic_max(ushort 2 坐标，ushort 数组，ulong4 操作数)
+
+## 6.12.5 3D 纹理
+
+对于本节中的函数，以下数据类型和相应的构造函数可以指定采样选项（lod_options）：
+
+偏差（浮点值）
+
+水平（浮点数）
+
+渐变 3d(float3 dPdx, float3 dPdy)
+
+min_lod_clamp(float lod) // 所有操作系统：自 Metal 2.2 起支持
+
+这些成员函数从 3D 纹理中采样：
+
+电视样本(采样器 s, float3 坐标, int3 偏移量 = int3(0)) const
+
+电视样本(采样器 s, float3 坐标, lod_options 选项, int3 偏移量 = int3(0)) const
+
+``2023 - 06 - 02 |版权所有 © 2023 苹果公司 |版权所有。 ````
+
+电视样本（采样器 s，float 3 坐标，偏置 bias_options，min_lod_clamp min_lod_clamp_options，int 3 偏移量 = int 3 (0)) const
+
+电视样本（采样器 s，浮点 3 坐标，梯度 3 d grad_options，min_lod_clamp min_lod_clamp_options，int 3 偏移 = int 3 (0)) const
+
+这些成员函数从 3D 纹理执行无采样器读取：
+
+电视读取（uint3 坐标，uint lod = 0）const
+
+Tv read(ushort3 coord, ushort lod = 0) const// 所有操作系统：自 Metal 1 .2 起。
+
+这些成员函数写入 3D 纹理。在 Metal 2.2 之前的 macOS 上，lod 必须为 0。在 Metal 2.3 中，某些硬件取消了此限制。
+
+void write(电视颜色，uint3 坐标，uint lod = 0)
+
+void write(Tv color, ushort3 coord, ushort lod = 0) // 所有操作系统：自 Metal 1 .2 起。
+
+这些成员函数查询 3D 纹理：
+
+uint get_width(uint lod = 0) const
+
+uint get_height(uint lod = 0) const
+
+uint get\_深度(uint lod = 0) const
+
+uint get_num_mip_levels() const
+
+这些函数从稀疏 3D 纹理中采样，从 iOS 中的 Metal 2.2 和 macOS 中的 Metal 2.3 开始。
+
+稀疏颜色-电视稀疏样本（采样器 s，float3 坐标，int3 偏移= int3（0））const
+
+稀疏*颜色-Tv 稀疏*样本（采样器 s，float3 坐标，偏差选项，int3 偏移= int3（0））const
+
+稀疏*颜色-Tv 稀疏*样本（采样器 s，float3 坐标，级别选项，int3 偏移= int3（0））const
+
+稀疏*颜色-电视稀疏*样本（采样器 s，float3 坐标，
+
+min_lod_clamp min_lod_clamp_options, int3 偏移量 = int3(0)) const
+
+稀疏颜色-电视稀疏样本（采样器 s，float3 坐标，偏差 bias_options，min_lod_clamp min_lod_clamp_options，int3 偏移= int3（0））const
+
+``2023 - 06 - 02 |版权所有 © 2023 苹果公司 |版权所有。 ````
+
+稀疏颜色-电视稀疏样本（采样器 s，float3 坐标，gradient3d grad_options，int3 偏移= int3（0））常量
+
+稀疏颜色-电视稀疏样本（采样器 s，float3 坐标，gradient3d grad_options，min_lod_clamp min_lod_clamp_options，int3 偏移= int3（0））常量
+
+这些成员函数从 iOS 中的 Metal 2.2 和 macOS 中的 Metal 2.3 开始，对稀疏 3D 纹理执行无采样器读取。
+
+稀疏*颜色-电视稀疏*读取（uint3 坐标，uint lod = 0）常量
+
+稀疏*颜色-电视稀疏*读取（ushort 3 坐标，ushort lod = 0）const
+
+这些成员函数模拟纹理获取并返回 LOD（mip 级别）计算结果，从 iOS 中的 Metal 2.3 和 macOS 中的 Metal 2.2 开始。
+
+浮点 calculate_clamped_lod（采样器 s，浮点 3 坐标）
+
+浮点 calculate_unclamped_lod（采样器 s，浮点 3 坐标）
+
+这些成员函数从 Metal 3.1 开始从 3D 纹理执行原子加载：
+
+电视 atomic_load(uint 3 coord) const
+
+电视 atomic_load(ushort 3 coord) const
+
+从 Metal 3.1 开始，这些成员函数对 3D 纹理执行原子存储：
+
+voidatomic_store(电视颜色, uint 3 coord) const
+
+voidatomic_store（电视颜色，ushort 3 坐标）const
+
+这些成员函数执行原子比较并交换到从 Metal 3.1 开始的 3D 纹理：
+
+boolatomic_compare_exchange_weak(uint 3 coord, 线程 Tv \*预期, Tv 所需) const
+
+boolatomic_compare_exchange_weak(ushort 3 coord,线程电视 \*预期，电视所需) const
+
+从 Metal 3.1 开始，这些成员函数执行到 3D 纹理的原子交换：
+
+电视 atomic_exchange（uint 3 坐标，需要电视）常量
+
+电视 atomic_exchange（ushort 3 坐标，需要电视）常量
+
+``2023 - 06 - 02 |版权所有 © 2023 苹果公司 |版权所有。 ````
+
+这些成员函数执行原子获取并修改为从 Metal 3.1 开始的 3D 纹理，其中 _op_ 是 add、max、min、or、sub 或 xor（对于 int 和 uint 颜色类型）：
+
+电视原子*获取* _op_（uint 3 坐标，电视操作数）
+
+Tv 原子*获取* _op_ (ushort 3 坐标，Tv 操作数) const
+
+从 Metal 3.1 开始，这些成员函数对 3D 纹理执行原子最小值或最大值：
+
+voidatomic_min(uint 3 坐标，ulong4 操作数)
+
+voidatomic_min(ushort 3 坐标，ulong4 操作数)
+
+voidatomic_max(uint 3 坐标，ulong4 操作数)
+
+voidatomic_max(ushort 3 坐标，ulong4 操作数)
+
+## 6.12.6 立方体纹理
+
+对于本节中的函数，以下数据类型和相应的构造函数可以指定采样选项（lod_options）：
+
+偏差（浮点值）
+
+水平（浮点数）
+
+梯度立方体（float3 dPdx，float3 dPdy）
+
+min_lod_clamp(float lod) // 所有操作系统：自 Metal 2.2 起支持
+
+这些成员函数从立方体纹理中采样：
+
+电视样本(采样器 s, float3 坐标) const
+
+电视样本（采样器 s，float3 坐标，lod_options 选项） const
+
+电视样本（采样器 s，浮点数 3 坐标，偏置 bias_options，min_lod_clamp min_lod_clamp_options）常量
+
+电视样本（采样器 s，float 3 坐标，gradientcube grad_options，min_lod_clamp min_lod_clamp_options）const
+
+表 6.21 描述了立方体面和用于识别面的编号。
+
+## 表 6.21。立方体面数
+
+``面数立方体面````
+
+`0 正 X`
+
+`1 负 X`
+
+`2 正 Y `
+
+``2023 - 06 - 02 |版权所有 © 2023 苹果公司 |版权所有。 ````
+
+``面数立方体面````
+
+`3 负 Y`
+
+`4 正 Z`
+
+`5 负 Z`
+
+在对立方体纹理进行采样时，该成员函数会收集四个样本以进行双线性插值：
+
+电视收集（采样器 s，float3 坐标，组件 c = 组件::x） const
+
+这些成员函数从立方体纹理执行无采样器读取：
+
+电视读取（uint2 坐标，uint 面，uint lod = 0）const
+
+Tv read(ushort2 coord, ushort face, ushort lod = 0) const // 所有操作系统：自 Metal 1 .2 起。
+
+这些成员函数写入立方体纹理。在 Metal 2.2 之前的 macOS 上，lod 必须为 0。在 Metal 2.3 中，某些硬件取消了此限制。
+
+void write(电视颜色，uint2 坐标，uint 面，uint lod = 0)
+
+void write(Tv color, ushort2 coord, ushort face, ushort lod = 0) // 所有操作系统：自 Metal 1 .2 起。
+
+这些成员函数查询立方体纹理：
+
+uint get_width(uint lod = 0) const
+
+uint get_height(uint lod = 0) const
+
+uint get_num_mip_levels() const
+
+这些成员函数从稀疏立方体纹理中采样，从 iOS 中的 Metal 2.2 和 macOS 中的 Metal 2.3 开始。
+
+稀疏颜色-电视稀疏样本（采样器 s，float3 坐标）常量
+
+稀疏颜色-电视稀疏样本（采样器 s，float3 坐标，偏差选项）const
+
+稀疏颜色-电视稀疏样本（采样器 s，float3 坐标，级别选项）const
+
+稀疏*颜色-电视稀疏*样本（采样器 s，float3 坐标，
+
+min_lod_clamp min_lod_clamp_options) const
+
+``2023 - 06 - 02 |版权所有 © 2023 苹果公司 |版权所有。 ````
+
+稀疏*颜色-电视稀疏*样本（采样器 s，float3 坐标，
+
+偏差 bias_options, min_lod_clamp min_lod_clamp_options) const
+
+稀疏颜色-电视稀疏样本（采样器 s，float3 坐标，gradientcube grad_options）const
+
+稀疏颜色-电视稀疏样本（采样器 s，float3 坐标，gradientcube grad_options，min_lod_clamp min_lod_clamp_options）常量
+
+这些成员函数从 iOS 中的 Metal 2.2 和 macOS 中的 Metal 2.3 开始，对稀疏立方体纹理执行无采样器读取。
+
+稀疏*颜色-电视稀疏*读取（ushort 3 坐标，ushort lod = 0）const
+
+稀疏*颜色-电视稀疏*读取（uint3 坐标，uint lod = 0）常量
+
+此成员函数从稀疏立方体纹理中收集四个样本进行双线性插值，从 iOS 中的 Metal 2.2 和 macOS 中的 Metal 2.3 开始。
+
+稀疏*颜色-Tv 稀疏*收集（采样器 s，float3 坐标，组件 c =组件::x）const
+
+这些成员函数模拟纹理获取并返回 LOD（mip 级别）计算结果，从 iOS 中的 Metal 2.3 和 macOS 中的 Metal 2.2 开始。
+
+浮点 calculate_clamped_lod（采样器 s，浮点 3 坐标）；
+
+浮点 calculate_unclamped_lod（采样器 s，浮点 3 坐标）；
+
+## 6.12.7 立方体纹理数组
+
+对于本节中的函数，以下数据类型和相应的构造函数可以指定采样选项（lod_options）：
+
+偏差（浮点值）
+
+水平（浮点数）
+
+梯度立方体（float3 dPdx，float3 dPdy）
+
+min_lod_clamp(float lod) // 所有操作系统：自 Metal 2.2 起支持
+
+这些成员函数从立方体纹理数组中采样：
+
+电视样本（采样器 s，float3 坐标，uint 数组）const
+
+电视样本（采样器 s、float3 坐标、uint 数组、lod_options 选项） const
+
+``2023 - 06 - 02 |版权所有 © 2023 苹果公司 |版权所有。 ````
+
+电视样本（采样器 s，浮点 3 坐标，uint 数组，偏差 bias_options，min_lod_clamp min_lod_clamp_options）常量
+
+电视样本（采样器 s，float 3 坐标，uint 数组，gradientcube grad_options，min_lod_clamp min_lod_clamp_options）const
+
+在对立方体纹理数组进行采样时，该成员函数会收集四个样本以进行双线性插值：
+
+电视收集（采样器 s，float3 坐标，uint 数组，组件 c = 组件::x） const
+
+这些成员函数从立方体纹理数组执行无采样器读取：
+
+电视读取（uint2 坐标，uint 面，uint 数组，uint lod = 0）const
+
+Tv read(ushort2 coord, ushort face, ushort array, ushort lod = 0) const // 所有操作系统：自 Metal 1 .2 起。
+
+这些成员函数写入立方体纹理数组。在 Metal 2.2 之前的 macOS 上，lod 必须为 0。在 Metal 2.3 中，某些硬件取消了此限制。
+
+void write(电视颜色、uint2 坐标、uint 面、uint 数组、uint lod = 0)
+
+void write(Tv color, ushort2 coord, ushort face, ushort array, ushort lod = 0) // 所有操作系统：自 Metal 1 .2 起。
+
+这些成员函数查询立方体纹理数组：
+
+uint get_width(uint lod = 0) const
+
+uint get_height(uint lod = 0) const
+
+uint get_array_size() const
+
+uint get_num_mip_levels() const
+
+这些成员函数从稀疏立方体纹理数组中采样，从 iOS 中的 Metal 2.2 和 macOS 中的 Metal 2.3 开始。
+
+稀疏颜色-电视稀疏样本（采样器 s，float3 坐标，uint 数组）const
+
+稀疏*颜色-Tv 稀疏*样本（采样器 s，float3 坐标，uint 数组，偏差选项）const
+
+稀疏颜色-电视稀疏样本（采样器 s，float3 坐标，uint 数组，级别选项）const
+
+``2023 - 06 - 02 |版权所有 © 2023 苹果公司 |版权所有。 ````
+
+稀疏颜色-电视稀疏样本（采样器 s，float3 坐标，uint 数组，min_lod_clamp min_lod_clamp_options）常量
+
+稀疏颜色-电视稀疏样本（采样器 s，float3 坐标，uint 数组，偏差 bias_options，min_lod_clamp min_lod_clamp_options）常量
+
+稀疏颜色-电视稀疏样本（采样器 s，float3 坐标，uint 数组，梯度立方体选项）const
+
+稀疏颜色-电视稀疏样本（采样器 s，float3 坐标，uint 数组，gradientcube grad_options，min_lod_clamp min_lod_clamp_options）常量
+
+这些成员函数从 iOS 中的 Metal 2.2 和 macOS 中的 Metal 2.3 开始，对稀疏 2D 纹理执行无采样器读取。
+
+稀疏颜色-电视稀疏读取（ushort 2 坐标，ushort 面，ushort 数组，ushort lod = 0）常量
+
+稀疏颜色-电视稀疏读取（uint 2 坐标，uint 面，uint 数组，uint lod = 0）const
+
+此成员函数从稀疏立方体纹理数组中收集四个样本进行双线性插值，从 iOS 中的 Metal 2.2 和 macOS 中的 Metal 2.3 开始。
+
+稀疏*颜色-Tv 稀疏*收集（采样器 s，float3 坐标，uint 数组，组件 c =组件::x）const
+
+这些成员函数模拟纹理获取并返回 LOD（mip 级别）计算结果，从 iOS 中的 Metal 2.3 和 macOS 中的 Metal 2.2 开始。
+
+浮点 calculate_clamped_lod（采样器 s，浮点 3 坐标）；
+
+浮点 calculate_unclamped_lod（采样器 s，浮点 3 坐标）；
+
+## 6.12.8 2D 多重采样纹理
+
+这些成员函数从 2D 多重采样纹理执行无采样器读取：
+
+电视读取（uint2 坐标，uint 样本）const
+
+Tv read(ushort2 coord, ushort example) const // 所有操作系统：自 Metal 1 .2 起。
+
+如果你有自定义样本位置（使用 MTLRenderPassDescriptor 的 setSamplePositions:count: 方法设置），则 read(coord,sample) 返回编程样本位置处的样本数据。
+
+这些成员函数查询 2D 多重采样纹理：
+
+``2023 - 06 - 02 |版权所有 © 2023 苹果公司 |版权所有。 ````
+
+uint get_width() const
+
+uint get_height() const
+
+uint get_num_samples() const
+
+这些成员函数从 iOS 中的 Metal 2.2 和 macOS 中的 Metal 2.3 开始，对稀疏 2D 多重采样纹理执行无采样器读取。
+
+稀疏*颜色-电视稀疏*读取（ushort 2 坐标，ushort 样本）const
+
+稀疏*颜色-电视稀疏*读取（uint 2 坐标，uint 样本）const
+
+## 6.12.9 2D 多重采样纹理数组
+
+macOS：自 Metal 2 起。
+
+iOS：自 Metal 2.3.
+
+以下成员函数可以从 2D 多重采样纹理数组执行无采样器读取：
+
+电视读取（uint2 坐标，uint 数组，uint lod = 0）const
+
+电视读取（ushort2 坐标，ushort 数组，ushort lod = 0）const
+
+这些成员函数查询 2D 多重采样纹理数组：
+
+uint get_width(uint lod = 0) const
+
+uint get_height(uint lod = 0) const
+
+uint get_array_size() const
+
+uint get_num_mip_levels() const
+
+这些函数从 iOS 中的 Metal 2.2 和 macOS 中的 Metal 2.3 开始，从稀疏 2D 多重采样纹理数组中执行无采样器读取。
+
+稀疏颜色-电视稀疏读取（ushort 2 坐标，ushort 数组，ushort 样本）const
+
+稀疏颜色-电视稀疏读取（uint 2 坐标，uint 数组，uint 样本）const
+
+## 6.12.10 2D 深度纹理
+
+对于本节中的函数，以下数据类型和相应的构造函数可以指定采样选项（lod_options）：
+
+偏差（浮点值）
+
+水平（浮点数）
+
+梯度 2d（浮点 2 dPdx，浮点 2 dPdy）
+
+``2023 - 06 - 02 |版权所有 © 2023 苹果公司 |版权所有。 ````
+
+min_lod_clamp(float lod) // 所有操作系统：自 Metal 2.2 起支持
+
+这些成员函数从 2D 深度纹理中采样：
+
+T Sample(采样器 s, float2 坐标, int2 偏移量 = int2(0)) const
+
+T Sample(采样器 s, float2 坐标, lod_options 选项, int2 偏移量 = int2(0)) const
+
+T 样本（采样器 s，float2 坐标，偏差 bias_options，min_lod_clamp min_lod_clamp_options，int2 偏移= int2（0））const
+
+T 样本（采样器 s，float2 坐标，gradient2d grad_options，min_lod_clamp min_lod_clamp_options，int2 偏移= int2（0））const
+
+这些成员函数从 2D 深度纹理中采样，并将单个分量与比较值进行比较：
+
+Tsample_compare（采样器 s，float2 坐标，floatcompare_value，int2 偏移= int2（0））const
+
+Tsample_compare（采样器 s，float2 坐标，floatcompare_value，lod_options 选项，int2 偏移= int2（0））const
+
+T 必须是浮点类型。
+
+Sample_compare 执行 Compare_value 值与像素值的比较（如果比较通过则为 1.0，如果失败则为 0.0）。然后，像普通纹理过滤一样，将这些每个像素的比较结果值混合在一起，并返回 0.0 和 1.0 之间的结果值。在 Metal 2.2 之前的 macOS 上，支持的 lod_options 值为 level 和 min_lod_clamp （后者，自 Metal 2.2 起）； lod 必须是零常数。在 Metal 2.3 中，Apple 芯片取消了 lod_options 的限制。
+
+这些成员函数从 2D 深度纹理执行无采样器读取：
+
+T 读取（uint2 坐标，uint lod = 0）const
+
+T read(ushort2 coord, ushort lod = 0) const // 所有操作系统：自 Metal 1 .2 起。
+
+在对 2D 深度纹理进行采样时，此内置函数会收集四个样本以进行双线性插值：
+
+电视收集（采样器 s，float2 坐标，int2 偏移量 = int2（0）） const
+
+当对 2D 深度纹理进行采样并将这些样本与指定的比较值（如果比较通过则为 1.0，如果失败则为 0.0）进行比较时，此成员函数会收集四个样本进行双线性插值。
+
+``2023 - 06 - 02 |版权所有 © 2023 苹果公司 |版权所有。 ````
+
+电视 gather_compare（采样器 s，float2 坐标，floatcompare_value，int2 偏移= int2（0））const
+
+T 必须是浮点类型。
+
+以下成员函数查询 2D 深度纹理：
+
+uint get_width(uint lod = 0) const
+
+uint get_height(uint lod = 0) const
+
+uint get_num_mip_levels() const
+
+这些成员函数从稀疏 2D 深度纹理中采样，从 iOS 中的 Metal 2.2 和 macOS 中的 Metal 2.3 开始。
+
+稀疏颜色-T 稀疏样本（采样器 s，浮点 2 坐标，int2 偏移= int2（0））const
+
+稀疏颜色-T 稀疏样本（采样器 s，浮点 2 坐标，偏差选项，int2 偏移= int2（0））const
+
+稀疏颜色-T 稀疏样本（采样器 s，浮点 2 坐标，级别选项，int2 偏移= int2（0））const
+
+稀疏颜色-T 稀疏样本（采样器 s，浮点 2 坐标，min_lod_clamp min_lod_clamp_options，int2 偏移= int2（0））常量
+
+稀疏颜色-T 稀疏样本（采样器 s，浮点 2 坐标，偏差 bias_options，min_lod_clamp min_lod_clamp_options，int2 偏移= int2（0））常量
+
+稀疏颜色-T 稀疏样本（采样器 s，浮点 2 坐标梯度 2d grad_options，int2 偏移= int2（0））常量
+
+稀疏颜色-T 稀疏样本（采样器 s，浮点 2 坐标，梯度 2d grad_options，min_lod_clamp min_lod_clamp_options，int2 偏移= int2（0））常量
+
+这些成员函数从稀疏 2D 深度纹理中进行采样，并将单个组件与从 iOS 中的 Metal 2.2 和 macOS 中的 Metal 2.3 开始的比较值进行比较。
+
+稀疏颜色-T 稀疏样本比较（采样器 s，浮点 2 坐标，浮点 compare_value，int2 偏移= int2（0））常量
+
+稀疏颜色-T 稀疏样本比较（采样器 s，浮点 2 坐标，浮点 compare_value，
+
+``2023 - 06 - 02 |版权所有 © 2023 苹果公司 |版权所有。 ````
+
+偏置选项，int2 offset = int2(0)) const
+
+稀疏颜色-T 稀疏样本比较（采样器 s，浮点 2 坐标，浮点比较值，级别选项，int2 偏移= int2（0））const
+
+稀疏颜色-T 稀疏样本比较（采样器 s，浮点 2 坐标，浮点比较值，min_lod_clamp min_lod_clamp_options，int2 偏移= int2（0））常量
+
+稀疏颜色-T 稀疏样本比较（采样器 s，浮点 2 坐标浮点比较值，偏差 bias_options，min_lod_clamp min_lod_clamp_options，int2 偏移= int2（0））常量
+
+稀疏颜色-T 稀疏样本比较（采样器 s，浮点 2 坐标，浮点比较值，gradient2d grad_options，int2 偏移= int2（0））常量
+
+稀疏颜色-T 稀疏样本比较（采样器 s，浮点 2 坐标，浮点比较值，gradient2d grad_options，min_lod_clamp min_lod_clamp_options，int2 偏移= int2（0））常量
+
+这些成员函数从 iOS 中的 Metal 2.2 和 macOS 中的 Metal 2.3 开始，对稀疏 2D 深度纹理执行无采样器读取。
+
+稀疏*颜色-T 稀疏*读取（ushort 2 坐标，ushort lod = 0）const
+
+稀疏*颜色-T 稀疏*读取（uint 2 坐标，uint lod = 0）const
+
+此成员函数从稀疏 2D 深度纹理中收集四个样本以进行双线性插值，从 iOS 中的 Metal 2.2 和 macOS 中的 Metal 2.3 开始。
+
+稀疏*颜色-Tv 稀疏*收集（采样器 s，浮点 2 坐标，int2 偏移= int2（0），组件 c =组件::x）const
+
+此成员函数收集这些样本，并将它们与稀疏 2D 深度纹理的比较值进行比较，从 iOS 中的 Metal 2.2 和 macOS 中的 Metal 2.3 开始。
+
+稀疏*颜色-Tv 稀疏*收集\_比较（采样器 s，浮点 2 坐标，浮点 compare_value，int2 偏移= int2（0））常量
+
+这些成员函数模拟纹理获取并返回 LOD（mip 级别）计算结果，从 iOS 中的 Metal 2.3 和 macOS 中的 Metal 2.2 开始。
+
+浮点 calculate_clamped_lod（采样器 s，float2 坐标）；
+
+``2023 - 06 - 02 |版权所有 © 2023 苹果公司 |版权所有。 ````
+
+浮点 calculate_unclamped_lod（采样器 s，float2 坐标）；
+
+## 6.12.11 2D 深度纹理数组
+
+本节中的成员函数使用以下数据类型和构造函数来设置其 lod_options 参数的采样选项字段。
+
+偏差（浮点值）
+
+水平（浮点数）
+
+梯度 2d（浮点 2 dPdx，浮点 2 dPdy）
+
+min_lod_clamp(float lod) // 所有操作系统：自 Metal 2.2 起支持
+
+这些成员函数从 2D 深度纹理数组中采样。
+
+T Sample(采样器 s, float2 坐标, uint 数组, int2 偏移量 = int2(0)) const
+
+T Sample(采样器 s, float2 坐标, uint 数组, lod_options 选项, int2 偏移量 = int2(0)) const
+
+T 样本（采样器 s，float2 坐标，uint 数组，偏差 bias_options，min_lod_clamp min_lod_clamp_options，int2 偏移= int2（0））const
+
+T 样本（采样器 s，float2 坐标，uint 数组，gradient2d grad_options，min_lod_clamp min_lod_clamp_options，int2 偏移= int2（0））const
+
+这些成员函数从 2D 深度纹理数组中采样，并将单个分量与 T 为浮点类型的值进行比较。
+
+Tsample_compare（采样器 s，float2 坐标，uint 数组，floatcompare_value，int2 偏移= int2（0））const
+
+Tsample_compare（采样器 s，float2 坐标，uint 数组，floatcompare_value，lod_options 选项，int2 偏移= int2（0））const
+
+lod_options 字段支持：
+
+- level - Apple 芯片上所有 iOS Metal 版本和 macOS Metal 2.3 及更高版本的偏差 - Apple 芯片上 iOS Metal 版本和 macOS Metal 2.3 及更高版本的渐变 - Metal 2.2 及更高版本的 min_lod_clamp - Metal 2.2 必须为 0 - 可以 Apple 芯片上所有 iOS Metal 版本和 macOS Metal 2.3 及更高版本的任何值
+
+``2023 - 06 - 02 |版权所有 © 2023 苹果公司 |版权所有。 ````
+
+这些成员函数从 2D 深度纹理数组读取，而不使用采样器。
+
+T read(uint2 坐标, uint 数组, uint lod = 0) const
+
+T read(ushort2 coord, ushort array, ushort lod = 0) const // 所有操作系统：自 Metal 1 .2 起。
+
+在对 2D 深度纹理数组进行采样时，该成员函数会收集四个样本以进行双线性插值。
+
+电视收集（采样器 s，float2 坐标，uint 数组，int2 偏移量 = int2（0）） const
+
+该成员函数在对 2D 深度纹理数组进行采样时收集四个样本进行双线性插值，并将它们与 Tv 为浮点向量类型的值进行比较。
+
+电视收集比较（采样器 s，float2 坐标，uint 数组，floatcompare_value，int2 偏移= int2（0））const
+
+以下成员函数查询 2D 深度纹理数组。
+
+uint get_width(uint lod = 0) const
+
+uint get_height(uint lod = 0) const
+
+uint get_array_size() const
+
+uint get_num_mip_levels() const
+
+这些成员函数从稀疏 2D 深度纹理数组中采样，从 iOS 中的 Metal 2.2 和 macOS 中的 Metal 2.3 开始。
+
+稀疏颜色-T 稀疏样本（采样器 s，float2 坐标，uint 数组，int2 偏移= int2（0））const
+
+稀疏颜色-T 稀疏样本（采样器 s，float2 坐标，uint 数组，偏差选项，int2 偏移= int2（0））const
+
+稀疏颜色-T 稀疏样本（采样器 s，float2 坐标，uint 数组，级别选项，int2 偏移= int2（0））const
+
+稀疏颜色-T 稀疏样本（采样器 s，float2 坐标，uint 数组，min_lod_clamp min_lod_clamp_options，int2 偏移= int2（0））const
+
+稀疏颜色-T 稀疏样本（采样器 s，float2 坐标，uint 数组，偏差 bias_options，min_lod_clamp min_lod_clamp_options，int2 偏移= int2（0））常量
+
+``2023 - 06 - 02 |版权所有 © 2023 苹果公司 |版权所有。 ````
+
+稀疏颜色-T 稀疏样本（采样器 s，float2 坐标，uint 数组，gradient2d grad_options，int2 偏移= int2（0））const
+
+稀疏颜色-T 稀疏样本（采样器 s，float2 坐标，uint 数组，gradient2d grad_options，min_lod_clamp min_lod_clamp_options，int2 偏移= int2（0））常量
+
+这些函数从稀疏 2D 深度纹理数组中进行采样，并将单个组件与比较值进行比较，从 iOS 中的 Metal 2.2 和 macOS 中的 Metal 2.3 开始。
+
+稀疏颜色-T 稀疏样本比较（采样器 s，浮点 2 坐标，uint 数组，浮点 compare_value，int2 偏移= int2（0））const
+
+稀疏颜色-T 稀疏样本比较（采样器 s，浮点 2 坐标，uint 数组，浮点 compare_value，偏差选项，int2 偏移= int2（0））常量
+
+稀疏颜色-T 稀疏样本比较（采样器 s，浮点 2 坐标，uint 数组，浮点 compare_value，级别选项，int2 偏移= int2（0））常量
+
+稀疏颜色-T 稀疏样本比较（采样器 s，浮点 2 坐标，uint 数组，浮点 compare_value，min_lod_clamp min_lod_clamp_options，int2 偏移= int2（0））常量
+
+稀疏颜色-T 稀疏样本比较（采样器 s，浮点 2 坐标，uint 数组，浮点 compare_value，偏差 bias_options，min_lod_clamp min_lod_clamp_options，int2 偏移= int2（0））常量
+
+稀疏颜色-T 稀疏样本比较（采样器 s，浮点 2 坐标，uint 数组，浮点 compare_value，gradient2d grad_options，int2 偏移= int2（0））常量
+
+稀疏颜色-T 稀疏样本比较（采样器 s，浮点 2 坐标，uint 数组，浮点 compare_value，gradient2d grad_options，min_lod_clamp min_lod_clamp_options，int2 偏移= int2（0））常量
+
+这些函数在没有采样器的情况下从稀疏 2D 深度纹理数组中读取，从 iOS 中的 Metal 2.2 和 macOS 中的 Metal 2.3 开始。
+
+稀疏*颜色-T 稀疏*读取（ushort2 坐标，uint 数组，ushort lod = 0）const
+
+``2023 - 06 - 02 |版权所有 © 2023 苹果公司 |版权所有。 ````
+
+稀疏颜色-T 稀疏读取（uint2 坐标，uint 数组，uint lod = 0）const
+
+该函数从稀疏 2D 深度纹理数组中收集四个样本进行双线性插值，从 iOS 中的 Metal 2.2 和 macOS 中的 Metal 2.3 开始。
+
+稀疏颜色-Tv 稀疏收集（采样器 s，浮点 2 坐标，uint 数组，int2 偏移量= int2（0），组件 c =组件::x）常量
+
+此函数收集这些样本，并将它们与稀疏 2D 深度纹理数组中的值进行比较，从 iOS 中的 Metal 2.2 和 macOS 中的 Metal 2.3 开始。
+
+稀疏*颜色-电视稀疏*收集\_比较（采样器 s，浮点 2 坐标，uint 数组，
+
+浮点比较值，int2 偏移量 = int2(0)) const
+
+这些函数模拟纹理获取并返回 LOD（mip 级别）计算结果，从 iOS 中的 Metal 2.3 和 macOS 中的 Metal 2.2 开始。
+
+浮点 calculate_clamped_lod（采样器 s，float2 坐标）；
+
+浮点 calculate_unclamped_lod（采样器 s，float2 坐标）；
+
+## 6.12.12 2D 多重采样深度纹理
+
+以下成员函数可以从 2D 多重采样深度纹理执行无采样器读取：
+
+T read(uint2 坐标, uint 样本) const
+
+T read(ushort2 coord, ushort example) const // 所有操作系统：自 Metal 1.2 起。
+
+以下成员函数查询 2D 多重采样深度纹理：
+
+uint get_width() const
+
+uint get_height() const
+
+uint get_num_samples() const
+
+这些成员函数从 iOS 中的 Metal 2.2 和 macOS 中的 Metal 2.3 开始，对稀疏 2D 多重采样深度纹理执行无采样器读取。
+
+稀疏颜色-T 稀疏读取（ushort 2 坐标，ushort 样本）const
+
+稀疏颜色-T 稀疏读取（uint 2 坐标，uint 样本）const
+
+``2023 - 06 - 02 |版权所有 © 2023 苹果公司 |版权所有。 ````
+
+## 6.12.13 2D 多重采样深度纹理数组
+
+macOS：自 Metal 2 起。
+
+iOS：自 Metal 2.3.
+
+以下成员函数从 2D 多重采样深度纹理数组执行无采样器读取：
+
+电视读取（uint2 坐标，uint 数组，uint lod = 0）const
+
+电视读取（ushort2 坐标，ushort 数组，ushort lod = 0）const
+
+以下成员函数查询 2D 多重采样深度纹理数组：
+
+uint get_width(uint lod = 0) const
+
+uint get_height(uint lod = 0) const
+
+uint get_array_size() const
+
+uint get_num_mip_levels() const
+
+这些成员函数从 iOS 中的 Metal 2.2 和 macOS 中的 Metal 2.3 开始，对稀疏 2D 多重采样深度纹理数组执行无采样器读取。
+
+稀疏颜色-T 稀疏读取（ushort 2 坐标，ushort 数组，ushort 样本）const
+
+稀疏颜色-T 稀疏读取（uint 2 坐标，uint 数组，uint 样本）const
+
+## 6.12.14 立方体深度纹理
+
+对于本节中的函数，以下数据类型和相应的构造函数可以指定采样选项（lod_options）：
+
+偏差（浮点值）
+
+水平（浮点数）
+
+梯度立方体（float3 dPdx，float3 dPdy）
+
+min_lod_clamp(float lod) // 所有操作系统：自 Metal 2.2 起支持
+
+以下成员函数来自立方体深度纹理样本：
+
+T Sample(采样器 s, float3 坐标) const
+
+T Sample(采样器 s, float3 坐标, lod_options 选项) const
+
+T 样本（采样器 s，浮点 3 坐标，偏差 bias_options，min_lod_clamp min_lod_clamp_options）常量
+
+``2023 - 06 - 02 |版权所有 © 2023 苹果公司 |版权所有。 ````
+
+T 样本（采样器 s，浮点 3 坐标，梯度立方体 grad_options，min_lod_clamp min_lod_clamp_options）常量
+
+以下成员函数从立方体深度纹理中进行采样，并将单个组件与指定的比较值进行比较：
+
+Tsample_compare（采样器 s，float3 坐标，floatcompare_value）const
+
+Tsample_compare（采样器 s，float3 坐标，floatcompare_value，lod_options 选项）const
+
+T 必须是浮点类型。在 Metal 2.2 之前的 macOS 上，支持的 lod_options 值为 level 和 min_lod_clamp（后者，自 Metal 2.2 起），并且 lod 必须为零常量。在 Metal 2.3 中，某些硬件取消了 lod_options 的限制。
+
+以下成员函数从立方体深度纹理执行无采样器读取：
+
+T read(uint2 坐标, uint 面, uint lod = 0) const
+
+T read(ushort2 coord, ushort face, ushort lod = 0) const // 所有操作系统：自 Metal 1 .2 起。
+
+在对立方体深度纹理进行采样时，该成员函数会收集四个样本以进行双线性插值：
+
+电视收集（采样器 s，float3 坐标）const
+
+当对立方体纹理进行采样并将这些样本与指定的比较值进行比较时，该成员函数会收集四个样本进行双线性插值：
+
+电视收集比较（采样器 s，float3 坐标，浮点比较值）const
+
+T 必须是浮点类型。
+
+以下成员函数查询立方体深度纹理：
+
+uint get_width(uint lod = 0) const
+
+uint get_height(uint lod = 0) const
+
+uint get_num_mip_levels() const
+
+这些成员函数从稀疏立方体深度纹理中采样，从 iOS 中的 Metal 2.2 和 macOS 中的 Metal 2.3 开始。
+
+稀疏颜色-T 稀疏样本（采样器 s，浮点 3 坐标）常量
+
+稀疏颜色-T 稀疏样本（采样器 s，浮点 3 坐标，
+
+``2023 - 06 - 02 |版权所有 © 2023 苹果公司 |版权所有。 ````
+
+偏差选项）const
+
+稀疏颜色-T 稀疏样本（采样器 s，浮点 3 坐标，级别选项）const
+
+稀疏颜色-T 稀疏样本（采样器 s，浮点 3 坐标，min_lod_clamp min_lod_clamp_options）常量
+
+稀疏颜色-T 稀疏样本（采样器 s，浮点 3 坐标，偏差 bias_options，min_lod_clamp min_lod_clamp_options）常量
+
+稀疏颜色-T 稀疏样本（采样器 s，浮点 3 坐标，梯度立方体 grad_options）常量
+
+稀疏颜色-T 稀疏样本（采样器 s，浮点 3 坐标，梯度立方体 grad_options，min_lod_clamp min_lod_clamp_options）常量
+
+这些成员函数从稀疏立方体深度纹理中进行采样，并将单个组件与从 iOS 中的 Metal 2.2 和 macOS 中的 Metal 2.3 开始的比较值进行比较。
+
+稀疏颜色-T 稀疏样本比较（采样器 s，浮点 3 坐标，浮点比较值）常量
+
+稀疏颜色-T 稀疏样本比较（采样器 s，浮点 3 坐标，浮点比较值，偏差选项）常量
+
+稀疏颜色-T 稀疏样本比较（采样器 s，浮点 3 坐标，浮点比较值，级别选项）常量
+
+稀疏颜色-T 稀疏样本比较（采样器 s，浮点 3 坐标，浮点比较值，min_lod_clamp min_lod_clamp_options）常量
+
+稀疏颜色-T 稀疏样本比较（采样器 s，浮点 3 坐标，浮点比较值，偏差 bias_options，min_lod_clamp min_lod_clamp_options）常量
+
+稀疏颜色-T 稀疏样本比较（采样器 s，浮点 3 坐标，浮点 compare_value，gradient2d grad_options）const
+
+稀疏颜色-T 稀疏样本比较（采样器 s，浮点 3 坐标，浮点比较值，梯度 2d 梯度选项，min_lod_clamp min_lod_clamp_options）常量
+
+这些成员函数从 iOS 中的 Metal 2.2 和 macOS 中的 Metal 2.3 开始，对稀疏立方体深度纹理执行无采样器读取。
+
+稀疏颜色-T 稀疏读取（ushort 2 坐标，ushort 面 ushort lod = 0）常量
+
+稀疏颜色-T 稀疏读取（uint 2 坐标，uint 面，uint lod = 0）常量
+
+``2023 - 06 - 02 |版权所有 © 2023 苹果公司 |版权所有。 ````
+
+此成员函数从 iOS 中的 Metal 2.2 和 macOS 中的 Metal 2.3 开始，从稀疏立方体深度纹理收集四个样本进行双线性插值。
+
+稀疏*颜色-电视稀疏*收集（采样器 s，浮点 3 坐标）常量
+
+此成员函数收集这些样本，并将它们与稀疏立方体深度纹理的比较值进行比较，从 iOS 中的 Metal 2.2 和 macOS 中的 Metal 2.3 开始。
+
+稀疏颜色-电视稀疏收集比较（采样器 s，浮点 3 坐标，浮点比较值）常量
+
+这些成员函数模拟纹理获取并返回 LOD（mip 级别）计算结果，从 iOS 中的 Metal 2.3 和 macOS 中的 Metal 2.2 开始。
+
+浮点 calculate_clamped_lod（采样器 s，浮点 3 坐标）；
+
+浮点 calculate_unclamped_lod（采样器 s，浮点 3 坐标）；
+
+## 6.12.15 立方体深度纹理数组
+
+对于本节中的函数，以下数据类型和相应的构造函数可以指定采样选项（lod_options）：
+
+偏差（浮点值）
+
+水平（浮点数）
+
+梯度立方体（float3 dPdx，float3 dPdy）
+
+min_lod_clamp(float lod) // 所有操作系统：自 Metal 2.2 起支持
+
+这些成员函数从立方体深度纹理数组中采样：
+
+T Sample(采样器 s, float3 坐标, uint 数组) const
+
+T Sample(采样器 s, float3 坐标, uint 数组, lod_options 选项) const
+
+T 样本（采样器 s，浮点 3 坐标，uint 数组，偏差 bias_options，min_lod_clamp min_lod_clamp_options）常量
+
+T 样本（采样器 s，浮点 3 坐标，uint 数组，gradientcube grad_options，min_lod_clamp min_lod_clamp_options）常量
+
+这些成员函数从立方体深度纹理中进行采样，并将单个组件与指定的比较值进行比较：
+
+Tsample_compare（采样器 s，float3 坐标，uint 数组，floatcompare_value）const
+
+``2023 - 06 - 02 |版权所有 © 2023 苹果公司 |版权所有。 ````
+
+Tsample_compare（采样器 s，float3 坐标，uint 数组，floatcompare_value，lod_options 选项）const
+
+T 必须是浮点类型。在 Metal 2.2 之前的 macOS 上，支持的 lod_options 值为 level 和 min_lod_clamp（后者，自 Metal 2.2 起），并且 lod 必须为零常量。在 Metal 2.3 中，某些硬件取消了 lod_options 的限制。
+
+这些成员函数从立方体深度纹理数组执行无采样器读取：
+
+T read(uint2 坐标，uint 面，uint 数组，uint lod = 0) const
+
+T read(ushort2 coord, ushort face, ushort array, ushort lod = 0) const // 所有操作系统：自 Metal 1 .2 起。
+
+在对立方体深度纹理进行采样时，该成员函数会收集四个样本以进行双线性插值：
+
+电视收集（采样器 s，float3 坐标，uint 数组）const
+
+当对立方体深度纹理进行采样并将这些样本与指定的比较值进行比较时，此成员函数会收集四个样本进行双线性插值：
+
+电视收集比较（采样器 s，float3 坐标，uint 数组，浮点比较值）const
+
+T 必须是浮点类型。
+
+这些成员函数查询立方体深度纹理：
+
+uint get_width(uint lod = 0) const
+
+uint get_height(uint lod = 0) const
+
+uint get_array_size() const
+
+uint get_num_mip_levels() const
+
+这些成员函数从稀疏立方体深度纹理数组中采样，从 iOS 中的 Metal 2.2 和 macOS 中的 Metal 2.3 开始。
+
+稀疏颜色-T 稀疏样本（采样器 s，浮点 3 坐标，uint 数组）const
+
+稀疏颜色-T 稀疏样本（采样器 s，浮点 3 坐标，uint 数组，偏差选项）const
+
+稀疏颜色-T 稀疏样本（采样器 s，浮点 3 坐标，uint 数组，级别选项）const
+
+稀疏颜色-T 稀疏样本（采样器 s，浮点 3 坐标，uint 数组，min_lod_clamp min_lod_clamp_options）常量
+
+稀疏颜色-T 稀疏样本（采样器 s，浮点 3 坐标，uint 数组，偏差 bias_options，
+
+``2023 - 06 - 02 |版权所有 © 2023 苹果公司 |版权所有。 ````
+
+min_lod_clamp min_lod_clamp_options) const
+
+稀疏颜色-T 稀疏样本（采样器 s，浮点 3 坐标，uint 数组，gradientcube grad_options）const
+
+稀疏颜色-T 稀疏样本（采样器 s，浮点 3 坐标，uint 数组，gradientcube grad_options，min_lod_clamp min_lod_clamp_options）常量
+
+这些成员函数从稀疏立方体深度纹理数组中进行采样，并将单个组件与从 iOS 中的 Metal 2.2 和 macOS 中的 Metal 2.3 开始的比较值进行比较。
+
+稀疏颜色-T 稀疏样本比较（采样器 s，浮点 3 坐标，uint 数组，浮点 compare_value）常量
+
+稀疏颜色-T 稀疏样本比较（采样器 s，浮点 3 坐标，uint 数组，浮点比较值，偏差选项）常量
+
+稀疏颜色-T 稀疏样本比较（采样器 s，浮点 3 坐标，uint 数组，浮点比较值，级别选项）常量
+
+稀疏颜色-T 稀疏样本比较（采样器 s，浮点 3 坐标，uint 数组，浮点 compare_value，min_lod_clamp min_lod_clamp_options）常量
+
+稀疏颜色-T 稀疏样本比较（采样器 s，浮点 3 坐标，uint 数组，浮点 compare_value，偏差 bias_options，min_lod_clamp min_lod_clamp_options）常量
+
+稀疏颜色-T 稀疏样本比较（采样器 s，浮点 3 坐标，uint 数组，浮点 compare_value，gradient2d grad_options）const
+
+稀疏颜色-T 稀疏样本比较（采样器 s，浮点 3 坐标，uint 数组，浮点 compare_value，gradient2d grad_options，min_lod_clamp min_lod_clamp_options）常量
+
+这些成员函数从 iOS 中的 Metal 2.2 和 macOS 中的 Metal 2.3 开始，对稀疏立方体深度纹理数组执行无采样器读取。
+
+稀疏颜色-T 稀疏读取（ushort 2 坐标，ushort 面，ushort 数组，ushort lod = 0）常量
+
+稀疏颜色-T 稀疏读取（uint 2 坐标，uint 面，uint 数组，uint lod = 0）常量
+
+``2023 - 06 - 02 |版权所有 © 2023 苹果公司 |版权所有。 ````
+
+此成员函数从稀疏立方体深度纹理数组中收集四个样本进行双线性插值，从 iOS 中的 Metal 2.2 和 macOS 中的 Metal 2.3 开始。
+
+稀疏*颜色-电视稀疏*收集（采样器 s，浮点 3 坐标，uint 数组）const
+
+此成员函数收集这些样本，并将它们与稀疏 2D 深度纹理的比较值进行比较，从 iOS 中的 Metal 2.2 和 macOS 中的 Metal 2.3 开始。
+
+稀疏颜色-电视稀疏收集比较（采样器 s，浮点 3 坐标，uint 数组，浮点 compare_value）常量
+
+这些成员函数模拟纹理获取并返回 LOD（mip 级别）计算结果，从 iOS 中的 Metal 2.3 和 macOS 中的 Metal 2.2 开始。
+
+浮点 calculate_clamped_lod（采样器 s，浮点 3 坐标）；
+
+浮点 calculate_unclamped_lod（采样器 s，浮点 3 坐标）；
+
+## 6.12.16 纹理缓冲区函数
+
+所有操作系统：自 Metal 2.1 起支持纹理缓冲区和这些函数。
+
+以下成员函数可以读取和写入纹理缓冲区中的元素（另请参见第 2.9.1 节）：
+
+电视读取(uint coord) const;
+
+void write(电视颜色，uint 坐标)；
+
+从 Metal 3.1 开始，这些成员函数从纹理缓冲区执行原子加载：
+
+电视 atomic_load(uint coord) const
+
+电视 atomic_load(ushort coord) const
+
+从 Metal 3.1 开始，这些成员函数对纹理缓冲区执行原子存储：
+
+voidatomic_store（电视颜色，uint 坐标）const
+
+voidatomic_store（电视颜色，ushort 坐标）const
+
+从 Metal 3.1 开始，这些成员函数执行原子比较并交换到纹理缓冲区：
+
+boolatomic_compare_exchange_weak(uint coord, 线程 Tv \*预期, Tv 期望) const
+
+boolatomic_compare_exchange_weak(ushort coord, 线程 Tv \* 预期，
+
+``2023 - 06 - 02 |版权所有 © 2023 苹果公司 |版权所有。 ````
+
+需要电视）常量
+
+从 Metal 3.1 开始，这些成员函数对纹理缓冲区执行原子交换：
+
+电视 atomic_exchange(uint coord, 需要电视) const
+
+电视原子交换（ushort coord，需要电视）const
+
+这些成员函数执行原子获取并修改从 Metal 3.1 开始的纹理缓冲区，其中 _op_ 是 add、max、min、or、sub 或 xor（对于 int 和 uint 颜色类型）：
+
+电视原子*获取* _op_（uint 坐标，电视操作数）
+
+电视原子*获取* _op_（ushort 坐标，电视操作数）const
+
+从 Metal 3.1 开始，这些成员函数对纹理缓冲区执行原子最小值或最大值：
+
+voidatomic_min(uint 坐标，ulong4 操作数)
+
+voidatomic_min(ushort 坐标，ulong4 操作数)
+
+voidatomic_max(uint 坐标，ulong4 操作数)
+
+voidatomic_max(ushort 坐标，ulong4 操作数)
+
+以下示例使用 read 方法来访问纹理缓冲区：
+
+内核无效 myKernel(texture_buffer myBuffer) { uint index = ...; float4 值 = myBuffer.read(index);
+
+}
+
+使用以下方法查询纹理缓冲区中的元素数量：
+
+uint get_width() const;
+
+## 6.12.17 纹理同步函数
+
+所有操作系统：自 Metal 1.2 起支持纹理同步功能。
+
+纹理 fence()成员函数确保线程对纹理的写入对于同一线程（正在执行写入的线程）从该纹理的后续读取可见。可以使用 access::read_write 属性声明的纹理类型（包括纹理缓冲区）支持 Fence 函数。
+
+虚空栅栏()
+
+``2023 - 06 - 02 |版权所有 © 2023 苹果公司 |版权所有。 ````
+
+以下示例演示如何使用纹理栅栏函数来确保线程对纹理的写入对于同一线程稍后对同一位置的读取可见：
+
+内核 void my_kernel(texture2d texA, ..., ushort2 gid [[thread_position_in_grid]]) { float4 clr = ...; texA.write(clr, gid);
+
+``` // 使用栅栏来确保线程的写入对线程稍后的读取可见。 texA.fence(); ````
+
+``` clr_new = texA.read(gid); ````
+
+### }
+
+## 6.12.18 空纹理函数
+
+所有操作系统：自 Metal 1.2 起支持空纹理函数。
+
+macOS：自 Metal 2 起，texture2d_ms_array 和 height2d_ms_array 支持空纹理函数。
+
+使用以下函数确定纹理是否为空纹理。如果纹理是空纹理，is_null_texture 返回 true；否则返回 false。
+
+bool is_null_texture(texture1d<T, access>);
+
+bool is_null_texture(texture1d_array<T, access>);
+
+bool is_null_texture(texture2d<T, access>);
+
+bool is_null_texture(texture2d_array<T, access>);
+
+bool is_null_texture(texture3d<T, access>);
+
+bool is_null_texture(texturecube<T, access>);
+
+bool is_null_texture(texturecube_array<T, access>);
+
+bool is_null_texture(texture2d_ms<T, access>);
+
+// 从 Metal 2 开始，texture2d_ms_array 仅限 macOS
+
+bool is_null_texture(texture2d_ms_array<T, access>);
+
+bool is_null_texture(深度 2d);
+
+bool is_null_texture(depth2d_array<T, access>);
+
+bool is_null_texture(depthcube<T, access>);
+
+bool is_null_texture(depthcube_array<T, access>);
+
+``2023 - 06 - 02 |版权所有 © 2023 苹果公司 |版权所有。 ````
+
+bool is_null_texture(depth2d_ms<T, access>);
+
+// height2d_ms_array 仅限 macOS，自 Metal 2 起
+
+bool is_null_texture(depth2d_ms_array<T, access>);
+
+使用空纹理调用任何纹理成员函数的行为是未定义的。

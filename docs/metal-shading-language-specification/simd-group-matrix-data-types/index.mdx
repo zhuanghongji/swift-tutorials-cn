@@ -1,1 +1,11 @@
-# Placeholder
+## 2.4 SIMD 组矩阵数据类型
+
+所有操作系统：自 Metal 2. 3 起支持 SIMD 组矩阵类型。
+
+Metal 支持 中定义的矩阵类型 simdgroup_matrix。 SIMD 组矩阵上的操作由 SIMD 组中的线程协作执行。因此，所有操作必须仅在 SIMD 组内的统一控制流下执行，否则行为是未定义的。
+
+Metal 支持以下 SIMD 组矩阵类型名称，其中 T 为 half、bfloat（自 Metal 3.1 起）或 float，并且 Cols 和 Rows 为 8 ：
+
+- simdgroup_half8x8 - simdgroup_bfloat8x8（自 Metal 3 .1 起支持） - simdgroup_float8x8
+
+矩阵元素到 SIMD 组中线程的映射未指定。有关 SIMD 组矩阵支持哪些函数的说明，请参阅第 6.7 节

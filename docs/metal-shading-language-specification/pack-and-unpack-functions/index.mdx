@@ -1,1 +1,61 @@
-# Placeholder
+## 6.14 打包和解包函数
+
+本节列出了标头 中定义的 Metal 函数，用于将向量浮点数据与压缩整数值相互转换。有关如何从 8 位、10 位或 16 位有符号或无符号整数值转换为标准化单精度或半精度浮点值（反之亦然）的详细信息，请参阅第 7.7 节的小节。
+
+## 6.14.1 解压整数并将其转换为浮点向量
+
+表 6. 22 列出了从单个无符号整数中解包多个值，然后将它们转换为存储在向量中的浮点值的函数。
+
+## 表 6.22。解压函数
+
+`内置解包函数说明`
+
+`float4 unpack_unorm4x8_to_float(uint x) float4 unpack_snorm4x8_to_float(uint x) half4 unpack_unorm4x8_to_half(uint x) half4 unpack_snorm4x8_to_half(uint x)`
+
+``` 将一个 32 位无符号整数解包为四个 8 位有符号或无符号整数，然后将每个 8 位有符号或无符号整数值转换为规范化的单精度或半精度浮点值，以生成 4 个分量向量。 ````
+
+``2023 - 06 - 02 |版权所有 © 2023 苹果公司 |版权所有。 ````
+
+`内置解包函数说明`
+
+`float4 unpack_unorm4x8_srgb_to_float(uint x) half4 unpack_unorm4x8_srgb_to_half(uint x)`
+
+``` 将一个 32 位无符号整数解包为四个 8 位有符号或无符号整数，然后将每个 8 位有符号或无符号整数值转换为规范化的单精度或半精度浮点值，以生成 4 个分量向量。 r、g 和 b 颜色值从 sRGB 转换为线性 RGB。 ````
+
+`float2 unpack_unorm2x16_to_float(uint x) float2 unpack_snorm2x16_to_float(uint x) half2 unpack_unorm2x16_to_half(uint x) half2 unpack_snorm2x16_to_half(uint x)`
+
+``` 将一个 32 位无符号整数解包为两个 16 位有符号或无符号整数，然后将每个 16 位有符号或无符号整数值转换为标准化单精度或半精度浮点值以生成 2 个分量向量。 ````
+
+`float4 unpack_unorm10a2_to_float(uint x) float3 unpack_unorm565_to_float(ushort x) half4 unpack_unorm10a2_to_half(uint x) half3 unpack_unorm565_to_half(ushort x)`
+
+``` 将 10a2 (1010102) 或 565 颜色值转换为相应的标准化单精度或半精度浮点向量。 ````
+
+当从 16 位无符号标准化或有符号标准化值转换为半精度浮点时，unpack_unorm2x16_to_half 和 unpack_snorm2x16_to_half 函数可能会丢失精度。
+
+## 6.14.2 将浮点向量转换为整数，然后打包整数
+
+表 6. 23 列出了以浮点向量开头、将组件转换为整数值、然后将多个值打包为单个无符号整数的函数。
+
+## 表 6.23。包功能
+
+`内置包功能说明`
+
+`uint pack_float_to_unorm4x8(float4 x) uint pack_float_to_snorm4x8(float4 x) uint pack_half_to_unorm4x8(half4 x) uint pack_half_to_snorm4x8(half4 x)`
+
+``` 将四分量向量归一化单精度或半精度浮点值转换为四个 8 位整数值，并将这些 8 位整数值打包为 32 位无符号整数。 ````
+
+``2023 - 06 - 02 |版权所有 © 2023 苹果公司 |版权所有。 ````
+
+`内置包功能说明`
+
+`uint pack_float_to_srgb_unorm4x8(float4 x) uint pack_half_to_srgb_unorm4x8(half4 x)`
+
+``` 将四分量向量归一化单精度或半精度浮点值转换为四个 8 位整数值，并将这些 8 位整数值打包为 32 位无符号整数。颜色值从线性 RGB 转换为 sRGB。 ````
+
+`uint pack_float_to_unorm2x16(float2 x) uint pack_float_to_snorm2x16(float2 x) uint pack_half_to_unorm2x16(half2 x) uint pack_half_to_snorm2x16(half2 x)`
+
+``` 将归一化单精度或半精度浮点值的二分量向量转换为两个 16 位整数值，并将这些 16 位整数值打包为 32 位无符号整数。 ````
+
+`uint pack_float_to_unorm10a2(float4) ushort pack_float_to_unorm565(float3) uint pack_half_to_unorm10a2(half4) ushort pack_half_to_unorm565(half3)`
+
+``` 将标准化单精度或半精度浮点值的三分量或四分量向量转换为压缩的 10a2 (1010102) 或 565 颜色整数值。 ````

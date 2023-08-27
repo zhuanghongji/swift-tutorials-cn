@@ -1,1 +1,43 @@
-# Placeholder
+## 5 .4 采样和插值属性
+
+采样和插值属性与使用 stage_in 属性声明的片段函数的输入一起使用，但 interpolant 类型的成员除外。属性
+
+``2023 - 06 - 02 |版权所有 © 2023 苹果公司 |版权所有。 ````
+
+确定片段函数使用的采样方法以及如何执行插值，包括是否使用透视校正插值、线性插值或不插值。
+
+采样和插值属性可以在任何类型为标量和向量的 stage_in 结构成员上指定。支持的采样和插值属性有：
+
+- 中心透视 - 中心无透视 - 质心透视 - 质心无透视 - 样本透视 - 样本无透视 - 平坦
+
+center_perspective 是默认的采样和插值属性，但有以下例外：
+
+- 对于具有 [[position]] 属性的变量，唯一有效的采样和插值属性是 center_no_perspective。 - 对于整型变量，唯一有效的采样和插值属性是平坦的。
+
+透视属性（center_perspective、centroid_perspective 或 sample_perspective）指示图元上的值以透视正确的方式进行插值。非透视属性（center_no_perspective、centroid_no_perspective 或 sample_no_perspective）指示图元上的值在屏幕坐标中线性插值。
+
+center 属性变体（center_perspective 和 center_no_perspective）导致采样使用每个像素的中心。
+
+采样属性变体（sample_perspective 和 sample_no_perspective）导致在样本位置而不是像素中心进行插值。通过这些属性之一，使用这些变量的片段函数（或片段函数中的代码块）按样本而不是按片段执行。
+
+如果指定了质心属性变体（centroid_perspective 和 centroid_no_perspective），则采样的插值点需要位于图元和像素质心内。
+
+以下示例演示如何为用户定义结构的不同成员指定数据插值：
+
+struct FragmentInput { float4 pos [[center_no_perspective]]; float4 颜色 [[center_perspective]]; float2 纹理坐标； int 索引[[平]]；浮动 f [[样本透视]]; interpolant icolor; };
+
+``2023 - 06 - 02 |版权所有 © 2023 苹果公司 |版权所有。 ````
+
+在 Metal 2.4 或更高版本中，还可以在任何类型为结构体的 stage_in 结构体成员上指定样本和插值属性。结构中的所有成员都继承指定的采样和插值限定符。仅当满足以下条件之一时，继承了采样和插值限定符的结构中的字段声明才有效：
+
+- 字段的类型与继承的限定符兼容。 - 字段声明没有采样和插值限定符属性。 - 字段声明具有与继承的相同的采样和插值限定符属性。
+
+以下示例演示如何指定结构类型的插值。
+
+struct VOut { float4 pos [[位置]]; }
+
+结构体 POut { float4 color0;浮动 4 颜色 1； };
+
+[[mesh]] void mesh_function(mesh m)
+
+结构 FragmentInput { VOut vin; POut 引脚 [[center_perspective]]; };

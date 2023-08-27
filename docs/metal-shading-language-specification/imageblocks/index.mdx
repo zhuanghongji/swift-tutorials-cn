@@ -1,1 +1,81 @@
-# Placeholder
+## 2.11 图像块
+
+iOS：从 Metal 2 开始支持图像块。
+
+macOS：从 Metal 2. 3 开始支持图像块。
+
+``2023 - 06 - 02 |版权所有 © 2023 苹果公司 |版权所有。 ````
+
+图像块是分配在线程组内存中的 2D 数据结构（由宽度、高度和样本数表示），是处理 2D 图像数据的有效机制。该结构的每个元素可以是标量或向量整数或浮点数据类型、像素数据类型（在 2.7 节的表 2. 6 中指定）、这些类型的数组或使用这些类型构建的结构。图像块的数据布局是不透明的。你可以使用 (x, y) 坐标和可选的样本索引来访问图像块中的元素。图像块中与特定 (x, y) 关联的元素是每线程图像块数据或只是图像块数据。
+
+5.6 节详细介绍了图像块属性，包括 [[imageblock_data(type)]] 属性。第 6.13 节列出了图像块的内置函数。
+
+图像块仅与片段和内核函数一起使用。 5.6.3 和 5.6.4 节分别描述了如何访问片段或内核函数中的图像块。
+
+对于片段函数，你只能访问片段的图像块数据（由片段在图块中的像素位置标识）。使用图块大小来导出图像块尺寸。
+
+对于内核函数，线程组中的所有线程都可以访问图像块。在指定图像块尺寸之前，你通常可以从线程组大小导出图像块尺寸。
+
+图像块*切片*指的是图像块中的区域，其描述图像块中所有像素位置或线程的图像块数据结构中给定元素的值。 imageblock 切片的存储类型必须与目标纹理的纹理格式兼容，如表 2.8 所示。
+
+## 表 2.8。图像块切片和兼容的目标纹理格式
+
+`像素存储类型`
+
+`兼容的纹理格式`
+
+`浮点，半 R32Float、R16Float、R8Unorm、R8Snorm、R16Unorm、R16Snorm`
+
+`float2、half2 RG32Float、RG16Float、RG8Unorm、RG8Snorm、RG16Unorm、RG16Snorm`
+
+`float4、half4 RGBA32Float、RGBA16Float、RGBA8Unorm、RGBA8Snorm、RGBA16Unorm、RGBA16Snorm、RGB10A2Unorm、RG11B10Float、RGB9E5Float`
+
+`int、短 R32Sint、R16Sint、R8Sint`
+
+`int2、short2 RG32Sint、RG16Sint、RG8Sint`
+
+`int4、short4 RGBA32Sint、RGBA16Sint、RGBA8Sint`
+
+`uint、ushort R32Uint、R16Uint、R8Uint`
+
+`uint2、ushort2 RG32Uint、RG16Uint、RG8Uint`
+
+`uint4、ushort4 RGBA32Uint、RGBA16Uint、RGBA8Uint`
+
+``2023 - 06 - 02 |版权所有 © 2023 苹果公司 |版权所有。 ````
+
+`像素存储类型`
+
+`兼容的纹理格式`
+
+`r8Unorm A8Unorm，R8Unorm`
+
+`r8snorm R8Snorm`
+
+`r16unorm<T> R16Unorm`
+
+`r16snorm<T> R16Snorm`
+
+`rg8unorm<T> RG8Unorm`
+
+`rg8snorm<T> RG8Snorm`
+
+`rg16unorm<T> RG16Unorm`
+
+`rg16snorm<T> RG16Snorm`
+
+`rgba8unorm RGBA8Unorm，BGRA8Unorm`
+
+`srgba8unorm RGBA8Unorm_sRGB，BGRA8Unorm_sRGB`
+
+`rgba8snorm RGBA8Snorm，BGRA8Unorm`
+
+`rgba16unorm<T> RGBA16Unorm`
+
+`rgba16snorm<T> RGBA16Snorm`
+
+`rgb10a2<T> RGB10A2Unorm`
+
+`rg11b10f RG11B10Float`
+
+`rgb9e5<T> RGB9E5Float`

@@ -1,1 +1,167 @@
-# Placeholder
+## 5.8 程序作用域函数常量
+
+所有操作系统：自 Metal 1.2 起支持函数常量。从 Metal 2 开始，支持使用函数常量指定资源的绑定号（请参阅第 5.8.1.4 节），以指定 color() 或 raster_order_group 属性的索引（第 5.8.1.5 节），并识别结构元素是可选的（第 5.8.1.6 节）。
+
+函数常量可以生成函数的多个变体。在不使用函数常量的情况下，你可以使用不同的预处理器宏定义多次编译一个函数，以启用不同的功能（_ubershader_）。对 ubershaders 使用预处理器宏并进行离线编译可能会导致大量变体，并显着增加着色函数库资源的大小。函数常量提供相同的
+
+``2023 - 06 - 02 |版权所有 © 2023 苹果公司 |版权所有。 ````
+
+易于用作预处理器宏，但将特定变体的生成移至管道状态的创建，因此你不必离线编译变体。
+
+## 5.8.1 指定程序范围函数常量
+
+使用以下属性声明（或初始化）的程序范围变量是*函数常量*：
+
+[[函数常量（索引）]]
+
+值索引需要介于 0 到 65535 之间。
+
+在 Metal 中，函数常量可以：
+
+- 控制编译的代码路径。 - 指定函数的可选参数（图形、内核或用户函数）。 - 使用 [[stage_in]] 属性指定结构的可选元素。
+
+函数常量未在 Metal 函数源中初始化。相反，它们的值是在创建渲染或计算管道状态期间指定的。索引值指定可以在运行时引用函数常量变量（而不是通过其名称）的位置索引。
+
+例子：
+
+常量 int a [[function_constant(0)]];
+
+常量 bool b [[function_constant(2)]];
+
+函数常量只能是标量或向量类型。使用用户定义类型或者标量或向量类型的数组作为函数常量会导致编译错误。
+
+函数常量 a 和 b 的值在创建渲染或计算管道状态期间指定。
+
+你还可以使用函数常量来初始化在常量地址空间中声明的程序范围内的变量。
+
+例子：
+
+常量 int a [[function_constant(0)]];
+
+常量 bool b [[function_constant(2)]];
+
+常量 bool c = ((a == 1) && b);
+
+常量 int d = (a \* 4);
+
+你可以使用以下内置函数来确定函数常量是否已定义且可用。 name 指的是函数常量变量。
+
+bool is_function_constant_define(名称)
+
+``` 如果定义了函数常量变量，则返回 true，否则返回 false。 ````
+
+如果在创建管道状态期间未定义函数常量变量值，并且使用渲染或计算管道状态指定的图形或内核函数使用这些函数常量，则行为与 is_function_constant_define(name) 的值相同是假的。
+
+``2023 - 06 - 02 |版权所有 © 2023 苹果公司 |版权所有。 ````
+
+## 5.8.1.1 控制编译代码路径的函数常量
+
+考虑以下使用预处理器宏作为函数常量的函数：
+
+struct VertexOutput { float4 位置 [[位置]];浮动 4 颜色； };
+
+struct VertexInput { float4 位置 [[attribute(0)]]; float4 偏移量 [[属性(1)]]; float4 颜色 [[属性(2)]]; };
+
+顶点 VertexOutput myVertex(VertexInput vIn [[stage_in]]) { VertexOutput vOut;
+
+` vOut.position = vIn.position; #ifdef OFFSET_DEFINED vOut.position += vIn.offset; #endif`
+
+` #ifdef COLOR_DEFINED vOut.color = vIn.color; #else vOut.color = float4(0.0f); #endif`
+
+返回 vOut； }
+
+使用函数常变量编写的对应函数是：
+
+常量 bool offset_define [[function_constant(0)]];常量 bool color_define [[function_constant(1)]];
+
+顶点 VertexOutput myVertex(VertexInput vIn [[stage_in]]) { VertexOutput vOut;
+
+``` vOut.position = vIn.position; if (offset_defined) vOut.position += vIn.offset; ````
+
+``2023 - 06 - 02 |版权所有 © 2023 苹果公司 |版权所有。 ````
+
+``` if (color_defined) vOut.color = vIn.color;否则 vOut.color = float4(0.0f); ````
+
+返回 vOut； }
+
+## 5.8.1.2 声明函数参数时的函数常量
+
+你可以使用 [[function_constant(name)]] 属性声明图形、内核或其他用户函数的参数，以标识该参数是可选的。 name 属性指的是函数常量变量。如果名称给出的函数常量变量的值非零或为真（在创建管道状态期间确定），则参数的声明位于函数签名中。如果名称给出的函数常量变量的值为 0 或 false，则该参数不会在函数签名中声明。如果 name 引用尚未定义的函数常量变量（在创建管道状态期间确定），则行为与 is_function_constant_define(name) 的值为 false 时相同。
+
+考虑以下在函数声明中使用预处理器宏的片段函数：
+
+片段 half4 myFragment( 常量 GlobalUniformData *globalUniform [[buffer(0)]]，常量 RenderUniformData_ModelWithLightmap *renderUniform [[buffer(1)]]，常量 MaterialUniformData \*materialUniform [[buffer(2)]]，texture2d DiffuseTexture [ [texture(0)]]、texture2d LightmapTexture [[texture(1)]]、texture2d FogTexture [[texture(3)]]、#ifdef MED_QUALITYtexture2d LookupTexture [[texture(4)]]], #endif #ifdef REALTIME_SHADOWtexture2d RealtimeShadowMapTexture [[texture(10)]], #endif 采样器 DiffuseTextureSampler [[sampler(0)]], 采样器 LightmapTextureSampler [[sampler(1)]], 采样器 FogTextureSampler [[采样器(3)]], #ifdef MED_QUALITY 采样器 LookupTextureSampler [[sampler(4)]], #endif #ifdef REALTIME_SHADOW 采样器 RealtimeShadowMapTextureSampler [[sampler(10)]], #endif VertexOutput fragIn [[stage_in]])
+
+``2023 - 06 - 02 |版权所有 © 2023 苹果公司 |版权所有。 ````
+
+下面是对应的片段函数，使用函数常量代替#ifdef 语句重写前面的代码后：
+
+常量 bool realtime_shadow [[function_constant(0)]];常量 bool med_quality [[function_constant(1)]];常量 bool med_quality_define = is_function_constant_define(med_quality);常量 bool realtime_shadow_define = is_function_constant_define(realtime_shadow);
+
+片段 half4 myFragment( 常量 GlobalUniformData *globalUniform [[buffer(0)]]，常量 RenderUniformData_ModelWithLightmap *renderUniform [[buffer(1)]]，常量 MaterialUniformData \*materialUniform [[buffer(2)]]，texture2d DiffuseTexture [ [texture(0)]]、texture2d LightmapTexture [[texture(1)]]、texture2d FogTexture [[texture(3)]]、texture2d LookupTexture [[texture(4)、function_constant( med_quality_define)]]、texture2d RealtimeShadowMapTexture [[texture(10)、function_constant(realtime_shadow_define)]]、采样器 DiffuseTextureSampler [[sampler(0)]]、采样器 LightmapTextureSampler [[sampler(1)]]、采样器 FogTextureSampler [[采样器（3）]]，采样器 LookupTextureSampler [[采样器（4），function_constant（med_quality_defined）]]，采样器 RealtimeShadowMapTextureSampler [[采样器（10），function_constant（realtime_shadow_define）]]，VertexOutput fragIn [[stage_in]]）
+
+下面是另一个示例，展示了如何将函数常量与函数参数一起使用：
+
+常量 bool hasInputBuffer [[function_constant(0)]];
+
+kernel void kernelOptionalBuffer( device int *input [[buffer(0),function_constant(hasInputBuffer)]], device int *output [[buffer(1)]], uint tid [[thread_position_in_grid]]) { if (hasInputBuffer) 输出[ tid] = inputA[0] \* tid;否则输出[tid] = tid; }
+
+``2023 - 06 - 02 |版权所有 © 2023 苹果公司 |版权所有。 ````
+
+## 5.8.1.3 输入汇编结构元素的函数常量
+
+你可以使用 [[function_constant(name)]] 属性将输入汇编结构的元素（使用 [[stage_in]] 属性声明）指定为可选。如果名称给出的函数常量变量的值非零或为真（在创建渲染或计算管道状态期间确定），则结构中的元素在函数签名中声明。如果名称给定的函数常量变量的值为 0 或 false，则不会在结构中声明该元素。
+
+例子：
+
+常量 bool offset_define [[function_constant(0)]];常量 bool color_define [[function_constant(1)]];
+
+struct VertexOutput { float4 位置 [[位置]];浮动 4 颜色； }; struct VertexInput { float4 位置 [[attribute(0)]]; float4 偏移量 [[attribute(1), function_constant(offset_defined)]]; float4 颜色 [[属性(2), function_constant(color_define)]]; };
+
+顶点 VertexOutput myVertex(VertexInput vIn [[stage_in]]) { VertexOutput vOut;
+
+``` vOut.position = vIn.position; if (offset_defined) vOut.position += vIn.offset; ````
+
+``` if (color_defined) vOut.color = vIn.color;否则 vOut.color = float4(0.0f); ````
+
+返回 vOut； }
+
+## 5.8.1.4 资源绑定的函数常量
+
+所有操作系统：使用函数常量指定自 Metal 2 以来支持的资源绑定。
+
+作为资源（缓冲区、纹理或采样器）的图形或内核函数的参数可以使用函数常量来指定其绑定号。函数常量必须是标量整数类型。
+
+例子：
+
+``2023 - 06 - 02 |版权所有 © 2023 苹果公司 |版权所有。 ````
+
+常量 int indexA [[function_constant(0)]];常量 int 索引 B = 索引 A + 2；常量 int indexC [[function_constant(1)]];常量 int indexD [[function_constant(2)]];
+
+[[kernel]] void my_kernel(constant UserParams& params [[buffer(indexA)]]，设备 T \* p [[buffer(indexB)]]，texture2d texA [[texture(indexC)]]，采样器 s [[采样器(indexD)]], ...) {...}
+
+## 5.8.1.5 颜色附件和光栅顺序组的函数常量
+
+所有操作系统：使用函数常量指定自 Metal 2 以来支持的颜色附件或光栅顺序组属性索引。
+
+[[color(n)]] 或 [[raster_order_group(index)]] 索引也可以是函数常量。使用的函数常量必须是标量整数类型。
+
+例子：
+
+常量 int colorAttachment0 [[function_constant(0)]];常量 int colorAttachment1 [[function_constant(1)]];常量 int group0 [[function_constant(2)]];
+
+struct FragmentOutput { float4 color0 [[color(colorAttachment0)]]; float4 color1 [[颜色(colorAttachment1)]]; };
+
+[[fragment]] FragmentOutput my_fragment(texture2d<float> texA [[texture(0), raster_order_group(group0)]], ...) {...}
+
+## 5.8.1.6 具有结构体元素的函数常量
+
+所有操作系统：使用函数常量来标识结构体元素是可选的；从 Metal 2 开始支持。
+
+要标识结构的元素是可选的，你可以使用结构元素指定 [[function_constant(name)]] 属性，该结构元素是图形或用户函数的返回类型，或者按值作为参数传递给内核、图形或用户函数。该行为类似于具有 [[stage_in]] 属性的元素的函数常量，如第 5.8.1.3 节所述。
+
+如果名称给出的函数常量变量的值非零或为真（在渲染或计算管道状态创建期间确定），则结构中的元素在函数签名中声明。如果 name 给出的函数常量变量的值为 0 或 false，则该元素不被视为在结构中声明。如果名称指的是
+
+``2023 - 06 - 02 |版权所有 © 2023 苹果公司 |版权所有。 ````
+
+未定义的函数常量变量，其行为与 is_function_constant_define(name) 返回 false 相同。
