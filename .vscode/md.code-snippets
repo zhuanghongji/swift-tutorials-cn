@@ -76,5 +76,11 @@
       "/>"
     ],
     "description": "Create Screenshot"
+  },
+  "Create OrigninalPDF": {
+    "scope": "md,mdx",
+    "prefix": "origninalpdf",
+    "body": ["<OrigninalPDF title=\"$1\" />"],
+    "description": "Create OrigninalPDF"
   }
 }

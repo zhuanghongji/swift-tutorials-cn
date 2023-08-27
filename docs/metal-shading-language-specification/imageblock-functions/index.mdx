@@ -1,10 +1,12 @@
-## 6.13 图像块函数
+# 图像块函数
+
+<OrigninalPDF title="6.13 Imageblock Functions" />
 
 macOS：自 Metal 2.3 起支持图像块。
 
 iOS：自 Metal 2 起支持图像块。
 
-本节列出了图像块的 Metal 成员函数。 （有关图像块数据类型的更多信息，请参阅第 2.11 节和第 5.6 节。）
+本节列出了图像块的 Metal 成员函数。（有关图像块数据类型的更多信息，请参阅第 2.11 节和第 5.6 节。）
 
 以下成员函数查询有关图像块的信息：
 
@@ -32,11 +34,9 @@ T 读取(ushort2 坐标) const;
 
 无效写入（T 数据，ushort2 坐标）；
 
-使用以下成员函数以采样率或颜色率读取或写入图像块。 coord 指定图像块内的 (x, y) 坐标，index 是样本或颜色索引。
+使用以下成员函数以采样率或颜色率读取或写入图像块。coord 指定图像块内的 (x, y) 坐标，index 是样本或颜色索引。
 
 枚举类 imageblock_data_rate { 颜色，样本 }；
-
-||
 
 T read(ushort2 坐标，ushort 索引，imageblock_data_rate data_rate) const;
 
@@ -52,15 +52,13 @@ kernel void my_kernel(imageblock img_blk, ushort2 cover [[thread_position_in_thr
 
 void write(T data, ushort2 coord, ushort color_coverage_mask);
 
-使用以下成员函数获取图像块中给定数据成员的切片区域。你可以使用这些函数将线程组中所有线程的图像块中描述的特定数据成员关联的数据写入纹理中的指定区域。 color_index 指的是在 imageblock 中指定的具有 [[color(n)]] 属性的结构类型中声明的数据成员，其中 n 是 color_index。 size 是复制切片的实际大小。
+使用以下成员函数获取图像块中给定数据成员的切片区域。你可以使用这些函数将线程组中所有线程的图像块中描述的特定数据成员关联的数据写入纹理中的指定区域。color_index 指的是在 imageblock 中指定的具有 [[color(n)]] 属性的结构类型中声明的数据成员，其中 n 是 color_index。size 是复制切片的实际大小。
 
 const imageblock_slice<E, imageblock_layout_implicit> slice(ushort color_index) const;
 
 const imageblock_slice<E, imageblock_layout_implicit> slice(ushort color_index, ushort2 size) const;
 
 要复制的区域的原点为 (0,0)。没有参数 size 的 slice(...) 成员函数复制图像块的整个宽度和高度。
-
-||
 
 ## 6.13.2 具有显式布局的图像块的函数
 
@@ -70,7 +68,7 @@ threadgroup_imageblock T\* 数据(ushort2 coord);
 
 const threadgroup_imageblock T\* 数据(ushort2 coord) const;
 
-使用以下成员函数获取对由图像块内的 (x, y) 坐标和样本或颜色索引给定的特定位置的图像块数据的引用。当以采样率或颜色率读取或写入图像块中的数据成员时，请使用这些成员函数。 T 是 imageblock 模板化声明中特定的类型。 coord 是图像块中的坐标，index 是多采样图像块的样本或颜色索引。 data_rate 指定索引是颜色索引还是样本索引。如果 coord 引用图像块维度之外的位置或者索引是无效索引，则 data() 的行为未定义。
+使用以下成员函数获取对由图像块内的 (x, y) 坐标和样本或颜色索引给定的特定位置的图像块数据的引用。当以采样率或颜色率读取或写入图像块中的数据成员时，请使用这些成员函数。T 是 imageblock 模板化声明中特定的类型。coord 是图像块中的坐标，index 是多采样图像块的样本或颜色索引。data_rate 指定索引是颜色索引还是样本索引。如果 coord 引用图像块维度之外的位置或者索引是无效索引，则 data() 的行为未定义。
 
 枚举类 imageblock_data_rate { 颜色，样本 }；
 
@@ -90,11 +88,9 @@ kernel void my_kernel(imageblock img_blk, ushort2 cover [[thread_position_in_thr
 
 void write(T data, ushort2 coord, ushort color_coverage_mask);
 
-||
-
 使用以下切片成员函数获取图像块结构中给定数据成员的切片区域。你可以使用此函数将线程组中所有线程的图像块结构中描述的特定数据成员关联的数据写入纹理中的指定区域。
 
-data_member 是在 imageblock 中指定的结构类型中声明的数据成员。 size 是复制切片的实际大小。
+data_member 是在 imageblock 中指定的结构类型中声明的数据成员。size 是复制切片的实际大小。
 
 const imageblock_slice<E, imageblock_layout_explicit>
 
@@ -131,8 +127,6 @@ void write(imageblock_slice slice, uint 坐标, uint 数组, uint lod = 0);
 void write(imageblock_slice slice, ushort 坐标, ushort 数组, ushort lod = 0);
 
 对于 2D 纹理：
-
-||
 
 void write(imageblock_slice 切片, uint2 坐标, uint lod = 0);
 
@@ -176,8 +170,6 @@ void write(imageblock_slice 切片, ushort2 坐标, ushort 面, ushort lod = 0);
 
 void write(imageblock_slice slice, uint2 坐标, uint 面, uint 数组, uint lod = 0);
 
-||
-
 void write(imageblock_slice 切片，ushort2 坐标，ushort 面，ushort 数组，ushort lod = 0);
 
 void write(imageblock_slice slice, uint2 坐标, uint 面, uint 数组, uint lod = 0);
@@ -198,18 +190,16 @@ void write(imageblock_slice<E, imageblock_layout_implicit> slice, ushort3 coord,
 
 struct Foo { half4 a;整数 b；浮动 c； };
 
-内核无效 my_kernel(texture2d src [[texture(0)]]，texture2d dst [[texture(1)]]，imageblock img_blk，ushort2 cover [[thread_position_in_threadgroup]] , ushort2 gid [[thread_position_in_grid]]) { // 使用线程 ID 从输入图像中读取像素。 half4 clr = src.read(gid);
+内核无效 my_kernel(texture2d src [[texture(0)]]，texture2d dst [[texture(1)]]，imageblock img_blk，ushort2 cover [[thread_position_in_threadgroup]] , ushort2 gid [[thread_position_in_grid]]) { // 使用线程 ID 从输入图像中读取像素。half4 clr = src.read(gid);
 
-// 获取图像切片。 threadgroup_imageblock Foo\* f = img_blk.data(lid); // 使用线程组中的线程 ID 将像素写入图像块中。 f->a = clr；
+// 获取图像切片。threadgroup_imageblock Foo\* f = img_blk.data(lid); // 使用线程组中的线程 ID 将像素写入图像块中。f->a = clr；
 
-// 确保所有线程完成对图像块的写入的屏障。 // 在这种情况下，每个线程都会写入其在图像块中的位置，因此不需要屏障。
-
-||
+// 确保所有线程完成对图像块的写入的屏障。// 在这种情况下，每个线程都会写入其在图像块中的位置，因此不需要屏障。
 
 threadgroup_barrier(mem_flags::mem_threadgroup_imageblock);
 
-// 处理图像块中的像素，并更新 // 切片中的元素。 process_pixels_in_imageblock(img_blk, gid, 成员);
+// 处理图像块中的像素，并更新 // 切片中的元素。process_pixels_in_imageblock(img_blk, gid, 成员);
 
-// 确保所有线程完成对图像块中元素的写入的屏障。 threadgroup_barrier(mem_flags::mem_threadgroup_imageblock);
+// 确保所有线程完成对图像块中元素的写入的屏障。threadgroup_barrier(mem_flags::mem_threadgroup_imageblock);
 
-// 将图像块中的特定元素写入输出 // 图像。 // 线程组中只有一个线程执行图像块写入。 if (lid.x == 0 && cover.y == 0) dst.write(img_blk.slice(f->a), gid); }
+// 将图像块中的特定元素写入输出 // 图像。// 线程组中只有一个线程执行图像块写入。if (lid.x == 0 && cover.y == 0) dst.write(img_blk.slice(f->a), gid); }

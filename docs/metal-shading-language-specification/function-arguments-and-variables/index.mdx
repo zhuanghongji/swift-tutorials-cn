@@ -1,6 +1,8 @@
-## 5.2 函数参数和变量
+# 函数参数和变量
 
-图形（顶点或片段）和内核函数的大多数输入和输出都作为参数传递。 （常量地址空间中的初始化变量和程序范围中声明的采样器是输入和输出，不必作为参数传递。）从 Metal 3.1 开始，内核、网格和对象着色器的内置输入变量现在可以在程序范围内声明，避免将它们作为参数传递。如果它们未在动态库或单独编译的二进制函数中使用，则这适用。
+<OrigninalPDF title="5.2 Function Arguments and Variables" />
+
+图形（顶点或片段）和内核函数的大多数输入和输出都作为参数传递。（常量地址空间中的初始化变量和程序范围中声明的采样器是输入和输出，不必作为参数传递。）从 Metal 3.1 开始，内核、网格和对象着色器的内置输入变量现在可以在程序范围内声明，避免将它们作为参数传递。如果它们未在动态库或单独编译的二进制函数中使用，则这适用。
 
 图形和内核函数的参数可以是以下任何一个：
 
@@ -11,10 +13,10 @@
 - 采样器对象（参见第 2.10 节）或采样器数组。
 - 线程组中的线程之间共享的缓冲区
 - 指向线程组地址空间中的类型的指针，只能用作内核函数的参数。
-- 图像块（参见第 2.11 节）。 - 参数缓冲区（参见第 2.13 节）。
+- 图像块（参见第 2.11 节）。- 参数缓冲区（参见第 2.13 节）。
 - 内核函数的可见函数表（参见第 2.15 节）。从 Metal 2.4 开始，可见函数表也可以用于图形函数。
 - 核函数的交集函数表（参见第 2.17.3 节）。
-- 用于交集函数的加速结构（参见第 6.18.1 节）。 - 包含缓冲区、纹理或纹理缓冲区元素的结构。
+- 用于交集函数的加速结构（参见第 6.18.1 节）。- 包含缓冲区、纹理或纹理缓冲区元素的结构。
 
 指定为图形或内核函数的参数值的缓冲区（设备）不能使用别名；也就是说，作为参数值传递的缓冲区不能与传递给同一图形或内核函数的单独参数的另一个缓冲区重叠。
 
@@ -28,14 +30,14 @@
 
 ## 5.2.1 定位缓冲区、纹理和采样器参数
 
-对于每个参数，可以选择指定一个属性来标识用于该参数类型的缓冲区、纹理或采样器的位置。 Metal 框架 API 使用此属性来标识这些参数类型的位置。
+对于每个参数，可以选择指定一个属性来标识用于该参数类型的缓冲区、纹理或采样器的位置。Metal 框架 API 使用此属性来标识这些参数类型的位置。
 
 - 设备和常量缓冲区：`[[buffer(index)]]`
 - 纹理（包括纹理缓冲区）：`[[texture(index)]]`
 - 采样器：`[[sampler(index)]]`
 - 线程组缓冲区：`[[threadgroup(index) )]]`
 
-索引值是一个无符号整数，用于标识分配的缓冲区、纹理或采样器参数的位置。 （纹理缓冲区是一种特定类型的纹理。）正确的语法是属性遵循参数或变量名称。
+索引值是一个无符号整数，用于标识分配的缓冲区、纹理或采样器参数的位置。（纹理缓冲区是一种特定类型的纹理。）正确的语法是属性遵循参数或变量名称。
 
 下面的示例是一个简单的内核函数 add_vectors，它将设备地址空间中的两个缓冲区 inA 和 inB 的数组相加，并将结果返回到缓冲区 out 中。属性 (buffer(index)) 指定函数参数的缓冲区位置。
 
@@ -71,7 +73,7 @@ my_kernel(texture2d<half> src,
 {…}
 ```
 
-在下面的示例中，一些内核参数已显式分配位置索引，而另一些则没有。 src 显式分配纹理索引 0，f 显式分配缓冲区索引
+在下面的示例中，一些内核参数已显式分配位置索引，而另一些则没有。src 显式分配纹理索引 0，f 显式分配缓冲区索引
 
 10. 如果使用函数常量分配位置索引（第 5.8 节），则编译器在分配索引时不会考虑这些条目。其他参数分配第一个可用位置索引：dst 纹理索引 1、s 采样器索引 0 和 u 缓冲区索引 0。
 
@@ -135,11 +137,9 @@ v_out.texcoord = v_in[v_id].texcoord;
 
 片段函数中的缓冲区（在设备内存中）和纹理的加载和存储是无序的。用于缓冲区或纹理的 [[raster_order_group(index)]] 属性
 
-||
-
 如果每个样本着色处于活动状态，则保证映射到相同 (x,y) 像素坐标和样本的不同基元的任何重叠片段的访问顺序。
 
-[[raster_order_group(index)]] 属性可以在纹理（始终位于设备内存中）或在设备内存中声明的缓冲区上指定，但不能在线程组或常量地址空间中指定。 [[raster_order_group(index)]] 属性不能与结构或类一起使用。
+[[raster_order_group(index)]] 属性可以在纹理（始终位于设备内存中）或在设备内存中声明的缓冲区上指定，但不能在线程组或常量地址空间中指定。[[raster_order_group(index)]] 属性不能与结构或类一起使用。
 
 使用 [[raster_order_group(index)]] 属性标记对缓冲区或纹理的重叠访问的片段函数调用的执行顺序与提交几何图形的顺序相同。对于重叠片段函数调用，片段函数调用对标有 [[raster_order_group(index)]] 属性的缓冲区或纹理执行的写入需要可供后续调用读取，并且不得影响先前调用的读取。同样，片段函数调用执行的读取必须反映先前调用的写入，并且不得反映后续调用的写入。
 
@@ -165,9 +165,7 @@ texA.write(clr, coord);
 
 顶点函数可以通过使用顶点和实例 ID 作为参数传递给顶点函数的缓冲区进行索引来读取每个顶点的输入。此外，你还可以使用 [[stage_in]] 属性声明每个顶点输入，并将该输入作为参数传递。对于作为使用 [[stage_in]] 属性声明的参数传递的每顶点输入，每顶点输入的每个元素必须将顶点属性位置指定为 [[attribute(index)]]。有关 [[stage_in]] 属性的更多信息，请参阅第 5.2.4 节。
 
-索引值是一个无符号整数，用于标识分配的顶点输入位置。正确的语法是属性遵循参数或变量名称。 Metal API 使用
-
-||
+索引值是一个无符号整数，用于标识分配的顶点输入位置。正确的语法是属性遵循参数或变量名称。Metal API 使用
 
 该属性用于标识顶点缓冲区的位置并描述顶点数据，例如从中获取每个顶点数据的缓冲区、其数据格式及其步幅。
 
@@ -250,7 +248,7 @@ return vOut;
 patch_control_point<T>
 ```
 
-其中 T 是用户定义的结构。 T 的每个元素必须使用 [[attribute(index)]] 指定属性位置。
+其中 T 是用户定义的结构。T 的每个元素必须使用 [[attribute(index)]] 指定属性位置。
 
 所有操作系统：自 Metal 1.2 起支持补丁控制点模板类型。
 
@@ -305,27 +303,25 @@ post_tess_vertex_func(PatchData input [[stage_in ]], …)
 
 ` 描述`
 
-``amplification_count macOS：自 Metal 2.3 起。 iOS：自 Metal 2.2 起。 ````
+``amplification_count macOS：自 Metal 2.3 起。iOS：自 Metal 2.2 起。````
 
-``` ushort 或 uint 为每个顶点实例生成的输出顶点数。 ````
+``` ushort 或 uint 为每个顶点实例生成的输出顶点数。````
 
-```mplification_id macOS：自 Metal 2.3 起。 iOS：自 Metal 2.2 起。 ````
+```mplification_id macOS：自 Metal 2.3 起。iOS：自 Metal 2.2 起。````
 
-``` ushort 或 uint 视口和渲染目标数组索引的数组索引偏移映射，它允许将放大的顶点路由到不同的视口和渲染目标。 ````
+``` ushort 或 uint 视口和渲染目标数组索引的数组索引偏移映射，它允许将放大的顶点路由到不同的视口和渲染目标。````
 
-``` base_instance ushort 或 uint 在读取每个实例数据之前添加到每个实例标识符的基本实例值。 ````
-
-||
+``` base_instance ushort 或 uint 在读取每个实例数据之前添加到每个实例标识符的基本实例值。````
 
 ` 属性对应的数据类型`
 
 ` 描述`
 
-``` base_vertex ushort 或 uint 在读取每个顶点数据之前添加到每个顶点标识符的基本顶点值。 ````
+``` base_vertex ushort 或 uint 在读取每个顶点数据之前添加到每个顶点标识符的基本顶点值。````
 
-``` instance_id ushort 或 uint 每个实例的标识符，其中包括基本实例值（如果指定）。 ````
+``` instance_id ushort 或 uint 每个实例的标识符，其中包括基本实例值（如果指定）。````
 
-``` vertex_id ushort 或 uint 每个顶点标识符，其中包括基本顶点值（如果指定）。 ````
+``` vertex_id ushort 或 uint 每个顶点标识符，其中包括基本顶点值（如果指定）。````
 
 [[amplification_count]]的默认值为 1，表示禁用顶点放大。
 
@@ -333,7 +329,7 @@ post_tess_vertex_func(PatchData input [[stage_in ]], …)
 
 顶点函数输入属性类型注意事项：
 
-- 如果声明 [[vertex_id]] 的类型为 uint，则声明 [[base_vertex]] 的类型需要为 uint 或 ushort。 - 如果声明 [[vertex_id]] 的类型为 ushort，则声明 [[base_vertex]] 的类型也需要为 ushort。 - 如果声明 [[instance_id]] 的类型为 uint，则声明 [[base_instance]] 的类型需要为 uint 或 ushort。 - 如果声明 [[instance_id]] 的类型为 ushort，则声明 [[base_instance]] 的类型也需要为 ushort。
+- 如果声明 [[vertex_id]] 的类型为 uint，则声明 [[base_vertex]] 的类型需要为 uint 或 ushort。- 如果声明 [[vertex_id]] 的类型为 ushort，则声明 [[base_vertex]] 的类型也需要为 ushort。- 如果声明 [[instance_id]] 的类型为 uint，则声明 [[base_instance]] 的类型需要为 uint 或 ushort。- 如果声明 [[instance_id]] 的类型为 ushort，则声明 [[base_instance]] 的类型也需要为 ushort。
 
 ## 5.2.3.2 曲面细分后顶点函数输入属性
 
@@ -345,25 +341,23 @@ post_tess_vertex_func(PatchData input [[stage_in ]], …)
 
 ` 描述`
 
-``` base_instance ushort 或 uint 在读取每个实例数据之前添加到每个实例标识符的基本实例值。 ````
+``` base_instance ushort 或 uint 在读取每个实例数据之前添加到每个实例标识符的基本实例值。````
 
-``` instance_id ushort 或 uint 每个实例的标识符，其中包括基本实例值（如果指定）。 ````
-
-||
+``` instance_id ushort 或 uint 每个实例的标识符，其中包括基本实例值（如果指定）。````
 
 ` 属性对应的数据类型`
 
 ` 描述`
 
-``` patch_id ushort 或 uint 补丁标识符。 ````
+``` patch_id ushort 或 uint 补丁标识符。````
 
-```position_in_patch float2 或 float3 定义正在评估的补丁上的位置。对于四边形补丁，必须是 float2。对于三角形面片，必须是 float3。 ````
+```position_in_patch float2 或 float3 定义正在评估的补丁上的位置。对于四边形补丁，必须是 float2。对于三角形面片，必须是 float3。````
 
 所有操作系统：自 Metal 1.2 起支持表 5. 3 中的所有属性。
 
 顶点函数输入属性注意事项：
 
-- 如果声明 [[instance_id]] 的类型为 uint，则声明 [[base_instance]] 的类型需要为 uint 或 ushort。 - 如果声明 [[instance_id]] 的类型为 ushort，则声明 [[base_instance]] 的类型也需要为 ushort。
+- 如果声明 [[instance_id]] 的类型为 uint，则声明 [[base_instance]] 的类型需要为 uint 或 ushort。- 如果声明 [[instance_id]] 的类型为 ushort，则声明 [[base_instance]] 的类型也需要为 ushort。
 
 ## 5.2.3.3 顶点函数输出属性
 
@@ -383,11 +377,9 @@ post_tess_vertex_func(PatchData input [[stage_in ]], …)
 
 `` 不适用；需要与 [[position]] ``` 一起使用
 
-``` 标记输出位置，以便如果多个顶点着色器中用于计算输出位置的操作序列相同，则这些顶点着色器计算的结果输出位置很可能是相同的值。要求用户传递-fpreserve-invariance。请参阅下面的描述以了解更多信息。 ````
+``` 标记输出位置，以便如果多个顶点着色器中用于计算输出位置的操作序列相同，则这些顶点着色器计算的结果输出位置很可能是相同的值。要求用户传递-fpreserve-invariance。请参阅下面的描述以了解更多信息。````
 
 `point_size float 点基元的大小`
-
-||
 
 ` 属性对应的数据类型`
 
@@ -395,21 +387,21 @@ post_tess_vertex_func(PatchData input [[stage_in ]], …)
 
 `position float4 变换后的顶点位置`
 
-``` render_target_array_ind ex macOS：自 Metal 1 .1 起。 iOS：自 Metal 2 .1 起。 ````
+``` render_target_array_ind ex macOS：自 Metal 1 .1 起。iOS：自 Metal 2 .1 起。````
 
 `uchar、ushort 或 uint`
 
-``` 引用以下之一的数组索引：1) 纹理数组的数组切片，2) 3D 纹理指定深度的数据，3) 立方体贴图的面，或 4) 纹理的指定面立方体贴图数组的指定数组切片。 ````
+``` 引用以下之一的数组索引：1) 纹理数组的数组切片，2) 3D 纹理指定深度的数据，3) 立方体贴图的面，或 4) 纹理的指定面立方体贴图数组的指定数组切片。````
 
-``` 共享 macOS：自 Metal 2.3 起。 iOS：自 Metal 2.2 起。 ````
+``` 共享 macOS：自 Metal 2.3 起。iOS：自 Metal 2.2 起。````
 
-``` 不适用 如果存在，则对于每个 amplification_id，输出应具有相同的值。 ````
+``` 不适用 如果存在，则对于每个 amplification_id，输出应具有相同的值。````
 
-``` viewport_array_index macOS：自 Metal 2 起。 iOS：自 Metal 2.1 起。 ````
+``` viewport_array_index macOS：自 Metal 2 起。iOS：自 Metal 2.1 起。````
 
 `uchar、ushort 或 uint`
 
-``` 图元的视口（和剪刀矩形）索引值。 ````
+``` 图元的视口（和剪刀矩形）索引值。````
 
 所有操作系统：自 Metal 1 起支持表 5. 4 中的属性，除非另有说明。
 
@@ -421,9 +413,7 @@ post_tess_vertex_func(PatchData input [[stage_in ]], …)
 
 [[viewport_array_index]] 允许从多个活动视口和剪刀矩形指定一个视口和剪刀矩形。如果顶点函数没有指定[[viewport_array_index]]，则输出视口数组索引值为 0。有关[[viewport_array_index]]的更多信息，请参见第 5.10 节。
 
-[[invariant]] 表示多个函数传递中使用的浮点数学必须生成与每个传递完全匹配的顶点位置。 [[invariant]] 只能用于顶点函数中的位置（具有 [[position]] 属性的字段），以指示输出的计算结果是不变的。在 iOS 14.0 和 macOS 11.0 之前的编译器中，计算可能（尽管不能保证）是不变的。现在，当传递 - fpreserve-invariance 选项或从 Metal API 的 MTLCompilerOptions 设置 preserveInvariance 进行运行时编译时，此计算保证不变。请注意，如果未传递选项，则 [[invariant]] 将被忽略。这种位置不变性对于阴影体积或 z 预通道等技术至关重要。
-
-||
+[[invariant]] 表示多个函数传递中使用的浮点数学必须生成与每个传递完全匹配的顶点位置。[[invariant]] 只能用于顶点函数中的位置（具有 [[position]] 属性的字段），以指示输出的计算结果是不变的。在 iOS 14.0 和 macOS 11.0 之前的编译器中，计算可能（尽管不能保证）是不变的。现在，当传递 - fpreserve-invariance 选项或从 Metal API 的 MTLCompilerOptions 设置 preserveInvariance 进行运行时编译时，此计算保证不变。请注意，如果未传递选项，则 [[invariant]] 将被忽略。这种位置不变性对于阴影体积或 z 预通道等技术至关重要。
 
 如果顶点函数的返回类型不是 void，则它必须包含顶点位置。如果顶点返回类型是 float4，那么它总是引用顶点位置，并且不能指定[[position]]属性。如果顶点返回类型是结构体，则它必须包含使用 [[position]] 属性声明的元素。
 
@@ -439,19 +429,17 @@ process_vertex(...) { VertexOutput v_out; // 计算每个顶点的输出
 
 曲面细分后顶点函数输出与常规顶点函数相同。
 
-如果启用顶点放大，并且顶点输出变量的每个 [[amplification_id]] 属性具有相同的值，则顶点输出被视为*共享*。共享的顶点输出可以使用单个变化的输出槽，这是有限的资源。未共享的顶点输出消耗多个不同的输出槽。 （Metal 框架调用 [MTLRenderPipelineDescriptor maxVertexAmplificationCount] 返回可用于将放大的数据传递到片段函数调用的变化槽的数量，这会影响可用变化槽的总数。）
+如果启用顶点放大，并且顶点输出变量的每个 [[amplification_id]] 属性具有相同的值，则顶点输出被视为*共享*。共享的顶点输出可以使用单个变化的输出槽，这是有限的资源。未共享的顶点输出消耗多个不同的输出槽。（Metal 框架调用 [MTLRenderPipelineDescriptor maxVertexAmplificationCount] 返回可用于将放大的数据传递到片段函数调用的变化槽的数量，这会影响可用变化槽的总数。）
 
 默认情况下，所有内置顶点输出都是共享的，除了具有 [[position]] 属性的顶点输出。默认情况下，不共享所有其他顶点输出。要显式指定输出是共享的，请将 [[shared]] 属性与顶点输出变量一起使用。
 
 如果着色器编译器可以推断出顶点输出变量对于每个 amplification_id 具有相同的值，则编译器可以将该顶点输出标记为共享。在以下任何情况下，编译器可能不会将顶点输出标记为共享：
 
-- 输出值取决于[[amplification_id]]。 - 原子读-修改-写操作返回输出值。 - 着色器从易失性存储器加载输出值。
+- 输出值取决于[[amplification_id]]。- 原子读-修改-写操作返回输出值。- 着色器从易失性存储器加载输出值。
 
 ## 5.2.3.4 片段函数输入属性
 
 表 5. 5 列出了可以为片段函数的参数指定的内置属性（及其相应的数据类型）。
-
-||
 
 如果顶点函数的返回类型不是 void，则它必须包含顶点位置。如果顶点返回类型是 float4，则它始终指的是顶点位置（并且不需要指定 [[position]] 属性）。如果顶点返回类型是结构体，则它必须包含使用 [[position]] 属性声明的元素。
 
@@ -461,79 +449,75 @@ process_vertex(...) { VertexOutput v_out; // 计算每个顶点的输出
 
 ` 描述`
 
-``amplification_count macOS：自 Metal 2.3 起。 iOS：自 Metal 2.2 起。 ````
+``amplification_count macOS：自 Metal 2.3 起。iOS：自 Metal 2.2 起。````
 
-``` ushort 或 uint 为每个顶点实例生成的输出顶点数。 ````
+``` ushort 或 uint 为每个顶点实例生成的输出顶点数。````
 
-```mplification_id macOS：自 Metal 2.3 起。 iOS：自 Metal 2.2 起。 ````
+```mplification_id macOS：自 Metal 2.3 起。iOS：自 Metal 2.2 起。````
 
-``` ushort 或 uint 视口和渲染目标数组索引的数组索引偏移映射，它允许将放大的顶点路由到不同的视口和渲染目标。 ````
+``` ushort 或 uint 视口和渲染目标数组索引的数组索引偏移映射，它允许将放大的顶点路由到不同的视口和渲染目标。````
 
-``` barycentric_coord macOS：自 Metal 2.2 起。 iOS：自 Metal 2.3 起。 ````
+``` barycentric_coord macOS：自 Metal 2.2 起。iOS：自 Metal 2.3 起。````
 
 `float、float2 或 float3`
 
-`` 重心坐标。 ````
+`` 重心坐标。````
 
-` color(m) macOS：自 Metal 2.3 起。 iOS：从 Metal 1 开始。`
+` color(m) macOS：自 Metal 2.3 起。iOS：从 Metal 1 开始。`
 
 `floatn、halfn、intn、uintn、shortn 或 ushortn m 需要在编译时知道`
 
-``` 从颜色附件读取的输入值。索引 m 指示要读取哪个颜色附件。 ````
+``` 从颜色附件读取的输入值。索引 m 指示要读取哪个颜色附件。````
 
-``` front_faceing bool 如果片段属于前置基元，则该值为 true。 ````
+``` front_faceing bool 如果片段属于前置基元，则该值为 true。````
 
-``` point_coord float2 二维坐标，范围为点基元上的 0.0 到 1.0，指定点基元中当前片段的位置。 ````
+``` point_coord float2 二维坐标，范围为点基元上的 0.0 到 1.0，指定点基元中当前片段的位置。````
 
-```position float4 描述片段的窗口相对坐标（x、y、z、1/w）值。 ````
+```position float4 描述片段的窗口相对坐标（x、y、z、1/w）值。````
 
-``` Primitive_id macOS：自 Metal 2.2 起。 iOS：自 Metal 2.3 起。 ````
+``` Primitive_id macOS：自 Metal 2.2 起。iOS：自 Metal 2.3 起。````
 
-``` uint 与重心坐标一起使用的每个基元标识符。 ````
-
-||
+``` uint 与重心坐标一起使用的每个基元标识符。````
 
 ` 属性对应的数据类型`
 
 ` 描述`
 
-``` render_target_array_ind ex macOS：自 Metal 1.1 起。 iOS：自 Metal 2.1 起。 ````
+``` render_target_array_ind ex macOS：自 Metal 1.1 起。iOS：自 Metal 2.1 起。````
 
 `uchar、ushort 或 uint`
 
-``` 渲染目标数组索引，指立方体贴图的面、3D 纹理指定深度的数据、纹理数组的数组切片、数组切片或立方体贴图数组的面。对于立方体贴图，渲染目标数组索引是面索引，其值为 0 到 5 之间的值。对于立方体贴图数组，渲染目标数组索引计算如下：数组切片索引 \* 6 + 面索引。 ````
+``` 渲染目标数组索引，指立方体贴图的面、3D 纹理指定深度的数据、纹理数组的数组切片、数组切片或立方体贴图数组的面。对于立方体贴图，渲染目标数组索引是面索引，其值为 0 到 5 之间的值。对于立方体贴图数组，渲染目标数组索引计算如下：数组切片索引 \* 6 + 面索引。````
 
-```sample_id uint 当前正在处理的样本的样本编号。 ````
+```sample_id uint 当前正在处理的样本的样本编号。````
 
-``sample_mask uint 在多样本光栅化期间生成片段的基元所覆盖的样本集。 ````
+``sample_mask uint 在多样本光栅化期间生成片段的基元所覆盖的样本集。````
 
 `sample_mask, post_depth_coverage iOS: 自 Metal 2. macOS: 自 Metal 2.3 `
 
-``` uint 在多样本光栅化期间应用早期深度和模板测试后生成片段的基元所覆盖的样本集。 Early_fragment_tests 属性需要用在 fragment 函数上；否则编译失败。 ````
+``` uint 在多样本光栅化期间应用早期深度和模板测试后生成片段的基元所覆盖的样本集。Early_fragment_tests 属性需要用在 fragment 函数上；否则编译失败。````
 
 `thread_index_in_quadgro up 所有操作系统：自 Metal 2. 2.`
 
-``` ushort 或 uint 四元组中线程的标量索引。 ````
+``` ushort 或 uint 四元组中线程的标量索引。````
 
 `thread_index_in_simdgro up 所有操作系统：自 Metal 2. 2.`
 
-``` ushort 或 uint SIMD 组中线程的标量索引。 ````
+``` ushort 或 uint SIMD 组中线程的标量索引。````
 
 `threads_per_simdgroup 所有操作系统：自 Metal 2.2.`
 
-``` ushort 或 uint SIMD 组的线程执行宽度。 ````
+``` ushort 或 uint SIMD 组的线程执行宽度。````
 
-``` viewport_array_index macOS：自 Metal 2 起。 iOS：自 Metal 2.1 起。 ````
+``` viewport_array_index macOS：自 Metal 2 起。iOS：自 Metal 2.1 起。````
 
-``` uint 图元的视口（和剪刀矩形）索引值。 ````
+``` uint 图元的视口（和剪刀矩形）索引值。````
 
-使用 [[position]] 属性声明为片段函数输入的变量只能使用 center_no_perspective 采样和插值属性声明。 （参见第 5.4 节。）
-
-||
+使用 [[position]] 属性声明为片段函数输入的变量只能使用 center_no_perspective 采样和插值属性声明。（参见第 5.4 节。）
 
 对于 [[color(m)]]，m 用于在片段函数中访问（读取或写入）多个颜色附件时指定颜色附件索引。
 
-对于片段函数输入， [[sample_mask]] 属性只能声明一次。
+对于片段函数输入，[[sample_mask]] 属性只能声明一次。
 
 片段函数中 [[render_target_array_index]] 的值与从顶点函数写入的值相同，即使指定的值超出范围。
 
@@ -545,7 +529,7 @@ process_vertex(...) { VertexOutput v_out; // 计算每个顶点的输出
 
 对于指定的 [[amplification_id]] 属性值，[[viewport_array_index]] 和 [[render_target_array_index]] 内置片段输入值将添加到相应 MTLVertexAmplificationViewMapping 结构提供的值（偏移）。
 
-以下示例描述了结构体 MyVertexOut，它既是顶点函数返回类型又是片段函数输入类型。 MyVertexOut 使用输入参数 amp_id 的 [[amplification_id]] 属性来放大位置和 ampData 成员。使用 [[shared]] 属性显式确保 texcoord 成员在顶点放大下对于所有变量具有相同的值，如第 5.2.3.3 节所述。
+以下示例描述了结构体 MyVertexOut，它既是顶点函数返回类型又是片段函数输入类型。MyVertexOut 使用输入参数 amp_id 的 [[amplification_id]] 属性来放大位置和 ampData 成员。使用 [[shared]] 属性显式确保 texcoord 成员在顶点放大下对于所有变量具有相同的值，如第 5.2.3.3 节所述。
 
 在顶点函数 myVertex 中，[[amplification_id]] 和 [[amplification_count]] 属性指定用于顶点放大的顶点函数输入变量，详见 5.2.3.1 节。着色器编译器推断出每个 [[amplification_id]] 的普通成员具有相同的值，因此编译器在顶点输出中将其标记为共享。
 
@@ -554,8 +538,6 @@ process_vertex(...) { VertexOutput v_out; // 计算每个顶点的输出
 struct MyVertexIn { float4 位置 [[attribute(0)]]; float3 正常 [[属性(1)]]; float3 正切 [[属性(2)]]; float2 texcoord [[属性(3)]]; };
 
 struct MyVertexOut { float4 位置 [[位置]]; float3 正常； float3 切线； float3 双切线； float2 texcoord [[共享]]; // 显式共享。浮点数据；
-
-||
 
 ushort 视口 [[viewport_array_index]]; // 隐式共享 };
 
@@ -567,13 +549,11 @@ constexpr ushort MAX_AMP = 2;
 
 使用 [[barycentric_coord]] 属性声明的片段函数输入只能使用 center_perspective（默认）或 center_no_perspective 采样和插值属性进行声明。重心坐标和每像素基元 ID 可以作为片段函数输入传递到按以下示例所示组织的结构中：
 
-struct FragmentInput0 { uint Primitive_id [[primitive_id]]; // [[center_perspective]] 是默认的，所以可以省略。 float3 barycentric_coord [[barycentric_coord, center_perspective]]; };
+struct FragmentInput0 { uint Primitive_id [[primitive_id]]; // [[center_perspective]] 是默认的，所以可以省略。float3 barycentric_coord [[barycentric_coord, center_perspective]]; };
 
 struct FragmentInput1 { uint primitive_id [[primitive_id]]; float2 linear_barycentric_coord [[barycentric_coord, center_no_perspective]]; };
 
 通过存储重心坐标和每像素图元 ID，着色器可以在片段阶段内手动读取和插入绘制图元的顶点，或将此插值推迟到单独的通道。在延迟插值场景下，可以使用 thin buffer
-
-||
 
 在几何通道期间存储最小的表面数据集，包括预裁剪的重心坐标。在稍后阶段，你必须有足够的数据来根据图元 ID 数据重建原始顶点索引，并将重心坐标与这些顶点索引相关联。
 
@@ -581,7 +561,7 @@ struct FragmentInput1 { uint primitive_id [[primitive_id]]; float2 linear_baryce
 
 片段 float4 frag (float3 coord [[barycentric_coord]]) { ... }
 
-- 绘制点时，coord.yz 为 float2(0.0f)。 - 画线时，coord.z 为 0.0f。
+- 绘制点时，coord.yz 为 float2(0.0f)。- 画线时，coord.z 为 0.0f。
 
 当将 barycentric*coord 属性应用于具有 \_fewer* 分量的输入参数（或参数的字段）时，其余元素将被忽略。
 
@@ -593,11 +573,11 @@ struct FragmentInput1 { uint primitive_id [[primitive_id]]; float2 linear_baryce
 
 ` 描述`
 
-``` Pixel_position_in_tile ushort2 或 uint2 (x, y) 片段在图块中的位置。 ````
+``` Pixel_position_in_tile ushort2 或 uint2 (x, y) 片段在图块中的位置。````
 
-``pixels_per_tile ushort2 或 uint2（宽度、高度），以像素为单位的图块。 ````
+``pixels_per_tile ushort2 或 uint2（宽度、高度），以像素为单位的图块。````
 
-```tile_index ushort 或 uint 一维图块索引。 ````
+```tile_index ushort 或 uint 一维图块索引。````
 
 `render_target_array_ind ex`
 
@@ -606,8 +586,6 @@ struct FragmentInput1 { uint primitive_id [[primitive_id]]; float2 linear_baryce
 `渲染目标数组索引，指立方体贴图的面、3D 纹理指定深度的数据、纹理数组的数组切片、数组切片或立方体贴图数组的面。对于立方体贴图，渲染目标数组索引是面索引，它是从 0 到` 的值
 
 5. 对于立方体贴图数组，渲染目标数组索引计算如下：数组切片索引 \* 6 + 面索引。
-
-||
 
 macOS：自 Metal 2.3 起支持表 5.6 中的属性。
 
@@ -627,25 +605,25 @@ iOS：自 Metal 2 起支持表 5.6 中的属性。
 
 ` color(m) 所有操作系统：自 Metal 1 起。`
 
-``` 颜色(m)，索引(i) 所有操作系统：自 Metal 1.2 起。 ````
+``` 颜色(m)，索引(i) 所有操作系统：自 Metal 1.2 起。````
 
 `floatn、halfn、intn、uintn、shortn 或 ushortn`
 
-`` 颜色附件的颜色值输出。 ````
+`` 颜色附件的颜色值输出。````
 
-``` m 是颜色附件索引，需要在编译时知道。索引 i 可用于指定片段函数针对给定颜色附件输出的一种或多种颜色，并且是混合方程的输入。 ````
+``` m 是颜色附件索引，需要在编译时知道。索引 i 可用于指定片段函数针对给定颜色附件输出的一种或多种颜色，并且是混合方程的输入。````
 
 `深度（深度参数） 所有操作系统：自 Metal 1 以来。`
 
-``` float 使用由 height_argument 指定的函数输出的深度值。 ````
+``` float 使用由 height_argument 指定的函数输出的深度值。````
 
 ``sample_mask 所有操作系统：自 Metal 1 起。````
 
-`` uint 覆盖率掩码。 ````
+`` uint 覆盖率掩码。````
 
-``` stencil 所有操作系统：自 Metal 2.1 起。 ````
+``` stencil 所有操作系统：自 Metal 2.1 起。````
 
-``` uint 模板测试中使用的模板参考值。 ````
+``` uint 模板测试中使用的模板参考值。````
 
 片段输出的颜色附件索引 m 的指定方式与片段输入的 [[color(m)]] 的指定方式相同（参见表 5. 5 的讨论）。片段函数返回类型中使用相同颜色附件索引进行混合的多个元素需要使用相同的数据类型进行声明。
 
@@ -663,11 +641,11 @@ iOS：自 Metal 2 起支持表 5.6 中的属性。
 
 较少的
 
-你不能在基于片段的图块着色函数中使用 [[stencil]] 属性。 [[stencil]] 属性与 [[early_fragment_tests]] 函数属性不兼容。
+你不能在基于片段的图块着色函数中使用 [[stencil]] 属性。[[stencil]] 属性与 [[early_fragment_tests]] 函数属性不兼容。
 
 如果片段函数没有输出模板值，MTLRenderCommandEncoder 的 setStencilReferenceValue: 或 setStencilFrontReferenceValue:backReferenceValue: 方法可以设置模板参考值。
 
-以下示例显示了如何指定颜色附件索引。 clr_f 中写入的颜色值写入颜色附件索引 0，clr_i 写入颜色附件索引 1，clr_ui 写入颜色附件索引 2。
+以下示例显示了如何指定颜色附件索引。clr_f 中写入的颜色值写入颜色附件索引 0，clr_i 写入颜色附件索引 1，clr_ui 写入颜色附件索引 2。
 
 struct MyFragmentOutput { // 颜色附件 0 float4 clr_f [[color(0)]];
 
@@ -687,8 +665,6 @@ f.clr_f = ...;
 
 当内核函数被提交执行时，它会在 N 维线程网格上执行，其中 N 为一、二或三。线程是内核函数的一个实例
 
-||
-
 对该网格中的每个点执行，并且 thread_position_in_grid 标识其在网格中的位置。
 
 在计算单元内，线程组被划分为多个较小的组来执行。计算单元的执行宽度（称为 threads_per_simdgroup）决定了该较小组的建议大小。为了获得最佳性能，请将线程组中的线程总数设置为 threads_per_simdgroup 的倍数。
@@ -707,15 +683,13 @@ f.clr_f = ...;
 
 (Gx,Gy) = (Wx _ Sx, Wy _ Sy)
 
-在除图块函数之外的情况下，线程组中的线程索引 (thread_index_in_threadgroup) 由以下公式确定： ly \* Sx + lx
+在除图块函数之外的情况下，线程组中的线程索引 (thread_index_in_threadgroup) 由以下公式确定：ly \* Sx + lx
 
 对于图块函数，线程索引不是 lx 和 ly 值的线性映射。瓦片函数中的每个线程都保证获得 [0, Sx \* Sy) 范围内的唯一索引。
 
-在线程组内，线程以实现定义的方式分为 SIMD 组。 SIMD 组中的任何给定线程都可以查询其 SIMD 通道 ID 以及它属于哪个 SIMD 组。
+在线程组内，线程以实现定义的方式分为 SIMD 组。SIMD 组中的任何给定线程都可以查询其 SIMD 通道 ID 以及它属于哪个 SIMD 组。
 
 表 5. 8 列出了可以为内核函数的参数指定的内置属性以及可以使用它们的相应数据类型。从 Metal 3.1 开始，可以在要在内核上下文中使用的全局（程序范围）变量上指定内置属性。
-
-||
 
 ## 表 5.7。内核函数输入参数的属性
 
@@ -725,93 +699,91 @@ f.clr_f = ...;
 
 ` 描述`
 
-`dispatch_quadgroups_per_th readgroup macOS：自 Metal 2.1 起。 iOS：从 Metal 2 开始。`
+`dispatch_quadgroups_per_th readgroup macOS：自 Metal 2.1 起。iOS：从 Metal 2 开始。`
 
 `ushort 或 uint`
 
-``` 调度时指定的线程组的四组执行宽度。 ````
+``` 调度时指定的线程组的四组执行宽度。````
 
-```dispatch_simdgroups_per_th readgroup macOS：自 Metal 2 起。iOS：自 Metal 2.2 起。 ````
+```dispatch_simdgroups_per_th readgroup macOS：自 Metal 2 起。iOS：自 Metal 2.2 起。````
 
 `ushort 或 uint`
 
-``` 调度时指定的线程组的 SIMD 组执行宽度。 ````
+``` 调度时指定的线程组的 SIMD 组执行宽度。````
 
 ``dispatch_threads_per_threa dgroup 所有操作系统：自 Metal 1 起。````
 
 `ushort、ushort2、ushort3、uint、uint2 或 uint3`
 
-``` 调度时指定的线程组的线程执行宽度。 ````
+``` 调度时指定的线程组的线程执行宽度。````
 
-``` grid_origin 所有操作系统：自 Metal 1.2 起。 ````
-
-`ushort、ushort2、ushort3、uint、uint2 或 uint3`
-
-``` 网格的原点（偏移量），在该网格上启动读取每个线程阶段数据的计算线程。 ````
-
-``` grid_size 所有操作系统：自 Metal 1.2 起。 ````
+``` grid_origin 所有操作系统：自 Metal 1.2 起。````
 
 `ushort、ushort2、ushort3、uint、uint2 或 uint3`
 
-``` 启动读取每个线程阶段数据的计算线程的网格的最大大小。 ````
+``` 网格的原点（偏移量），在该网格上启动读取每个线程阶段数据的计算线程。````
 
-`quadgroup_index_in_threadg 组 macOS：自 Metal 2.1 起。 iOS：从 Metal 2 开始。`
+``` grid_size 所有操作系统：自 Metal 1.2 起。````
 
-`ushort 或 uint`
+`ushort、ushort2、ushort3、uint、uint2 或 uint3`
 
-``` 线程组内四元组的标量索引。 ````
+``` 启动读取每个线程阶段数据的计算线程的网格的最大大小。````
 
-`quadgroups_per_threadgroup macOS：自 Metal 2.1 起。 iOS：从 Metal 2 开始。`
-
-`ushort 或 uint`
-
-`` 线程组的四组执行宽度。 ````
-
-``` simdgroup_index_in_threadg 组 macOS：自 Metal 2 起。 iOS：自 Metal 2.2 起。 ````
+`quadgroup_index_in_threadg 组 macOS：自 Metal 2.1 起。iOS：从 Metal 2 开始。`
 
 `ushort 或 uint`
 
-``` 线程组内 SIMD 组的标量索引。 ````
+``` 线程组内四元组的标量索引。````
 
-``` simdgroups_per_threadgroup macOS：自 Metal 2 起。 iOS：自 Metal 2.2 起。 ````
+`quadgroups_per_threadgroup macOS：自 Metal 2.1 起。iOS：从 Metal 2 开始。`
 
 `ushort 或 uint`
 
-`` 线程组的 SIMD 组执行宽度。 ````
+`` 线程组的四组执行宽度。````
 
-||
+``` simdgroup_index_in_threadg 组 macOS：自 Metal 2 起。iOS：自 Metal 2.2 起。````
+
+`ushort 或 uint`
+
+``` 线程组内 SIMD 组的标量索引。````
+
+``` simdgroups_per_threadgroup macOS：自 Metal 2 起。iOS：自 Metal 2.2 起。````
+
+`ushort 或 uint`
+
+`` 线程组的 SIMD 组执行宽度。````
 
 **属性**
 
 `对应数据类型说明^`
 
-thread_execution_width 所有操作系统：自 Metal 1 起。 [[自 Metal 3 起已弃用 – 使用threads_per_simdgroup]]
+thread_execution_width 所有操作系统：自 Metal 1 起。[[自 Metal 3 起已弃用 - 使用threads_per_simdgroup]]
 
 `ushort 或 uint`
 
-``` SIMD 组（计算单元）的线程执行宽度。 ````
+``` SIMD 组（计算单元）的线程执行宽度。````
 
-thread_index_in_quadgroup macOS：自 Metal 2.1 起。 iOS：从 Metal 2 开始。
-
-`ushort 或 uint`
-
-``` 四元组中线程的标量索引。 ````
-
-thread_index_in_simdgroup macOS：自 Metal 2 起。 iOS：自 Metal 2.2 起。
+thread_index_in_quadgroup macOS：自 Metal 2.1 起。iOS：从 Metal 2 开始。
 
 `ushort 或 uint`
 
-``` SIMD 组内线程的标量索引。 ````
+``` 四元组中线程的标量索引。````
+
+thread_index_in_simdgroup macOS：自 Metal 2 起。iOS：自 Metal 2.2 起。
+
+`ushort 或 uint`
+
+``` SIMD 组内线程的标量索引。````
 
 thread_index_in_threadgroup 所有操作系统：自 Metal 1 起。
 
-``` ushort 或 uint 线程组内线程的标量索引。 ````
+``` ushort 或 uint 线程组内线程的标量索引。````
 
 thread_position_in_grid 所有操作系统：自 Metal 1 起。
 
 `ushort、ushort2、ushort3、uint、uint2 或 uint3`
 
-``` 线程在 N 维线程网格中的位置。 ````
+``` 线程在 N 维线程网格中的位置。````
 
 thread_position_in_threadg group 所有操作系统：自 Metal 1 起。
 
@@ -823,37 +795,35 @@ threadgroup_position_in_gr id 所有操作系统：自 Metal 1 起。
 
 `ushort、ushort2、ushort3、uint、uint2 或 uint3`
 
-``` 线程组在网格中的独特位置。 ````
+``` 线程组在网格中的独特位置。````
 
 threadgroups_per_grid 所有操作系统：自 Metal 1 起。
 
 `ushort、ushort2、ushort3、uint、uint2 或 uint3`
 
-``` 网格中线程组的数量。 ````
+``` 网格中线程组的数量。````
 
 threads_per_grid 所有操作系统：自 Metal 1 起。
 
 `ushort、ushort2、ushort3、uint、uint2 或 uint3`
 
-`` 网格大小。 ````
-
-||
+`` 网格大小。````
 
 ` 属性`
 
 `对应数据类型说明^`
 
-```threads_per_simdgroup macOS：自 Metal 2 起。iOS：自 Metal 2.2 起。 ````
+```threads_per_simdgroup macOS：自 Metal 2 起。iOS：自 Metal 2.2 起。````
 
 `ushort 或 uint`
 
-``` SIMD 组（计算单元）的线程执行宽度。 ````
+``` SIMD 组（计算单元）的线程执行宽度。````
 
 ``threads_per_threadgroup 所有操作系统：自 Metal 1 起。````
 
 `ushort、ushort2、ushort3、uint、uint2 或 uint3`
 
-``` 线程组的线程执行宽度。 ````
+``` 线程组的线程执行宽度。````
 
 所有操作系统：自 Metal 1.2 起，支持 grid_origin 和 grid_size。
 
@@ -865,7 +835,7 @@ iOS：从 Metal 2 开始，支持四组属性。从 Metal 2 开始，支持 SIMD
 
 所有操作系统：从 Metal 3.1 开始，全局（程序范围）变量现在可以指定这些属性，除非它们在动态库或单独编译的二进制函数中使用。
 
-对于标准 Metal 计算函数（平铺函数除外），SIMD 组是线性的和一维的。 （线程组可以是多维的。）线程组中的 SIMD 组数量 ([[simdgroups_per_threadgroup]]) 是线程组中的线程总数 ([[threads_per_threadgroup]]) 除以 SIMD 组大小 ([[threads_per_simdgroup]]）：
+对于标准 Metal 计算函数（平铺函数除外），SIMD 组是线性的和一维的。（线程组可以是多维的。）线程组中的 SIMD 组数量 ([[simdgroups_per_threadgroup]]) 是线程组中的线程总数 ([[threads_per_threadgroup]]) 除以 SIMD 组大小 ([[threads_per_simdgroup]]）：
 
 simdgroups_per_threadgroup = ceil(threads_per_threadgroup/threads_per_simdgroup)
 
@@ -885,17 +855,15 @@ quadgroups*per_threadgroup = ceil(Wx/2) * 2 \_ ceil(Wy/2) \* 2 / 4
 
 quadgroups_per_threadgroup = ceil(Wx/2) \* ceil(Wy/2)
 
-||
-
 对于调度时指定的线程，[[dispatch_simdgroups_per_threadgroup]] 和 [[dispatch_quadgroups_per_threadgroup]] 的计算方式类似。
 
-SIMD 组在给定线程组内并发执行，并在没有线程组屏障操作的情况下相互独立地前进。 SIMD 组中的线程索引（由 [[thread_index_in_simdgroup]] 给出）是介于 0 和 SIMD 组大小 – 1 之间的值（包含 0 和 1）。类似地，四元组中的线程索引（由 [[thread_index_in_quadgroup]] 给出）是 0 到 3 之间的值（包含 0 和 3）。
+SIMD 组在给定线程组内并发执行，并在没有线程组屏障操作的情况下相互独立地前进。SIMD 组中的线程索引（由 [[thread_index_in_simdgroup]] 给出）是介于 0 和 SIMD 组大小 - 1 之间的值（包含 0 和 1）。类似地，四元组中的线程索引（由 [[thread_index_in_quadgroup]] 给出）是 0 到 3 之间的值（包含 0 和 3）。
 
-在 Metal 2 中，网格中的线程数量不必是线程组中线程数量的倍数。因此，特定线程组的实际线程组大小可能小于调度中指定的线程组大小。 [[threads_per_threadgroup]] 属性指定执行内核的给定线程组的实际线程组大小。 [[dispatch_threads_per_threadgroup]] 属性是调度时指定的线程组大小。
+在 Metal 2 中，网格中的线程数量不必是线程组中线程数量的倍数。因此，特定线程组的实际线程组大小可能小于调度中指定的线程组大小。[[threads_per_threadgroup]] 属性指定执行内核的给定线程组的实际线程组大小。[[dispatch_threads_per_threadgroup]] 属性是调度时指定的线程组大小。
 
 核函数属性注意事项：
 
-- 声明 [[thread_position_in_grid]]、[[threads_per_grid]]、[[thread_position_in_threadgroup]]、[[threads_per_threadgroup]]、[[threadgroup_position_in_grid]]、[[dispatch_threads_per_threadgroup]] 和 [[threadgroups_per_grid]] 的类型必须是标量类型或向量类型。如果它是向量类型，则用于声明这些参数的向量类型的组件数量需要匹配。 - 声明 [[thread_position_in_grid]] 和 [[threads_per_grid]] 的数据类型需要匹配。 - 声明 [[thread_position_in_threadgroup]]、[[threads_per_threadgroup]] 和 [[dispatch_threads_per_threadgroup]] 的数据类型需要匹配。 - 如果 [[thread_position_in_threadgroup]] 为 uint、uint2 或 uint3 类型，则 [[thread_index_in_threadgroup]] 需要为 uint 类型。 - 用于声明 [[thread_index_in_simdgroup]]、[[threads_per_simdgroup]]、[[simdgroup_index_in_threadgroup]]、[[simdgroups_per_threadgroup]]、[[dispatch_simdgroups_per_threadgroup]]、[[quadgroup_index_in_threadgroup]]、[[quadgroups_per_threadgroup]] 和 [[的类型dispatch_quadgroups_per_threadgroup]] 需要为 ushort 或 uint。声明这些内置变量的类型需要匹配。 - [[threads_per_simdgroup]] 和 [[thread_execution_width]] 是引用相同概念的彼此的别名。
+- 声明 [[thread_position_in_grid]]、[[threads_per_grid]]、[[thread_position_in_threadgroup]]、[[threads_per_threadgroup]]、[[threadgroup_position_in_grid]]、[[dispatch_threads_per_threadgroup]] 和 [[threadgroups_per_grid]] 的类型必须是标量类型或向量类型。如果它是向量类型，则用于声明这些参数的向量类型的组件数量需要匹配。- 声明 [[thread_position_in_grid]] 和 [[threads_per_grid]] 的数据类型需要匹配。- 声明 [[thread_position_in_threadgroup]]、[[threads_per_threadgroup]] 和 [[dispatch_threads_per_threadgroup]] 的数据类型需要匹配。- 如果 [[thread_position_in_threadgroup]] 为 uint、uint2 或 uint3 类型，则 [[thread_index_in_threadgroup]] 需要为 uint 类型。- 用于声明 [[thread_index_in_simdgroup]]、[[threads_per_simdgroup]]、[[simdgroup_index_in_threadgroup]]、[[simdgroups_per_threadgroup]]、[[dispatch_simdgroups_per_threadgroup]]、[[quadgroup_index_in_threadgroup]]、[[quadgroups_per_threadgroup]] 和 [[的类型dispatch_quadgroups_per_threadgroup]] 需要为 ushort 或 uint。声明这些内置变量的类型需要匹配。- [[threads_per_simdgroup]] 和 [[thread_execution_width]] 是引用相同概念的彼此的别名。
 
 ## 表 5.8。内核函数图块输入参数的属性
 
@@ -906,8 +874,6 @@ SIMD 组在给定线程组内并发执行，并在没有线程组屏障操作的
 `render_target_array_index uchar、ushort 或 uint`
 
 `渲染目标数组索引，指的是立方体贴图的面，指定的数据`
-
-||
 
 ` 属性对应的数据类型`
 
@@ -943,8 +909,6 @@ bool triangleIntersectionFunction(..., uint id [[instance_id]], ...) {...}
 
 `方向 float3 光线^方向^在^对象^空间中。^ `
 
-||
-
 **属性**
 
 `对应数据类型说明^`
@@ -953,35 +917,33 @@ min_distance float Ray^ min^ 距离。^
 
 最大距离浮点数
 
-``` 通过引用传递。返回当前最近的交叉点最大距离。相交器用射线的最大距离初始化初始值，并且随着相交器找到相交，该值会减小。 ````
+``` 通过引用传递。返回当前最近的交叉点最大距离。相交器用射线的最大距离初始化初始值，并且随着相交器找到相交，该值会减小。````
 
 有效负载用户^类型。^通过引用传递。
 
-``` 由调用线程传递的用户定义的有效负载。需要指定以允许通过 intersect() 匹配有效负载表（第 6.18.2 节）。 ````
+``` 由调用线程传递的用户定义的有效负载。需要指定以允许通过 intersect() 匹配有效负载表（第 6.18.2 节）。````
 
 Geometry_id ushort 或 uint ^ 每个几何^ id。^
 
 Primitive_id ushort 或 uint
 
-``` 每个基元标识符。对于曲线，这是曲线段索引。 ````
+``` 每个基元标识符。对于曲线，这是曲线段索引。````
 
 instance_id uarrayshort_ref,^ uint^ 或 ^
 
-``` 每个实例的标识符。如果交集\_标签包含实例，则可用。从 Metal 3.1 开始，如果 junction_tags 包含 max_levels，则类型必须为 array_ref。否则，它是 ushort 或 uint。 ````
+``` 每个实例的标识符。如果交集\_标签包含实例，则可用。从 Metal 3.1 开始，如果 junction_tags 包含 max_levels，则类型必须为 array_ref。否则，它是 ushort 或 uint。````
 
 世界空间原点 float3
 
-``原点在世界空间。如果 Intersection_tags 包含 world_space_data，则可用。 ````
+``原点在世界空间。如果 Intersection_tags 包含 world_space_data，则可用。````
 
 世界空间方向 float3
 
-`` 世界空间中的方向。如果 Intersection_tags 包含 world_space_data，则可用。 ````
+`` 世界空间中的方向。如果 Intersection_tags 包含 world_space_data，则可用。````
 
 重心坐标 float2
 
-`` 重心坐标。如果 primitive_type 是三角形且交集标记包含 triangle_data，则可用。 ````
-
-||
+`` 重心坐标。如果 primitive_type 是三角形且交集标记包含 triangle_data，则可用。````
 
 **属性**
 
@@ -989,51 +951,49 @@ instance_id uarrayshort_ref,^ uint^ 或 ^
 
 front_faceing 布尔值
 
-``` 如果三角形正面从射线原点可见，则该值为 true。如果交集*标签包含三角形*数据，则可用。 ````
+``` 如果三角形正面从射线原点可见，则该值为 true。如果交集*标签包含三角形*数据，则可用。````
 
 距离浮动
 
-`` 三角形交点处沿光线的距离。如果 primitive_type 是三角形则可用。 ````
+`` 三角形交点处沿光线的距离。如果 primitive_type 是三角形则可用。````
 
 不透明布尔值
 
-`` 这个原语是否应被视为不透明。如果 primitive_type 是 bounding_box，则可用。 ````
+`` 这个原语是否应被视为不透明。如果 primitive_type 是 bounding_box，则可用。````
 
 实例*交集* function_table_offset
 
 `ushort 或 uint`
 
-``` 交集函数表中的偏移量，用于选择交集实例。 ````
+``` 交集函数表中的偏移量，用于选择交集实例。````
 
 几何*交集* function_table_offset
 
 `ushort 或 uint`
 
-`` 用于选择交集实例的几何对象的偏移量。 ````
+`` 用于选择交集实例的几何对象的偏移量。````
 
 时间 所有操作系统：自 Metal 2. 4.
 
 `浮动`
 
-`` 光线相交时间。如果交集\_标签包含 primitive_motion，则可用。 ````
+`` 光线相交时间。如果交集\_标签包含 primitive_motion，则可用。````
 
 motion_start_time 所有操作系统：自 Metal 2. 4.
 
 `浮动`
 
-`` 该几何体的运动开始时间。如果交集\_标签包含 primitive_motion，则可用。 ````
+`` 该几何体的运动开始时间。如果交集\_标签包含 primitive_motion，则可用。````
 
 motion_end_time 所有操作系统：自 Metal 2. 4.
 
 `浮动`
 
-`` 该几何体的运动结束时间。如果交集\_标签包含 primitive_motion，则可用。 ````
+`` 该几何体的运动结束时间。如果交集\_标签包含 primitive_motion，则可用。````
 
 key_frame_count 所有操作系统：自 Metal 2. 4. ushort^ 或 ^ uint^
 
-`` 关键帧的数量。如果交集\_标签包含 primitive_motion，则可用。 ````
-
-||
+`` 关键帧的数量。如果交集\_标签包含 primitive_motion，则可用。````
 
 **属性**
 
@@ -1043,35 +1003,33 @@ object_to_world_transform 所有操作系统：自 Metal 2. 4.
 
 ``float4x3````
 
-`` 对象空间到世界空间的变换矩阵。如果 Intersection_tags 包含实例化和 world_space_data，则可用。如果 intersection_tags 包含 instance_motion，则根据时间对矩阵进行插值。 ````
+`` 对象空间到世界空间的变换矩阵。如果 Intersection_tags 包含实例化和 world_space_data，则可用。如果 intersection_tags 包含 instance_motion，则根据时间对矩阵进行插值。````
 
 world_to_object_transform 所有操作系统：自 Metal 2. 4.
 
 ``float4x3````
 
-`` 世界空间到对象空间的变换矩阵。如果 Intersection_tags 包含实例化和 world_space_data，则可用。如果 intersection_tags 包含 instance_motion，则根据时间对矩阵进行插值。 ````
+`` 世界空间到对象空间的变换矩阵。如果 Intersection_tags 包含实例化和 world_space_data，则可用。如果 intersection_tags 包含 instance_motion，则根据时间对矩阵进行插值。````
 
 user_instance_id 所有操作系统：自 Metal 2. 4.
 
 `ushort、uint 或 array_ref`
 
-``` 用户定义的实例 ID。如果交集\_标签包含实例，则可用。从 Metal 3.1 开始，如果 junction_tags 包含 max_levels，则类型必须为 array_ref。否则，它是 ushort 或 uint。 ````
+``` 用户定义的实例 ID。如果交集\_标签包含实例，则可用。从 Metal 3.1 开始，如果 junction_tags 包含 max_levels，则类型必须为 array_ref。否则，它是 ushort 或 uint。````
 
 Primitive_data 从 Metal 3 开始。
 
 `const device T* 或 const device T&`
 
-`` 每个原始数据。数据是只读的并在设备地址空间中传递。 ````
+`` 每个原始数据。数据是只读的并在设备地址空间中传递。````
 
 curve_parameter 自 Metal 3.1 起
 
 `浮动`
 
-`` 需要传递给曲线基函数以重建与沿曲线段的交点相对应的位置的值。当且仅当射线与曲线端盖或弯头相交时，该值将恰好为 0 .0F 或 1 .0F。如果交集*标签包含曲线*数据，则可用。有关一组曲线实用函数，请参见第 6.18.6 节。 ````
+`` 需要传递给曲线基函数以重建与沿曲线段的交点相对应的位置的值。当且仅当射线与曲线端盖或弯头相交时，该值将恰好为 0 .0F 或 1 .0F。如果交集*标签包含曲线*数据，则可用。有关一组曲线实用函数，请参见第 6.18.6 节。````
 
-||
-
-对于顶点属性 v0、v1 和 v2，指定重心点处的属性值为： v1 _ barycentric_coord.x + v2 _ barycentric_coord.y + v0 \* (1.0f - (barycentric_coord.x + barycentric_coord.y))
+对于顶点属性 v0、v1 和 v2，指定重心点处的属性值为：v1 _ barycentric_coord.x + v2 _ barycentric_coord.y + v0 \* (1.0f - (barycentric_coord.x + barycentric_coord.y))
 
 具有 [[payload]] 属性的参数的类型采用 ray_data T & 形式。它通过引用传递给交集函数，并分配在 ray_data 地址空间中。有效负载的类型 T 可以是或包含以下类型：
 
@@ -1087,15 +1045,13 @@ curve_parameter 自 Metal 3.1 起
 
 ` 描述`
 
-Accept_intersection bool (^) 如果为 true，则该原语将成为下一个提交的命中：如果它是最近的，则将从 intersect() 返回。 continue_search bool 如果接受命中 ([[accept_intersection]] == true)，则 continue_search 指示搜索是否应继续。如果 continue_search 为 true，则 intersect() 将继续搜索更接近的命中。如果为 false，则不会进行进一步的搜索。当前最近的命中由 intersect() 返回。默认为 true。即使返回 true，如果 accept_any_intersection()为 true，提交的命中也会立即停止搜索。 distance float 这返回沿边界框内找到的命中射线的距离。如果击中被拒绝
-
-||
+Accept_intersection bool (^) 如果为 true，则该原语将成为下一个提交的命中：如果它是最近的，则将从 intersect() 返回。continue_search bool 如果接受命中 ([[accept_intersection]] == true)，则 continue_search 指示搜索是否应继续。如果 continue_search 为 true，则 intersect() 将继续搜索更接近的命中。如果为 false，则不会进行进一步的搜索。当前最近的命中由 intersect() 返回。默认为 true。即使返回 true，如果 accept_any_intersection()为 true，提交的命中也会立即停止搜索。distance float 这返回沿边界框内找到的命中射线的距离。如果击中被拒绝
 
 ` 属性对应的数据类型`
 
 ` 描述`
 
-``` ([[accept_intersection]] == false)，该返回值被忽略。如果 primitive_type 是 bounding_box，则可用。 ````
+``` ([[accept_intersection]] == false)，该返回值被忽略。如果 primitive_type 是 bounding_box，则可用。````
 
 对于三角形交集函数，[[accept_intersection]] 是唯一需要的返回值。如果函数返回一个不带属性的 bool，则假定为 [[accept_intersection]]。
 
@@ -1139,13 +1095,11 @@ ray_data float2& 资源 [[有效负载]],
 
 所有操作系统：自 Metal 3 起
 
-||
-
 所有操作系统：从 Metal 3.1 开始，全局变量现在可以指定这些属性，除非在动态库或单独编译的二进制函数中使用。
 
 对象函数使用与内核函数相同的执行模型（参见第 5.2.3.6 节），它在 N 维线程网格上执行。对象函数参数可以是采样器、纹理、mesh_grid_properties 类型的参数以及设备、常量和线程组地址空间中的缓冲区。
 
-对象函数支持内核函数的内置属性的子集以及 [[amplification_count]] 和 [[payload]]。 [[amplification_count]] 的语义与第 5.2.3.1 节顶点函数输入属性中的相同。表 5. 12 列出了可以为对象函数的参数指定的内置属性以及可以使用它们的相应数据类型。从 Metal 3.1 开始，表 5. 12 中的内置属性可以在程序范围变量上指定，但 amplification_count 和 payload 除外。
+对象函数支持内核函数的内置属性的子集以及 [[amplification_count]] 和 [[payload]]。[[amplification_count]] 的语义与第 5.2.3.1 节顶点函数输入属性中的相同。表 5. 12 列出了可以为对象函数的参数指定的内置属性以及可以使用它们的相应数据类型。从 Metal 3.1 开始，表 5. 12 中的内置属性可以在程序范围变量上指定，但 amplification_count 和 payload 除外。
 
 ## 表 5.11。对象函数的属性
 
@@ -1155,9 +1109,7 @@ ray_data float2& 资源 [[有效负载]],
 
 `放大计数`
 
-ushort 或 uint (^) 为每个顶点实例生成的输出顶点数。 dispatch_quadgroups_per_thr eadgroup ushort 或 uint 调度时指定的线程组的四组执行宽度。 dispatch_simdgroups_per_thr eadgroup ushort 或 uint 调度时指定的线程组的 SIMD 组执行宽度。 dispatch_threads_per_thread group ushort、ushort2、ushort3、uint、uint2 或 uint3 调度时指定的线程的线程组的线程执行宽度。有效负载 object_data 地址空间中对用户定义 T 的指针或左值引用 有效负载是从对象着色器传递到网格着色器的数据。对于线程组中的所有线程，有效负载指针或引用都是相同的。假定有效负载存储器在对象函数的入口处未初始化。
-
-||
+ushort 或 uint (^) 为每个顶点实例生成的输出顶点数。dispatch_quadgroups_per_thr eadgroup ushort 或 uint 调度时指定的线程组的四组执行宽度。dispatch_simdgroups_per_thr eadgroup ushort 或 uint 调度时指定的线程组的 SIMD 组执行宽度。dispatch_threads_per_thread group ushort、ushort2、ushort3、uint、uint2 或 uint3 调度时指定的线程的线程组的线程执行宽度。有效负载 object_data 地址空间中对用户定义 T 的指针或左值引用 有效负载是从对象着色器传递到网格着色器的数据。对于线程组中的所有线程，有效负载指针或引用都是相同的。假定有效负载存储器在对象函数的入口处未初始化。
 
 **属性**
 
@@ -1165,27 +1117,27 @@ ushort 或 uint (^) 为每个顶点实例生成的输出顶点数。 dispatch_qu
 
 quadgroup_index_in_threadgr oup ushort 或 uint
 
-``` 线程组内四元组的标量索引。 ````
+``` 线程组内四元组的标量索引。````
 
 quadgroups_per_threadgroup ushort 或 uint
 
-`` 线程组的四组执行宽度。 ````
+`` 线程组的四组执行宽度。````
 
 simdgroup_index_in_threadgr oup ushort 或 uint
 
-``` 线程组内 SIMD 组的标量索引。 ````
+``` 线程组内 SIMD 组的标量索引。````
 
 simdgroups_per_threadgroup ushort 或 uint
 
-`` 线程组的 SIMD 组执行宽度。 ````
+`` 线程组的 SIMD 组执行宽度。````
 
 thread_index_in_quadgroup ushort 或 uint
 
-``` 四元组中线程的标量索引。 ````
+``` 四元组中线程的标量索引。````
 
 thread_index_in_simdgroup ushort 或 uint
 
-``` SIMD 组内线程的标量索引。 ````
+``` SIMD 组内线程的标量索引。````
 
 thread_index_in_threadgroup ushort 或 uint 线程组内线程的标量索引。
 
@@ -1193,7 +1145,7 @@ thread_index_in_threadgroup ushort 或 uint 线程组内线程的标量索引。
 
 `ushort、ushort2、ushort3、uint、uint2 或 uint3`
 
-``` 线程在 N 维线程网格中的位置。 ````
+``` 线程在 N 维线程网格中的位置。````
 
 线程组中的线程位置
 
@@ -1205,9 +1157,7 @@ thread_index_in_threadgroup ushort 或 uint 线程组内线程的标量索引。
 
 `ushort、ushort2、ushort3、uint、uint2 或 uint3`
 
-``` 线程组在网格中的独特位置。 ````
-
-||
+``` 线程组在网格中的独特位置。````
 
 ` 属性`
 
@@ -1217,27 +1167,25 @@ thread_index_in_threadgroup ushort 或 uint 线程组内线程的标量索引。
 
 `ushort、ushort2、ushort3、uint、uint2 或 uint3`
 
-``` 网格中线程组的数量。 ````
+``` 网格中线程组的数量。````
 
 `每个网格的线程数`
 
 `ushort、ushort2、ushort3、uint、uint2 或 uint3`
 
-`` 网格大小。 ````
+`` 网格大小。````
 
-```threads_per_simdgroup ushort 或 uint SIMD 组的线程执行宽度。 ````
+```threads_per_simdgroup ushort 或 uint SIMD 组的线程执行宽度。````
 
 `每个线程组的线程`
 
 `ushort、ushort2、ushort3、uint、uint2 或 uint3`
 
-``` 线程组的线程执行宽度。 ````
+``` 线程组的线程执行宽度。````
 
 对象函数属性与内核函数属性具有相同的限制：
 
-- 声明 [[thread_position_in_grid]]、[[threads_per_grid]]、[[thread_position_in_threadgroup]]、[[threads_per_threadgroup]]、[[threadgroup_position_in_grid]]、[[dispatch_threads_per_threadgroup]] 和 [[threadgroups_per_grid]] 的类型必须是标量类型或向量类型。如果它是向量类型，则用于声明这些参数的向量类型的组件数量需要匹配。 - 声明 [[thread_position_in_grid]] 和 [[threads_per_grid]] 的数据类型需要匹配。 - 声明 [[thread_position_in_threadgroup]]、[[threads_per_threadgroup]] 和 [[dispatch_threads_per_threadgroup]] 的数据类型需要匹配。 - 如果 [[thread_position_in_threadgroup]] 为 uint、uint2 或 uint3 类型，则 [[thread_index_in_threadgroup]] 需要为 uint 类型。 - 用于声明 [[thread_index_in_simdgroup]]、[[threads_per_simdgroup]]、[[simdgroup_index_in_threadgroup]]、[[simdgroups_per_threadgroup]]、[[dispatch_simdgroups_per_threadgroup]]、[[quadgroup_index_in_threadgroup]]、[[quadgroups_per_threadgroup]] 和 [[的类型dispatch_quadgroups_per_threadgroup]]需要为 ushort 或 uint。声明这些内置变量的类型需要匹配。
-
-||
+- 声明 [[thread_position_in_grid]]、[[threads_per_grid]]、[[thread_position_in_threadgroup]]、[[threads_per_threadgroup]]、[[threadgroup_position_in_grid]]、[[dispatch_threads_per_threadgroup]] 和 [[threadgroups_per_grid]] 的类型必须是标量类型或向量类型。如果它是向量类型，则用于声明这些参数的向量类型的组件数量需要匹配。- 声明 [[thread_position_in_grid]] 和 [[threads_per_grid]] 的数据类型需要匹配。- 声明 [[thread_position_in_threadgroup]]、[[threads_per_threadgroup]] 和 [[dispatch_threads_per_threadgroup]] 的数据类型需要匹配。- 如果 [[thread_position_in_threadgroup]] 为 uint、uint2 或 uint3 类型，则 [[thread_index_in_threadgroup]] 需要为 uint 类型。- 用于声明 [[thread_index_in_simdgroup]]、[[threads_per_simdgroup]]、[[simdgroup_index_in_threadgroup]]、[[simdgroups_per_threadgroup]]、[[dispatch_simdgroups_per_threadgroup]]、[[quadgroup_index_in_threadgroup]]、[[quadgroups_per_threadgroup]] 和 [[的类型dispatch_quadgroups_per_threadgroup]]需要为 ushort 或 uint。声明这些内置变量的类型需要匹配。
 
 ## 5.2.3.10 网格函数输入属性
 
@@ -1247,7 +1195,7 @@ thread_index_in_threadgroup ushort 或 uint 线程组内线程的标量索引。
 
 网格函数使用与内核函数相同的执行模型（请参阅第 5.2.3.6 节），它在 N 维线程网格上执行。网格函数参数可以来自采样器、纹理、mesh 类型的参数以及设备和常量的缓冲区。如果网格函数具有 mesh 参数，则它指向表示要导出的网格的内存的不透明句柄。由 mesh 参数引用的底层内存在给定线程组的线程之间共享。
 
-网格函数支持内核函数内置属性的子集以及 [[amplification_count]]、[[amplification_id]] 和 [[payload]] 属性。 [[amplification_count]] 和 [[amplification_id]] 的语义与第 5.2.3.1 节顶点函数输入属性中的相同。表 5. 13 列出了可以为网格函数的参数指定的内置属性以及可以使用它们的相应数据类型。从 Metal 3.1 开始，表 5. 13 中的内置属性可以在程序范围变量上指定，但 amplification_count、amplification_id 和 Payload 除外。
+网格函数支持内核函数内置属性的子集以及 [[amplification_count]]、[[amplification_id]] 和 [[payload]] 属性。[[amplification_count]] 和 [[amplification_id]] 的语义与第 5.2.3.1 节顶点函数输入属性中的相同。表 5. 13 列出了可以为网格函数的参数指定的内置属性以及可以使用它们的相应数据类型。从 Metal 3.1 开始，表 5. 13 中的内置属性可以在程序范围变量上指定，但 amplification_count、amplification_id 和 Payload 除外。
 
 ## 表 5.12。网格函数的属性
 
@@ -1257,9 +1205,7 @@ thread_index_in_threadgroup ushort 或 uint 线程组内线程的标量索引。
 
 `放大计数`
 
-ushort 或 uint (^) 为每个图元实例生成的输出顶点数。 amplification_id ushort 或 uint (^) 视口和渲染目标数组索引的数组索引偏移映射，它允许将放大的顶点路由到不同的视口和渲染目标。 dispatch_quadgroups_per_th readgroup ushort 或 uint 调度时指定的线程组的四组执行宽度。 dispatch_simdgroups_per_th readgroup ushort 或 uint 调度时指定的线程组的 SIMD 组执行宽度。
-
-||
+ushort 或 uint (^) 为每个图元实例生成的输出顶点数。amplification_id ushort 或 uint (^) 视口和渲染目标数组索引的数组索引偏移映射，它允许将放大的顶点路由到不同的视口和渲染目标。dispatch_quadgroups_per_th readgroup ushort 或 uint 调度时指定的线程组的四组执行宽度。dispatch_simdgroups_per_th readgroup ushort 或 uint 调度时指定的线程组的 SIMD 组执行宽度。
 
 **属性**
 
@@ -1269,23 +1215,21 @@ dispatch_threads_per_thread dgroup
 
 `ushort、ushort2、ushort3、uint、uint2 或 uint3`
 
-``` 调度时指定的线程组的线程执行宽度。 ````
+``` 调度时指定的线程组的线程执行宽度。````
 
 有效载荷
 
-``` 对 object_data 地址空间中的用户定义 T 的指针或左值引用。需要 const 限定。 ````
+``` 对 object_data 地址空间中的用户定义 T 的指针或左值引用。需要 const 限定。````
 
-``` 有效负载是从对象着色器传递到网格着色器的数据。对于网格中的所有线程来说，有效负载指针或引用是相同的。有效负载存储器在网格函数中是只读的。 ````
+``` 有效负载是从对象着色器传递到网格着色器的数据。对于网格中的所有线程来说，有效负载指针或引用是相同的。有效负载存储器在网格函数中是只读的。````
 
 quadgroup_index_in_threadg 组 ushort 或 uint
 
-``` 线程组内四元组的标量索引。 ````
+``` 线程组内四元组的标量索引。````
 
 每个线程组的四组数
 
-(^) ushort 或 uint 线程组的四组执行宽度。 simdgroup_index_in_threadg roup ushort 或 uint 线程组内 SIMD 组的标量索引。 simdgroups_per_threadgroup (^) ushort 或 uint 线程组的 SIMD 组执行宽度。 thread_index_in_quadgroup ushort 或 uint 四元组内线程的标量索引。 thread_index_in_simdgroup ushort 或 uint SIMD 组内线程的标量索引。 thread_index_in_threadgroup ushort 或 uint 线程组内线程的标量索引。 thread_position_in_grid ushort、ushort2、ushort3、uint、uint2 或 uint3 线程在 N 维线程网格中的位置。
-
-||
+(^) ushort 或 uint 线程组的四组执行宽度。simdgroup_index_in_threadg roup ushort 或 uint 线程组内 SIMD 组的标量索引。simdgroups_per_threadgroup (^) ushort 或 uint 线程组的 SIMD 组执行宽度。thread_index_in_quadgroup ushort 或 uint 四元组内线程的标量索引。thread_index_in_simdgroup ushort 或 uint SIMD 组内线程的标量索引。thread_index_in_threadgroup ushort 或 uint 线程组内线程的标量索引。thread_position_in_grid ushort、ushort2、ushort3、uint、uint2 或 uint3 线程在 N 维线程网格中的位置。
 
 ` 属性`
 
@@ -1301,41 +1245,39 @@ quadgroup_index_in_threadg 组 ushort 或 uint
 
 `ushort、ushort2、ushort3、uint、uint2 或 uint3`
 
-``` 线程组在网格中的独特位置。 ````
+``` 线程组在网格中的独特位置。````
 
 `每个网格的线程组`
 
 `ushort、ushort2、ushort3、uint、uint2 或 uint3`
 
-``` 网格中线程组的数量。 ````
+``` 网格中线程组的数量。````
 
 `每个网格的线程数`
 
 `ushort、ushort2、ushort3、uint、uint2 或 uint3`
 
-`` 网格大小。 ````
+`` 网格大小。````
 
 `threads_per_simdgroup ushort^ 或 ^ uint^ `
 
-`` SIMD 组的线程执行宽度。 ````
+`` SIMD 组的线程执行宽度。````
 
 `每个线程组的线程`
 
 `ushort、ushort2、ushort3、uint、uint2 或 uint3`
 
-``` 线程组的线程执行宽度。 ````
+``` 线程组的线程执行宽度。````
 
 网格函数属性与核函数属性具有相同的限制：
 
-- 声明 [[thread_position_in_grid]]、[[threads_per_grid]]、[[thread_position_in_threadgroup]]、[[threads_per_threadgroup]]、[[threadgroup_position_in_grid]]、[[dispatch_threads_per_threadgroup]] 和 [[threadgroups_per_grid]] 的类型必须是标量类型或向量类型。如果它是向量类型，则用于声明这些参数的向量类型的组件数量需要匹配。 - 声明 [[thread_position_in_grid]] 和 [[threads_per_grid]] 的数据类型需要匹配。 - 声明 [[thread_position_in_threadgroup]]、[[threads_per_threadgroup]] 和 [[dispatch_threads_per_threadgroup]] 的数据类型需要匹配。
+- 声明 [[thread_position_in_grid]]、[[threads_per_grid]]、[[thread_position_in_threadgroup]]、[[threads_per_threadgroup]]、[[threadgroup_position_in_grid]]、[[dispatch_threads_per_threadgroup]] 和 [[threadgroups_per_grid]] 的类型必须是标量类型或向量类型。如果它是向量类型，则用于声明这些参数的向量类型的组件数量需要匹配。- 声明 [[thread_position_in_grid]] 和 [[threads_per_grid]] 的数据类型需要匹配。- 声明 [[thread_position_in_threadgroup]]、[[threads_per_threadgroup]] 和 [[dispatch_threads_per_threadgroup]] 的数据类型需要匹配。
 
-||
-
-- 如果 [[thread_position_in_threadgroup]] 为 uint、uint2 或 uint3 类型，则 [[thread_index_in_threadgroup]] 需要为 uint 类型。 - 用于声明 [[thread_index_in_simdgroup]]、[[threads_per_simdgroup]]、[[simdgroup_index_in_threadgroup]]、[[simdgroups_per_threadgroup]]、[[dispatch_simdgroups_per_threadgroup]]、[[quadgroup_index_in_threadgroup]]、[[quadgroups_per_threadgroup]] 和 [[的类型dispatch_quadgroups_per_threadgroup]]需要为 ushort 或 uint。声明这些内置变量的类型需要匹配。
+- 如果 [[thread_position_in_threadgroup]] 为 uint、uint2 或 uint3 类型，则 [[thread_index_in_threadgroup]] 需要为 uint 类型。- 用于声明 [[thread_index_in_simdgroup]]、[[threads_per_simdgroup]]、[[simdgroup_index_in_threadgroup]]、[[simdgroups_per_threadgroup]]、[[dispatch_simdgroups_per_threadgroup]]、[[quadgroup_index_in_threadgroup]]、[[quadgroups_per_threadgroup]] 和 [[的类型dispatch_quadgroups_per_threadgroup]]需要为 ushort 或 uint。声明这些内置变量的类型需要匹配。
 
 ## 5.2.4 输入组件属性
 
-顶点函数输出和光栅化器生成的片段成为片段函数的每个片段输入。 [[stage_in]] 属性可以组合每个片段的输入。
+顶点函数输出和光栅化器生成的片段成为片段函数的每个片段输入。[[stage_in]] 属性可以组合每个片段的输入。
 
 顶点函数可以通过使用顶点和实例 ID 作为参数传递给顶点函数的缓冲区进行索引来读取每个顶点的输入。要组装每个顶点的输入并将它们作为参数传递给顶点函数，请使用 [[stage_in]] 属性声明输入。
 
@@ -1343,7 +1285,7 @@ quadgroup_index_in_threadg 组 ushort 或 uint
 
 你只能使用 [[stage_in]] 属性声明顶点、片段或核函数的一个参数。对于使用 [[stage_in]] 属性声明的用户定义结构，该结构的成员可以是：
 
-- 标量整数或浮点值。 - 整数或浮点值向量。 - 片段函数输入的插值 值。
+- 标量整数或浮点值。- 整数或浮点值向量。- 片段函数输入的插值 值。
 
 不能使用 stage_in 属性来声明压缩向量、矩阵、结构、位域、类型引用或指针、标量、向量或矩阵数组的结构成员。
 
@@ -1354,8 +1296,6 @@ quadgroup_index_in_threadg 组 ushort 或 uint
 struct VertexOutput { float4 位置 [[位置]];浮动 4 颜色； float2 纹理坐标； };
 
 struct VertexInput { float4 位置 [[attribute(0)]]; float3 正常 [[属性(1)]]; half4 颜色 [[属性(2)]];
-
-||
 
 half2 texcoord [[属性(3)]]; };
 
@@ -1371,13 +1311,11 @@ constexpr 采样器 s = 采样器(坐标::归一化, 地址::clamp_to_zero, 过�
 
 ## 5.2.4.2 片段函数输入示例
 
-5.2.3.3 节中的示例之前介绍了 process_vertex 顶点函数，该函数为每个顶点返回一个 VertexOutput 结构。在以下示例中，process_vertex 的输出经过管道化，成为名为 render_pixel 的片段函数的输入，因此片段函数的第一个参数使用 [[stage_in]] 属性并使用传入的 VertexOutput 类型。 （在 render_pixel 中，imgA 和 imgB 2D 纹理调用内置函数 sample，该函数在 6.12.3 节中介绍）。
+5.2.3.3 节中的示例之前介绍了 process_vertex 顶点函数，该函数为每个顶点返回一个 VertexOutput 结构。在以下示例中，process_vertex 的输出经过管道化，成为名为 render_pixel 的片段函数的输入，因此片段函数的第一个参数使用 [[stage_in]] 属性并使用传入的 VertexOutput 类型。（在 render_pixel 中，imgA 和 imgB 2D 纹理调用内置函数 sample，该函数在 6.12.3 节中介绍）。
 
 struct VertexOutput 2 { float4 位置 [[位置]];浮动 4 颜色； float2 纹理坐标； };
 
 struct VertexInputData { float4 位置; float3 正常； float2 纹理坐标； };
-
-||
 
 constexpr 常量 uint MAX_LIGHTS = 4；
 
@@ -1389,15 +1327,13 @@ constexpr 采样器 s = 采样器(坐标::归一化, 地址::clamp_to_edge, 过�
 
 片段 float4 render_pixel(VertexOutput 2 input [[stage_in]],texture2d imgA [[texture(0)]],texture2d imgB [[texture(1)]]) { float4 tex_clr0 = imgA.sample(s , 输入.texcoord); float4 tex_clr1 = imgB.sample(s, input.texcoord);
 
-// 计算颜色。 float4 clr =compute_color(tex_clr0, tex_clr1, ...);返回 clr； }
+// 计算颜色。float4 clr =compute_color(tex_clr0, tex_clr1, ...);返回 clr； }
 
 ## 5.2.4.3 内核函数每线程输入示例
 
 以下示例演示如何使用 stage_in 属性传递每线程输入。内核函数中的 stage_in 属性允许你将用于声明函数中每线程输入的数据类型与用于存储每线程输入的实际数据类型解耦。
 
 结构每个线程输入{
-
-||
 
 float4 a [[属性(0)]]; float3 b [[属性(1)]]; half4 c [[属性(2)]]; half2 d [[属性(3)]]; };
 

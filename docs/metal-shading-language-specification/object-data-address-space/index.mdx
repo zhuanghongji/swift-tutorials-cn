@@ -1,7 +1,7 @@
-## 4.7 object_data 地址空间
+# object_data 地址空间
+
+<OrigninalPDF title="4.7 object_data Address Space" />
 
 所有操作系统：自 Metal 3 起支持 object_data 地址。
 
-对象函数使用 object_data 地址空间将有效负载传递给网格函数（请参阅第 5.2.3.9 节）。 object_data 地址空间的行为类似于线程组地址空间，因为编程模型在线程组内显式协作。开发人员应该使用线程组中的线程来有效计算有效负载和值 mesh_grid_properties::set_threadgroups_per_grid。 object_data 地址空间中的有效负载未显式绑定或初始化，并且实现管理其生命周期。
-
-||
+对象函数使用 object_data 地址空间将有效负载传递给网格函数（请参阅第 5.2.3.9 节）。object_data 地址空间的行为类似于线程组地址空间，因为编程模型在线程组内显式协作。开发人员应该使用线程组中的线程来有效计算有效负载和值 mesh_grid_properties::set_threadgroups_per_grid。object_data 地址空间中的有效负载未显式绑定或初始化，并且实现管理其生命周期。

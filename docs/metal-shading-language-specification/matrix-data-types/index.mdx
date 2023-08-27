@@ -1,4 +1,6 @@
-## 2.3 矩阵数据类型
+# 矩阵数据类型
+
+<OrigninalPDF title="2.3 Matrix Data Types" />
 
 Metal 支持系统数学库实现的矩阵数据类型的子集。
 
@@ -6,13 +8,11 @@ Metal 支持系统数学库实现的矩阵数据类型的子集。
 
 - halfnxm - floatnxm
 
-其中 n 和 m 是列数和行数。 n 和 m 必须为 2、3 或 4。 floatnxm 类型的矩阵由 n 个 floatm 向量组成。类似地，halfnxm 类型的矩阵由 n 个 halfm 向量组成。
+其中 n 和 m 是列数和行数。n 和 m 必须为 2、3 或 4。floatnxm 类型的矩阵由 n 个 floatm 向量组成。类似地，halfnxm 类型的矩阵由 n 个 halfm 向量组成。
 
 Metal 还支持矩阵，其中 T 是有效的浮点类型，c 是 2 、 3 或 4 ，而 r 是 2 、 3 或 4 。
 
 表 2. 5 列出了矩阵数据类型的大小和对齐方式。
-
-||
 
 ## 表 2.5。矩阵数据类型的大小和对齐方式
 
@@ -64,8 +64,6 @@ Metal 还支持矩阵，其中 T 是有效的浮点类型，c 是 2 、 3 或 4 
 
 m[1] = float4(2.0f);
 
-||
-
 // 这将第一列的第一个元素设置为 1.0。
 
 m[0][0] = 1.0f；
@@ -107,8 +105,6 @@ float3x4(half3x4);
 float2x2(float2,float2);
 
 float3x3(float3,float3,float3);
-
-||
 
 float3x2(float2,float2,float2);
 

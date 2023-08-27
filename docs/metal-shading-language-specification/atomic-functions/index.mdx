@@ -1,6 +1,8 @@
-## 6.15 原子函数
+# 原子函数
 
-Metal 编程语言实现了 C++14 原子和同步操作的子集。 Metal 原子函数必须对 Metal 原子数据进行操作，如 2.6 节所述。
+<OrigninalPDF title="6.15 Atomic Functions" />
+
+Metal 编程语言实现了 C++14 原子和同步操作的子集。Metal 原子函数必须对 Metal 原子数据进行操作，如 2.6 节所述。
 
 原子操作在使一个线程中的分配对另一个线程可见方面发挥着特殊作用。对一个或多个内存位置的同步操作可以是获取操作、释放操作或两者。没有关联内存位置的同步操作是栅栏，可以是获取栅栏、释放栅栏或两者。此外，还有一些宽松的原子操作，它们不是同步操作。
 
@@ -12,8 +14,6 @@ Metal 编程语言实现了 C++14 原子和同步操作的子集。 Metal 原子
 
 枚举 memory_order 指定详细的常规（非原子）内存同步操作（请参阅 C++14 规范的第 29.3 节），并且可以提供操作排序。对于原子操作，memory_order_relaxed 是唯一的枚举值。使用 memory_order_relaxed，没有同步或排序约束；该操作只需要原子性。这些操作不会对内存进行排序，但它们保证原子性和修改顺序的一致性。放松记忆的典型用途
 
-||
-
 排序正在更新计数器，例如引用计数器，因为这只需要原子性，但既不需要排序也不需要同步。
 
 ## 6.15.2 原子函数
@@ -22,11 +22,11 @@ Metal 编程语言实现了 C++14 原子和同步操作的子集。 Metal 原子
 
 在本节各小节中描述的原子函数中：
 
-- A 指原子类型之一。 - C 指其相应的非原子类型。 - M 指算术运算的另一个参数的类型。对于原子整数类型，M 是 C。
+- A 指原子类型之一。- C 指其相应的非原子类型。- M 指算术运算的另一个参数的类型。对于原子整数类型，M 是 C。
 
 请注意，每个原子函数可能仅支持某些类型。在下面的每个部分中，我们都会指出支持哪种类型 A。
 
-所有操作系统：除非另有说明，否则从 Metal 1 开始就支持名称以 \_explicit 结尾的函数（例如 atomic_store_explicit 或 atomic_load_explicit）。 Metal 3 仅支持设备内存的 atomic_float。
+所有操作系统：除非另有说明，否则从 Metal 1 开始就支持名称以 \_explicit 结尾的函数（例如 atomic_store_explicit 或 atomic_load_explicit）。Metal 3 仅支持设备内存的 atomic_float。
 
 iOS：自 Metal 2 起支持 atomic_store、atomic_load、atomic_exchange、atomic_compare_exchange_weak、atomic_fetch_key 函数。
 
@@ -43,8 +43,6 @@ voidatomic_store_explicit(volatile threadgroup A\* object, Cdesired, memory_orde
 voidatomic_store_explicit(device A\* object, Cdesired, memory_order order) // 所有操作系统：自 Metal 2 起。
 
 voidatomic_store_explicit(易失性设备 A\* 对象, C 所需, memory_order order) // 所有操作系统: 自 Metal 1 以来。
-
-||
 
 ## 6.15.2.2 原子加载函数
 
@@ -77,8 +75,6 @@ Catomic*exchange_explicit（易失性设备 A\* 对象，C 所需，内存*顺�
 ## 6.15.2.4 原子比较和交换函数
 
 这些比较和交换函数以原子方式将 *object 中的值与 *expected 中的值进行比较。如果这些值相等，则比较和交换函数执行读取-修改-写入操作以将 *object 替换为所需的。否则，如果这些值不相等，则比较和交换函数会将实际值从 *object 加载到 *expected 中。如果 *object 中的基础原子值已成功更改，则比较和交换函数返回 true；否则返回 false。这些功能
-
-||
 
 支持 atomic_int、atomic_uint、atomic_bool 和 atomic_float 的原子类型 A。
 
@@ -116,13 +112,11 @@ Catomic*fetch* _key_\_explicit(易失性线程组 A\* 对象，M 操作数，内
 
 Catomic*fetch* _key_ \_explicit(device A\* object, M operand, memory_order order) // 所有操作系统：自 Metal 2 起。
 
-||
-
 Catomic*fetch* _key_\_explicit(易失性设备 A\* 对象，M 操作数，内存\_顺序顺序) // 所有操作系统：自 Metal 1 以来。
 
 函数名称中的键是表 6.24 第一列中列出的操作名称的占位符，例如 atomic_fetch_add_explicit。表 6. 24 中详述的运算是算术和按位计算。该函数自动用指定计算的结果替换对象指向的值（表 6. 24 的第三列）。该函数返回对象先前保存的值。没有未定义的结果。
 
-这些函数适用于任何类型为 atomic_int 和 atomic_uint 的原子对象。 atomic_float 支持 Add 和 Sub。
+这些函数适用于任何类型为 atomic_int 和 atomic_uint 的原子对象。atomic_float 支持 Add 和 Sub。
 
 ## 表 6.24。原子操作
 
@@ -153,8 +147,6 @@ Catomic*fetch* _key_\_explicit(易失性设备 A\* 对象，M 操作数，内存
 voidatomic_key_explicit(设备 A\*对象，M 操作数，内存顺序顺序)
 
 voidatomic_key_explicit(易失性设备 A\*对象，M 操作数，内存顺序顺序)
-
-||
 
 函数名称中的键是表 6. 25 第一列中列出的操作名称的占位符，例如 atomic_max_explicit。表 6. 25 中详细列出了算术运算。该函数自动用指定计算的结果替换对象指向的值（表 6. 25 的第三列）。该函数返回 void。没有未定义的结果。
 

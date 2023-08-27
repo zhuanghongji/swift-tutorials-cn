@@ -1,4 +1,6 @@
-## 6.16 间接命令缓冲区的编码命令
+# 间接命令缓冲区的编码命令
+
+<OrigninalPDF title="6.16 Encoding Commands for Indirect Command Buffers" />
 
 间接命令缓冲区 (ICB) 支持将 Metal 命令编码到 Metal 缓冲区中以供重复使用。稍后，你可以将这些编码的命令提交给 CPU 或 GPU 执行。渲染和计算命令的 ICB 使用 command_buffer 类型将命令编码到 ICB 对象中（在 Metal 框架中由 MTLIndirectCommandBuffer 表示）：
 
@@ -30,8 +32,6 @@ ushort cmd_idx [[网格中的线程位置]])
 
 {
 
-||
-
 render_command cmd(args.cmd_buffer, cmd_idx);
 
 ...
@@ -56,8 +56,6 @@ void draw_primitives(primitive_type type, uint vertex_start, uint vertex_count, 
 
 // 基于 index_buffer 重载 draw_indexed_primitives void draw_indexed_primitives(primitive_type type, uint index_count, device ushort \*index_buffer,
 
-||
-
 uint 实例计数、uint 基础顶点、uint 基础实例）；
 
 void draw_indexed_primitives(primitive_type type, uint index_count, device uint \*index_buffer, uint instance_count, uint base_vertex, uint base_instance);
@@ -71,8 +69,6 @@ voiddraw_indexed_primitives(primitive_type 类型，uintindex_count，常量 uin
 void draw_patches(uint number_of_patch_control_points, uint patch_start, uint patch_count, const device uint *patch_index_buffer, uint instance_count, uint base_instance, const device MTLTriangleTessellationFactorsHalf *tessellation_factor_buffer, uint instance_stride = 0);
 
 void draw_patches(uint number_of_patch_control_points, uint patch_start, uint patch_count, const device uint \*patch_index_buffer,
-
-||
 
 uint instance_count，uint base_instance，常量 MTLQuadTessellationFactorsHalf \*tessellation_factor_buffer，uint instance_stride = 0);
 
@@ -88,8 +84,6 @@ void draw_patches(uint number_of_patch_control_points, uint patch_start, uint pa
 
 // 基于 patch_index_buffer 重载 draw_indexed_pa​​tches，
 
-||
-
 // control_point_index_buffer 和 tessellation_factor_buffer
 
 void draw_indexed_pa​​tches(uint number_of_patch_control_points, uint patch_start, uint patch_count, const device uint *patch_index_buffer, const device void *control_point_index_buffer, uint instance_count, uint base_instance, const device MTLQuadTessellationFactorsHalf \*tessellation_factor_buffer, uint instance_stride = 0);
@@ -104,8 +98,6 @@ void draw_indexed_pa​​tches(uint number_of_patch_control_points, uint patch_
 
 void draw_indexed_pa​​tches(uint number_of_patch_control_points,
 
-||
-
 uint patch_start，uint patch_count，常量设备 uint *patch_index_buffer，常量 void *control_point_index_buffer，uint instance_count，uint base_instance，常量设备 MTLTriangleTessellationFactorsHalf \*tessellation_factor_buffer，uint instance_stride = 0);
 
 void draw_indexed_pa​​tches(uint number_of_patch_control_points, uint patch_start, uint patch_count, const device uint *patch_index_buffer, 常量 void *control_point_index_buffer, uint instance_count, uint base_instance, 常量 MTLQuadTessellationFactorsHalf \*tessellation_factor_buffer, uint instance_stride = 0);
@@ -117,8 +109,6 @@ void draw_indexed_pa​​tches(uint number_of_patch_control_points, uint patch_
 void draw_indexed_pa​​tches(uint number_of_patch_control_points, uint patch_start, uint patch_count, 常量 uint *patch_index_buffer, const device void *control_point_index_buffer, uint instance_count, uint base_instance, const device MTLTriangleTessellationFactorsHalf \*tessellation_factor_buffer, uint instance_stride = 0);
 
 void draw_indexed_pa​​tches(uint number_of_patch_control_points, uint patch_start, uint patch_count, 常量 uint *patch_index_buffer, const device void *control_point_index_buffer,
-
-||
 
 uint instance_count，uint base_instance，常量 MTLQuadTessellationFactorsHalf \*tessellation_factor_buffer，uint instance_stride = 0);
 
@@ -132,8 +122,6 @@ void draw_indexed_pa​​tches(uint number_of_patch_control_points, uint patch_
 
 void draw_indexed_pa​​tches(uint number_of_patch_control_points, uint patch_start, uint patch_count, 常量 uint *patch_index_buffer, 常量 void *control_point_index_buffer, uint instance_count, uint base_instance, 常量 MTLTriangleTessellationFactorsHalf \*tessellation_factor_buffer, uint instance_stride = 0);
 
-||
-
 // 重置整个命令。在 reset()之后，如果没有进一步修改，执行该命令将不会执行任何操作。无效重置（）；
 
 // 将 `source` 命令的内容复制到此命令中。无效 copy_command（render_command 源）； };
@@ -142,7 +130,7 @@ void draw_indexed_pa​​tches(uint number_of_patch_control_points, uint patch_
 
 render_command 中公开的方法镜像了 MTLIndirectRenderCommand 的接口，并且与 MTLRenderCommandEncoder 类似。与 MTLRenderCommandEncoder 的显着差异是：
 
-- 对 render_command 中的 draw\* 方法的调用对命令所采取的操作进行编码。如果多次调用，则只有最后一次调用有效。 - 曲面细分参数直接在 render_command::draw_patches 和 render_command::draw_indexed_pa​​tches 中传递。其他调用不会设置曲面细分参数。
+- 对 render_command 中的 draw\* 方法的调用对命令所采取的操作进行编码。如果多次调用，则只有最后一次调用有效。- 曲面细分参数直接在 render_command::draw_patches 和 render_command::draw_indexed_pa​​tches 中传递。其他调用不会设置曲面细分参数。
 
 ## 6.16.2 在间接命令缓冲区中编码计算命令
 
@@ -156,9 +144,7 @@ ICB 允许将调度命令编码到 Metal 缓冲区中，以便随后在 GPU 上�
 
 结构体参数 { command_buffer cmd_buffer; }; [[kernel]] void Producer（设备参数 &args，ushort cmd_idx [[thread_position_in_grid]]）{compute_command cmd（args.cmd_buffer，cmd_idx）; ... }
 
-compute_command 可以对任何调度命令类型进行编码。头文件中定义了 compute_command 的以下公共接口。 compute_pipeline_state 类型表示计算管道状态，只能是
-
-||
+compute_command 可以对任何调度命令类型进行编码。头文件中定义了 compute_command 的以下公共接口。compute_pipeline_state 类型表示计算管道状态，只能是
 
 通过参数缓冲区传递给着色器。在参数缓冲区内，管道状态可以作为标量或数组传递。
 
@@ -178,17 +164,15 @@ void set_threadgroup_memory_length(uint 长度, uint 索引); void set_stage_in_
 
 // 重置整个命令。在 reset()之后，如果没有进一步修改，执行该命令将不会执行任何操作。无效重置（）；
 
-// 将 `source` 命令的内容复制到此命令中。 void copy_command(compute_command 源); };
+// 将 `source` 命令的内容复制到此命令中。void copy_command(compute_command 源); };
 
 当访问 command_buffer 时，Metal 不会检查访问是否在范围内。如果访问超出缓冲区的容量，则行为未定义。
 
 compute_command 中公开的方法镜像了 MTLIndirectComputeCommand 的接口，并且与 MTLComputeCommandEncoder 类似。
 
-||
-
 在 ICB 中，调度始终是并发的。对 compute_command 中的 concurrent_dispatch\* 方法的调用对命令所采取的操作进行编码。如果多次调用，则只有最后一次调用有效。
 
-应用程序负责在需要的地方设置障碍。 ICB 中编码的屏障不会影响父编码器。
+应用程序负责在需要的地方设置障碍。ICB 中编码的屏障不会影响父编码器。
 
 在将 command_buffer 作为参数传递给着色器之前，CPU 可能已经初始化了 command_buffer 内的各个命令。如果 CPU 尚未初始化命令，则必须在使用该命令之前重置该命令。
 
@@ -202,12 +186,10 @@ compute_command 中公开的方法镜像了 MTLIndirectComputeCommand 的接口�
 
 [[kernel]] void Producer(设备参数 &args) { render_command cmd0(args.cmd_buffer, 0); render_command cmd1(args.cmd_buffer, 1); cmd0.set_render_pipeline_state(args.pipeline_state_0);
 
-// 使索引 1 处的命令指向索引 0 处的命令。 cmd1 = cmd0;
+// 使索引 1 处的命令指向索引 0 处的命令。cmd1 = cmd0;
 
-// 更改缓冲区中索引 0 处的命令的管道状态。 cmd1.set_render_pipeline_state(args.pipeline_state_0);
+// 更改缓冲区中索引 0 处的命令的管道状态。cmd1.set_render_pipeline_state(args.pipeline_state_0);
 
-// 缓冲区中索引 1 处的命令尚未修改。 cmd1 = render_command(args.cmd_buffer, 1);
+// 缓冲区中索引 1 处的命令尚未修改。cmd1 = render_command(args.cmd_buffer, 1);
 
-// 将索引 0 处的命令内容复制到索引 1 处的命令。 cmd1.copy_command(cmd0); }
-
-||
+// 将索引 0 处的命令内容复制到索引 1 处的命令。cmd1.copy_command(cmd0); }

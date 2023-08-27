@@ -1,4 +1,6 @@
-## 2.14 统一类型
+# 统一类型
+
+<OrigninalPDF title="2.14 Uniform Type" />
 
 所有操作系统：自 Metal 2 起支持统一类型。
 
@@ -77,7 +79,7 @@ device uniform<int> *ptr; // values pointed to by ptr are uniform
 uniform<device int *> ptr;  // illegal; compile-time error
 ```
 
-将均匀变量与非均匀变量相结合的表达式的结果是非均匀的。如果将非均匀结果分配给均匀变量（如下例所示），则行为未定义。 （前端可能会生成编译时错误，但不保证一定会发生。）
+将均匀变量与非均匀变量相结合的表达式的结果是非均匀的。如果将非均匀结果分配给均匀变量（如下例所示），则行为未定义。（前端可能会生成编译时错误，但不保证一定会发生。）
 
 ```cpp
 uniform<int> i = …;

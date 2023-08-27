@@ -1,6 +1,8 @@
-## 5.3 存储类说明符
+# 存储类说明符
 
-Metal 支持静态和外部存储类说明符。 Metal 不支持 thread_local 存储类说明符。
+<OrigninalPDF title="5.3 Storage Class Specifiers" />
+
+Metal 支持静态和外部存储类说明符。Metal 不支持 thread_local 存储类说明符。
 
 只能对程序作用域中声明的函数和变量或函数内部声明的变量使用 extern 存储类说明符。静态存储类说明符仅适用于在程序范围内声明的设备变量（请参阅第 4.2 节），不适用于在图形或内核函数内声明的变量。以下示例错误地对内核函数内声明的变量 b 和 c 使用了 static 说明符。
 

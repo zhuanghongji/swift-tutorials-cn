@@ -278,7 +278,13 @@ const metalshadinglanguagespecificationSidebar = [
     items: [
       {
         type: "category",
-        label: "介绍内容",
+        label: "前言",
+        collapsed: false,
+        items: ["metal-shading-language-specification/preface/index"],
+      },
+      {
+        type: "category",
+        label: "介绍",
         collapsed: false,
         items: [
           "metal-shading-language-specification/purpose-of-this-document/index",

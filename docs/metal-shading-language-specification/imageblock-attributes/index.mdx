@@ -1,4 +1,6 @@
-## 5.6 图像块属性
+# 图像块属性
+
+<OrigninalPDF title="5.6 Imageblock Attributes" />
 
 iOS：从 Metal 2 开始支持图像块。
 
@@ -10,33 +12,29 @@ macOS：从 Metal 2.3 开始支持 imageblock。
 
 你可以使用 [[user(name)]] 属性为片段函数的图像块数据类型的数据成员指定属性名称。如果片段函数中指定的图像块结构是主显式图像块结构的子集，则以下规则将片段函数中使用的图像块结构中声明的数据成员与主显式图像块结构中声明的相应数据成员进行匹配：
 
-- [[user(name)]] 给出的每个属性名称对于图像块中的每个数据成员都必须是唯一的。 - [[user(name)]] 为数据成员指定的属性名称需要与主显式图像块结构中声明的数据成员匹配，并且它们关联的数据类型也需要匹配。 - 如果未指定 [[user(name)]] 属性，则片段函数的图像块数据类型中声明的数据成员名称和类型与主图像块结构需要匹配。此外，数据成员不能位于视图图像块结构内或主图像块结构内的嵌套结构内。
+- [[user(name)]] 给出的每个属性名称对于图像块中的每个数据成员都必须是唯一的。- [[user(name)]] 为数据成员指定的属性名称需要与主显式图像块结构中声明的数据成员匹配，并且它们关联的数据类型也需要匹配。- 如果未指定 [[user(name)]] 属性，则片段函数的图像块数据类型中声明的数据成员名称和类型与主图像块结构需要匹配。此外，数据成员不能位于视图图像块结构内或主图像块结构内的嵌套结构内。
 
 以下示例显示了主图像块结构和视图图像块结构中的数据成员声明中的 [[user(name)]] 属性：
 
-// 显式布局图像块数据主结构。 struct IM { rgba8unorm a [[user(my_a), raster_order_group(0)]]; rgb9e5 b [[用户(my_b), raster_order_group(0)]]; int c [[用户(my_c)，raster_order_group(0)]]; float d [[用户(my_d), raster_order_group(0)]];
-
-||
+// 显式布局图像块数据主结构。struct IM { rgba8unorm a [[user(my_a), raster_order_group(0)]]; rgb9e5 b [[用户(my_b), raster_order_group(0)]]; int c [[用户(my_c)，raster_order_group(0)]]; float d [[用户(my_d), raster_order_group(0)]];
 
 ### };
 
-// 用于输入的显式布局图像块数据视图结构。 struct IVIn { rgb9e5 x [[user(my_b)]]; // 映射到 IM::b float y [[user(my_d)]]; // 映射到 IM::d };
+// 用于输入的显式布局图像块数据视图结构。struct IVIn { rgb9e5 x [[user(my_b)]]; // 映射到 IM::b float y [[user(my_d)]]; // 映射到 IM::d };
 
-// 用于输出的显式布局图像块数据视图结构。 struct IVOut { int z [[user(my_c)]]; // 映射到 IM::c };
+// 用于输出的显式布局图像块数据视图结构。struct IVOut { int z [[user(my_c)]]; // 映射到 IM::c };
 
-// 片段返回结构。 struct FragOut { // IVOut 是主 IM 的视图。 IVOut i [[图像块数据(IM)]]; };
+// 片段返回结构。struct FragOut { // IVOut 是主 IM 的视图。IVOut i [[图像块数据(IM)]]; };
 
-// IVIn 是主 IM 的视图。 [[fragment]] FragOut my_fragment(IVIn i [[imageblock_data(IM)]], ...) { FragOut fragOut; ... = i.x; ... = i.y； fragOut.i.z = ...;返回碎片； }
+// IVIn 是主 IM 的视图。[[fragment]] FragOut my_fragment(IVIn i [[imageblock_data(IM)]], ...) { FragOut fragOut; ... = i.x; ... = i.y； fragOut.i.z = ...;返回碎片； }
 
-以下示例显示了不带 [[user(name)]] 属性的主图像块结构和视图图像块结构中的数据成员声明： struct IM { rgba8unorm a [[raster_order_group(0)]]; rgb9e5 b [[raster_order_group(0)]]; int c [[raster_order_group(0)]]; float d [[raster_order_group(0)]]; };
+以下示例显示了不带 [[user(name)]] 属性的主图像块结构和视图图像块结构中的数据成员声明：struct IM { rgba8unorm a [[raster_order_group(0)]]; rgb9e5 b [[raster_order_group(0)]]; int c [[raster_order_group(0)]]; float d [[raster_order_group(0)]]; };
 
 struct IVIn { rgb9e5 b; // 映射到 IM::b float d; // 映射到 IM::d };
 
 结构 IVOut { int c; // 映射到 IM::c };
 
 struct FragOut { IVOut i [[imageblock_data(IM)]];
-
-||
 
 ### };
 
@@ -57,8 +55,6 @@ struct IVOut { 作者：[[用户(B)]]; // 从 [[user(A_b)]] 映射到 IM::b rgb9
 struct FragOut { IVOut i [[imageblock_data(IM)]]; };
 
 片段 FragOut my_fragment(IVIn i [[imageblock_data(IM)]], ...) { FragOut fragOut; ... = i.x; fragOut.i.y.a = ...; fragOut.i.y.b = ...;
-
-||
 
 fragOut.i.z = ...;返回碎片； }
 
@@ -84,8 +80,6 @@ struct V { int a [[user(x)]]; M::A b [[用户(y)]]; // 非法：b 带有 } 的�
 
 你可以选择为图像块视图结构的数据成员指定 [[raster_order_group(index)]] 属性，但 [[raster_order_group(index)]] 必须与在数据成员上指定的相同 [[raster_order_group(index)]] 匹配主显式图像块结构的。
 
-||
-
 以下示例显示如何为主图像块的数据成员指定 [[raster_order_group(index)]] 属性。由于 [[raster_order_group(index)]] 属性指定 gBufferData 结构的 S 结构成员，因此你不能在 S 结构的任何成员上使用此属性。
 
 struct S { rgb9e5 正常；浮动系数； };
@@ -102,37 +96,33 @@ struct IM { half3 color [[raster_order_group(0)]]; S s [[raster_order_group(1)]]
 
 struct S { rgb9e5 正常 [[raster_order_group(0)]];浮点因子[[raster_order_group(1)]]； };
 
-struct IM { half3 color [[raster_order_group(0)]]; Ss[2]; // 这会导致编译错误。 rgb11b10f 光照 [[raster_order_group(2)]]; };
-
-||
+struct IM { half3 color [[raster_order_group(0)]]; Ss[2]; // 这会导致编译错误。rgb11b10f 光照 [[raster_order_group(2)]]; };
 
 ## 5.6.3 片段函数的图像块布局
 
 在片段函数中，你可以通过两种方式访问 ​​ 图像块：
 
-- 作为颜色附件，片段功能中不知道图像块的存储布局。 *隐式图像块布局*使用现有的颜色附件属性。 （有关隐式图像块布局的更多信息，请参阅第 5.6.3.1 节。） - 作为声明图像块数据的结构，其中片段函数显式指定图像块的存储布局。 （有关 _explicit imageblock_ _layout_ 的更多信息，请参阅第 5.6.3.2 节。）
+- 作为颜色附件，片段功能中不知道图像块的存储布局。*隐式图像块布局*使用现有的颜色附件属性。（有关隐式图像块布局的更多信息，请参阅第 5.6.3.1 节。） - 作为声明图像块数据的结构，其中片段函数显式指定图像块的存储布局。（有关 _explicit imageblock_ _layout_ 的更多信息，请参阅第 5.6.3.2 节。）
 
 ## 5.6.3.1 片段函数的隐式图像块布局
 
-你可以在片段函数中访问图像块数据（图像块中与像素关联的所有数据成员）。 Metal 创建一个与颜色附件行为相匹配的隐式图像块（用于片段函数的输入和输出）。在此模式下，与颜色附件关联的类型（如片段函数中所述）是 ALU 类型（即用于在片段函数中执行计算的类型）。 Metal 运行时定义了实际的像素存储格式。
+你可以在片段函数中访问图像块数据（图像块中与像素关联的所有数据成员）。Metal 创建一个与颜色附件行为相匹配的隐式图像块（用于片段函数的输入和输出）。在此模式下，与颜色附件关联的类型（如片段函数中所述）是 ALU 类型（即用于在片段函数中执行计算的类型）。Metal 运行时定义了实际的像素存储格式。
 
 当以颜色附件的形式访问图像块数据时，不能在图像块切片结构中声明 2.7 节中描述的像素存储类型。
 
 对于 T 类型的图像块数据隐式布局，T 是一个结构，其中每个成员满足以下条件之一：
 
-- 具有颜色附件（请参阅第 5.2.3.4 节表 5. 5 中的 [[color(m)]] 属性）。颜色索引 m 对于 T 的每个成员（和子成员）必须是唯一的。 - 是具有满足列表约束的成员的结构类型。
+- 具有颜色附件（请参阅第 5.2.3.4 节表 5. 5 中的 [[color(m)]] 属性）。颜色索引 m 对于 T 的每个成员（和子成员）必须是唯一的。- 是具有满足列表约束的成员的结构类型。
 
 ## 5.6.3.2 片段函数的显式图像块布局
 
 具有 _explicit_ 布局的图像块数据的布局在着色函数中声明，而不是像颜色附件那样通过运行时声明。你将显式布局的图像块数据声明为结构。每个片段图像块数据的每个数据成员可以是：
 
-- 标量或向量、整数或浮点数据类型， - 第 2.7 节中描述的像素数据类型之一， - 这些类型的数组， - 或用这些类型构建的结构。
+- 标量或向量、整数或浮点数据类型，- 第 2.7 节中描述的像素数据类型之一，- 这些类型的数组，- 或用这些类型构建的结构。
 
 imageblock 结构的数据成员对结构中声明的每个数据成员类型使用适当的对齐规则来确定实际的结构布局和大小。
 
 片段函数可以读取每片段图像块数据中的一个或多个数据成员并且写入每片段图像块数据中的一个或多个数据成员。你可以将片段函数的输入和输出图像块数据声明为结构体。输入和输出图像块结构可以是完全显式图像块结构（称为主显式图像块结构），或者是主显式图像块结构的子集（称为图像块视图结构）。对于后者，请使用
-
-||
 
 [[imageblock_data(type)]] 属性，具有在片段函数上指定的输入和输出图像块数据结构，其中 type 指定完全显式的图像块数据结构。
 
@@ -156,8 +146,6 @@ struct FragOut { float c [[color(0)]];在[[imageblock_data]]中； };
 
 [[fragment]] FragOut my_fragment(I in [[imageblock_data]], float c [[color(0)]]) { FragOut fragOut; ...返回 fragOut； }
 
-||
-
 默认情况下，显式图像块存储与隐式图像块的存储是分开的。要在显式图像块和隐式图像块之间共享存储，请参阅第 5.6.5 节。
 
 ## 5.6.4 内核函数中的图像块布局
@@ -176,15 +164,13 @@ imageblock 类型（在标头 中定义）只能用于在内核函数或由内�
 
 具有以下限制：
 
-- L 是 imageblock_layout_explicit 或 imageblock_layout_implicit。 - T 是一个结构； T 的成员可以是以下任何一种： - 标量 ^ - 向量 ^ 和 ^ 打包向量 ^ - 像素 ^ 数据 ^ 类型 ^ - 一个 ^ 数组 ^ 以及 ^ 元素 ^ 是 ^ 类型 ^ 中的一个 ^在^这个^列表^上-一个^结构^与^成员^是^其中一个^^类型^在^这个^列表^上
+- L 是 imageblock_layout_explicit 或 imageblock_layout_implicit。- T 是一个结构； T 的成员可以是以下任何一种：- 标量 ^ - 向量 ^ 和 ^ 打包向量 ^ - 像素 ^ 数据 ^ 类型 ^ - 一个 ^ 数组 ^ 以及 ^ 元素 ^ 是 ^ 类型 ^ 中的一个 ^在^这个^列表^上-一个^结构^与^成员^是^其中一个^^类型^在^这个^列表^上
 
 对于具有隐式布局（imageblock_layout_implicit）的图像块，结构的每个成员都可以有一个颜色附件（参见第 5.2.3.4 节表 5.5 中的 [[color(m)]] 属性）。对于 T 的每个成员（和子成员），颜色索引 m 需要是唯一的。
 
 如果不指定图像块布局，编译器将根据 T 推导布局。如果 T 与隐式或显式图像块不兼容，则会发生编译器错误。
 
 显式和隐式图像块都可以作为内核函数的参数。这也使得在片段和内核函数之间共享显式和隐式图像块结构变得容易。默认情况下，显式图像块存储与隐式图像块的存储是分开的。要在显式图像块和隐式图像块之间共享存储，请参阅第 5.6.5 节。
-
-||
 
 ## 5.6.5 显式和隐式图像块的别名
 
@@ -213,5 +199,3 @@ struct FragOut { float4 FinalColor [[color(0)]];我我[[imagelock_data，alias_i
 ## 5.6.6 图像块和函数常量
 
 不要将 [[function_constant(name)]] 与图像块结构的数据成员一起用作片段或内核函数的输入或返回的输出。
-
-||

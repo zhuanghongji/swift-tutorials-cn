@@ -1,10 +1,12 @@
-## 6.17 可变光栅化率
+# 可变光栅化率
+
+<OrigninalPDF title="6.17 Variable Rasterization Rate" />
 
 iOS：自 Metal 2.2 起支持可变光栅化率和光栅化率图。
 
 macOS：自 Metal 2.3 以来的可变光栅化率和光栅化率图。
 
-可变光栅化率（VRR）可以通过降低基于屏幕位置的片段着色器调用率来降低高分辨率渲染的着色成本。 VRR 对于避免 AR/VR 应用中的外围信息过采样特别有用。
+可变光栅化率（VRR）可以通过降低基于屏幕位置的片段着色器调用率来降低高分辨率渲染的着色成本。VRR 对于避免 AR/VR 应用中的外围信息过采样特别有用。
 
 要在着色语言函数中支持 VRR，请使用 rasterization_rate_map_decoder 结构来描述每层光栅化率数据的映射。每层都包含屏幕空间中的最小质量值，并且可以具有不同的物理片段空间维度。对于 AR/VR，这些质量值基于镜头变换和/或眼睛跟踪信息。
 
@@ -19,7 +21,5 @@ VRR 贴图描述了屏幕空间和物理片段空间之间的映射，并能够�
 以下示例显示应用程序必须如何将着色器绑定点处的 rasterization_rate_map_data 传递给 rasterization_rate_map_decoder 结构的构造函数：
 
 [[fragment]] float4 fragment*shader(/* 其他参数 \_/ 常量 rasterization_rate_map_data &data [[buffer(0)]]) { float2 screen_coords = ...; rasterization_rate_map_decoder 映射（数据）； float2physical_coords = map.map_screen_to_physical_coords(screen_coords); ... }
-
-||
 
 或者，应用程序可以计算存储已编译数据的偏移量，并使用显式转换或指针算术来形成有效 rasterization_rate_map_data 的数据。由于 rasterization_rate_map_data 是一个不完整类型，因此对其进行的某些操作本质上是被禁止的（例如指针类型或 sizeof 上的指针算术）。

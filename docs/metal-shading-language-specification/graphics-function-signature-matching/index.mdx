@@ -1,4 +1,6 @@
-## 5.7 图形功能-签名匹配
+# 图形功能 - 签名匹配
+
+<OrigninalPDF title="5.7 Graphics Function - Signature Matching" />
 
 图形函数签名是图形函数的输入或输出的参数列表。
 
@@ -10,7 +12,7 @@
 
 你可以使用第 5.2.3 节中定义的属性之一来声明内置变量。使用这些属性的变量示例有：
 
-- 顶点函数输出（带有 [[position]]、[[point_size]] 或 [[clip_distance]] 属性）， - 光栅器输出（带有 [[point_coord]]、[[front_face]]、[[[[sample_id]] 或 [[sample_mask]] 属性）， - 或引用帧缓冲区颜色值的片段函数输入（带有 [[color]]）。
+- 顶点函数输出（带有 [[position]]、[[point_size]] 或 [[clip_distance]] 属性），- 光栅器输出（带有 [[point_coord]]、[[front_face]]、[[[[sample_id]] 或 [[sample_mask]] 属性），- 或引用帧缓冲区颜色值的片段函数输入（带有 [[color]]）。
 
 始终返回指定 [[position]] 属性的内置变量。对于具有 [[point_size]] 或 [[clip_distance]] 属性的内置变量，该属性还必须指定相应的顶点函数输出。如果在片段函数中使用和读取它们，则着色器具有未定义的行为。
 
@@ -20,13 +22,11 @@
 
 如果满足以下条件，则顶点函数和片段函数具有匹配的签名：
 
-- 片段函数中声明的 [[stage_in]] 属性没有输入参数。 - 对于用 [[stage_in]] 声明的片段函数参数，与该参数关联的类型中的每个元素可以是以下之一：由光栅化器生成的内置变量、作为输入传递给片段的帧缓冲区颜色值函数，或用户生成的顶点函数输出。对于光栅化器或帧缓冲区颜色值生成的内置变量，不需要将匹配类型与顶点返回类型的元素相关联。对于用户生成的输出元素，适用以下规则：
+- 片段函数中声明的 [[stage_in]] 属性没有输入参数。- 对于用 [[stage_in]] 声明的片段函数参数，与该参数关联的类型中的每个元素可以是以下之一：由光栅化器生成的内置变量、作为输入传递给片段的帧缓冲区颜色值函数，或用户生成的顶点函数输出。对于光栅化器或帧缓冲区颜色值生成的内置变量，不需要将匹配类型与顶点返回类型的元素相关联。对于用户生成的输出元素，适用以下规则：
 
 如果使用 [[user(name)]] 为元素指定属性名称，则属性名称必须与顶点函数返回类型中的元素匹配。如果不指定 [[user(name)]] 属性名称，则参数名称和类型必须匹配。在任何一种情况下，它们相应的数据类型也必须匹配，或者片段函数参数类型需要为 interpolant，其中 T 是顶点返回类型中元素的类型。
 
 下面是一起使用兼容签名（my_vertex 和 my_fragment，或 my_vertex 和 my_fragment2）来渲染图元的示例：
-
-||
 
 struct VertexOutput { float4 位置 [[位置]]; float3 正常； float2 纹理坐标； };
 
@@ -44,8 +44,6 @@ struct FragInput { float3 frag_normal [[用户（正常）]]; float4 位置 [[�
 
 顶点 VertexOutput my_vertex(...) {
 
-||
-
 顶点输出 v； ...返回 v； }
 
 片段 float4 my_fragment(FragInput f [[stage_in]], ...) { float4 clr; ...返回 clr； }
@@ -60,13 +58,11 @@ float4 位置 [[位置]]; float3 正常； float2 纹理坐标； };
 
 片段 float4 my_fragment(float4 p [[position]], ...) { float4 clr; ...返回 clr； }
 
-以下是不兼容签名的示例。 VertexOutput (float3) 中法线的数据类型与 FragInput (half3) 中法线的类型不匹配：
+以下是不兼容签名的示例。VertexOutput (float3) 中法线的数据类型与 FragInput (half3) 中法线的类型不匹配：
 
 结构体顶点输出{
 
 float4 位置 [[位置]]; float3 正常； float2 纹理坐标； };
-
-||
 
 struct FragInput { float4 位置 [[位置]];一半正常； };
 
@@ -74,7 +70,7 @@ struct FragInput { float4 位置 [[位置]];一半正常； };
 
 片段 float4 my_fragment(FragInput f [[stage_in]], ...) { float4 clr; ...返回 clr； }
 
-下面是不兼容签名的另一个示例。 VertexOutput (normal) 中法线的属性索引与 FragInput (foo) 中法线的索引不匹配：
+下面是不兼容签名的另一个示例。VertexOutput (normal) 中法线的属性索引与 FragInput (foo) 中法线的索引不匹配：
 
 struct VertexOutput { float4 位置 [[位置]]; float3 正常 [[用户（正常）]]; float2 texcoord [[用户(纹理坐标)]]; };
 
@@ -83,8 +79,6 @@ struct FragInput { float3 正常 [[user(foo)]]; float4 位置 [[位置]]; };
 顶点 VertexOutput my_vertex_shader(...) { VertexOutput v; ...返回 v； }
 
 片段 float4 my_fragment_shader(FragInput f [[stage_in]], ...) { float4 clr; ...返回 clr；
-
-||
 
 ### }
 
@@ -96,10 +90,10 @@ struct FragInput { float3 正常 [[user(foo)]]; float4 位置 [[位置]]; };
 
 如果满足以下条件，则网格函数和片段函数具有用户生成的输入与用户生成的网格输出的匹配签名：
 
-- 对于给定的用户生成的具有平坦插值的片段输入： o 有匹配的每个基元网格输出，并且输出无需插值即可传播到片段输入。
+- 对于给定的用户生成的具有平坦插值的片段输入：o 有匹配的每个基元网格输出，并且输出无需插值即可传播到片段输入。
 
-``` o 有一个匹配的每顶点网格输出，并且激发顶点的输出无需插值即可传播到片段输入。 ````
+``` o 有一个匹配的每顶点网格输出，并且激发顶点的输出无需插值即可传播到片段输入。````
 
 - 对于给定的用户生成的具有非平坦插值的片段输入：
 
-``` o 有一个匹配的每个基元网格输出，并且输出无需插值即可传播到片段输入。 o 有一个匹配的每顶点网格输出，并且该输出以与非平坦顶点输出插值相同的方法跨图元进行插值。 ````
+``` o 有一个匹配的每个基元网格输出，并且输出无需插值即可传播到片段输入。o 有一个匹配的每顶点网格输出，并且该输出以与非平坦顶点输出插值相同的方法跨图元进行插值。````

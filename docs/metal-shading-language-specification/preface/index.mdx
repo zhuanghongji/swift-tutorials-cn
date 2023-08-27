@@ -1,30 +1,50 @@
 # 前言
 
-## Metal 基础知识
+## 原文说明
 
-## 数据类型
+原文 [Metal-Shading-Language-Specification.pdf](https://developer.apple.com/metal/Metal-Shading-Language-Specification.pdf) 共分为七章。
+
+:::note
+
+本教程基于 Metal-Shading-Language-Specification Vsersion 3.1
+
+:::
+
+### 1. Metal 基础知识
+
+### 2. 数据类型
 
 本章详细介绍 Metal 数据类型，包括表示向量和矩阵的类型。本章还讨论了原子数据类型、缓冲区、纹理、采样器、数组、用户定义的结构、类型对齐和类型转换。
 
-## 运算符
+### 3. 运算符
 
 所有操作系统：自 Metal 1 起支持标量、向量和矩阵运算符。
 
-对于间接命令缓冲区，赋值运算符 (=) 不会复制命令的内容。有关在间接命令缓冲区中复制命令的更多信息，请参阅第 6.16.3 节。
+对于间接命令缓冲区，赋值运算符 `=` 不会复制命令的内容。有关在间接命令缓冲区中复制命令的更多信息，请参阅第 6.16.3 节。
 
-## 地址空间
+### 4. 地址空间
 
 Metal 内存模型描述了 MSL 程序中内存对象的行为和结构。地址空间属性指定分配缓冲存储器对象的存储器区域。这些属性描述了不相交的地址空间，也可以指定访问限制：
 
-- 设备（参见 4.1 节） - 常量（参见 4.2 节） - 线程（参见 4.3 节） - 线程组（参见 4.4 节） - threadgroup_imageblock（参见 4.5 节） - ray_data（参见 4.6 节） - object_data（参见 4.7 节）
+- 设备
+- 常量
+- 线程
+- 线程组
+- threadgroup_imageblock
+- ray_data
+- object_data
 
-所有操作系统：自 Metal 1 起支持设备、线程组、常量和线程属性，自 Metal 2.3 起支持 ray_data 属性。
+所有操作系统：
 
-iOS：从 Metal 2 开始支持 threadgroup_imageblock 属性。
+- 自 Metal 1 起支持设备、线程组、常量和线程属性，自 Metal 2.3 起支持 ray_data 属性。
+- iOS：从 Metal 2 开始支持 threadgroup_imageblock 属性。
+- macOS：从 Metal 2.3 开始支持 threadgroup_imageblock 属性。
 
-macOS：从 Metal 2.3 开始支持 threadgroup_imageblock 属性。
+图形或内核函数的所有参数（作为类型的指针或引用）都需要使用地址空间属性进行声明。对于图形函数，需要在设备或常量地址空间中声明作为类型的指针或引用的参数。
 
-图形或内核函数的所有参数（作为类型的指针或引用）都需要使用地址空间属性进行声明。对于图形函数，需要在设备或常量地址空间中声明作为类型的指针或引用的参数。对于内核函数，需要在设备、线程组、threadgroup_imageblock 或常量地址空间中声明作为类型指针或引用的参数。下面的例子介绍了几个地址空间属性的使用。 （仅当 foo 被内核函数调用时，指针 l_data 才支持 threadgroup 属性，详见 4.4 节。）
+对于内核函数，需要在设备、线程组、threadgroup_imageblock 或常量地址空间中声明作为类型指针或引用的参数。
+
+下面的例子介绍了几个地址空间属性的使用。（仅当 foo 被内核函数调用时，指针 l_data 才支持 threadgroup 属性，详见 4.4 节。）
 
 ```cpp
 void foo(device int *g_data, 线程组 int *l_data, 常量 float \*c_data) {...}
@@ -34,14 +54,14 @@ void foo(device int *g_data, 线程组 int *l_data, 常量 float \*c_data) {...}
 
 任何作为指针或引用的变量都需要使用本节中讨论的地址空间属性之一进行声明。如果指针或引用类型声明中缺少地址空间属性，则会发生编译错误。
 
-## 函数和变量声明
+### 5. 函数和变量声明
 
 本章介绍如何声明函数、参数和变量。它还详细介绍了你经常如何使用属性来指定对函数、参数和变量的限制。
 
-## 金属标准库
+### 6. Metal 标准库
 
-本章介绍金属标准库 (MSLib) 中的函数。
+本章介绍 Metal 标准库 (MSLib) 中的函数。
 
-## 数值合规性
+### 7. 数值合规性
 
-本章介绍 Metal 如何在数学运算的准确性方面表示浮点数。 Metal 符合 IEEE 754 标准的子集。
+本章介绍 Metal 如何在数学运算的准确性方面表示浮点数。Metal 符合 IEEE 754 标准的子集。
