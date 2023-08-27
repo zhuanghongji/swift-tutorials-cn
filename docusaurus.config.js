@@ -127,6 +127,18 @@ const config = {
           },
           {
             type: "dropdown",
+            label: "Frameworks",
+            position: "right",
+            items: [
+              {
+                type: "docSidebar",
+                label: "Core Graphics",
+                sidebarId: "coregraphicsSidebar",
+              },
+            ],
+          },
+          {
+            type: "dropdown",
             label: "Books",
             position: "right",
             items: [

@@ -212,6 +212,24 @@ const swiftdataSidebar = [
 ];
 
 /** @type {import('@docusaurus/plugin-content-docs').SidebarsConfig['']} */
+const coregraphicsSidebar = [
+  {
+    type: "category",
+    label: "Core Graphics",
+    collapsible: false,
+    items: [
+      "core-graphics/overview/index",
+      "core-graphics/geometric-data-types/index",
+      "core-graphics/2d-drawing/index",
+      "core-graphics/colors-and-fonts/index",
+      "core-graphics/working-with-pdf-documents/index",
+      "core-graphics/utility-and-support-classes/index",
+      "core-graphics/services/index",
+    ],
+  },
+];
+
+/** @type {import('@docusaurus/plugin-content-docs').SidebarsConfig['']} */
 const metalprogrammingguideSidebar = [
   {
     type: "category",
@@ -417,6 +435,7 @@ const sidebars = {
   swiftuiSidebar,
   swiftchartsSidebar,
   swiftdataSidebar,
+  coregraphicsSidebar,
   metalprogrammingguideSidebar,
   metalshadinglanguagespecificationSidebar,
 };
