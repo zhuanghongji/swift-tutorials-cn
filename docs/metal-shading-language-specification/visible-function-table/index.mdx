@@ -28,4 +28,4 @@ size() 返回表中函数指针条目的数量。 uint size() 常量
 
 使用 TFuncSig = void(float, int); kernel void F(uint tid [[thread_position_in_grid]], device float\* buf [[buffer(0)]],visible_function_table table [[buffer(1)]]) { uint tsize = table.size();表[tid % tsize](buf[tid], tid); }
 
-``2023 - 06 - 02 |版权所有 © 2023 苹果公司 |版权所有。 ````
+||

@@ -4,11 +4,17 @@
 
 图形和内核函数的参数可以是以下任何一个：
 
-- 设备缓冲区——指向设备地址空间中任何数据类型的指针或引用（参见第 2.8 节）。 - 常量缓冲区——指向常量地址空间中任何数据类型的指针或引用（参见第 2.8 节）。 - 纹理对象（参见第 2.9 节）或纹理数组。 -texture_buffer 对象（参见第 2.9.1 节）或纹理缓冲区数组。 - 采样器对象（参见第 2.10 节）或采样器数组。
-
-``2023 - 06 - 02 |版权所有 © 2023 苹果公司 |版权所有。 ````
-
-- 线程组中的线程之间共享的缓冲区 - 指向线程组地址空间中的类型的指针，只能用作内核函数的参数。 - 图像块（参见第 2.11 节）。 - 参数缓冲区（参见第 2.13 节）。 - 内核函数的可见函数表（参见第 2.15 节）。从 Metal 2.4 开始，可见函数表也可以用于图形函数。 - 核函数的交集函数表（参见第 2.17.3 节）。 - 用于交集函数的加速结构（参见第 6.18.1 节）。 - 包含缓冲区、纹理或纹理缓冲区元素的结构。
+- 设备缓冲区——指向设备地址空间中任何数据类型的指针或引用（参见第 2.8 节）。
+- 常量缓冲区——指向常量地址空间中任何数据类型的指针或引用（参见第 2.8 节）。
+- 纹理对象（参见第 2.9 节）或纹理数组。
+- texture_buffer 对象（参见第 2.9.1 节）或纹理缓冲区数组。
+- 采样器对象（参见第 2.10 节）或采样器数组。
+- 线程组中的线程之间共享的缓冲区
+- 指向线程组地址空间中的类型的指针，只能用作内核函数的参数。
+- 图像块（参见第 2.11 节）。 - 参数缓冲区（参见第 2.13 节）。
+- 内核函数的可见函数表（参见第 2.15 节）。从 Metal 2.4 开始，可见函数表也可以用于图形函数。
+- 核函数的交集函数表（参见第 2.17.3 节）。
+- 用于交集函数的加速结构（参见第 6.18.1 节）。 - 包含缓冲区、纹理或纹理缓冲区元素的结构。
 
 指定为图形或内核函数的参数值的缓冲区（设备）不能使用别名；也就是说，作为参数值传递的缓冲区不能与传递给同一图形或内核函数的单独参数的另一个缓冲区重叠。
 
@@ -16,39 +22,68 @@
 
 这些函数的参数通常用属性来指定，以提供对其使用的进一步指导。属性用于指定：
 
-- 参数的资源位置（参见第 5.2.1 节）。 - 支持固定功能和可编程流水线级之间数据通信的内置变量（参见第 5.2.3 节）。 - 哪些数据沿着管道从顶点函数发送到片段函数（参见第 5.2.4 节）。
+- 参数的资源位置（参见第 5.2.1 节）。
+- 支持固定功能和可编程流水线级之间数据通信的内置变量（参见第 5.2.3 节）。
+- 哪些数据沿着管道从顶点函数发送到片段函数（参见第 5.2.4 节）。
 
 ## 5.2.1 定位缓冲区、纹理和采样器参数
 
 对于每个参数，可以选择指定一个属性来标识用于该参数类型的缓冲区、纹理或采样器的位置。 Metal 框架 API 使用此属性来标识这些参数类型的位置。
 
-- 设备和常量缓冲区：[[buffer(index)]] - 纹理（包括纹理缓冲区）：[[texture(index)]] - 采样器：[[sampler(index)]] - 线程组缓冲区：[[threadgroup(index) )]]
+- 设备和常量缓冲区：`[[buffer(index)]]`
+- 纹理（包括纹理缓冲区）：`[[texture(index)]]`
+- 采样器：`[[sampler(index)]]`
+- 线程组缓冲区：`[[threadgroup(index) )]]`
 
 索引值是一个无符号整数，用于标识分配的缓冲区、纹理或采样器参数的位置。 （纹理缓冲区是一种特定类型的纹理。）正确的语法是属性遵循参数或变量名称。
 
 下面的示例是一个简单的内核函数 add_vectors，它将设备地址空间中的两个缓冲区 inA 和 inB 的数组相加，并将结果返回到缓冲区 out 中。属性 (buffer(index)) 指定函数参数的缓冲区位置。
 
-[[kernel]] void add_vectors(const device float4 *inA [[buffer(0)]], const device float4 *inB [[buffer(1)]], device float4 \*out [[buffer(2)]], uint id [[网格中的线程位置]]）{
-
-``2023 - 06 - 02 |版权所有 © 2023 苹果公司 |版权所有。 ````
-
-输出[id] = inA[id] + inB[id]; }
+```cpp
+[[kernel]] void
+add_vectors(const device float4 *inA [[buffer(0)]],
+  const device float4 *inB [[buffer(1)]],
+  device float4 *out [[buffer(2)]],
+  uint id [[thread_position_in_grid]])
+{
+  out[id] = inA[id] + inB[id];
+}
+```
 
 下面的示例显示了用于几种不同类型的函数参数（缓冲区、纹理和采样器）的属性：
 
-[[内核]]无效
-
-my_kernel(device float4 \*p [[buffer(0)]]，texture2d img [[texture(0)]]，采样器 sam [[sampler(1)]]) {...}
+```cpp
+[[kernel]] void
+my_kernel(device float4 *p [[buffer(0)]],
+texture2d<float> img [[texture(0)]],
+sampler sam [[sampler(1)]])
+{…}
+```
 
 如果未指定位置索引，Metal 编译器将使用第一个可用的位置索引来分配它们。在以下示例中，为 src 分配纹理索引 0、dst 纹理索引 1、s 采样器索引 0 和 u 缓冲区索引 0：
 
-内核无效 my_kernel(texture2d src，texture2d dst，采样器 s，设备 myUserInfo \*u) {...}
+```cpp
+kernel void
+my_kernel(texture2d<half> src,
+      texture2d<half, access::write> dst,
+      sampler s,
+      device myUserInfo *u)
+{…}
+```
 
 在下面的示例中，一些内核参数已显式分配位置索引，而另一些则没有。 src 显式分配纹理索引 0，f 显式分配缓冲区索引
 
 10. 如果使用函数常量分配位置索引（第 5.8 节），则编译器在分配索引时不会考虑这些条目。其他参数分配第一个可用位置索引：dst 纹理索引 1、s 采样器索引 0 和 u 缓冲区索引 0。
 
-内核无效 my_kernel(texture2d src [[texture(0)]]，texture2d dst，采样器 s，设备 myUserInfo *u，设备 float *f [[buffer(10)]]) {...}
+```cpp
+kernel void
+my_kernel(texture2d<half> src [[texture(0)]],
+     texture2d<half, access::write> dst,
+sampler s,
+device myUserInfo *u,
+device float *f [[buffer(10)]])
+{…}
+```
 
 每个属性（缓冲区、线程组、纹理和采样器）代表一组资源。参数上指定的索引值在每个资源组中应是唯一的。具有相同索引值的多个缓冲区、纹理或采样器参数会生成编译错误，除非使用函数常量属性声明它们（请参阅第 5.8.1 节）。
 
@@ -56,23 +91,43 @@ my_kernel(device float4 \*p [[buffer(0)]]，texture2d img [[texture(0)]]，采�
 
 以下示例是一个顶点函数 render_vertex，它输出到数组 xform_output 中的设备内存，该数组是使用 device 属性指定的函数参数
 
-``2023 - 06 - 02 |版权所有 © 2023 苹果公司 |版权所有。 ````
+```cpp
+struct VertexOutput {
+float4 position [[position]];
+float4 color;
+float2 texcoord;
+};
 
-（在 4.1 节中介绍）。所有 render_vertex 函数参数均使用 buffer(0)、buffer(1)、buffer(2) 和 buffer(3) 属性指定（在 5.2.1 节中介绍）。有关此示例中显示的位置属性的更多信息，请参阅第 5.2.3.3 节。
+struct VertexInput {
+float4 position;
+float3 normal;
+float2 texcoord;
+};
 
-struct VertexOutput { float4 位置 [[位置]];浮动 4 颜色； float2 纹理坐标； };
+constexpr constant uint MAX_LIGHTS = 4;
 
-struct VertexInput { float4 位置; float3 正常； float2 纹理坐标； };
+struct LightDesc {
+uint  num_lights;
+float4 light_position[MAX_LIGHTS];
+float4 light_color[MAX_LIGHTS];
+float4 light_attenuation_factors[MAX_LIGHTS];
+};
 
-constexpr 常量 uint MAX_LIGHTS = 4；
+vertex void
+render_vertex(const device VertexInput* v_in [[buffer(0)]],
+    constant float4x4& mvp_matrix [[buffer(1)]],
+    constant LightDesc& light_desc [[buffer(2)]],
+    device VertexOutput* xform_output [[buffer(3)]],
+    uint v_id [[vertex_id]] )
+{
+VertexOutput v_out;
+v_out.position = v_in[v_id].position * mvp_matrix; v_out.color = do_lighting(v_in[v_id].position,
+v_in[v_id].normal, light_desc);
 
-struct LightDesc { uint num_lights; float4 light_position[MAX_LIGHTS]; float4 light_color[MAX_LIGHTS]; float4 light_attenuation_factors[MAX_LIGHTS]; };
-
-vertex void render_vertex(const device VertexInput* v_in [[buffer(0)]], 常量 float4x4& mvp_matrix [[buffer(1)]], 常量 LightDesc& light_desc [[buffer(2)]], device VertexOutput* xform_output [[buffer( 3)]], uint v_id [[vertex_id]] ) { VertexOutput v_out; v_out.position = v_in[v_id].position \* mvp_matrix; v_out.color = do_lighting(v_in[v_id].position, v_in[v_id].normal, light_desc);
-
-``` v_out.texcoord = v_in[v_id].texcoord; ````
-
-// 将位置输出到缓冲区。 xform_output[v_id] = v_out; }
+v_out.texcoord = v_in[v_id].texcoord;
+// Output the position to a buffer. xform_output[v_id] = v_out;
+}
+```
 
 ## 5.2.1.2 光栅顺序组
 
@@ -80,7 +135,7 @@ vertex void render_vertex(const device VertexInput* v_in [[buffer(0)]], 常量 f
 
 片段函数中的缓冲区（在设备内存中）和纹理的加载和存储是无序的。用于缓冲区或纹理的 [[raster_order_group(index)]] 属性
 
-``2023 - 06 - 02 |版权所有 © 2023 苹果公司 |版权所有。 ````
+||
 
 如果每个样本着色处于活动状态，则保证映射到相同 (x,y) 像素坐标和样本的不同基元的任何重叠片段的访问顺序。
 
@@ -92,7 +147,17 @@ vertex void render_vertex(const device VertexInput* v_in [[buffer(0)]], 常量 f
 
 例子：
 
-片段 void my_fragment(texture2d texA [[raster_order_group(0),texture(0)]], ...) { ushort2 coord; float4 clr = texA.read(坐标); // 对 clr 进行操作 clr = ...; texA.write(clr, 坐标); }
+```cpp
+fragment void
+my_fragment(texture2d<float, access::read_write> texA
+                             [[raster_order_group(0), texture(0)]], …)
+{
+ushort2 coord;
+float4 clr = texA.read(coord); // do operations on clr
+clr = …;
+texA.write(clr, coord);
+}
+```
 
 对于参数缓冲区，你可以在结构中的缓冲区或纹理成员上使用 [[raster_order_group(index)]] 属性。
 
@@ -102,41 +167,88 @@ vertex void render_vertex(const device VertexInput* v_in [[buffer(0)]], 常量 f
 
 索引值是一个无符号整数，用于标识分配的顶点输入位置。正确的语法是属性遵循参数或变量名称。 Metal API 使用
 
-``2023 - 06 - 02 |版权所有 © 2023 苹果公司 |版权所有。 ````
+||
 
 该属性用于标识顶点缓冲区的位置并描述顶点数据，例如从中获取每个顶点数据的缓冲区、其数据格式及其步幅。
 
 以下示例演示如何将顶点属性分配给使用 stage_in 属性传递给顶点函数的顶点输入结构的元素：
 
-struct VertexInput { float4 位置 [[attribute(0)]]; float3 正常 [[属性(1)]]; half4 颜色 [[属性(2)]]; half2 texcoord [[属性(3)]]; };
+```cpp
+struct VertexInput {
+float4 position [[attribute(0)]];
+float3 normal   [[attribute(1)]];
+half4 color     [[attribute(2)]];
+half2 texcoord  [[attribute(3)]];
+};
 
-constexpr 常量 uint MAX_LIGHTS = 4；
+constexpr constant uint MAX_LIGHTS = 4;
 
-struct LightDesc { uint num_lights; float4 light_position[MAX_LIGHTS]; float4 light_color[MAX_LIGHTS]; float4 light_attenuation_factors[MAX_LIGHTS]; };
+struct LightDesc {
+uint  num_lights;
+float4 light_position[MAX_LIGHTS];
+float4 light_color[MAX_LIGHTS];
+float4 light_attenuation_factors[MAX_LIGHTS];
+};
 
-constexpr 采样器 s = 采样器(坐标::归一化, 地址::clamp_to_zero, 过滤器::线性);
+constexpr sampler s = sampler(coord::normalized,
+address::clamp_to_zero,
+                              filter::linear);
 
-顶点 VertexOutput render_vertex(VertexInput v_in [[stage_in]], 常量 float4x4& mvp_matrix [[buffer(1)]], 常量 LightDesc& 灯光 [[buffer(2)]], uint v_id [[vertex_id]]) { VertexOutput v_out; } ...返回 v_out； }
+vertex VertexOutput
+render_vertex(VertexInput v_in [[stage_in]],
+    constant float4x4& mvp_matrix [[buffer(1)]],
+    constant LightDesc& lights [[buffer(2)]],
+    uint v_id [[vertex_id]])
+{
+VertexOutput v_out; …
+return v_out;
+}
+```
 
 下面的示例显示了如何使用缓冲区和 stage_in 属性来获取顶点函数中的每个顶点输入。
 
-struct VertexInput { float4 位置 [[attribute(0)]]; float3 正常 [[属性(1)]]; };
+```cpp
+struct VertexInput {
+float4 position [[attribute(0)]];
+float3 normal   [[attribute(1)]];
+};
 
-struct VertexInput2 { half4 颜色; half2 纹理坐标[4]； };
+struct VertexInput2 {
+half4 color;
+half2 texcoord[4];
+};
 
-``2023 - 06 - 02 |版权所有 © 2023 苹果公司 |版权所有。 ````
+2023-06-02 | Copyright © 2023 Apple Inc. | All Rights Reserved.
+Page 98 of 287
+constexpr constant uint MAX_LIGHTS = 4;
 
-constexpr 常量 uint MAX_LIGHTS = 4；
+struct LightDesc {
+uint  num_lights;
+float4 light_position[MAX_LIGHTS];
+float4 light_color[MAX_LIGHTS];
+float4 light_attenuation_factors[MAX_LIGHTS];
+};
 
-struct LightDesc { uint num_lights; float4 light_position[MAX_LIGHTS]; float4 light_color[MAX_LIGHTS]; float4 light_attenuation_factors[MAX_LIGHTS]; };
+constexpr sampler s = sampler(coord::normalized,
+address::clamp_to_zero,
+                              filter::linear);
 
-constexpr 采样器 s = 采样器(坐标::归一化, 地址::clamp_to_zero, 过滤器::线性);
-
-顶点 VertexOutput render_vertex(VertexInput v_in [[stage_in]], VertexInput2 v_in2 [[buffer(0)]], 常量 float4x4& mvp_matrix [[buffer(1)]], 常量 LightDesc& 灯光 [[buffer(2)]], uint v_id [ [vertex_id]]) { VertexOutput vOut; ...返回 vOut； }
+vertex VertexOutput
+render_vertex(VertexInput v_in [[stage_in]],
+    VertexInput2 v_in2 [[buffer(0)]],
+    constant float4x4& mvp_matrix [[buffer(1)]],     constant LightDesc& lights [[buffer(2)]],
+    uint v_id [[vertex_id]])
+{
+VertexOutput vOut; …
+return vOut;
+}
+```
 
 曲面细分后顶点函数可以读取每个面片和面片控制点数据。曲面细分后顶点函数将面片控制点数据指定为以下模板化类型：
 
+```cpp
 patch_control_point<T>
+```
 
 其中 T 是用户定义的结构。 T 的每个元素必须使用 [[attribute(index)]] 指定属性位置。
 
@@ -144,27 +256,40 @@ patch_control_point<T>
 
 patch_control_point 类型支持以下成员函数：
 
-- constexpr size_t size() const；
+- `constexpr size_t size() const; `
 
 它返回补丁中控制点的数量。
 
-- constexpr const_reference 运算符[] (size_t pos) const;
+- `constexpr const_reference operator[] (size_t pos) const;`
 
 它返回 pos 标识的特定斑块控制点的数据。
 
 例子：
 
-struct ControlPoint { int3 patchParam [[attribute(0)]]; float3 P [[属性(1)]]; float3 P1 [[属性(2)]]; float3 P2 [[属性(3)]]; float2 vSegments [[属性(4)]];
+```cpp
+struct ControlPoint {
+int3 patchParam  [[attribute(0)]];
+float3 P         [[attribute(1)]];
+float3 P1        [[attribute(2)]];
+float3 P2        [[attribute(3)]];
+float2 vSegments [[attribute(4)]];
+};
 
-``2023 - 06 - 02 |版权所有 © 2023 苹果公司 |版权所有。 ````
+struct PerPatchData {
+float4 patchConstant          [[attribute(5)]];
+float4 someOtherPatchConstant [[attribute(6)]];
+};
 
-### };
+struct PatchData {
+patch_control_point<ControlPoint> cp; // Control-point data
+PerPatchData patchData;    // Per-patch data
+};
 
-struct PerPatchData { float4 patchConstant [[attribute(5)]]; float4 someOtherPatchConstant [[attribute(6)]]; };
-
-struct PatchData { patch_control_point<控制点> cp; // 控制点数据 PerPatchData patchData; // 每个补丁数据 };
-
-[[patch(quad)]] 顶点 VertexOutput post_tess_vertex_func(PatchData 输入 [[stage_in ]}, ...) {...}
+[[patch(quad)]]
+vertex VertexOutput
+post_tess_vertex_func(PatchData input [[stage_in ]], …)
+{…}
+```
 
 ## 5.2.3 内置变量的属性
 
@@ -190,7 +315,7 @@ struct PatchData { patch_control_point<控制点> cp; // 控制点数据 PerPatc
 
 ``` base_instance ushort 或 uint 在读取每个实例数据之前添加到每个实例标识符的基本实例值。 ````
 
-``2023 - 06 - 02 |版权所有 © 2023 苹果公司 |版权所有。 ````
+||
 
 ` 属性对应的数据类型`
 
@@ -224,7 +349,7 @@ struct PatchData { patch_control_point<控制点> cp; // 控制点数据 PerPatc
 
 ``` instance_id ushort 或 uint 每个实例的标识符，其中包括基本实例值（如果指定）。 ````
 
-``2023 - 06 - 02 |版权所有 © 2023 苹果公司 |版权所有。 ````
+||
 
 ` 属性对应的数据类型`
 
@@ -262,7 +387,7 @@ struct PatchData { patch_control_point<控制点> cp; // 控制点数据 PerPatc
 
 `point_size float 点基元的大小`
 
-``2023 - 06 - 02 |版权所有 © 2023 苹果公司 |版权所有。 ````
+||
 
 ` 属性对应的数据类型`
 
@@ -298,7 +423,7 @@ struct PatchData { patch_control_point<控制点> cp; // 控制点数据 PerPatc
 
 [[invariant]] 表示多个函数传递中使用的浮点数学必须生成与每个传递完全匹配的顶点位置。 [[invariant]] 只能用于顶点函数中的位置（具有 [[position]] 属性的字段），以指示输出的计算结果是不变的。在 iOS 14.0 和 macOS 11.0 之前的编译器中，计算可能（尽管不能保证）是不变的。现在，当传递 - fpreserve-invariance 选项或从 Metal API 的 MTLCompilerOptions 设置 preserveInvariance 进行运行时编译时，此计算保证不变。请注意，如果未传递选项，则 [[invariant]] 将被忽略。这种位置不变性对于阴影体积或 z 预通道等技术至关重要。
 
-``2023 - 06 - 02 |版权所有 © 2023 苹果公司 |版权所有。 ````
+||
 
 如果顶点函数的返回类型不是 void，则它必须包含顶点位置。如果顶点返回类型是 float4，那么它总是引用顶点位置，并且不能指定[[position]]属性。如果顶点返回类型是结构体，则它必须包含使用 [[position]] 属性声明的元素。
 
@@ -326,7 +451,7 @@ process_vertex(...) { VertexOutput v_out; // 计算每个顶点的输出
 
 表 5. 5 列出了可以为片段函数的参数指定的内置属性（及其相应的数据类型）。
 
-``2023 - 06 - 02 |版权所有 © 2023 苹果公司 |版权所有。 ````
+||
 
 如果顶点函数的返回类型不是 void，则它必须包含顶点位置。如果顶点返回类型是 float4，则它始终指的是顶点位置（并且不需要指定 [[position]] 属性）。如果顶点返回类型是结构体，则它必须包含使用 [[position]] 属性声明的元素。
 
@@ -366,7 +491,7 @@ process_vertex(...) { VertexOutput v_out; // 计算每个顶点的输出
 
 ``` uint 与重心坐标一起使用的每个基元标识符。 ````
 
-``2023 - 06 - 02 |版权所有 © 2023 苹果公司 |版权所有。 ````
+||
 
 ` 属性对应的数据类型`
 
@@ -404,7 +529,7 @@ process_vertex(...) { VertexOutput v_out; // 计算每个顶点的输出
 
 使用 [[position]] 属性声明为片段函数输入的变量只能使用 center_no_perspective 采样和插值属性声明。 （参见第 5.4 节。）
 
-``2023 - 06 - 02 |版权所有 © 2023 苹果公司 |版权所有。 ````
+||
 
 对于 [[color(m)]]，m 用于在片段函数中访问（读取或写入）多个颜色附件时指定颜色附件索引。
 
@@ -430,7 +555,7 @@ struct MyVertexIn { float4 位置 [[attribute(0)]]; float3 正常 [[属性(1)]];
 
 struct MyVertexOut { float4 位置 [[位置]]; float3 正常； float3 切线； float3 双切线； float2 texcoord [[共享]]; // 显式共享。浮点数据；
 
-``2023 - 06 - 02 |版权所有 © 2023 苹果公司 |版权所有。 ````
+||
 
 ushort 视口 [[viewport_array_index]]; // 隐式共享 };
 
@@ -448,7 +573,7 @@ struct FragmentInput1 { uint primitive_id [[primitive_id]]; float2 linear_baryce
 
 通过存储重心坐标和每像素图元 ID，着色器可以在片段阶段内手动读取和插入绘制图元的顶点，或将此插值推迟到单独的通道。在延迟插值场景下，可以使用 thin buffer
 
-``2023 - 06 - 02 |版权所有 © 2023 苹果公司 |版权所有。 ````
+||
 
 在几何通道期间存储最小的表面数据集，包括预裁剪的重心坐标。在稍后阶段，你必须有足够的数据来根据图元 ID 数据重建原始顶点索引，并将重心坐标与这些顶点索引相关联。
 
@@ -482,7 +607,7 @@ struct FragmentInput1 { uint primitive_id [[primitive_id]]; float2 linear_baryce
 
 5. 对于立方体贴图数组，渲染目标数组索引计算如下：数组切片索引 \* 6 + 面索引。
 
-``2023 - 06 - 02 |版权所有 © 2023 苹果公司 |版权所有。 ````
+||
 
 macOS：自 Metal 2.3 起支持表 5.6 中的属性。
 
@@ -562,7 +687,7 @@ f.clr_f = ...;
 
 当内核函数被提交执行时，它会在 N 维线程网格上执行，其中 N 为一、二或三。线程是内核函数的一个实例
 
-``2023 - 06 - 02 |版权所有 © 2023 苹果公司 |版权所有。 ````
+||
 
 对该网格中的每个点执行，并且 thread_position_in_grid 标识其在网格中的位置。
 
@@ -590,7 +715,7 @@ f.clr_f = ...;
 
 表 5. 8 列出了可以为内核函数的参数指定的内置属性以及可以使用它们的相应数据类型。从 Metal 3.1 开始，可以在要在内核上下文中使用的全局（程序范围）变量上指定内置属性。
 
-``2023 - 06 - 02 |版权所有 © 2023 苹果公司 |版权所有。 ````
+||
 
 ## 表 5.7。内核函数输入参数的属性
 
@@ -654,7 +779,7 @@ f.clr_f = ...;
 
 `` 线程组的 SIMD 组执行宽度。 ````
 
-``2023 - 06 - 02 |版权所有 © 2023 苹果公司 |版权所有。 ````
+||
 
 **属性**
 
@@ -712,7 +837,7 @@ threads_per_grid 所有操作系统：自 Metal 1 起。
 
 `` 网格大小。 ````
 
-``2023 - 06 - 02 |版权所有 © 2023 苹果公司 |版权所有。 ````
+||
 
 ` 属性`
 
@@ -760,7 +885,7 @@ quadgroups*per_threadgroup = ceil(Wx/2) * 2 \_ ceil(Wy/2) \* 2 / 4
 
 quadgroups_per_threadgroup = ceil(Wx/2) \* ceil(Wy/2)
 
-``2023 - 06 - 02 |版权所有 © 2023 苹果公司 |版权所有。 ````
+||
 
 对于调度时指定的线程，[[dispatch_simdgroups_per_threadgroup]] 和 [[dispatch_quadgroups_per_threadgroup]] 的计算方式类似。
 
@@ -782,7 +907,7 @@ SIMD 组在给定线程组内并发执行，并在没有线程组屏障操作的
 
 `渲染目标数组索引，指的是立方体贴图的面，指定的数据`
 
-``2023 - 06 - 02 |版权所有 © 2023 苹果公司 |版权所有。 ````
+||
 
 ` 属性对应的数据类型`
 
@@ -818,7 +943,7 @@ bool triangleIntersectionFunction(..., uint id [[instance_id]], ...) {...}
 
 `方向 float3 光线^方向^在^对象^空间中。^ `
 
-``2023 - 06 - 02 |版权所有 © 2023 苹果公司 |版权所有。 ````
+||
 
 **属性**
 
@@ -856,7 +981,7 @@ instance_id uarrayshort_ref,^ uint^ 或 ^
 
 `` 重心坐标。如果 primitive_type 是三角形且交集标记包含 triangle_data，则可用。 ````
 
-``2023 - 06 - 02 |版权所有 © 2023 苹果公司 |版权所有。 ````
+||
 
 **属性**
 
@@ -908,7 +1033,7 @@ key_frame_count 所有操作系统：自 Metal 2. 4. ushort^ 或 ^ uint^
 
 `` 关键帧的数量。如果交集\_标签包含 primitive_motion，则可用。 ````
 
-``2023 - 06 - 02 |版权所有 © 2023 苹果公司 |版权所有。 ````
+||
 
 **属性**
 
@@ -944,7 +1069,7 @@ curve_parameter 自 Metal 3.1 起
 
 `` 需要传递给曲线基函数以重建与沿曲线段的交点相对应的位置的值。当且仅当射线与曲线端盖或弯头相交时，该值将恰好为 0 .0F 或 1 .0F。如果交集*标签包含曲线*数据，则可用。有关一组曲线实用函数，请参见第 6.18.6 节。 ````
 
-``2023 - 06 - 02 |版权所有 © 2023 苹果公司 |版权所有。 ````
+||
 
 对于顶点属性 v0、v1 和 v2，指定重心点处的属性值为： v1 _ barycentric_coord.x + v2 _ barycentric_coord.y + v0 \* (1.0f - (barycentric_coord.x + barycentric_coord.y))
 
@@ -964,7 +1089,7 @@ curve_parameter 自 Metal 3.1 起
 
 Accept_intersection bool (^) 如果为 true，则该原语将成为下一个提交的命中：如果它是最近的，则将从 intersect() 返回。 continue_search bool 如果接受命中 ([[accept_intersection]] == true)，则 continue_search 指示搜索是否应继续。如果 continue_search 为 true，则 intersect() 将继续搜索更接近的命中。如果为 false，则不会进行进一步的搜索。当前最近的命中由 intersect() 返回。默认为 true。即使返回 true，如果 accept_any_intersection()为 true，提交的命中也会立即停止搜索。 distance float 这返回沿边界框内找到的命中射线的距离。如果击中被拒绝
 
-``2023 - 06 - 02 |版权所有 © 2023 苹果公司 |版权所有。 ````
+||
 
 ` 属性对应的数据类型`
 
@@ -1014,7 +1139,7 @@ ray_data float2& 资源 [[有效负载]],
 
 所有操作系统：自 Metal 3 起
 
-``2023 - 06 - 02 |版权所有 © 2023 苹果公司 |版权所有。 ````
+||
 
 所有操作系统：从 Metal 3.1 开始，全局变量现在可以指定这些属性，除非在动态库或单独编译的二进制函数中使用。
 
@@ -1032,7 +1157,7 @@ ray_data float2& 资源 [[有效负载]],
 
 ushort 或 uint (^) 为每个顶点实例生成的输出顶点数。 dispatch_quadgroups_per_thr eadgroup ushort 或 uint 调度时指定的线程组的四组执行宽度。 dispatch_simdgroups_per_thr eadgroup ushort 或 uint 调度时指定的线程组的 SIMD 组执行宽度。 dispatch_threads_per_thread group ushort、ushort2、ushort3、uint、uint2 或 uint3 调度时指定的线程的线程组的线程执行宽度。有效负载 object_data 地址空间中对用户定义 T 的指针或左值引用 有效负载是从对象着色器传递到网格着色器的数据。对于线程组中的所有线程，有效负载指针或引用都是相同的。假定有效负载存储器在对象函数的入口处未初始化。
 
-``2023 - 06 - 02 |版权所有 © 2023 苹果公司 |版权所有。 ````
+||
 
 **属性**
 
@@ -1082,7 +1207,7 @@ thread_index_in_threadgroup ushort 或 uint 线程组内线程的标量索引。
 
 ``` 线程组在网格中的独特位置。 ````
 
-``2023 - 06 - 02 |版权所有 © 2023 苹果公司 |版权所有。 ````
+||
 
 ` 属性`
 
@@ -1112,7 +1237,7 @@ thread_index_in_threadgroup ushort 或 uint 线程组内线程的标量索引。
 
 - 声明 [[thread_position_in_grid]]、[[threads_per_grid]]、[[thread_position_in_threadgroup]]、[[threads_per_threadgroup]]、[[threadgroup_position_in_grid]]、[[dispatch_threads_per_threadgroup]] 和 [[threadgroups_per_grid]] 的类型必须是标量类型或向量类型。如果它是向量类型，则用于声明这些参数的向量类型的组件数量需要匹配。 - 声明 [[thread_position_in_grid]] 和 [[threads_per_grid]] 的数据类型需要匹配。 - 声明 [[thread_position_in_threadgroup]]、[[threads_per_threadgroup]] 和 [[dispatch_threads_per_threadgroup]] 的数据类型需要匹配。 - 如果 [[thread_position_in_threadgroup]] 为 uint、uint2 或 uint3 类型，则 [[thread_index_in_threadgroup]] 需要为 uint 类型。 - 用于声明 [[thread_index_in_simdgroup]]、[[threads_per_simdgroup]]、[[simdgroup_index_in_threadgroup]]、[[simdgroups_per_threadgroup]]、[[dispatch_simdgroups_per_threadgroup]]、[[quadgroup_index_in_threadgroup]]、[[quadgroups_per_threadgroup]] 和 [[的类型dispatch_quadgroups_per_threadgroup]]需要为 ushort 或 uint。声明这些内置变量的类型需要匹配。
 
-``2023 - 06 - 02 |版权所有 © 2023 苹果公司 |版权所有。 ````
+||
 
 ## 5.2.3.10 网格函数输入属性
 
@@ -1134,7 +1259,7 @@ thread_index_in_threadgroup ushort 或 uint 线程组内线程的标量索引。
 
 ushort 或 uint (^) 为每个图元实例生成的输出顶点数。 amplification_id ushort 或 uint (^) 视口和渲染目标数组索引的数组索引偏移映射，它允许将放大的顶点路由到不同的视口和渲染目标。 dispatch_quadgroups_per_th readgroup ushort 或 uint 调度时指定的线程组的四组执行宽度。 dispatch_simdgroups_per_th readgroup ushort 或 uint 调度时指定的线程组的 SIMD 组执行宽度。
 
-``2023 - 06 - 02 |版权所有 © 2023 苹果公司 |版权所有。 ````
+||
 
 **属性**
 
@@ -1160,7 +1285,7 @@ quadgroup_index_in_threadg 组 ushort 或 uint
 
 (^) ushort 或 uint 线程组的四组执行宽度。 simdgroup_index_in_threadg roup ushort 或 uint 线程组内 SIMD 组的标量索引。 simdgroups_per_threadgroup (^) ushort 或 uint 线程组的 SIMD 组执行宽度。 thread_index_in_quadgroup ushort 或 uint 四元组内线程的标量索引。 thread_index_in_simdgroup ushort 或 uint SIMD 组内线程的标量索引。 thread_index_in_threadgroup ushort 或 uint 线程组内线程的标量索引。 thread_position_in_grid ushort、ushort2、ushort3、uint、uint2 或 uint3 线程在 N 维线程网格中的位置。
 
-``2023 - 06 - 02 |版权所有 © 2023 苹果公司 |版权所有。 ````
+||
 
 ` 属性`
 
@@ -1204,7 +1329,7 @@ quadgroup_index_in_threadg 组 ushort 或 uint
 
 - 声明 [[thread_position_in_grid]]、[[threads_per_grid]]、[[thread_position_in_threadgroup]]、[[threads_per_threadgroup]]、[[threadgroup_position_in_grid]]、[[dispatch_threads_per_threadgroup]] 和 [[threadgroups_per_grid]] 的类型必须是标量类型或向量类型。如果它是向量类型，则用于声明这些参数的向量类型的组件数量需要匹配。 - 声明 [[thread_position_in_grid]] 和 [[threads_per_grid]] 的数据类型需要匹配。 - 声明 [[thread_position_in_threadgroup]]、[[threads_per_threadgroup]] 和 [[dispatch_threads_per_threadgroup]] 的数据类型需要匹配。
 
-``2023 - 06 - 02 |版权所有 © 2023 苹果公司 |版权所有。 ````
+||
 
 - 如果 [[thread_position_in_threadgroup]] 为 uint、uint2 或 uint3 类型，则 [[thread_index_in_threadgroup]] 需要为 uint 类型。 - 用于声明 [[thread_index_in_simdgroup]]、[[threads_per_simdgroup]]、[[simdgroup_index_in_threadgroup]]、[[simdgroups_per_threadgroup]]、[[dispatch_simdgroups_per_threadgroup]]、[[quadgroup_index_in_threadgroup]]、[[quadgroups_per_threadgroup]] 和 [[的类型dispatch_quadgroups_per_threadgroup]]需要为 ushort 或 uint。声明这些内置变量的类型需要匹配。
 
@@ -1230,7 +1355,7 @@ struct VertexOutput { float4 位置 [[位置]];浮动 4 颜色； float2 纹理�
 
 struct VertexInput { float4 位置 [[attribute(0)]]; float3 正常 [[属性(1)]]; half4 颜色 [[属性(2)]];
 
-``2023 - 06 - 02 |版权所有 © 2023 苹果公司 |版权所有。 ````
+||
 
 half2 texcoord [[属性(3)]]; };
 
@@ -1252,7 +1377,7 @@ struct VertexOutput 2 { float4 位置 [[位置]];浮动 4 颜色； float2 纹�
 
 struct VertexInputData { float4 位置; float3 正常； float2 纹理坐标； };
 
-``2023 - 06 - 02 |版权所有 © 2023 苹果公司 |版权所有。 ````
+||
 
 constexpr 常量 uint MAX_LIGHTS = 4；
 
@@ -1272,7 +1397,7 @@ constexpr 采样器 s = 采样器(坐标::归一化, 地址::clamp_to_edge, 过�
 
 结构每个线程输入{
 
-``2023 - 06 - 02 |版权所有 © 2023 苹果公司 |版权所有。 ````
+||
 
 float4 a [[属性(0)]]; float3 b [[属性(1)]]; half4 c [[属性(2)]]; half2 d [[属性(3)]]; };
 

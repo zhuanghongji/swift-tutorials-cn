@@ -36,7 +36,7 @@ T 读取(ushort2 坐标) const;
 
 枚举类 imageblock_data_rate { 颜色，样本 }；
 
-``2023 - 06 - 02 |版权所有 © 2023 苹果公司 |版权所有。 ````
+||
 
 T read(ushort2 坐标，ushort 索引，imageblock_data_rate data_rate) const;
 
@@ -60,7 +60,7 @@ const imageblock_slice<E, imageblock_layout_implicit> slice(ushort color_index, 
 
 要复制的区域的原点为 (0,0)。没有参数 size 的 slice(...) 成员函数复制图像块的整个宽度和高度。
 
-``2023 - 06 - 02 |版权所有 © 2023 苹果公司 |版权所有。 ````
+||
 
 ## 6.13.2 具有显式布局的图像块的函数
 
@@ -90,7 +90,7 @@ kernel void my_kernel(imageblock img_blk, ushort2 cover [[thread_position_in_thr
 
 void write(T data, ushort2 coord, ushort color_coverage_mask);
 
-``2023 - 06 - 02 |版权所有 © 2023 苹果公司 |版权所有。 ````
+||
 
 使用以下切片成员函数获取图像块结构中给定数据成员的切片区域。你可以使用此函数将线程组中所有线程的图像块结构中描述的特定数据成员关联的数据写入纹理中的指定区域。
 
@@ -132,7 +132,7 @@ void write(imageblock_slice slice, ushort 坐标, ushort 数组, ushort lod = 0)
 
 对于 2D 纹理：
 
-``2023 - 06 - 02 |版权所有 © 2023 苹果公司 |版权所有。 ````
+||
 
 void write(imageblock_slice 切片, uint2 坐标, uint lod = 0);
 
@@ -176,7 +176,7 @@ void write(imageblock_slice 切片, ushort2 坐标, ushort 面, ushort lod = 0);
 
 void write(imageblock_slice slice, uint2 坐标, uint 面, uint 数组, uint lod = 0);
 
-``2023 - 06 - 02 |版权所有 © 2023 苹果公司 |版权所有。 ````
+||
 
 void write(imageblock_slice 切片，ushort2 坐标，ushort 面，ushort 数组，ushort lod = 0);
 
@@ -204,7 +204,7 @@ struct Foo { half4 a;整数 b；浮动 c； };
 
 // 确保所有线程完成对图像块的写入的屏障。 // 在这种情况下，每个线程都会写入其在图像块中的位置，因此不需要屏障。
 
-``2023 - 06 - 02 |版权所有 © 2023 苹果公司 |版权所有。 ````
+||
 
 threadgroup_barrier(mem_flags::mem_threadgroup_imageblock);
 

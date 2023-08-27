@@ -22,7 +22,7 @@ bool is_null_acceleration_struct(acceleration_struct)
 
 uint get_instance_count() const
 
-``2023 - 06 - 02 |版权所有 © 2023 苹果公司 |版权所有。 ````
+||
 
 调用以下函数来检索实例加速结构中包含的实例所引用的加速结构。返回类型是第 2.17.6 节中定义的模板化类型。
 
@@ -46,7 +46,7 @@ uint get_instance_count() const
 
 表 6. 27 显示了相交函数的可能参数。所有相交函数都必须具有 ray 和 accel_struct 参数。其他参数是可选的。
 
-``2023 - 06 - 02 |版权所有 © 2023 苹果公司 |版权所有。 ````
+||
 
 ## 表 6.27。相交函数输入参数
 
@@ -54,7 +54,7 @@ uint get_instance_count() const
 
 ray (^) 射线属性 accel*struct (^) Acceleration_struct 类型的加速结构。 mask (^) 与 Metal API MTLAccelerationStructureInstanceDescriptor 中定义的实例掩码进行 AND 运算的交集掩码。具有不重叠掩码的实例将被跳过。 time 所有操作系统：自 Metal 2. 4. 与射线关联的时间。如果交集*标签具有 primitive_motion 或 instance_motion，则该参数存在。 func_table (^) intersection_function_table 类型的交集函数表。参见第 2.17.3 节。 Payload (^) 用户负载对象，通过引用传递。当用户调用 intersect() 时，payload 参数被复制到 ray_data 地址空间并传递给交集函数。结果被复制到交集函数的出口（第 5.1.6 节），并且有效负载对象被更新。 result_type 使用 result_type = junction_result;仅当 intersect_tags 没有实例化时，以下一组 intersect 函数才可用： result_type intersect( ray ray, Primitive_acceleration_struct accel_struct) const; result_type intersect( ray ray, Primitive_acceleration_struct accel_struct, junction_function_table func_table) const;
 
-``2023 - 06 - 02 |版权所有 © 2023 苹果公司 |版权所有。 ````
+||
 
 template result_type intersect( ray ray, Primitive_acceleration_struct accel_struct, junction_function_table func_table, thread T &payload) const;
 
@@ -74,7 +74,7 @@ intersection_function_table<intersection_tags...> func_table) const;
 
 模板 <类型名称 T> 结果类型相交（
 
-``2023 - 06 - 02 |版权所有 © 2023 苹果公司 |版权所有。 ````
+||
 
 ray ray，instance_acceleration_struct accel_struct，uint mask，intersection_function_table func_table，线程 T &payload) const;
 
@@ -94,7 +94,7 @@ template result_type intersect( ray ray, Acceleration_struct Accel_struct, float
 
 Acceleration_struct Accel_struct，uint 掩码 = ~0U，浮动时间 = 0.0f) const；
 
-``2023 - 06 - 02 |版权所有 © 2023 苹果公司 |版权所有。 ````
+||
 
 模板 result_type intersect( ray ray, Acceleration_struct< junction_tags...> Accel_struct, uint mask,
 
@@ -112,7 +112,7 @@ Acceleration_struct Accel_struct，uint 掩码，
 
 要覆盖遍历的默认行为，可以使用 intersector 对象的以下成员函数。
 
-``2023 - 06 - 02 |版权所有 © 2023 苹果公司 |版权所有。 ````
+||
 
 ## 表 6.28。相交函数来控制遍历
 
@@ -156,7 +156,7 @@ void set_triangle_cull_mode(triangle_cull_mode tcm);
 
 枚举类 geometry_cull_mode {无，
 
-``2023 - 06 - 02 |版权所有 © 2023 苹果公司 |版权所有。 ````
+||
 
 三角形、bounding_box、曲线 // 自 Metal 3.1 起
 
@@ -186,7 +186,7 @@ PrimitiveAccelerationStructure 通过声明 MTLAccelerationStructureGeometryFlag
 
 intersector.set_opacity_cull_mode() 将根据原始类型的不透明性跳过它们。
 
-``2023 - 06 - 02 |版权所有 © 2023 苹果公司 |版权所有。 ````
+||
 
 如果 intersector.force_opacity() 设置为 opaque 或 non_opaque，则 intersector.set_opacity_cull_mode() 必须为 none。反之亦然：不透明度覆盖和不透明度剔除不能混合使用。非法组合的结果是不确定的。
 
@@ -212,7 +212,7 @@ curve, // 自 Metal 3.1 起全部 };
 
 枚举类 curve_basis { bspline, catmull_rom, 线性, 贝塞尔曲线, all, };
 
-``2023 - 06 - 02 |版权所有 © 2023 苹果公司 |版权所有。 ````
+||
 
 枚举类 curve_type { round, flat, all, };
 
@@ -238,7 +238,7 @@ curve, // 自 Metal 3.1 起全部 };
 
 表 6. 29 、表 6. 31 和表 6. 32 显示了可以根据遍历期间遇到的几何类型调用的函数列表，假设 next() 返回 true。请注意，某些函数是成对出现的：候选函数和已提交的原语。当第一次调用 next() 时，遍历后报告的图元始终是候选者，直到用户通过在查询对象上调用 commit_triangle_intersection()、commit_bounding_box_intersection() 或 commit_curve_intersection() 提交图元。请注意，在没有用户相交的情况下进行测试的不透明三角形在相交时会自动提交。
 
-``2023 - 06 - 02 |版权所有 © 2023 苹果公司 |版权所有。 ````
+||
 
 ## 表 6.29。路口查询功能
 
@@ -290,7 +290,7 @@ void commit_triangle_intersection() (^) \* void commit_bounding_box_intersection
 
 ### \* \* \*
 
-``2023 - 06 - 02 |版权所有 © 2023 苹果公司 |版权所有。 ````
+||
 
 ## 表 6.31。交点查询射线值函数
 
@@ -318,7 +318,7 @@ float3 get*candidate_ray_origin() (^) \* \* * float3 get*candidate_ray_direction
 
 ### \* \* \*
 
-``2023 - 06 - 02 |版权所有 © 2023 苹果公司 |版权所有。 ````
+||
 
 ## 表 6.33。相交查询提交值函数
 
@@ -356,7 +356,7 @@ float get_candidate_triangle_distance()
 
 浮动 get_commited_distance()
 
-``2023 - 06 - 02 |版权所有 © 2023 苹果公司 |版权所有。 ````
+||
 
 调用以下函数查询当前候选命中的顶级结构实例 ID。
 
@@ -394,7 +394,7 @@ uint get_commissed_primitive_id()
 
 float3 get_candidate_ray_origin()
 
-``2023 - 06 - 02 |版权所有 © 2023 苹果公司 |版权所有。 ````
+||
 
 调用以下函数来查询当前命中候选对象空间中的射线方向。
 
@@ -432,7 +432,7 @@ float2 get_candidate_triangle_barycentric_coord()
 
 float2 get_commited_triangle_barycentric_coord()
 
-``2023 - 06 - 02 |版权所有 © 2023 苹果公司 |版权所有。 ````
+||
 
 调用以下函数来查询命中三角形候选对象是正面还是背面。如果是正面则返回 true，如果是背面则返回 false。当 get_candidate_intersection_type() 返回三角形时有效。
 
@@ -474,7 +474,7 @@ uint get_candidate_instance_id（uint 深度）
 
 uint get_candidate_user_instance_id（uint 深度）
 
-``2023 - 06 - 02 |版权所有 © 2023 苹果公司 |版权所有。 ````
+||
 
 调用以下函数查询已提交交集的实例数。
 
@@ -502,7 +502,7 @@ typedef packed_float3 MTLPackedFloat3; typedef packed_float3 MTLPackedFloat4x3[4
 
 结构 MTLAccelerationStructureUserIDInstanceDescriptor { MTLPackedFloat4x3 conversionMatrix;
 
-``2023 - 06 - 02 |版权所有 © 2023 苹果公司 |版权所有。 ````
+||
 
 MTLAccelerationStructureInstanceOptions 选项； uint 掩码； uint intersectionFunctionTableOffset； uint AccelerationStructureIndex； uint 用户 ID； };
 
@@ -552,7 +552,7 @@ P 是 Ps 的标量或向量。如果 Ps 是 float，则 P 是 float4。
 
 `返回二次 B 样条曲线上的位置`
 
-``2023 - 06 - 02 |版权所有 © 2023 苹果公司 |版权所有。 ````
+||
 
 **功能说明**
 
@@ -600,4 +600,4 @@ P catmull_rom_second_derivative( Ps_t, P p0, P p1, P p2, P p3)
 
 `返回 Catmull-Rom 曲线上的二阶导数`
 
-``2023 - 06 - 02 |版权所有 © 2023 苹果公司 |版权所有。 ````
+||

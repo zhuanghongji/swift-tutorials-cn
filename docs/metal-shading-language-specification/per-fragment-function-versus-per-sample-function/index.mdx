@@ -6,6 +6,6 @@
 
 以下示例使用 [[color(m)]] 属性来指定此片段函数在每个样本的基础上执行：
 
-``2023 - 06 - 02 |版权所有 © 2023 苹果公司 |版权所有。 ````
+||
 
 [[fragment]] float4 my_fragment(float2 tex_coord [[stage_in]]，texture2d img [[texture(0)]]，采样器 s [[sampler(0)]]，float4 帧缓冲区 [[color(0)] ]) { return c = mix(img.sample(s, tex_coord), framebuffer, mix_factor); }

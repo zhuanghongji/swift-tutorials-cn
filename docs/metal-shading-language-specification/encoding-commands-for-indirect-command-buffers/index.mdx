@@ -30,7 +30,7 @@ ushort cmd_idx [[网格中的线程位置]])
 
 {
 
-``2023 - 06 - 02 |版权所有 © 2023 苹果公司 |版权所有。 ````
+||
 
 render_command cmd(args.cmd_buffer, cmd_idx);
 
@@ -56,7 +56,7 @@ void draw_primitives(primitive_type type, uint vertex_start, uint vertex_count, 
 
 // 基于 index_buffer 重载 draw_indexed_primitives void draw_indexed_primitives(primitive_type type, uint index_count, device ushort \*index_buffer,
 
-``2023 - 06 - 02 |版权所有 © 2023 苹果公司 |版权所有。 ````
+||
 
 uint 实例计数、uint 基础顶点、uint 基础实例）；
 
@@ -72,7 +72,7 @@ void draw_patches(uint number_of_patch_control_points, uint patch_start, uint pa
 
 void draw_patches(uint number_of_patch_control_points, uint patch_start, uint patch_count, const device uint \*patch_index_buffer,
 
-``2023 - 06 - 02 |版权所有 © 2023 苹果公司 |版权所有。 ````
+||
 
 uint instance_count，uint base_instance，常量 MTLQuadTessellationFactorsHalf \*tessellation_factor_buffer，uint instance_stride = 0);
 
@@ -88,7 +88,7 @@ void draw_patches(uint number_of_patch_control_points, uint patch_start, uint pa
 
 // 基于 patch_index_buffer 重载 draw_indexed_pa​​tches，
 
-``2023 - 06 - 02 |版权所有 © 2023 苹果公司 |版权所有。 ````
+||
 
 // control_point_index_buffer 和 tessellation_factor_buffer
 
@@ -104,7 +104,7 @@ void draw_indexed_pa​​tches(uint number_of_patch_control_points, uint patch_
 
 void draw_indexed_pa​​tches(uint number_of_patch_control_points,
 
-``2023 - 06 - 02 |版权所有 © 2023 苹果公司 |版权所有。 ````
+||
 
 uint patch_start，uint patch_count，常量设备 uint *patch_index_buffer，常量 void *control_point_index_buffer，uint instance_count，uint base_instance，常量设备 MTLTriangleTessellationFactorsHalf \*tessellation_factor_buffer，uint instance_stride = 0);
 
@@ -118,7 +118,7 @@ void draw_indexed_pa​​tches(uint number_of_patch_control_points, uint patch_
 
 void draw_indexed_pa​​tches(uint number_of_patch_control_points, uint patch_start, uint patch_count, 常量 uint *patch_index_buffer, const device void *control_point_index_buffer,
 
-``2023 - 06 - 02 |版权所有 © 2023 苹果公司 |版权所有。 ````
+||
 
 uint instance_count，uint base_instance，常量 MTLQuadTessellationFactorsHalf \*tessellation_factor_buffer，uint instance_stride = 0);
 
@@ -132,7 +132,7 @@ void draw_indexed_pa​​tches(uint number_of_patch_control_points, uint patch_
 
 void draw_indexed_pa​​tches(uint number_of_patch_control_points, uint patch_start, uint patch_count, 常量 uint *patch_index_buffer, 常量 void *control_point_index_buffer, uint instance_count, uint base_instance, 常量 MTLTriangleTessellationFactorsHalf \*tessellation_factor_buffer, uint instance_stride = 0);
 
-``2023 - 06 - 02 |版权所有 © 2023 苹果公司 |版权所有。 ````
+||
 
 // 重置整个命令。在 reset()之后，如果没有进一步修改，执行该命令将不会执行任何操作。无效重置（）；
 
@@ -158,7 +158,7 @@ ICB 允许将调度命令编码到 Metal 缓冲区中，以便随后在 GPU 上�
 
 compute_command 可以对任何调度命令类型进行编码。头文件中定义了 compute_command 的以下公共接口。 compute_pipeline_state 类型表示计算管道状态，只能是
 
-``2023 - 06 - 02 |版权所有 © 2023 苹果公司 |版权所有。 ````
+||
 
 通过参数缓冲区传递给着色器。在参数缓冲区内，管道状态可以作为标量或数组传递。
 
@@ -184,7 +184,7 @@ void set_threadgroup_memory_length(uint 长度, uint 索引); void set_stage_in_
 
 compute_command 中公开的方法镜像了 MTLIndirectComputeCommand 的接口，并且与 MTLComputeCommandEncoder 类似。
 
-``2023 - 06 - 02 |版权所有 © 2023 苹果公司 |版权所有。 ````
+||
 
 在 ICB 中，调度始终是并发的。对 compute_command 中的 concurrent_dispatch\* 方法的调用对命令所采取的操作进行编码。如果多次调用，则只有最后一次调用有效。
 
@@ -210,4 +210,4 @@ compute_command 中公开的方法镜像了 MTLIndirectComputeCommand 的接口�
 
 // 将索引 0 处的命令内容复制到索引 1 处的命令。 cmd1.copy_command(cmd0); }
 
-``2023 - 06 - 02 |版权所有 © 2023 苹果公司 |版权所有。 ````
+||

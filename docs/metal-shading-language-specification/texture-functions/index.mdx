@@ -10,7 +10,7 @@ Metal 3.1 引入了新的原子纹理成员函数，支持 1D 纹理、1D 纹理
 
 纹理样本、sample_compare、gather 和 gather_compare 函数采用 2D 纹理、2D 纹理数组和 3D 纹理的偏移量参数。偏移量是一个整数
 
-``2023 - 06 - 02 |版权所有 © 2023 苹果公司 |版权所有。 ````
+||
 
 在查找每个像素之前应用于纹理坐标的值。该整数值的范围可以是 - 8 到 +7。默认值为 0。
 
@@ -34,7 +34,7 @@ Compare_func 设置 sample_compare 和 gather_compare 函数的比较测试。�
 
 对于 gather 和 gather_compare 函数，将有助于过滤成 xyzw 分量的四个样本按逆时针顺序放置，从查询位置左下角的样本开始。这与在以下位置使用非标准化纹理坐标增量的最近采样相同：(-,+), (+,+),(+,-),(-,-)，其中增量的大小始终是一半一个像素。
 
-``2023 - 06 - 02 |版权所有 © 2023 苹果公司 |版权所有。 ````
+||
 
 当且仅当满足以下任何条件时，对纹理的读取或写入是越界的：
 
@@ -64,7 +64,7 @@ macOS：自 Metal 2.3 起支持稀疏纹理函数。 iOS：从 Metal 2.2 开始�
 
 这些稀疏纹理成员函数返回一个稀疏颜色结构，其中包含一个或多个颜色值和一个驻留标志。如果任何访问的像素未映射，则 resident 设置为 false。
 
-``2023 - 06 - 02 |版权所有 © 2023 苹果公司 |版权所有。 ````
+||
 
 template struct 稀疏\_color { public: constexpr 稀疏\_color(T value, bool resident) thread;
 
@@ -92,7 +92,7 @@ Tv 表示基于模板类型 的 4 分量向量类型，用于声明纹理类型�
 
 稀疏颜色-Tv 表示稀疏颜色结构，其中包含基于模板化类型的颜色值的 4 分量向量和驻留标志。这些表示许多稀疏纹理成员函数的返回值。
 
-``2023 - 06 - 02 |版权所有 © 2023 苹果公司 |版权所有。 ````
+||
 
 稀疏颜色-T 表示稀疏颜色结构，其中包含基于模板化类型的单个值和驻留标志。 T 通常表示稀疏纹理成员函数返回的深度值。
 
@@ -132,7 +132,7 @@ uint get_num_mip_levels() const
 
 此成员函数从稀疏一维纹理中采样，从 iOS 中的 Metal 2.2 和 macOS 中的 Metal 2.3 开始。
 
-``2023 - 06 - 02 |版权所有 © 2023 苹果公司 |版权所有。 ````
+||
 
 稀疏颜色-电视稀疏样本（采样器 s，浮点坐标）常量
 
@@ -180,7 +180,7 @@ voidatomic_min(ushort 坐标，ulong4 操作数)
 
 voidatomic_max(uint 坐标，ulong4 操作数)
 
-``2023 - 06 - 02 |版权所有 © 2023 苹果公司 |版权所有。 ````
+||
 
 voidatomic_max(ushort 坐标，ulong4 操作数)
 
@@ -220,7 +220,7 @@ uint get_num_mip_levels() const
 
 稀疏*颜色-电视稀疏*读取（uint 坐标，uint 数组，uint lod = 0）const
 
-``2023 - 06 - 02 |版权所有 © 2023 苹果公司 |版权所有。 ````
+||
 
 从 Metal 3.1 开始，这些成员函数从 1D 纹理数组执行原子加载：
 
@@ -262,7 +262,7 @@ voidatomic_max(uint 坐标、uint 数组、ulong4 操作数)
 
 voidatomic_max(ushort 坐标，ushort 数组，ulong4 操作数)
 
-``2023 - 06 - 02 |版权所有 © 2023 苹果公司 |版权所有。 ````
+||
 
 ## 6.12.3 2D 纹理
 
@@ -308,7 +308,7 @@ void write(Tv color, ushort2 coord, ushort lod = 0) // 所有操作系统：自 
 
 uint get_width(uint lod = 0) const
 
-``2023 - 06 - 02 |版权所有 © 2023 苹果公司 |版权所有。 ````
+||
 
 uint get_height(uint lod = 0) const
 
@@ -342,7 +342,7 @@ uint get_num_mip_levels() const
 
 这些成员函数模拟纹理获取并返回 LOD（mip 级别）计算结果，从 iOS 中的 Metal 2.3 和 macOS 中的 Metal 2.2 开始。
 
-``2023 - 06 - 02 |版权所有 © 2023 苹果公司 |版权所有。 ````
+||
 
 浮点 calculate_clamped_lod（采样器 s，float2 坐标）；
 
@@ -388,7 +388,7 @@ voidatomic_max(uint 2 坐标，ulong4 操作数)
 
 voidatomic_max(ushort 2 坐标，ulong4 操作数)
 
-``2023 - 06 - 02 |版权所有 © 2023 苹果公司 |版权所有。 ````
+||
 
 ## 6.12.3.1 2D 纹理采样示例
 
@@ -426,7 +426,7 @@ min_lod_clamp(float lod) // 所有操作系统：自 Metal 2.2 起支持
 
 电视样本（采样器 s，float2 坐标，uint 数组，gradient2d grad_options，min_lod_clamp min_lod_clamp_options，int2 偏移= int2（0））常量
 
-``2023 - 06 - 02 |版权所有 © 2023 苹果公司 |版权所有。 ````
+||
 
 这些成员函数从 2D 纹理数组执行无采样器读取：
 
@@ -466,7 +466,7 @@ uint get_num_mip_levels() const
 
 稀疏颜色-电视稀疏样本（采样器 s，浮点 2 坐标，uint 数组，偏差 bias_options，
 
-``2023 - 06 - 02 |版权所有 © 2023 苹果公司 |版权所有。 ````
+||
 
 min_lod_clamp min_lod_clamp_options, int2 偏移量 = int2(0)) const
 
@@ -504,7 +504,7 @@ voidatomic_store（电视颜色，ushort 2 坐标，ushort 数组）const
 
 从 Metal 3.1 开始，这些成员函数执行原子比较并交换到 2 D 纹理数组：
 
-``2023 - 06 - 02 |版权所有 © 2023 苹果公司 |版权所有。 ````
+||
 
 boolatomic_compare_exchange_weak(uint 2 坐标，uint 数组，线程 Tv \* 预期，Tv 所需) const
 
@@ -550,7 +550,7 @@ min_lod_clamp(float lod) // 所有操作系统：自 Metal 2.2 起支持
 
 电视样本(采样器 s, float3 坐标, lod_options 选项, int3 偏移量 = int3(0)) const
 
-``2023 - 06 - 02 |版权所有 © 2023 苹果公司 |版权所有。 ````
+||
 
 电视样本（采样器 s，float 3 坐标，偏置 bias_options，min_lod_clamp min_lod_clamp_options，int 3 偏移量 = int 3 (0)) const
 
@@ -592,7 +592,7 @@ min_lod_clamp min_lod_clamp_options, int3 偏移量 = int3(0)) const
 
 稀疏颜色-电视稀疏样本（采样器 s，float3 坐标，偏差 bias_options，min_lod_clamp min_lod_clamp_options，int3 偏移= int3（0））const
 
-``2023 - 06 - 02 |版权所有 © 2023 苹果公司 |版权所有。 ````
+||
 
 稀疏颜色-电视稀疏样本（采样器 s，float3 坐标，gradient3d grad_options，int3 偏移= int3（0））常量
 
@@ -634,7 +634,7 @@ boolatomic_compare_exchange_weak(ushort 3 coord,线程电视 \*预期，电视�
 
 电视 atomic_exchange（ushort 3 坐标，需要电视）常量
 
-``2023 - 06 - 02 |版权所有 © 2023 苹果公司 |版权所有。 ````
+||
 
 这些成员函数执行原子获取并修改为从 Metal 3.1 开始的 3D 纹理，其中 _op_ 是 add、max、min、or、sub 或 xor（对于 int 和 uint 颜色类型）：
 
@@ -686,7 +686,7 @@ min_lod_clamp(float lod) // 所有操作系统：自 Metal 2.2 起支持
 
 `2 正 Y `
 
-``2023 - 06 - 02 |版权所有 © 2023 苹果公司 |版权所有。 ````
+||
 
 ``面数立方体面````
 
@@ -732,7 +732,7 @@ uint get_num_mip_levels() const
 
 min_lod_clamp min_lod_clamp_options) const
 
-``2023 - 06 - 02 |版权所有 © 2023 苹果公司 |版权所有。 ````
+||
 
 稀疏*颜色-电视稀疏*样本（采样器 s，float3 坐标，
 
@@ -776,7 +776,7 @@ min_lod_clamp(float lod) // 所有操作系统：自 Metal 2.2 起支持
 
 电视样本（采样器 s、float3 坐标、uint 数组、lod_options 选项） const
 
-``2023 - 06 - 02 |版权所有 © 2023 苹果公司 |版权所有。 ````
+||
 
 电视样本（采样器 s，浮点 3 坐标，uint 数组，偏差 bias_options，min_lod_clamp min_lod_clamp_options）常量
 
@@ -816,7 +816,7 @@ uint get_num_mip_levels() const
 
 稀疏颜色-电视稀疏样本（采样器 s，float3 坐标，uint 数组，级别选项）const
 
-``2023 - 06 - 02 |版权所有 © 2023 苹果公司 |版权所有。 ````
+||
 
 稀疏颜色-电视稀疏样本（采样器 s，float3 坐标，uint 数组，min_lod_clamp min_lod_clamp_options）常量
 
@@ -854,7 +854,7 @@ Tv read(ushort2 coord, ushort example) const // 所有操作系统：自 Metal 1
 
 这些成员函数查询 2D 多重采样纹理：
 
-``2023 - 06 - 02 |版权所有 © 2023 苹果公司 |版权所有。 ````
+||
 
 uint get_width() const
 
@@ -906,7 +906,7 @@ uint get_num_mip_levels() const
 
 梯度 2d（浮点 2 dPdx，浮点 2 dPdy）
 
-``2023 - 06 - 02 |版权所有 © 2023 苹果公司 |版权所有。 ````
+||
 
 min_lod_clamp(float lod) // 所有操作系统：自 Metal 2.2 起支持
 
@@ -942,7 +942,7 @@ T read(ushort2 coord, ushort lod = 0) const // 所有操作系统：自 Metal 1 
 
 当对 2D 深度纹理进行采样并将这些样本与指定的比较值（如果比较通过则为 1.0，如果失败则为 0.0）进行比较时，此成员函数会收集四个样本进行双线性插值。
 
-``2023 - 06 - 02 |版权所有 © 2023 苹果公司 |版权所有。 ````
+||
 
 电视 gather_compare（采样器 s，float2 坐标，floatcompare_value，int2 偏移= int2（0））const
 
@@ -978,7 +978,7 @@ uint get_num_mip_levels() const
 
 稀疏颜色-T 稀疏样本比较（采样器 s，浮点 2 坐标，浮点 compare_value，
 
-``2023 - 06 - 02 |版权所有 © 2023 苹果公司 |版权所有。 ````
+||
 
 偏置选项，int2 offset = int2(0)) const
 
@@ -1010,7 +1010,7 @@ uint get_num_mip_levels() const
 
 浮点 calculate_clamped_lod（采样器 s，float2 坐标）；
 
-``2023 - 06 - 02 |版权所有 © 2023 苹果公司 |版权所有。 ````
+||
 
 浮点 calculate_unclamped_lod（采样器 s，float2 坐标）；
 
@@ -1046,7 +1046,7 @@ lod_options 字段支持：
 
 - level - Apple 芯片上所有 iOS Metal 版本和 macOS Metal 2.3 及更高版本的偏差 - Apple 芯片上 iOS Metal 版本和 macOS Metal 2.3 及更高版本的渐变 - Metal 2.2 及更高版本的 min_lod_clamp - Metal 2.2 必须为 0 - 可以 Apple 芯片上所有 iOS Metal 版本和 macOS Metal 2.3 及更高版本的任何值
 
-``2023 - 06 - 02 |版权所有 © 2023 苹果公司 |版权所有。 ````
+||
 
 这些成员函数从 2D 深度纹理数组读取，而不使用采样器。
 
@@ -1084,7 +1084,7 @@ uint get_num_mip_levels() const
 
 稀疏颜色-T 稀疏样本（采样器 s，float2 坐标，uint 数组，偏差 bias_options，min_lod_clamp min_lod_clamp_options，int2 偏移= int2（0））常量
 
-``2023 - 06 - 02 |版权所有 © 2023 苹果公司 |版权所有。 ````
+||
 
 稀疏颜色-T 稀疏样本（采样器 s，float2 坐标，uint 数组，gradient2d grad_options，int2 偏移= int2（0））const
 
@@ -1110,7 +1110,7 @@ uint get_num_mip_levels() const
 
 稀疏*颜色-T 稀疏*读取（ushort2 坐标，uint 数组，ushort lod = 0）const
 
-``2023 - 06 - 02 |版权所有 © 2023 苹果公司 |版权所有。 ````
+||
 
 稀疏颜色-T 稀疏读取（uint2 坐标，uint 数组，uint lod = 0）const
 
@@ -1152,7 +1152,7 @@ uint get_num_samples() const
 
 稀疏颜色-T 稀疏读取（uint 2 坐标，uint 样本）const
 
-``2023 - 06 - 02 |版权所有 © 2023 苹果公司 |版权所有。 ````
+||
 
 ## 6.12.13 2D 多重采样深度纹理数组
 
@@ -1202,7 +1202,7 @@ T Sample(采样器 s, float3 坐标, lod_options 选项) const
 
 T 样本（采样器 s，浮点 3 坐标，偏差 bias_options，min_lod_clamp min_lod_clamp_options）常量
 
-``2023 - 06 - 02 |版权所有 © 2023 苹果公司 |版权所有。 ````
+||
 
 T 样本（采样器 s，浮点 3 坐标，梯度立方体 grad_options，min_lod_clamp min_lod_clamp_options）常量
 
@@ -1244,7 +1244,7 @@ uint get_num_mip_levels() const
 
 稀疏颜色-T 稀疏样本（采样器 s，浮点 3 坐标，
 
-``2023 - 06 - 02 |版权所有 © 2023 苹果公司 |版权所有。 ````
+||
 
 偏差选项）const
 
@@ -1280,7 +1280,7 @@ uint get_num_mip_levels() const
 
 稀疏颜色-T 稀疏读取（uint 2 坐标，uint 面，uint lod = 0）常量
 
-``2023 - 06 - 02 |版权所有 © 2023 苹果公司 |版权所有。 ````
+||
 
 此成员函数从 iOS 中的 Metal 2.2 和 macOS 中的 Metal 2.3 开始，从稀疏立方体深度纹理收集四个样本进行双线性插值。
 
@@ -1322,7 +1322,7 @@ T 样本（采样器 s，浮点 3 坐标，uint 数组，gradientcube grad_optio
 
 Tsample_compare（采样器 s，float3 坐标，uint 数组，floatcompare_value）const
 
-``2023 - 06 - 02 |版权所有 © 2023 苹果公司 |版权所有。 ````
+||
 
 Tsample_compare（采样器 s，float3 坐标，uint 数组，floatcompare_value，lod_options 选项）const
 
@@ -1366,7 +1366,7 @@ uint get_num_mip_levels() const
 
 稀疏颜色-T 稀疏样本（采样器 s，浮点 3 坐标，uint 数组，偏差 bias_options，
 
-``2023 - 06 - 02 |版权所有 © 2023 苹果公司 |版权所有。 ````
+||
 
 min_lod_clamp min_lod_clamp_options) const
 
@@ -1396,7 +1396,7 @@ min_lod_clamp min_lod_clamp_options) const
 
 稀疏颜色-T 稀疏读取（uint 2 坐标，uint 面，uint 数组，uint lod = 0）常量
 
-``2023 - 06 - 02 |版权所有 © 2023 苹果公司 |版权所有。 ````
+||
 
 此成员函数从稀疏立方体深度纹理数组中收集四个样本进行双线性插值，从 iOS 中的 Metal 2.2 和 macOS 中的 Metal 2.3 开始。
 
@@ -1440,7 +1440,7 @@ boolatomic_compare_exchange_weak(uint coord, 线程 Tv \*预期, Tv 期望) cons
 
 boolatomic_compare_exchange_weak(ushort coord, 线程 Tv \* 预期，
 
-``2023 - 06 - 02 |版权所有 © 2023 苹果公司 |版权所有。 ````
+||
 
 需要电视）常量
 
@@ -1484,7 +1484,7 @@ uint get_width() const;
 
 虚空栅栏()
 
-``2023 - 06 - 02 |版权所有 © 2023 苹果公司 |版权所有。 ````
+||
 
 以下示例演示如何使用纹理栅栏函数来确保线程对纹理的写入对于同一线程稍后对同一位置的读取可见：
 
@@ -1532,7 +1532,7 @@ bool is_null_texture(depthcube<T, access>);
 
 bool is_null_texture(depthcube_array<T, access>);
 
-``2023 - 06 - 02 |版权所有 © 2023 苹果公司 |版权所有。 ````
+||
 
 bool is_null_texture(depth2d_ms<T, access>);
 

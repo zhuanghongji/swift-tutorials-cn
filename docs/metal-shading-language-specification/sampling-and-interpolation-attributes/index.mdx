@@ -2,7 +2,7 @@
 
 采样和插值属性与使用 stage_in 属性声明的片段函数的输入一起使用，但 interpolant 类型的成员除外。属性
 
-``2023 - 06 - 02 |版权所有 © 2023 苹果公司 |版权所有。 ````
+||
 
 确定片段函数使用的采样方法以及如何执行插值，包括是否使用透视校正插值、线性插值或不插值。
 
@@ -26,7 +26,7 @@ center 属性变体（center_perspective 和 center_no_perspective）导致采�
 
 struct FragmentInput { float4 pos [[center_no_perspective]]; float4 颜色 [[center_perspective]]; float2 纹理坐标； int 索引[[平]]；浮动 f [[样本透视]]; interpolant icolor; };
 
-``2023 - 06 - 02 |版权所有 © 2023 苹果公司 |版权所有。 ````
+||
 
 在 Metal 2.4 或更高版本中，还可以在任何类型为结构体的 stage_in 结构体成员上指定样本和插值属性。结构中的所有成员都继承指定的采样和插值限定符。仅当满足以下条件之一时，继承了采样和插值限定符的结构中的字段声明才有效：
 

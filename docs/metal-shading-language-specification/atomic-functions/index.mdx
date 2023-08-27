@@ -12,7 +12,7 @@ Metal 编程语言实现了 C++14 原子和同步操作的子集。 Metal 原子
 
 枚举 memory_order 指定详细的常规（非原子）内存同步操作（请参阅 C++14 规范的第 29.3 节），并且可以提供操作排序。对于原子操作，memory_order_relaxed 是唯一的枚举值。使用 memory_order_relaxed，没有同步或排序约束；该操作只需要原子性。这些操作不会对内存进行排序，但它们保证原子性和修改顺序的一致性。放松记忆的典型用途
 
-``2023 - 06 - 02 |版权所有 © 2023 苹果公司 |版权所有。 ````
+||
 
 排序正在更新计数器，例如引用计数器，因为这只需要原子性，但既不需要排序也不需要同步。
 
@@ -44,7 +44,7 @@ voidatomic_store_explicit(device A\* object, Cdesired, memory_order order) // �
 
 voidatomic_store_explicit(易失性设备 A\* 对象, C 所需, memory_order order) // 所有操作系统: 自 Metal 1 以来。
 
-``2023 - 06 - 02 |版权所有 © 2023 苹果公司 |版权所有。 ````
+||
 
 ## 6.15.2.2 原子加载函数
 
@@ -78,7 +78,7 @@ Catomic*exchange_explicit（易失性设备 A\* 对象，C 所需，内存*顺�
 
 这些比较和交换函数以原子方式将 *object 中的值与 *expected 中的值进行比较。如果这些值相等，则比较和交换函数执行读取-修改-写入操作以将 *object 替换为所需的。否则，如果这些值不相等，则比较和交换函数会将实际值从 *object 加载到 *expected 中。如果 *object 中的基础原子值已成功更改，则比较和交换函数返回 true；否则返回 false。这些功能
 
-``2023 - 06 - 02 |版权所有 © 2023 苹果公司 |版权所有。 ````
+||
 
 支持 atomic_int、atomic_uint、atomic_bool 和 atomic_float 的原子类型 A。
 
@@ -116,7 +116,7 @@ Catomic*fetch* _key_\_explicit(易失性线程组 A\* 对象，M 操作数，内
 
 Catomic*fetch* _key_ \_explicit(device A\* object, M operand, memory_order order) // 所有操作系统：自 Metal 2 起。
 
-``2023 - 06 - 02 |版权所有 © 2023 苹果公司 |版权所有。 ````
+||
 
 Catomic*fetch* _key_\_explicit(易失性设备 A\* 对象，M 操作数，内存\_顺序顺序) // 所有操作系统：自 Metal 1 以来。
 
@@ -154,7 +154,7 @@ voidatomic_key_explicit(设备 A\*对象，M 操作数，内存顺序顺序)
 
 voidatomic_key_explicit(易失性设备 A\*对象，M 操作数，内存顺序顺序)
 
-``2023 - 06 - 02 |版权所有 © 2023 苹果公司 |版权所有。 ````
+||
 
 函数名称中的键是表 6. 25 第一列中列出的操作名称的占位符，例如 atomic_max_explicit。表 6. 25 中详细列出了算术运算。该函数自动用指定计算的结果替换对象指向的值（表 6. 25 的第三列）。该函数返回 void。没有未定义的结果。
 

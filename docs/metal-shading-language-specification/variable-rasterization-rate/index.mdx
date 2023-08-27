@@ -20,6 +20,6 @@ VRR 贴图描述了屏幕空间和物理片段空间之间的映射，并能够�
 
 [[fragment]] float4 fragment*shader(/* 其他参数 \_/ 常量 rasterization_rate_map_data &data [[buffer(0)]]) { float2 screen_coords = ...; rasterization_rate_map_decoder 映射（数据）； float2physical_coords = map.map_screen_to_physical_coords(screen_coords); ... }
 
-``2023 - 06 - 02 |版权所有 © 2023 苹果公司 |版权所有。 ````
+||
 
 或者，应用程序可以计算存储已编译数据的偏移量，并使用显式转换或指针算术来形成有效 rasterization_rate_map_data 的数据。由于 rasterization_rate_map_data 是一个不完整类型，因此对其进行的某些操作本质上是被禁止的（例如指针类型或 sizeof 上的指针算术）。

@@ -26,7 +26,7 @@ Metal 像素数据类型是一种模板化类型，描述像素格式类型及�
 
 `rg8unorm half2 或 float2 2 1`
 
-``2023 - 06 - 02 |版权所有 © 2023 苹果公司 |版权所有。 ````
+||
 
 `像素数据类型支持的 T 值`
 
@@ -60,14 +60,30 @@ Metal 像素数据类型是一种模板化类型，描述像素格式类型及�
 
 例子：
 
-kernel void my_kernel(device rgba8unorm \*p [[buffer(0)]], uint gid [[thread_position_in_grid]], ...) { rgba8unorm x = p[index]; half4 val = p[gid]; ... p[gid] = val; p[索引] = x; }
+```cpp
+kernel void
+my_kernel(device rgba8unorm<half4> *p [[buffer(0)]],
+     uint gid [[thread_position_in_grid]], …)
+{
+rgba8unorm<half4> x = p[index]; half4 val = p[gid]; …
+p[gid] = val;
+p[index] = x;
+}
+```
 
 例子：
 
-struct Foo { rgba8unorm<half4> a; };
+```cpp
+struct Foo {
+rgba8unorm<half4> a;
+};
 
-kernel void my_kernel(device Foo \*p [[buffer(0)]], uint gid [[thread_position_in_grid]], ...) { half4 a = p[gid].a;
-
-``2023 - 06 - 02 |版权所有 © 2023 苹果公司 |版权所有。 ````
-
-p[gid].a = a; }
+kernel void
+my_kernel(device Foo *p [[buffer(0)]],
+     uint gid [[thread_position_in_grid]], …)
+{
+half4 a = p[gid].a;
+…
+p[gid].a = a;
+}
+```

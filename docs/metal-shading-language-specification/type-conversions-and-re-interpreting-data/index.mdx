@@ -10,16 +10,26 @@ Metal 添加了一个 as_type 运算符，以允许任何标量或向量数据�
 
 合法和非法类型转换的示例：
 
-浮点数 f = 1.0f； // 合法的。包含：0x3f800000 uint u = as_type(f);
+```cpp
+float f = 1.0f;
+// Legal. Contains: 0x3f800000
+uint u = as_type<uint>(f);
 
-// 合法的。包含： // (int4)(0x3f800000, 0x40000000, 0x40400000, 0x40800000) float4 f = float4(1.0f, 2.0f, 3.0f, 4.0f); int4 i = as_type(f);
+// Legal. Contains:
+// (int4)(0x3f800000, 0x40000000, 0x40400000, 0x40800000)
+float4 f = float4(1.0f, 2.0f, 3.0f, 4.0f);
+int4 i = as_type<int4>(f);
 
-整数我； // 合法的。
-
-``2023 - 06 - 02 |版权所有 © 2023 苹果公司 |版权所有。 ````
+int i;
+// Legal.
 
 short2 j = as_type<short2>(i);
 
-半 4 f； // 错误。结果和操作数的大小不同 float4 g = as_type(f);
+half4 f;
+// Error. Result and operand have different sizes
+float4 g = as_type<float4>(f);
 
-浮动 4 f； // 合法的。 g.xyz 与 f.xyz 具有相同的值。 float3 g = as_type(f);
+float4 f;
+// Legal. g.xyz has same values as f.xyz.
+float3 g = as_type<float3>(f);
+```
