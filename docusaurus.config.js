@@ -126,10 +126,21 @@ const config = {
             position: "right",
           },
           {
-            type: "docSidebar",
-            label: "MetalProgrammingGuide",
-            sidebarId: "metalprogrammingguideSidebar",
+            type: "dropdown",
+            label: "Books",
             position: "right",
+            items: [
+              {
+                type: "docSidebar",
+                label: "Metal Programming Guide",
+                sidebarId: "metalprogrammingguideSidebar",
+              },
+              {
+                type: "docSidebar",
+                label: "Metal Shading Language Specification 3.1",
+                sidebarId: "metalshadinglanguagespecificationSidebar",
+              },
+            ],
           },
           {
             "aria-label": "GitHub repository",

@@ -269,6 +269,138 @@ const metalprogrammingguideSidebar = [
   },
 ];
 
+/** @type {import('@docusaurus/plugin-content-docs').SidebarsConfig['']} */
+const metalshadinglanguagespecificationSidebar = [
+  {
+    type: "category",
+    label: "Metal Shading Language 规范",
+    collapsible: false,
+    items: [
+      {
+        type: "category",
+        label: "介绍内容",
+        collapsed: false,
+        items: [
+          "metal-shading-language-specification/purpose-of-this-document/index",
+          "metal-shading-language-specification/organization-of-this-specification/index",
+          "metal-shading-language-specification/references/index",
+          "metal-shading-language-specification/metal-and-cpp14/index",
+          "metal-shading-language-specification/compiler-and-preprocessor/index",
+          "metal-shading-language-specification/metal-coordinate-systems/index",
+        ],
+      },
+      {
+        type: "category",
+        label: "数据类型",
+        collapsed: false,
+        items: [
+          "metal-shading-language-specification/scalar-data-types/index",
+          "metal-shading-language-specification/vector-data-types/index",
+          "metal-shading-language-specification/matrix-data-types/index",
+          "metal-shading-language-specification/simd-group-matrix-data-types/index",
+          "metal-shading-language-specification/alignment-of-data-types/index",
+          "metal-shading-language-specification/atomic-data-types/index",
+          "metal-shading-language-specification/pixel-data-types/index",
+          "metal-shading-language-specification/buffers/index",
+          "metal-shading-language-specification/textures/index",
+          "metal-shading-language-specification/samplers/index",
+          "metal-shading-language-specification/imageblocks/index",
+          "metal-shading-language-specification/aggregate-types/index",
+          "metal-shading-language-specification/argument-buffers/index",
+          "metal-shading-language-specification/uniform-type/index",
+          "metal-shading-language-specification/visible-function-table/index",
+          "metal-shading-language-specification/function-group-attribute/index",
+          "metal-shading-language-specification/ray-tracing-types/index",
+          "metal-shading-language-specification/interpolant-type/index",
+          "metal-shading-language-specification/mesh-shader-types/index",
+          "metal-shading-language-specification/type-conversions-and-re-interpreting-data/index",
+          "metal-shading-language-specification/implicit-type-conversions/index",
+        ],
+      },
+      {
+        type: "category",
+        label: "运算符",
+        collapsed: false,
+        items: [
+          "metal-shading-language-specification/scalar-and-vector-operators/index",
+          "metal-shading-language-specification/matrix-operators/index",
+        ],
+      },
+      {
+        type: "category",
+        label: "地址空间",
+        collapsed: false,
+        items: [
+          "metal-shading-language-specification/device-address-space/index",
+          "metal-shading-language-specification/constant-address-space/index",
+          "metal-shading-language-specification/thread-address-space/index",
+          "metal-shading-language-specification/threadgroup-address-space/index",
+          "metal-shading-language-specification/threadgroup-imageblock-address-space/index",
+          "metal-shading-language-specification/ray-data-address-space/index",
+          "metal-shading-language-specification/object-data-address-space/index",
+        ],
+      },
+      {
+        type: "category",
+        label: "函数与变量声明",
+        collapsed: false,
+        items: [
+          "metal-shading-language-specification/functions/index",
+          "metal-shading-language-specification/function-arguments-and-variables/index",
+          "metal-shading-language-specification/storage-class-specifiers/index",
+          "metal-shading-language-specification/sampling-and-interpolation-attributes/index",
+          "metal-shading-language-specification/per-fragment-function-versus-per-sample-function/index",
+          "metal-shading-language-specification/imageblock-attributes/index",
+          "metal-shading-language-specification/graphics-function-signature-matching/index",
+          "metal-shading-language-specification/program-scope-function-constants/index",
+          "metal-shading-language-specification/program-scope-global-built-ins/index",
+          "metal-shading-language-specification/per-primitive-viewport-and-scissor-rectangle-index-selection/index",
+          "metal-shading-language-specification/additional-restrictions/index",
+        ],
+      },
+      {
+        type: "category",
+        label: "Metal 标准库",
+        collapsed: false,
+        items: [
+          "metal-shading-language-specification/namespace-and-header-files/index",
+          "metal-shading-language-specification/common-functions/index",
+          "metal-shading-language-specification/integer-functions/index",
+          "metal-shading-language-specification/relational-functions/index",
+          "metal-shading-language-specification/math-functions/index",
+          "metal-shading-language-specification/matrix-functions/index",
+          "metal-shading-language-specification/simd-group-matrix-functions/index",
+          "metal-shading-language-specification/geometric-functions/index",
+          "metal-shading-language-specification/synchronization-and-simd-group-functions/index",
+          "metal-shading-language-specification/graphics-functions/index",
+          "metal-shading-language-specification/pull-model-interpolation/index",
+          "metal-shading-language-specification/texture-functions/index",
+          "metal-shading-language-specification/imageblock-functions/index",
+          "metal-shading-language-specification/pack-and-unpack-functions/index",
+          "metal-shading-language-specification/atomic-functions/index",
+          "metal-shading-language-specification/encoding-commands-for-indirect-command-buffers/index",
+          "metal-shading-language-specification/variable-rasterization-rate/index",
+          "metal-shading-language-specification/ray-tracing-functions/index",
+        ],
+      },
+      {
+        type: "category",
+        label: "数值符合性",
+        collapsed: false,
+        items: [
+          "metal-shading-language-specification/inf-nan-and-denormalized-numbers/index",
+          "metal-shading-language-specification/rounding-mode/index",
+          "metal-shading-language-specification/floating-point-exceptions/index",
+          "metal-shading-language-specification/relative-error-as-ulps/index",
+          "metal-shading-language-specification/edge-case-behavior-in-flush-to-zero-mode/index",
+          "metal-shading-language-specification/conversion-rules-for-floating-point-and-integer-types/index",
+          "metal-shading-language-specification/texture-addressing-and-conversion-rules/index",
+        ],
+      },
+    ],
+  },
+];
+
 /** @type {import('@docusaurus/plugin-content-docs').SidebarsConfig} */
 const sidebars = {
   // By default, Docusaurus generates a sidebar from the docs folder structure
@@ -280,6 +412,7 @@ const sidebars = {
   swiftchartsSidebar,
   swiftdataSidebar,
   metalprogrammingguideSidebar,
+  metalshadinglanguagespecificationSidebar,
 };
 
 module.exports = sidebars;
