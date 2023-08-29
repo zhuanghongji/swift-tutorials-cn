@@ -125,29 +125,20 @@ __METAL__         // Set if compiled with the unified Metal language
 
 通过将 `-ftexture-write-rounding-mode` 编译器标志设置为表 1.1 中的选项之一，配置纹理写入浮点像素类型的舍入模式。
 
-`表 1. 1. 舍入模式`
+<TableWrapper num="1.1" title="舍入模式">
 
-`舍入模式 描述`
+|               Rounding mode               | Description1                     |
+| :---------------------------------------: | :------------------------------- |
+|             native (default)              | 纹理写入使用硬件的本机舍入策略。 |
+| rte<br/><br/>All OS: Since<br/>Metal 2.3. | 纹理四舍五入到最接近的偶数。     |
+| rtz<br/><br/>All OS: Since<br/>Metal 2.3. | 纹理朝零方向四舍五入写入。       |
 
-`本机（默认）`
+</TableWrapper>
 
-``` 纹理写入使用硬件的本机舍入策略。````
+`-ftexture-write-rounding-mode` 标志可用于以下 SDK：
 
-` rte`
-
-``` 所有操作系统：自 Metal 2.3 起。````
-
-``` 纹理四舍五入到最接近的偶数。````
-
-`rtz`
-
-``` 所有操作系统：自 Metal 2.3 起。````
-
-`` 纹理朝零方向四舍五入写入。````
-
--ftexture-write-rounding-mode 标志可用于以下 SDK：
-
-- macOS 11 或更高版本 - iOS 14 或更高版本
+- macOS 11 或更高版本
+- iOS 14 或更高版本
 
 有关哪些 GPU 系列支持本机以外的舍入模式的更多信息，请参阅 Metal 功能集表。
 
@@ -155,95 +146,136 @@ __METAL__         // Set if compiled with the unified Metal language
 
 编译器支持多个选项来控制模块的使用。这些选项仅适用于离线编译器：
 
--f 模块
+```bash
+-fmodules
+# 启用模块功能。
 
-`` 启用模块功能。````
+-fimplicit-module-maps
+# 启用对名为 module.modulemap 或类似名称的模块映射文件的隐式搜索。
+# 默认情况下，-fmodules 启用此选项。
+#（编译器选项 - fno-implicit-module-maps 禁用此选项。）
 
-- f 隐式模块映射
+-fno-implicit-module-maps
+# 禁用对名为 module.modulemap 的模块映射文件的隐式搜索。
+# 仅当使用 -fmodule-map-file 显式指定或由另一个模块映射文件传递使用时，才会加载模块映射文件。
 
-`启用对名为 module.modulemap 或类似名称的模块映射文件的隐式搜索。默认情况下，-fmodules 启用此选项。（编译器选项 - fno-implicit-module-maps 禁用此选项。）`
+-fmodules-cache-path=<directory>
+# 指定模块缓存的路径。如果未提供，编译器将选择适合系统的默认值。
 
-- fno 隐式模块映射
-
-``` 禁用对名为 module.modulemap 的模块映射文件的隐式搜索。仅当使用 -fmodule-map-file 显式指定或由另一个模块映射文件传递使用时，才会加载模块映射文件。````
-
-- fmodules-cache-path=<目录>
-
-``` 指定模块缓存的路径。如果未提供，编译器将选择适合系统的默认值。````
-
-- fmodule-map-file=<文件>
-
-如果加载了指定模块映射文件的目录或其子目录之一的标头，则加载指定的模块映射文件。````
+-fmodule-map-file=<file>
+# 如果加载了指定模块映射文件的目录或其子目录之一的标头，则加载指定的模块映射文件。
+```
 
 如果你使用支持 iOS 16 或 macOS 13 的 SDK 进行构建，-fmodules 具有以下附加选项。
 
-- fmodules=[mode] 支持的模式值为：stdlib：启用模块功能，但将模块映射的搜索限制为 Metal 标准库。默认情况下，使用支持 iOS 16 或 macOS 13 的 SDK 启用。
-
-`` all：启用模块功能（相当于-fmodules）。none：禁用模块功能。````
+```bash
+-fmodules=[mode]
+# 支持的模式值为：
+# - stdlib：启用模块功能，但将模块映射的搜索限制为 Metal 标准库。
+#           默认情况下，使用支持 iOS 16 或 macOS 13 的 SDK 启用。
+# - all：启用模块功能（相当于-fmodules）。
+# - none：禁用模块功能。
+```
 
 ## 控制语言版本的编译器选项
 
 以下选项控制编译器接受的统一图形和计算语言的版本：
 
--标准=
+```bash
+-std=
+```
 
 确定要使用的语言版本。必须提供此选项的值，该值必须是以下之一：
 
-- ios-metal1.0：支持统一图形和计算语言修订版 1。适用于 iOS 8 的程序。[[已弃用并将在未来的操作系统中删除]]
-
-- ios-metal1.1：支持统一图形和计算语言修订版 1.适用于 iOS 9 的程序。- ios-metal1.2：支持统一图形和计算语言修订版 1.适用于 iOS 10 的程序。- ios-metal2.0 ：支持 iOS 11 统一图形和计算语言修订版 2.程序。- ios-metal2.1：支持 iOS 12 统一图形和计算语言修订版 2.程序。- ios-metal2.2：支持统一图形和计算语言修订版。计算语言修订版 2. iOS 13 的 2 个程序。- ios-metal2.3：支持统一图形和计算语言修订版 2。iOS 14 的 3 个程序。- ios-metal2.4：支持统一图形和计算语言修订版 2 4 个适用于 iOS 15 的程序。- macos-metal1,1 或 osx-metal1.1：支持 macOS 10.11 的统一图形和计算语言修订版 1.1 程序。- macos-metal1.2 或 osx-metal1.2：支持 macOS 10.12 的统一图形和计算语言修订版 1.2 程序。- macos-metal2。0 或 osx-metal2.0：支持 macOS 10.13 的统一图形和计算语言修订版 2.0 程序。- macos-metal2.1：支持 macOS 10.14 的统一图形和计算语言修订版 2.1 程序。- macos-metal2.2：支持 macOS 10.1 5 的统一图形和计算语言修订版 2. 2 程序。- macos-metal2.3：支持 macOS 11.0 的统一图形和计算语言修订版 2. 3 程序 - macos-metal2.4：支持 macOS 12.0 的统一图形和计算语言修订版 2.4 程序。
+- `ios-metal1.0`: Support the unified graphics and computing language revision 1.0 programs for iOS 8. [[deprecated and will be removed in future OS]]
+- `ios-metal1.1`: Support the unified graphics and computing language revision 1.1 programs for iOS 9.
+- `ios-metal1.2`: Support the unified graphics and computing language revision 1.2 programs for iOS 10.
+- `ios-metal2.0`: Support the unified graphics and computing language revision 2.0 programs for iOS 11.
+- `ios-metal2.1`: Support the unified graphics and computing language revision 2.1 programs for iOS 12.
+- `ios-metal2.2`: Support the unified graphics and computing language revision 2.2 programs for iOS 13.
+- `ios-metal2.3`: Support the unified graphics and computing language revision 2.3 programs for iOS 14.
+- `ios-metal2.4`: Support the unified graphics and computing language revision 2.4 programs for iOS 15.
+- `macos-metal1,1` or `osx-metal1.1`: Support the unified graphics and computing language revision 1.1 programs for macOS 10.11.
+- `macos-metal1.2` or `osx-metal1.2`: Support the unified graphics and computing language revision 1.2 programs for macOS 10.12.
+- `macos-metal2.0` or `osx-metal2.0`: Support the unified graphics and computing language revision 2.0 programs for macOS 10.13.
+- `macos-metal2.1`: Support the unified graphics and computing language revision 2.1 programs for macOS 10.14.
+- `macos-metal2.2`: Support the unified graphics and computing language revision 2.2 programs for macOS 10.15.
+- `macos-metal2.3`: Support the unified graphics and computing language revision 2.3 programs for macOS 11.0.
+- `macos-metal2.4`: Support the unified graphics and computing language revision 2.4 programs for macOS 12.0.
 
 请注意，macos-\* 在 macOS10.13 SDK 及更高版本中可用。
 
 从 macOS13.0、iOS 16 和 tvOS 16 开始，Metal 已经在平台之间统一了着色语言。
 
-- Metal 3.0：支持 macOS 13 .0、iOS 16 和 tvOS 16 的统一图形和计算语言修订版 3.0 程序。- Metal 3.1：支持 macOS 14 .0 的统一图形和计算语言修订版 3.1 程序、iOS 17 和 tvOS 17。
+- Metal 3.0：支持 macOS 13 .0、iOS 16 和 tvOS 16 的统一图形和计算语言修订版 3.0 程序。
+- Metal 3.1：支持 macOS 14 .0 的统一图形和计算语言修订版 3.1 程序、iOS 17 和 tvOS 17。
 
 ## 请求或抑制警告的编译器选项
 
 可以使用以下选项：
 
-- 错误
-
-``` 将所有警告变成错误。````
+```bash
+-Werror
+# 将所有警告变成错误。
 
 -w
-
-`` 禁止所有警告消息。````
+# 禁止所有警告消息。
+```
 
 ## 目标条件
 
-Metal 定义了几个宏，可用于确定着色器运行的平台。以下宏在 中定义：
+Metal 定义了几个宏，可用于确定着色器运行的平台。以下宏在 `<TargetConditionals.h>` 中定义：
 
-TARGET_OS_MAC ：生成的代码将在 Mac OS X 变体下运行 TARGET_OS_OSX ：生成的代码将在 OS X 设备下运行 TARGET_OS_IPHONE ：为固件、设备或模拟器生成的代码 TARGET_OS_IOS ：生成的代码将在 iOS 下运行 TARGET_OS_TV ：生成的代码将在 Apple TV 操作系统下运行 TARGET_OS_MACCATALYST ：生成的代码将在 MacOS 下运行 TARGET_OS_SIMULATOR ：生成的代码将在模拟器下运行
+- TARGET_OS_MAC ：生成的代码将在 Mac OS X 变体下运行
+- TARGET_OS_OSX ：生成的代码将在 OS X 设备下运行
+- TARGET_OS_IPHONE ：为固件、设备或模拟器生成的代码
+- TARGET_OS_IOS ：生成的代码将在 iOS 下运行
+- TARGET_OS_TV ：生成的代码将在 Apple TV 操作系统下运行
+- TARGET_OS_MACCATALYST ：生成的代码将在 MacOS 下运行
+- TARGET_OS_SIMULATOR ：生成的代码将在模拟器下运行
 
-请注意，此标头不是 的一部分。
+请注意，此标头不是 `<metal_stdlib>` 的一部分。
 
 ## 动态库链接器选项
 
 Metal 编译器驱动程序可以将选项传递给链接器。以下是其中一些选项的简要说明。有关详细信息，请参阅 Metal 链接器。
 
-- 动态库
+```bash
+-dynamiclib
+# 指定输出是动态库。
 
-``` 指定输出是动态库。````
-
-- 安装名称
-
-`` 与 -dynamiclib 一起使用来指定加载程序期望安装和找到动态库的位置。与@executable_path 和@loader_path 一起使用。````
+-install_name
+# 与 -dynamiclib 一起使用来指定加载程序期望安装和找到动态库的位置。
+# 与 @executable_path 和 @loader_path 一起使用。
+```
 
 ## 编译为 GPU 二进制文件的选项
 
 如果你使用支持 iOS 16 或 macOS 13 的 SDK 进行构建，则可以使用以下选项编译为 GPU 二进制文件。
 
-- arch [架构] 指定要构建的架构。
-- gpu-family [gpu 系列名称] 指定与要构建的 MTLGPUFamily 关联的体系结构。请参阅 Metal API 中的 MTLGPUFamily 以获取可用系列的列表。
-- N [descriptor.mtlp-json] 以 Metal 脚本格式指定管道描述符。描述符文件必须以 .mtlp-json 结尾。
+```bash
+-arch [architecture]
+# 指定要构建的架构。
+
+-gpu-family [gpu family name]
+# 指定与要构建的 MTLGPUFamily 关联的体系结构。
+# 请参阅 Metal API 中的 MTLGPUFamily 以获取可用系列的列表。
+
+-N [descriptor.mtlp-json]
+# 以 Metal 脚本格式指定管道描述符。描述符文件必须以 .mtlp-json 结尾。
+```
 
 ## 生成 Metal 库符号文件的选项
 
 如果你使用支持 iOS 15 或 macOS 12 的 SDK 进行构建，则可以使用以下选项来生成 Metal 库符号文件。
 
-- frecord-sources 使编译器能够将源信息存储到 AIR 或 Metal 库文件 (.metallib) 中。
-- frecord-sources=flat 如果生成 AIR 文件，则启用编译器存储源信息。如果生成 Metal 库文件，则启用编译器将源信息存储在符号伴随文件 (.metallibsym) 中。
+```bash
+-frecord-sources
+# 使编译器能够将源信息存储到 AIR 或 Metal 库文件 (.metallib) 中。
 
-有关更多信息，请参阅 developer.apple.com 上的生成和加载 Metal 符号文件。
+-frecord-sources=flat
+# 如果生成 AIR 文件，则启用编译器存储源信息。
+# 如果生成 Metal 库文件，则启用编译器将源信息存储在符号伴随文件 (.metallibsym) 中。
+```
+
+有关更多信息，请参阅 developer.apple.com 上的 **Generating and Loading a Metal Symbol File**。

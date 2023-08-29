@@ -11,6 +11,12 @@
     "body": ["```cpp", "$1", "```", "", "$0"],
     "description": "Create Cpp Code Block"
   },
+  "Bash Code Block": {
+    "scope": "md,mdx",
+    "prefix": "```bash",
+    "body": ["```bash", "$1", "```", "", "$0"],
+    "description": "Create Bash Code Block"
+  },
   "Highlight Next Line": {
     "scope": "md,mdx,javascript,typescript",
     "prefix": "highlightnext",
