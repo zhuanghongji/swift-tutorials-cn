@@ -11,7 +11,7 @@ Swift 提供了三种主要的集合类型，称为数组、集合和字典，�
 
 ![](./collection-types-intro.png)
 
-Swift 中的数组、集合和字典总是清楚它们可以存储的值和键的类型。这意味着您不能错误地将错误类型的值插入到集合中。这也意味着您可以确信将从集合中检索的值类型。
+Swift 中的数组、集合和字典总是清楚它们可以存储的值和键的类型。这意味着你不能错误地将错误类型的值插入到集合中。这也意味着你可以确信将从集合中检索的值类型。
 
 :::note
 Swift 的数组、集合和字典类型被实现为通用集合。有关泛型类型和集合的更多信息，请参阅 [泛型](../generics/index.mdx) 。
@@ -19,10 +19,10 @@ Swift 的数组、集合和字典类型被实现为通用集合。有关泛型�
 
 ## 集合的可变性
 
-如果您创建一个数组、一个集合或一个字典，并将其分配给一个变量，则创建的集合将是可变的。这意味着您可以在创建集合后通过添加、删除或更改集合中的项目来更改（或改变）集合。如果将数组、集合或字典分配给常量，则该集合是不可变的，并且其大小和内容无法更改。
+如果你创建一个数组、一个集合或一个字典，并将其分配给一个变量，则创建的集合将是可变的。这意味着你可以在创建集合后通过添加、删除或更改集合中的项目来更改（或改变）集合。如果将数组、集合或字典分配给常量，则该集合是不可变的，并且其大小和内容无法更改。
 
 :::note
-在集合不需要更改的所有情况下创建不可变集合是一种很好的做法。这样做可以让您更轻松地推理您的代码，并使 Swift 编译器能够优化您创建的集合的性能。
+在集合不需要更改的所有情况下创建不可变集合是一种很好的做法。这样做可以让你更轻松地推理你的代码，并使 Swift 编译器能够优化你创建的集合的性能。
 :::
 
 ## 数组
@@ -37,11 +37,11 @@ Swift 的 Array 类型桥接到 Foundation 的 NSArray 类。
 
 ## 数组类型速记语法
 
-Swift 数组的类型完整写为 `Array<Element>` ，其中 Element 是允许数组存储的值的类型。您还可以将数组的类型以简写形式写为 `[Element]`. 尽管这两种形式在功能上是相同的，但在提及数组类型时，首选简写形式并在本指南中通篇使用。
+Swift 数组的类型完整写为 `Array<Element>` ，其中 Element 是允许数组存储的值的类型。你还可以将数组的类型以简写形式写为 `[Element]`. 尽管这两种形式在功能上是相同的，但在提及数组类型时，首选简写形式并在本指南中通篇使用。
 
 ## 创建一个空数组
 
-您可以使用初始化语法创建特定类型的空数组：
+你可以使用初始化语法创建特定类型的空数组：
 
 ```swift
 var someInts: [Int] = []
@@ -62,7 +62,7 @@ someInts = []
 
 ## 创建具有默认值的数组
 
-Swift 的 Array 类型还提供了一个初始化器，用于创建一个特定大小的数组，并将其所有值设置为相同的默认值。您向此初始值设定项传递适当类型的默认值（称为 repeating）：以及该值在新数组中重复的次数（称为 count）：
+Swift 的 Array 类型还提供了一个初始化器，用于创建一个特定大小的数组，并将其所有值设置为相同的默认值。你向此初始值设定项传递适当类型的默认值（称为 repeating）：以及该值在新数组中重复的次数（称为 count）：
 
 ```swift
 var threeDoubles = Array(repeating: 0.0, count: 3)
@@ -71,7 +71,7 @@ var threeDoubles = Array(repeating: 0.0, count: 3)
 
 ## 通过将两个数组相加来创建数组
 
-您可以通过使用加法运算符 ( +) 将具有兼容类型的两个现有数组相加来创建一个新数组。新数组的类型是根据您加在一起的两个数组的类型推断出来的：
+你可以通过使用加法运算符 ( +) 将具有兼容类型的两个现有数组相加来创建一个新数组。新数组的类型是根据你加在一起的两个数组的类型推断出来的：
 
 ```swift
 var anotherThreeDoubles = Array(repeating: 2.5, count: 3)
@@ -83,7 +83,7 @@ var sixDoubles = threeDoubles + anotherThreeDoubles
 
 ## 使用数组字面量创建数组
 
-您还可以使用数组文字来初始化数组，这是一种将一个或多个值写成数组集合的简写方式。数组文字被写成值列表，用逗号分隔，并用一对方括号括起来：
+你还可以使用数组文字来初始化数组，这是一种将一个或多个值写成数组集合的简写方式。数组文字被写成值列表，用逗号分隔，并用一对方括号括起来：
 
 ```swift
 [<#value 1#>, <#value 2#>, <#value 3#>]
@@ -104,7 +104,7 @@ var shoppingList: [String] = ["Eggs", "Milk"]
 
 在这种情况下，数组字面量 String 只包含两个值。这与变量声明的类型（一个只能包含值的数组）相匹配，因此允许数组文字的赋值作为使用两个初始项进行初始化的一种方式。shoppingListStringshoppingList
 
-多亏了 Swift 的类型推断，如果您使用包含相同类型值的数组字面量对其进行初始化，则不必编写数组的类型。的初始化可以写成更短的形式：shoppingList
+多亏了 Swift 的类型推断，如果你使用包含相同类型值的数组字面量对其进行初始化，则不必编写数组的类型。的初始化可以写成更短的形式：shoppingList
 
 ```swift
 var shoppingList = ["Eggs", "Milk"]
@@ -114,7 +114,7 @@ var shoppingList = ["Eggs", "Milk"]
 
 ## 访问和修改数组
 
-您可以通过数组的方法和属性，或使用下标语法来访问和修改数组。
+你可以通过数组的方法和属性，或使用下标语法来访问和修改数组。
 
 要找出数组中的项目数，请检查其只读 count 属性：
 
@@ -134,7 +134,7 @@ if shoppingList.isEmpty {
 // Prints "The shopping list isn't empty."
 ```
 
-您可以通过调用数组的方法将新项目添加到数组的末尾 `append(_:)：`
+你可以通过调用数组的方法将新项目添加到数组的末尾 `append(_:)：`
 
 ```swift
 shoppingList.append("Flour")
@@ -161,18 +161,18 @@ var firstItem = shoppingList[0]
 数组中的第一项的索引为 0，而不是 1。Swift 中的数组总是从零开始索引的。
 :::
 
-您可以使用下标语法更改给定索引处的现有值：
+你可以使用下标语法更改给定索引处的现有值：
 
 ```swift
 shoppingList[0] = "Six eggs"
 // the first item in the list is now equal to "Six eggs" rather than "Eggs"
 ```
 
-当您使用下标语法时，您指定的索引需要有效。例如，尝试将一个项目追加到数组的末尾会导致运行时错误。
+当你使用下标语法时，你指定的索引需要有效。例如，尝试将一个项目追加到数组的末尾会导致运行时错误。
 
 `shoppingList[shoppingList.count] = "Salt"`
 
-您还可以使用下标语法一次更改一个值范围，即使替换值集的长度与您要替换的范围的长度不同。以下示例将"Chocolate Spread","Cheese"和替换"Butter"为"Bananas"and "Apples"：
+你还可以使用下标语法一次更改一个值范围，即使替换值集的长度与你要替换的范围的长度不同。以下示例将"Chocolate Spread","Cheese"和替换"Butter"为"Bananas"and "Apples"：
 
 ```swift
 shoppingList[4...6] = ["Bananas", "Apples"]
@@ -189,7 +189,7 @@ shoppingList.insert("Maple Syrup", at: 0)
 
 对该方法的调用将在购物清单的最开头插入一个值为 的新商品，由 的索引指示。`insert(_:at:)"Maple Syrup"0`
 
-同样，您可以使用 方法从数组中删除一个项目 remove(at:)。此方法删除指定索引处的项目并返回删除的项目（尽管如果不需要，可以忽略返回值）：
+同样，你可以使用 方法从数组中删除一个项目 remove(at:)。此方法删除指定索引处的项目并返回删除的项目（尽管如果不需要，可以忽略返回值）：
 
 ```swift
 let mapleSyrup = shoppingList.remove(at: 0)
@@ -199,7 +199,7 @@ let mapleSyrup = shoppingList.remove(at: 0)
 ```
 
 :::note
-如果您尝试访问或修改超出数组现有范围的索引值，您将触发运行时错误。您可以通过将索引与数组的属性进行比较来检查索引是否有效，然后再使用它 count。数组中最大的有效索引是 count - 1 因为数组是从零开始索引的——然而，当 count 它 0（意味着数组为空）时，没有有效索引。
+如果你尝试访问或修改超出数组现有范围的索引值，你将触发运行时错误。你可以通过将索引与数组的属性进行比较来检查索引是否有效，然后再使用它 count。数组中最大的有效索引是 count - 1 因为数组是从零开始索引的——然而，当 count 它 0（意味着数组为空）时，没有有效索引。
 :::
 
 当一个项目被移除时，数组中的任何间隙都会被关闭，因此索引处的值 0 再次等于"Six eggs"：
@@ -220,7 +220,7 @@ let apples = shoppingList.removeLast()
 
 ## 遍历数组
 
-for 您可以使用-循环遍历数组中的整组值 in：
+for 你可以使用-循环遍历数组中的整组值 in：
 
 ```swift
 for item in shoppingList {
@@ -233,7 +233,7 @@ for item in shoppingList {
 // Bananas
 ```
 
-如果您需要每个项目的整数索引及其值，请改用该 enumerated()方法遍历数组。对于数组中的每个项目，该 enumerated()方法返回一个由整数和项目组成的元组。整数从零开始，每一项加一；如果您枚举整个数组，这些整数与项的索引相匹配。作为迭代的一部分，您可以将元组分解为临时常量或变量：
+如果你需要每个项目的整数索引及其值，请改用该 enumerated()方法遍历数组。对于数组中的每个项目，该 enumerated()方法返回一个由整数和项目组成的元组。整数从零开始，每一项加一；如果你枚举整个数组，这些整数与项的索引相匹配。作为迭代的一部分，你可以将元组分解为临时常量或变量：
 
 ```swift
 for (index, value) in shoppingList.enumerated() {
@@ -250,7 +250,7 @@ for 有关-循环的更多信息 in，请参阅 For-In 循环。
 
 ## 集合
 
-集合将相同类型的不同值存储在一个集合中，没有定义顺序。当项目的顺序不重要时，或者当您需要确保一个项目只出现一次时，您可以使用集合而不是数组。
+集合将相同类型的不同值存储在一个集合中，没有定义顺序。当项目的顺序不重要时，或者当你需要确保一个项目只出现一次时，你可以使用集合而不是数组。
 
 :::note
 Swift 的 Set 类型桥接到 Foundation 的 NSSet 类。
@@ -265,7 +265,7 @@ Swift 的 Set 类型桥接到 Foundation 的 NSSet 类。
 Swift 的所有基本类型（例如 String、Int、Double 和 Bool）在默认情况下都是可哈希的，并且可以用作设置值类型或字典键类型。默认情况下，没有关联值的枚举案例值（如枚举中所述）也是可散列的。
 
 :::note
-您可以使用自己的自定义类型作为设置值类型或字典键类型，方法是使它们符合 HashableSwift 标准库中的协议。有关实现所需 hash(into:)方法的信息，请参阅 Hashable。有关遵守协议的信息，请参阅协议。
+你可以使用自己的自定义类型作为设置值类型或字典键类型，方法是使它们符合 HashableSwift 标准库中的协议。有关实现所需 hash(into:)方法的信息，请参阅 Hashable。有关遵守协议的信息，请参阅协议。
 :::
 
 ## 设置类型语法
@@ -274,7 +274,7 @@ Swift 集合的类型写为 `Set<Element>`，其中 Element 是集合允许存�
 
 ## 创建和初始化空集
 
-您可以使用初始化语法创建特定类型的空集：
+你可以使用初始化语法创建特定类型的空集：
 
 ```swift
 var letters = Set<Character>()
@@ -286,7 +286,7 @@ print("letters is of type Set<Character> with \(letters.count) items.")
 从初始值设定项的类型 letters 推断变量的类型为 , 。`Set<Character>`
 :::
 
-或者，如果上下文已经提供了类型信息，例如函数参数或已经类型化的变量或常量，您可以使用空数组文字创建一个空集：
+或者，如果上下文已经提供了类型信息，例如函数参数或已经类型化的变量或常量，你可以使用空数组文字创建一个空集：
 
 ```swift
 letters.insert("a")
@@ -297,7 +297,7 @@ letters = []
 
 ## 使用数组字面量创建集合
 
-您还可以使用数组字面量初始化集合，作为将一个或多个值写入集合集合的一种简写方式。
+你还可以使用数组字面量初始化集合，作为将一个或多个值写入集合集合的一种简写方式。
 
 下面的示例创建了一个名为存储值的集合：favoriteGenresString
 
@@ -312,7 +312,7 @@ var favoriteGenres: Set<String> = ["Rock", "Classical", "Hip hop"]
 该集合被声明为变量（使用介绍人）而不是常量（使用介绍人），因为在下面的示例中添加和删除了项目。favoriteGenresvarlet
 :::
 
-不能仅从数组文字中推断出集合类型，因此 Set 必须显式声明该类型。但是，由于 Swift 的类型推断，如果您使用仅包含一种类型值的数组字面量对其进行初始化，则不必编写集合元素的类型。的初始化可以写成更短的形式：favoriteGenres
+不能仅从数组文字中推断出集合类型，因此 Set 必须显式声明该类型。但是，由于 Swift 的类型推断，如果你使用仅包含一种类型值的数组字面量对其进行初始化，则不必编写集合元素的类型。的初始化可以写成更短的形式：favoriteGenres
 
 ```swift
 var favoriteGenres: Set = ["Rock", "Classical", "Hip hop"]
@@ -322,7 +322,7 @@ var favoriteGenres: Set = ["Rock", "Classical", "Hip hop"]
 
 ## 访问和修改集合
 
-您可以通过其方法和属性访问和修改一个集合。
+你可以通过其方法和属性访问和修改一个集合。
 
 要找出集合中的项目数，请检查其只读 count 属性：
 
@@ -342,14 +342,14 @@ if favoriteGenres.isEmpty {
 // Prints "I have particular music preferences."
 ```
 
-您可以通过调用集合的方法将新项目添加到集合中 insert(\_:)：
+你可以通过调用集合的方法将新项目添加到集合中 insert(\_:)：
 
 ```swift
 favoriteGenres.insert("[Tool J]")
 // favoriteGenres now contains 4 items
 ```
 
-您可以通过调用集合的 `remove(_:)` 方法从集合中删除一个项目，如果该项目是集合的成员，该方法将删除该项目，并返回删除的值，或者 nil 如果集合不包含它则返回。或者，可以使用其方法删除集合中的所有项目。removeAll()
+你可以通过调用集合的 `remove(_:)` 方法从集合中删除一个项目，如果该项目是集合的成员，该方法将删除该项目，并返回删除的值，或者 nil 如果集合不包含它则返回。或者，可以使用其方法删除集合中的所有项目。removeAll()
 
 ```swift
 if let removedGenre = favoriteGenres.remove("Rock") {
@@ -373,7 +373,7 @@ if favoriteGenres.contains("Funk") {
 
 迭代一个集合
 
-for 您可以使用-循环迭代集合中的值 in。
+for 你可以使用-循环迭代集合中的值 in。
 
 ```swift
 for genre in favoriteGenres {
@@ -399,7 +399,7 @@ for genre in favoriteGenres.sorted() {
 
 ## 执行集合运算
 
-您可以高效地执行基本的集合操作，例如将两个集合组合在一起，确定两个集合有哪些共同的值，或者确定两个集合是否包含全部、部分或不包含相同的值。
+你可以高效地执行基本的集合操作，例如将两个集合组合在一起，确定两个集合有哪些共同的值，或者确定两个集合是否包含全部、部分或不包含相同的值。
 
 ## 基本集合运算
 
@@ -454,7 +454,7 @@ farmAnimals.isDisjoint(with: cityAnimals)
 
 ## 字典
 
-字典存储集合中相同类型的键和相同类型的值之间的关联，没有定义顺序。每个值都与一个唯一的键相关联，该键充当该值在字典中的标识符。与数组中的项目不同，字典中的项目没有指定的顺序。当您需要根据标识符查找值时，您可以使用字典，这与现实世界中使用字典查找特定单词定义的方式大致相同。
+字典存储集合中相同类型的键和相同类型的值之间的关联，没有定义顺序。每个值都与一个唯一的键相关联，该键充当该值在字典中的标识符。与数组中的项目不同，字典中的项目没有指定的顺序。当你需要根据标识符查找值时，你可以使用字典，这与现实世界中使用字典查找特定单词定义的方式大致相同。
 
 :::note
 Swift 的 Dictionary 类型桥接到 Foundation 的 `NSDictionary` 类。
@@ -470,11 +470,11 @@ Swift 字典的类型完整写为 `Dictionary<Key, Value>`，其中 Key 是可�
 字典 Key 类型必须符合 Hashable 协议，就像集合的值类型一样。
 :::
 
-您还可以将字典的类型简写为[Key: Value]. 尽管这两种形式在功能上是相同的，但在提及字典类型时，首选简写形式并在本指南中通篇使用。
+你还可以将字典的类型简写为[Key: Value]. 尽管这两种形式在功能上是相同的，但在提及字典类型时，首选简写形式并在本指南中通篇使用。
 
 ## 创建一个空字典
 
-与数组一样，您可以 Dictionary 使用初始化语法创建特定类型的空：
+与数组一样，你可以 Dictionary 使用初始化语法创建特定类型的空：
 
 ```swift
 var namesOfIntegers: [Int: String] = [:]
@@ -494,7 +494,7 @@ namesOfIntegers = [:]
 
 ## 使用字典文字创建字典
 
-您还可以使用字典字面量初始化字典，它与前面看到的数组字面量具有相似的语法。字典文字是一种将一个或多个键值对写成 Dictionary 集合的简写方式。
+你还可以使用字典字面量初始化字典，它与前面看到的数组字面量具有相似的语法。字典文字是一种将一个或多个键值对写成 Dictionary 集合的简写方式。
 
 键值对是键和值的组合。在字典文字中，每个键值对中的键和值由冒号分隔。键值对写成一个列表，用逗号分隔，用一对方括号括起来：
 
@@ -528,9 +528,9 @@ var airports = ["YYZ": "Toronto Pearson", "DUB": "Dublin"]
 
 ## 访问和修改字典
 
-您可以通过字典的方法和属性，或使用下标语法来访问和修改字典。
+你可以通过字典的方法和属性，或使用下标语法来访问和修改字典。
 
-Dictionary 与数组一样，您可以通过检查其只读 count 属性来找出 a 中的项目数：
+Dictionary 与数组一样，你可以通过检查其只读 count 属性来找出 a 中的项目数：
 
 ```swift
 print("The airports dictionary contains \(airports.count) items.")
@@ -548,21 +548,21 @@ if airports.isEmpty {
 // Prints "The airports dictionary isn't empty."
 ```
 
-您可以使用下标语法将新项目添加到字典中。使用适当类型的新键作为下标索引，并分配适当类型的新值：
+你可以使用下标语法将新项目添加到字典中。使用适当类型的新键作为下标索引，并分配适当类型的新值：
 
 ```swift
 airports["LHR"] = "London"
 // the airports dictionary now contains 3 items
 ```
 
-您还可以使用下标语法来更改与特定键关联的值：
+你还可以使用下标语法来更改与特定键关联的值：
 
 ```swift
 airports["LHR"] = "London Heathrow"
 // the value for "LHR" has been changed to "London Heathrow"
 ```
 
-作为下标的替代方法，使用字典的方法来设置或更新特定键的值。与上面的下标示例一样，如果键不存在，则该方法会设置一个值，如果该键已存在，则更新该值。然而，与下标不同的是，该方法在执行更新后返回旧值。这使您能够检查是否发生了更新。`updateValue(_:forKey:)updateValue(_:forKey:)updateValue(_:forKey:)`
+作为下标的替代方法，使用字典的方法来设置或更新特定键的值。与上面的下标示例一样，如果键不存在，则该方法会设置一个值，如果该键已存在，则更新该值。然而，与下标不同的是，该方法在执行更新后返回旧值。这使你能够检查是否发生了更新。`updateValue(_:forKey:)updateValue(_:forKey:)updateValue(_:forKey:)`
 
 该方法返回字典值类型的可选值。例如，对于存储值的字典，该方法返回 type 或“optional ”的值。此可选值包含该键的旧值，如果在更新之前存在，或者如果不存在任何值：`updateValue(_:forKey:)StringString?Stringnil`
 
@@ -573,7 +573,7 @@ if let oldValue = airports.updateValue("Dublin Airport", forKey: "DUB") {
 // Prints "The old value for DUB was Dublin."
 ```
 
-您还可以使用下标语法从字典中检索特定键的值。因为可以请求不存在值的键，所以字典的下标返回字典值类型的可选值。如果字典包含所请求键的值，则下标返回一个可选值，其中包含该键的现有值。否则，下标返回 nil：
+你还可以使用下标语法从字典中检索特定键的值。因为可以请求不存在值的键，所以字典的下标返回字典值类型的可选值。如果字典包含所请求键的值，则下标返回一个可选值，其中包含该键的现有值。否则，下标返回 nil：
 
 ```swift
 if let airportName = airports["DUB"] {
@@ -584,7 +584,7 @@ if let airportName = airports["DUB"] {
 // Prints "The name of the airport is Dublin Airport."
 ```
 
-`nil` 您可以使用下标语法通过为该键分配值来从字典中删除键值对：
+`nil` 你可以使用下标语法通过为该键分配值来从字典中删除键值对：
 
 ```swift
 airports["APL"] = "Apple International"
@@ -606,7 +606,7 @@ if let removedValue = airports.removeValue(forKey: "DUB") {
 
 ## 遍历字典
 
-for 您可以使用-循环遍历字典中的键值对 in。字典中的每个项目都作为元组返回(key, value)，您可以将元组的成员分解为临时常量或变量作为迭代的一部分：
+for 你可以使用-循环遍历字典中的键值对 in。字典中的每个项目都作为元组返回(key, value)，你可以将元组的成员分解为临时常量或变量作为迭代的一部分：
 
 ```swift
 for (airportCode, airportName) in airports {
@@ -618,7 +618,7 @@ for (airportCode, airportName) in airports {
 
 for 有关-循环的更多信息 in，请参阅 For-In 循环。
 
-keys 您还可以通过访问其和属性来检索字典键或值的可迭代集合 values：
+keys 你还可以通过访问其和属性来检索字典键或值的可迭代集合 values：
 
 ```swift
 for airportCode in airports.keys {
@@ -634,7 +634,7 @@ for airportName in airports.values {
 // Airport name: Toronto Pearson
 ```
 
-如果您需要将字典的键或值与采用实例的 API 一起使用，请使用 or 属性 Array 初始化一个新数组：keysvalues
+如果你需要将字典的键或值与采用实例的 API 一起使用，请使用 or 属性 Array 初始化一个新数组：keysvalues
 
 ```swift
 let airportCodes = [String](airports.keys)

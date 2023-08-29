@@ -14,7 +14,7 @@ import TabItem from "@theme/TabItem";
 
 ### 概述
 
-你通常使用与应用程序的用户界面（UI）和其他逻辑分开的数据模型，来存储和处理应用程序中的数据。这种分离促进了模块化，提高了可测试性，并使你更容易推断应用程序的工作原理。
+你通常使用与应用程序的用户界面（UI）和其它逻辑分开的数据模型，来存储和处理应用程序中的数据。这种分离促进了模块化，提高了可测试性，并使你更容易推断应用程序的工作原理。
 
 传统上，你使用视图控制器在模型和 UI 之间来回移动数据（move data back and forth），但 SwiftUI 会为你处理大部分同步。要在数据更改时更新视图，你可以将数据模型类设置为可观察对象，发布它们的属性，并使用属性包装器声明它们的实例。为了确保用户驱动的数据更改回流到模型中，你可以将 UI 控件绑定到模型属性。这些功能协同工作，可帮助你维护数据的单一事实来源。
 
@@ -216,7 +216,7 @@ struct MyView: View {
         Text(model.name) // Updates when the data model changes.
         MySubView()
             .environmentObject(model)
-    } 
+    }
 }
 ```
 
@@ -402,7 +402,7 @@ struct MySubView: View {
 
 ```
 
-当可观察对象的任何已发布属性发生更改时，SwiftUI 会更新依赖于该对象的任何视图。子视图还可以对模型属性进行更新，例如上面示例中的 [Toggle](https://developer.apple.com/documentation/swiftui/toggle)，这些属性会传播到整个视图层次结构中的其他观察者。
+当可观察对象的任何已发布属性发生更改时，SwiftUI 会更新依赖于该对象的任何视图。子视图还可以对模型属性进行更新，例如上面示例中的 [Toggle](https://developer.apple.com/documentation/swiftui/toggle)，这些属性会传播到整个视图层次结构中的其它观察者。
 
 :::note
 

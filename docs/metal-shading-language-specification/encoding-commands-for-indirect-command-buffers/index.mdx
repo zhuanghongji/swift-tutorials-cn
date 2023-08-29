@@ -12,7 +12,7 @@ size_t size() 常量；
 
 ICB 可以包含渲染或计算命令，但不能同时包含两者。从渲染编码器执行计算命令是非法的。从计算编码器执行渲染命令也是如此。
 
-## 6.16.1 在间接命令缓冲区中编码渲染命令
+## 在间接命令缓冲区中编码渲染命令
 
 所有操作系统：自 Metal 2.1 起支持渲染命令的间接命令缓冲区。
 
@@ -130,9 +130,9 @@ void draw_indexed_pa​​tches(uint number_of_patch_control_points, uint patch_
 
 render_command 中公开的方法镜像了 MTLIndirectRenderCommand 的接口，并且与 MTLRenderCommandEncoder 类似。与 MTLRenderCommandEncoder 的显着差异是：
 
-- 对 render_command 中的 draw\* 方法的调用对命令所采取的操作进行编码。如果多次调用，则只有最后一次调用有效。- 曲面细分参数直接在 render_command::draw_patches 和 render_command::draw_indexed_pa​​tches 中传递。其他调用不会设置曲面细分参数。
+- 对 render_command 中的 draw\* 方法的调用对命令所采取的操作进行编码。如果多次调用，则只有最后一次调用有效。- 曲面细分参数直接在 render_command::draw_patches 和 render_command::draw_indexed_pa​​tches 中传递。其它调用不会设置曲面细分参数。
 
-## 6.16.2 在间接命令缓冲区中编码计算命令
+## 在间接命令缓冲区中编码计算命令
 
 iOS：自 Metal 2.2 起支持计算命令的间接命令缓冲区。
 

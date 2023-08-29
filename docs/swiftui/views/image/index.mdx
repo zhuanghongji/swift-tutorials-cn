@@ -893,9 +893,9 @@ var body: some View {
 
 3、`.hierarchical`
 
-SwiftUI 用前景样式填充第一层，其他图层填充前景样式的二级和第三层变体。
+SwiftUI 用前景样式填充第一层，其它图层填充前景样式的二级和第三层变体。
 
-可以使用 `foregroundStyle(_:_:)` 和 `foregroundStyle(_:_:_:)` 修饰器显式指定这些样式。如果只指定主前景样式，SwiftUI 会自动从该样式派生（derives）其他样式。例如，可以渲染填充感叹号三角形，其中紫色作为感叹号的色调颜色，将较低的不透明度紫色作为三角形：
+可以使用 `foregroundStyle(_:_:)` 和 `foregroundStyle(_:_:_:)` 修饰器显式指定这些样式。如果只指定主前景样式，SwiftUI 会自动从该样式派生（derives）其它样式。例如，可以渲染填充感叹号三角形，其中紫色作为感叹号的色调颜色，将较低的不透明度紫色作为三角形：
 
 <ScreenshotBlock src={RenderingMode3Image}>
 
@@ -942,7 +942,7 @@ var body: some View {
 
 在此模式下，SwiftUI 将图像中连续（successively）定义的每个图层映射到前景样式的下一个主要（primary）、次要（secondary）和第三（tertiary）变体。
 
-可以使用 `foregroundStyle(_:_:)` 和 `foregroundStyle(_:_:_:)` 修饰器显式指定这些样式。如果只指定主前景样式，SwiftUI 会自动从该样式派生其他样式。例如，可以用黄色作为感叹号的色调颜色渲染填充感叹号三角形，然后用青色填充三角形：
+可以使用 `foregroundStyle(_:_:)` 和 `foregroundStyle(_:_:_:)` 修饰器显式指定这些样式。如果只指定主前景样式，SwiftUI 会自动从该样式派生其它样式。例如，可以用黄色作为感叹号的色调颜色渲染填充感叹号三角形，然后用青色填充三角形：
 
 <ScreenshotBlock src={RenderingMode4Image}>
 

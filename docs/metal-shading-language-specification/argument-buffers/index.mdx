@@ -8,7 +8,7 @@
 
 struct Foo {texture2d a;深度 2d<浮点> b;采样器 c；纹理 2d<浮点> d;设备 float4\* e; texture2d<浮点> f; texture_buffer<浮点> g;整数 h； };内核 void my_kernel(constant Foo & f [[buffer(0)]]) {...}
 
-可以使用现有的 array 模板类型来声明纹理和采样器数组。所有其他合法缓冲区类型的数组也可以使用 C 样式数组语法来声明。
+可以使用现有的 array 模板类型来声明纹理和采样器数组。所有其它合法缓冲区类型的数组也可以使用 C 样式数组语法来声明。
 
 参数缓冲区的成员可以分配一个通用的 [[id(n)]] 属性，其中 n 是一个 32 位无符号整数，可用于从 Metal API 中标识缓冲区元素。如果参数缓冲区包含缓冲区、纹理、采样器或任何具有 [[id]] 属性的元素，则可以将参数缓冲区与常规缓冲区区分开来。
 
@@ -22,7 +22,7 @@ struct Foo {texture2d t1 [[id(1)]]; texture2d<浮点> t2 [[id(3)]]; };结构体 
 
 2. 如果结构体成员或数组元素 E 本身是一个结构体或数组，则从分配给 E 的 ID 开始，按照规则 1 和 2 递归为其结构体成员或数组元素分配索引。在以下示例中，索引 4 为显式提供给称为“法线”的嵌套结构，因此其元素（之前定义为 tex 和 uvScaleOffset）分别分配 ID 4 和 5。通过在前一个成员使用的最大 ID (5) 上加 1，为称为镜面反射的嵌套结构的元素分配 ID 6 和 7。结构材质 { MaterialTexture 漫反射; // 分配索引 0, 1 MaterialTexture 法线 [[id(4)]];// 分配索引 4, 5 MaterialTexture 镜面反射; // 分配索引 6, 7 } 4. 根据前面的三个规则，顶级参数缓冲区参数被分配从 0 开始的 ID。
 
-## 2.13.1 对参数缓冲区的第 2 层硬件支持
+## 对参数缓冲区的第 2 层硬件支持
 
 对于第 2 层硬件，参数缓冲区具有以下第 1 层硬件所不具备的附加功能。
 
@@ -40,6 +40,6 @@ kernel void copy(constant Foo & src [[buffer(0)]], device Foo & dst [[buffer(1)]
 
 结构资源 { 采样器 sam; };内核无效复制（设备资源* src，设备资源* dst，采样器 sam1）{ constexpr 采样器 sam2; dst->sam = src->sam; // 合法: device -> device dst->sam = sam1; // 非法：线程 -> 设备 dst->sam = sam2; // 非法：线程 -> 设备 }
 
-参数缓冲区可以包含指向其他参数缓冲区的指针：
+参数缓冲区可以包含指向其它参数缓冲区的指针：
 
 结构纹理 {texture2d 漫反射; texture2d 镜面反射； }; struct Material { 设备纹理 \*textures; };片段 float4 fragFunc(设备材质&材质);

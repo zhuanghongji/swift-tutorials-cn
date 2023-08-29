@@ -9,7 +9,7 @@
 
 Swift 中有两种属性——应用于声明的属性和应用于类型的属性。属性提供有关声明或类型的附加信息。例如，函数声明中的属性表明，尽管函数返回一个值，但如果返回值未被使用，编译器不应生成警告。discardableResult
 
-@您可以通过在符号后跟属性名称和属性接受的任何参数来指定属性：
+@你可以通过在符号后跟属性名称和属性接受的任何参数来指定属性：
 
 ```swift
 @<#attribute name#>
@@ -20,7 +20,7 @@ Swift 中有两种属性——应用于声明的属性和应用于类型的属�
 
 ## 声明属性
 
-您只能将声明属性应用于声明。
+你只能将声明属性应用于声明。
 
 ## 可用的
 
@@ -40,7 +40,7 @@ Swift 中有两种属性——应用于声明的属性和应用于类型的属�
 - tvOSApplicationExtension
 - swift
 
-您还可以使用星号 ( \*) 来指示声明在上面列出的所有平台名称上的可用性。使用 Swift 版本号指定可用性的属性 available 不能使用星号。
+你还可以使用星号 ( \*) 来指示声明在上面列出的所有平台名称上的可用性。使用 Swift 版本号指定可用性的属性 available 不能使用星号。
 
 其余参数可以以任何顺序出现，并指定有关声明生命周期的附加信息，包括重要的里程碑。
 
@@ -85,7 +85,7 @@ renamed: <#new name#>
 
 新名称由字符串文字组成。
 
-您可以将 available 带有 renamed 和 unavailable 参数的属性应用于类型别名声明，如下所示，以指示声明的名称在框架或库的版本之间发生了变化。这种组合会导致声明已重命名的编译时错误。
+你可以将 available 带有 renamed 和 unavailable 参数的属性应用于类型别名声明，如下所示，以指示声明的名称在框架或库的版本之间发生了变化。这种组合会导致声明已重命名的编译时错误。
 
 ```swift
 // First release
@@ -101,7 +101,7 @@ protocol MyRenamedProtocol {
 typealias MyProtocol = MyRenamedProtocol
 ```
 
-您可以在单个声明上应用多个 available 属性，以指定声明在不同平台和不同版本的 Swift 上的可用性。available 如果属性指定的平台或语言版本与当前目标不匹配，则忽略该属性适用的声明。如果您使用多个 available 属性，则有效可用性是平台可用性和 Swift 可用性的组合。
+你可以在单个声明上应用多个 available 属性，以指定声明在不同平台和不同版本的 Swift 上的可用性。available 如果属性指定的平台或语言版本与当前目标不匹配，则忽略该属性适用的声明。如果你使用多个 available 属性，则有效可用性是平台可用性和 Swift 可用性的组合。
 
 如果属性除了平台或语言名称参数之外 available 仅指定一个参数，则可以改用以下速记语法：introduced
 
@@ -137,7 +137,7 @@ struct MyStruct {
 
 将此属性应用于类、结构、枚举或协议，以将该类型的实例视为可调用函数。该类型必须实现方法、方法或两者。dynamicallyCall(withArguments:)dynamicallyCall(withKeywordArguments:)
 
-您可以调用动态可调用类型的实例，就好像它是一个接受任意数量参数的函数一样。
+你可以调用动态可调用类型的实例，就好像它是一个接受任意数量参数的函数一样。
 
 ```swift
 @dynamicCallable
@@ -191,9 +191,9 @@ print(repeatLabels(a: 1, b: 2, c: 3, b: 2, a: 1))
 
 方法的声明必须有一个符合协议的单一参数，返回类型可以是任何类型。参数必须是. 前面的示例使用 as 参数类型，以便调用者可以包含重复的参数标签 —并在对.dynamicallyCall(withKeywordArguments:)ExpressibleByDictionaryLiteralKeyExpressibleByStringLiteralKeyValuePairsabrepeat
 
-如果您实现这两种方法，则在方法调用包含关键字参数时调用。在所有其他情况下，被调用。dynamicallyCalldynamicallyCall(withKeywordArguments:)dynamicallyCall(withArguments:)
+如果你实现这两种方法，则在方法调用包含关键字参数时调用。在所有其它情况下，被调用。dynamicallyCalldynamicallyCall(withKeywordArguments:)dynamicallyCall(withArguments:)
 
-您只能使用与您在其中一个方法实现中指定的类型相匹配的参数和返回值来调用动态可调用实例。以下示例中的调用无法编译，因为没有 takes 的实现。`dynamicallyCalldynamicallyCall(withArguments:)` `KeyValuePairs<String, String>`
+你只能使用与你在其中一个方法实现中指定的类型相匹配的参数和返回值来调用动态可调用实例。以下示例中的调用无法编译，因为没有 takes 的实现。`dynamicallyCalldynamicallyCall(withArguments:)` `KeyValuePairs<String, String>`
 
 ```swift
 repeatLabels(a: "four") // Error
@@ -203,11 +203,11 @@ repeatLabels(a: "four") // Error
 
 将此属性应用于类、结构、枚举或协议，使成员能够在运行时按名称查找。该类型必须实现下标。subscript(dynamicMember:)
 
-在显式成员表达式中，如果命名成员没有相应的声明，则该表达式被理解为对该类型下标的调用，将有关成员的信息作为参数传递。下标可以接受一个参数，该参数可以是关键路径或成员名称；如果您实现两个下标，则使用采用关键路径参数的下标。subscript(dynamicMember:)
+在显式成员表达式中，如果命名成员没有相应的声明，则该表达式被理解为对该类型下标的调用，将有关成员的信息作为参数传递。下标可以接受一个参数，该参数可以是关键路径或成员名称；如果你实现两个下标，则使用采用关键路径参数的下标。subscript(dynamicMember:)
 
 的实现可以接受使用、或类型参数的键路径。它可以使用符合协议类型的参数接受成员名称——在大多数情况下，. 下标的返回类型可以是任何类型。subscript(dynamicMember:)KeyPathWritableKeyPathReferenceWritableKeyPathExpressibleByStringLiteralString
 
-按成员名称进行的动态成员查找可用于围绕无法在编译时进行类型检查的数据创建包装器类型，例如将数据从其他语言桥接到 Swift 时。例如：
+按成员名称进行的动态成员查找可用于围绕无法在编译时进行类型检查的数据创建包装器类型，例如将数据从其它语言桥接到 Swift 时。例如：
 
 ```swift
 @dynamicMemberLookup
@@ -251,7 +251,7 @@ print(wrapper.x)
 
 ## 冻结的
 
-将此属性应用于结构或枚举声明以限制您可以对该类型进行的更改种类。只有在库进化模式下编译时才允许使用该属性。该库的未来版本无法通过添加、删除或重新排序枚举的案例或结构的存储实例属性来更改声明。允许对非冻结类型进行这些更改，但它们会破坏冻结类型的 ABI 兼容性。
+将此属性应用于结构或枚举声明以限制你可以对该类型进行的更改种类。只有在库进化模式下编译时才允许使用该属性。该库的未来版本无法通过添加、删除或重新排序枚举的案例或结构的存储实例属性来更改声明。允许对非冻结类型进行这些更改，但它们会破坏冻结类型的 ABI 兼容性。
 
 :::note
 当编译器不处于库进化模式时，所有结构和枚举都被隐式冻结，并且忽略此属性。
@@ -290,7 +290,7 @@ struct MyTopLevel {
 }
 ```
 
-描述属性要求的另一种方法 main 是，您编写此属性的类型必须满足与符合以下假设协议的类型相同的要求：
+描述属性要求的另一种方法 main 是，你编写此属性的类型必须满足与符合以下假设协议的类型相同的要求：
 
 ```swift
 protocol ProvidesMain {
@@ -298,7 +298,7 @@ protocol ProvidesMain {
 }
 ```
 
-您编译生成可执行文件的 Swift 代码最多可以包含一个顶级入口点，如顶级代码中所述。
+你编译生成可执行文件的 Swift 代码最多可以包含一个顶级入口点，如顶级代码中所述。
 
 ## 非对象
 
@@ -306,7 +306,7 @@ protocol ProvidesMain {
 
 将此属性应用于扩展与将其应用于该扩展中未明确标记该 objc 属性的每个成员具有相同的效果。
 
-您可以使用该 nonobjc 属性来解决标有该属性的类中桥接方法的循环性 objc，并允许重载标有该属性的类中的方法和初始值设定项 objc。
+你可以使用该 nonobjc 属性来解决标有该属性的类中桥接方法的循环性 objc，并允许重载标有该属性的类中的方法和初始值设定项 objc。
 
 标有属性的方法 nonobjc 不能覆盖标有 objc 属性的方法。但是，标有该属性的方法 objc 可以覆盖标有该属性的方法 nonobjc。同样，标有该 nonobjc 属性的方法不能满足标有该 objc 属性的方法的协议要求。
 
@@ -314,14 +314,14 @@ protocol ProvidesMain {
 
 将此属性应用于类以指示它是应用程序委托。使用此属性等同于调用函数。NSApplicationMain(_:_:)
 
-如果您不使用此属性，请提供一个包含调用该函数的顶层代码的文件，如下所示：main.swiftNSApplicationMain(_:_:)
+如果你不使用此属性，请提供一个包含调用该函数的顶层代码的文件，如下所示：main.swiftNSApplicationMain(_:_:)
 
 ```swift
 import AppKit
 NSApplicationMain(CommandLine.argc, CommandLine.unsafeArgv)
 ```
 
-您编译生成可执行文件的 Swift 代码最多可以包含一个顶级入口点，如顶级代码中所述。
+你编译生成可执行文件的 Swift 代码最多可以包含一个顶级入口点，如顶级代码中所述。
 
 ## NS 复制
 
@@ -339,7 +339,7 @@ NSApplicationMain(CommandLine.argc, CommandLine.unsafeArgv)
 
 将此属性应用于扩展与将其应用于该扩展中未明确标记该 nonobjc 属性的每个成员具有相同的效果。
 
-编译器隐式地将 objc 属性添加到 Objective-C 中定义的任何类的子类。但是，子类不能是泛型的，也不能继承自任何泛型类。您可以显式地将 objc 属性添加到满足这些条件的子类，以指定其 Objective-C 名称，如下所述。标有该 objc 属性的协议无法从未标有该属性的协议继承。
+编译器隐式地将 objc 属性添加到 Objective-C 中定义的任何类的子类。但是，子类不能是泛型的，也不能继承自任何泛型类。你可以显式地将 objc 属性添加到满足这些条件的子类，以指定其 Objective-C 名称，如下所述。标有该 objc 属性的协议无法从未标有该属性的协议继承。
 
 objc 在以下情况下也会隐式添加该属性：
 
@@ -350,7 +350,7 @@ objc 在以下情况下也会隐式添加该属性：
 
 如果将 objc 属性应用于枚举，则每个枚举案例都会作为枚举名称和案例名称的串联公开给 Objective-C 代码。案例名称的第一个字母大写。venus 例如，在 Swift 枚举中命名的案例 Planet 作为名为 的案例公开给 Objective-C 代码。PlanetVenus
 
-该 objc 属性可选地接受单个属性参数，该参数由一个标识符组成。标识符指定要向 Objective-C 公开该属性所 objc 适用的实体的名称。您可以使用此参数来命名类、枚举、枚举案例、协议、方法、getter、setter 和初始值设定项。如果您为类、协议或枚举指定 Objective-C 名称，请在名称中包含三个字母的前缀，如使用 Objective-C 编程中的约定中所述。下面的示例公开了 Objective-C 代码的属性的 getter ，而不仅仅是属性本身的名称。enabledExampleClassisEnabled
+该 objc 属性可选地接受单个属性参数，该参数由一个标识符组成。标识符指定要向 Objective-C 公开该属性所 objc 适用的实体的名称。你可以使用此参数来命名类、枚举、枚举案例、协议、方法、getter、setter 和初始值设定项。如果你为类、协议或枚举指定 Objective-C 名称，请在名称中包含三个字母的前缀，如使用 Objective-C 编程中的约定中所述。下面的示例公开了 Objective-C 代码的属性的 getter ，而不仅仅是属性本身的名称。enabledExampleClassisEnabled
 
 ```swift
 class ExampleClass: NSObject {
@@ -365,24 +365,24 @@ class ExampleClass: NSObject {
 有关详细信息，请参阅将 Swift 导入 Objective-C。
 
 :::note
-属性的参数 objc 也可以更改该声明的运行时名称。在调用与 Objective-C 运行时交互的函数（如）以及在应用程序的 Info.plist 文件中指定类名时，您会使用运行时名称。如果通过传递参数指定名称，则该名称将用作 Objective-C 代码中的名称和运行时名称。如果省略该参数，则 Objective-C 代码中使用的名称与 Swift 代码中的名称匹配，并且运行时名称遵循正常的 Swift 编译器名称修饰约定。NSClassFromString(\_:)
+属性的参数 objc 也可以更改该声明的运行时名称。在调用与 Objective-C 运行时交互的函数（如）以及在应用程序的 Info.plist 文件中指定类名时，你会使用运行时名称。如果通过传递参数指定名称，则该名称将用作 Objective-C 代码中的名称和运行时名称。如果省略该参数，则 Objective-C 代码中使用的名称与 Swift 代码中的名称匹配，并且运行时名称遵循正常的 Swift 编译器名称修饰约定。NSClassFromString(\_:)
 :::
 
 ## 对象成员
 
 将此特性应用于类声明，以隐式地将 objc 特性应用于类的所有 Objective-C 兼容成员、其扩展、子类及其子类的所有扩展。
 
-大多数代码应该改用 objc 属性，以仅公开需要的声明。如果您需要公开许多声明，您可以将它们分组在具有该属性的扩展中 objc。该属性为大量使用 Objective-C 运行时的内省功能的库提供了便利。在不需要时应用该属性会增加二进制大小并对性能产生不利影响。objcMembersobjc
+大多数代码应该改用 objc 属性，以仅公开需要的声明。如果你需要公开许多声明，你可以将它们分组在具有该属性的扩展中 objc。该属性为大量使用 Objective-C 运行时的内省功能的库提供了便利。在不需要时应用该属性会增加二进制大小并对性能产生不利影响。objcMembersobjc
 
 ## 属性包装器
 
-将此属性应用于类、结构或枚举声明以将该类型用作属性包装器。将此属性应用于类型时，您会创建一个与该类型同名的自定义属性。将该新属性应用于类、结构或枚举的属性，以通过包装类型的实例包装对该属性的访问；将属性应用于本地存储的变量声明，以相同的方式包装对变量的访问。计算变量、全局变量和常量不能使用属性包装器。
+将此属性应用于类、结构或枚举声明以将该类型用作属性包装器。将此属性应用于类型时，你会创建一个与该类型同名的自定义属性。将该新属性应用于类、结构或枚举的属性，以通过包装类型的实例包装对该属性的访问；将属性应用于本地存储的变量声明，以相同的方式包装对变量的访问。计算变量、全局变量和常量不能使用属性包装器。
 
 包装器必须定义一个实例属性。属性的包装值是该属性的 getter 和 setter 公开的值。在大多数情况下，是一个计算值，但它也可以是一个存储值。包装器定义并管理其包装值所需的任何底层存储。编译器通过在包装属性的名称前加上下划线 ( ) 来为包装类型的实例合成存储——例如，包装器存储为. 包装器的合成存储的访问控制级别为.wrappedValuewrappedValue_someProperty_somePropertyprivate
 
 具有属性包装器的属性可以包含和块，但不能覆盖编译器合成的或块。willSetdidSetgetset
 
-Swift 为属性包装器的初始化提供了两种形式的语法糖。您可以在包装值的定义中使用赋值语法，将赋值右侧的表达式作为参数传递给属性包装器的初始值设定项的参数。您还可以在将属性应用于属性时向属性提供参数，这些参数将传递给属性包装器的初始化程序。例如，在下面的代码中，调用定义的每个初始化器。wrappedValueSomeStructSomeWrapper
+Swift 为属性包装器的初始化提供了两种形式的语法糖。你可以在包装值的定义中使用赋值语法，将赋值右侧的表达式作为参数传递给属性包装器的初始值设定项的参数。你还可以在将属性应用于属性时向属性提供参数，这些参数将传递给属性包装器的初始化程序。例如，在下面的代码中，调用定义的每个初始化器。wrappedValueSomeStructSomeWrapper
 
 ```swift
 @propertyWrapper
@@ -441,13 +441,13 @@ s.$x.wrapper  // WrapperWithProjection value
 
 ## 结果生成器
 
-将此属性应用于类、结构、枚举以将该类型用作结果生成器。结果构建器是一种逐步构建嵌套数据结构的类型。您使用结果构建器来实现特定于领域的语言 (DSL)，以自然的、声明性的方式创建嵌套数据结构。有关如何使用属性的示例，请参阅结果生成器。resultBuilder
+将此属性应用于类、结构、枚举以将该类型用作结果生成器。结果构建器是一种逐步构建嵌套数据结构的类型。你使用结果构建器来实现特定于领域的语言 (DSL)，以自然的、声明性的方式创建嵌套数据结构。有关如何使用属性的示例，请参阅结果生成器。resultBuilder
 
 ## 结果构建方法
 
-结果生成器实现下面描述的静态方法。因为结果构建器的所有功能都是通过静态方法公开的，所以您永远不会初始化该类型的实例。该方法是必需的；其他方法——在 DSL 中启用附加功能——是可选的。结果构建器类型的声明实际上不必包含任何协议一致性。buildBlock(\_:)
+结果生成器实现下面描述的静态方法。因为结果构建器的所有功能都是通过静态方法公开的，所以你永远不会初始化该类型的实例。该方法是必需的；其它方法——在 DSL 中启用附加功能——是可选的。结果构建器类型的声明实际上不必包含任何协议一致性。buildBlock(\_:)
 
-静态方法的描述使用三种类型作为占位符。该类型 Expression 是结果构建器输入类型的占位符，Component 是部分结果类型的占位符，是结果构建器生成的结果类型的占位符。您将这些类型替换为您的结果构建器使用的实际类型。如果您的结果构建方法没有为或指定类型，它们默认与.FinalResultExpressionFinalResultComponent
+静态方法的描述使用三种类型作为占位符。该类型 Expression 是结果构建器输入类型的占位符，Component 是部分结果类型的占位符，是结果构建器生成的结果类型的占位符。你将这些类型替换为你的结果构建器使用的实际类型。如果你的结果构建方法没有为或指定类型，它们默认与.FinalResultExpressionFinalResultComponent
 
 结果构建方法如下：
 
@@ -467,13 +467,13 @@ s.$x.wrapper  // WrapperWithProjection value
 从部分结果数组构建部分结果。实现此方法以支持 for 循环。
 
 `static func buildExpression(_ expression: Expression) -> Component`
-从表达式构建部分结果。您可以实现此方法以执行预处理——例如，将表达式转换为内部类型——或为使用站点的类型推断提供额外信息。
+从表达式构建部分结果。你可以实现此方法以执行预处理——例如，将表达式转换为内部类型——或为使用站点的类型推断提供额外信息。
 
 `static func buildFinalResult(_ component: Component) -> FinalResult`
-从部分结果构建最终结果。您可以将此方法实现为结果构建器的一部分，该结果构建器对部分结果和最终结果使用不同类型，或者在返回结果之前对结果执行其他后处理。
+从部分结果构建最终结果。你可以将此方法实现为结果构建器的一部分，该结果构建器对部分结果和最终结果使用不同类型，或者在返回结果之前对结果执行其它后处理。
 
 `static func buildLimitedAvailability(_ component: Component) -> Component`
-构建一个部分结果，该结果在执行可用性检查的编译器控制语句之外传播或擦除类型信息。您可以使用它来擦除条件分支之间变化的类型信息。
+构建一个部分结果，该结果在执行可用性检查的编译器控制语句之外传播或擦除类型信息。你可以使用它来擦除条件分支之间变化的类型信息。
 
 例如，下面的代码定义了一个简单的结果构建器，它构建一个整数数组。此代码将 Componentand 定义 Expression 为类型别名，以便更轻松地将下面的示例与上面的方法列表相匹配。
 
@@ -515,9 +515,9 @@ struct ArrayBuilder {
 var manualNumber = ArrayBuilder.buildExpression(10)
 ```
 
-赋值语句像表达式一样被转换，但被理解为评估为()。您可以定义一个带有类型参数的重载来专门处理赋值。buildExpression(\_:)()
+赋值语句像表达式一样被转换，但被理解为评估为()。你可以定义一个带有类型参数的重载来专门处理赋值。buildExpression(\_:)()
 
-检查可用性条件的分支语句成为对该方法的调用。此转换发生在转换为对、或 的调用之前。您使用该方法来擦除类型信息，这些信息会根据采用的分支而变化。例如，下面的和 方法使用一个泛型类型来捕获关于两个分支的类型信息。buildLimitedAvailability(_:)buildEither(first:)buildEither(second:)buildOptional(_:)buildLimitedAvailability(\_:)buildEither(first:)buildEither(second:)
+检查可用性条件的分支语句成为对该方法的调用。此转换发生在转换为对、或 的调用之前。你使用该方法来擦除类型信息，这些信息会根据采用的分支而变化。例如，下面的和 方法使用一个泛型类型来捕获关于两个分支的类型信息。buildLimitedAvailability(_:)buildEither(first:)buildEither(second:)buildOptional(_:)buildLimitedAvailability(\_:)buildEither(first:)buildEither(second:)
 
 ```swift
 protocol Drawable {
@@ -574,7 +574,7 @@ struct FutureText: Drawable {
 // The type of brokenDrawing is Line<DrawEither<Line<FutureText>, Line<Text>>>
 ```
 
-在上面的代码中，它作为类型的一部分出现，因为它是泛型类型中的一种类型。如果在运行时不可用，这可能会导致您的程序崩溃，即使在明确未使用该类型的情况下也是如此。FutureTextbrokenDrawingDrawEitherFutureText
+在上面的代码中，它作为类型的一部分出现，因为它是泛型类型中的一种类型。如果在运行时不可用，这可能会导致你的程序崩溃，即使在明确未使用该类型的情况下也是如此。FutureTextbrokenDrawingDrawEitherFutureText
 
 为了解决这个问题，实现一个擦除类型信息的方法。例如，下面的代码从其可用性检查中构建一个值。buildLimitedAvailability(\_:)AnyDrawable
 
@@ -601,7 +601,7 @@ extension DrawingBuilder {
 
 分支语句变成一系列对和方法的嵌套调用。语句的条件和情况被映射到二叉树的叶节点，并且语句成为对方法的嵌套调用，沿着从根节点到该叶节点的路径。buildEither(first:)buildEither(second:)buildEither
 
-例如，如果您编写包含三种情况的 switch 语句，编译器将使用具有三个叶节点的二叉树。同样，因为从根节点到第二个 case 的路径是“second child”，然后是“first child”，所以那个 case 变成了一个嵌套调用，比如. 以下声明是等效的：buildEither(first: buildEither(second: ... ))
+例如，如果你编写包含三种情况的 switch 语句，编译器将使用具有三个叶节点的二叉树。同样，因为从根节点到第二个 case 的路径是“second child”，然后是“first child”，所以那个 case 变成了一个嵌套调用，比如. 以下声明是等效的：buildEither(first: buildEither(second: ... ))
 
 ```swift
 let someNumber = 19
@@ -681,15 +681,15 @@ let manualArray = ArrayBuilder.buildArray(temporary)
 
 虽然转换行为是根据临时变量描述的，但使用结果生成器实际上并不会创建任何从代码的其余部分可见的新声明。
 
-您不能在结果生成器转换的代码中使用 break, continue, defer, guard, orreturn 语句、while 语句或 do-语句。catch
+你不能在结果生成器转换的代码中使用 break, continue, defer, guard, orreturn 语句、while 语句或 do-语句。catch
 
-转换过程不会更改代码中的声明，这让您可以使用临时常量和变量逐个构建表达式。它也不会更改 throw 语句、编译时诊断语句或包含 return 语句的闭包。
+转换过程不会更改代码中的声明，这让你可以使用临时常量和变量逐个构建表达式。它也不会更改 throw 语句、编译时诊断语句或包含 return 语句的闭包。
 
 只要有可能，就会合并转换。例如，表达式 4 + 5 _ 6 变成对该函数的多次调用。同样，嵌套的分支语句成为方法调用的单个二叉树。`buildExpression(4 + 5 _ 6)buildEither`
 
 ## 自定义结果生成器属性
 
-创建结果构建器类型会创建一个同名的自定义属性。您可以在以下位置应用该属性：
+创建结果构建器类型会创建一个同名的自定义属性。你可以在以下位置应用该属性：
 
 在函数声明中，结果构建器构建函数的主体。
 
@@ -710,9 +710,9 @@ requires_stored_property_inits
 
 将此属性应用于类以指示它是应用程序委托。使用此属性相当于调用函数并将此类的名称作为委托类的名称传递。UIApplicationMain
 
-如果您不使用此属性，请在调用该函数的顶层提供一个包含代码的文件。例如，如果您的应用程序使用 的自定义子类作为其主要类，请调用该函数而不是使用此属性。main.swiftUIApplicationMain(_:_:_:_:)UIApplicationUIApplicationMain(_:_:_:_:)
+如果你不使用此属性，请在调用该函数的顶层提供一个包含代码的文件。例如，如果你的应用程序使用 的自定义子类作为其主要类，请调用该函数而不是使用此属性。main.swiftUIApplicationMain(_:_:_:_:)UIApplicationUIApplicationMain(_:_:_:_:)
 
-您编译生成可执行文件的 Swift 代码最多可以包含一个顶级入口点，如顶级代码中所述。
+你编译生成可执行文件的 Swift 代码最多可以包含一个顶级入口点，如顶级代码中所述。
 
 ## 未经检查
 
@@ -738,17 +738,17 @@ requires_stored_property_inits
 
 Interface Builder 属性是 Interface Builder 用来与 Xcode 同步的声明属性。Swift 提供以下 Interface Builder 属性：IBAction、、、和。这些属性在概念上与它们在 Objective-C 中的对应物相同。IBSegueActionIBOutletIBDesignableIBInspectable
 
-您将 IBOutlet 和 IBInspectable 属性应用于类的属性声明。将 IBActionand 特性应用于类的方法声明，将特性应用于类声明。IBSegueActionIBDesignable
+你将 IBOutlet 和 IBInspectable 属性应用于类的属性声明。将 IBActionand 特性应用于类的方法声明，将特性应用于类声明。IBSegueActionIBDesignable
 
 应用 IBAction、、、或属性也意味着该属性。IBSegueActionIBOutletIBDesignableIBInspectableobjc
 
 ## 类型属性
 
-您只能将类型属性应用于类型。
+你只能将类型属性应用于类型。
 
 ## 自动关闭
 
-通过自动将表达式包装在不带参数的闭包中，应用此属性来延迟表达式的计算。您将它应用于函数或方法声明中的参数类型，对于类型为不带参数且返回表达式类型值的函数类型的参数。有关如何使用该 autoclosure 属性的示例，请参阅自动闭包和函数类型。
+通过自动将表达式包装在不带参数的闭包中，应用此属性来延迟表达式的计算。你将它应用于函数或方法声明中的参数类型，对于类型为不带参数且返回表达式类型值的函数类型的参数。有关如何使用该 autoclosure 属性的示例，请参阅自动闭包和函数类型。
 
 ## 习俗
 
@@ -762,7 +762,7 @@ Interface Builder 属性是 Interface Builder 用来与 Xcode 同步的声明属
 
 参数 c 表示 C 函数引用。函数值不携带上下文并使用 C 调用约定。
 
-除了少数例外，当需要任何其他调用约定的函数时，可以使用任何调用约定的函数。非泛型全局函数、不捕获任何局部变量的局部函数或不捕获任何局部变量的闭包都可以转换为 C 调用约定。其他 Swift 函数无法转换为 C 调用约定。具有 Objective-C 块调用约定的函数无法转换为 C 调用约定。
+除了少数例外，当需要任何其它调用约定的函数时，可以使用任何调用约定的函数。非泛型全局函数、不捕获任何局部变量的局部函数或不捕获任何局部变量的闭包都可以转换为 C 调用约定。其它 Swift 函数无法转换为 C 调用约定。具有 Objective-C 块调用约定的函数无法转换为 C 调用约定。
 
 ## 逃避
 
@@ -778,7 +778,7 @@ Interface Builder 属性是 Interface Builder 用来与 Xcode 同步的声明属
 
 ## 开关盒属性
 
-您只能将 switch case 属性应用于 switch cases。
+你只能将 switch case 属性应用于 switch cases。
 
 ## 未知
 

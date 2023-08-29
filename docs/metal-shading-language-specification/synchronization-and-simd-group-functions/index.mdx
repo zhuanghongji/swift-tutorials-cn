@@ -6,7 +6,7 @@
 
 - 内核函数 - 片段函数 - 内核或片段函数调用的可见函数
 
-## 6.9.1 线程组和 SIMD 组同步函数
+## 线程组和 SIMD 组同步函数
 
 标头定义了表 6. 12 中的同步函数，其中列出了它支持的线程组和 SIMD 组同步函数。
 
@@ -52,7 +52,7 @@ threadgroup_barrier（或 simdgroup_barrier）函数还可以对内存栅栏进�
 
 ``` mem_object_data 该标志确保 GPU 正确地将内存操作排序到线程组或 simdgroup 中线程的 object_data 内存。````
 
-## 6.9.2 SIMD 组函数
+## SIMD 组函数
 
 标头定义内核和片段函数的 SIMD 组函数。macOS 支持 Metal 2 及更高版本中的 SIMD 组函数，iOS 支持大多数
 
@@ -368,7 +368,7 @@ private: // v 中的位 i 代表 // SIMD 组中索引 i 处线程的“投票”
 
 在 SIMD 组中线程少于 64 个的硬件上，simd_vote 中最高位的值未定义。特别是，由于你可以初始化这些位，因此不要假设最高位设置为 0。
 
-## 6.9.3 四组函数
+## 四组函数
 
 macOS：自 Metal 2.1 起支持四组函数。
 
@@ -408,7 +408,7 @@ iOS：自 Metal 2 起支持一些四组函数，包括quad_broadcast、quad_shuf
 
 ``` Tquad_shuffle(T data, ushortquad_lane_id) macOS：自 Metal 2 以来。iOS：自 Metal 2 以来。```
 
-``` 从线程返回数据，该线程的四通道 ID 是调用者的四通道 ID 和增量之和。Quad_lane_id 的值必须是有效的 Land ID，并且可能与四元组中的其他线程不同。````
+``` 从线程返回数据，该线程的四通道 ID 是调用者的四通道 ID 和增量之和。Quad_lane_id 的值必须是有效的 Land ID，并且可能与四元组中的其它线程不同。````
 
 
 

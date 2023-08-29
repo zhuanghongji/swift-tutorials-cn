@@ -80,7 +80,7 @@ Grid {
 
 由于分隔线占用与其父视图提供的水平空间一样多的空间，因此整个网格会变宽（widens）以填充其父视图提供的宽度。
 
-为了防止 flexible 视图在给定轴上占用的空间多于行或列中其他单元格所需的空间，可将 `gridCellUnsizedAxes(_:)` 视图修饰器添加到该视图上：
+为了防止 flexible 视图在给定轴上占用的空间多于行或列中其它单元格所需的空间，可将 `gridCellUnsizedAxes(_:)` 视图修饰器添加到该视图上：
 
 ```swift
 extension View {
@@ -208,7 +208,7 @@ Grid {
 
 生成的网格具有与最宽的（widest）行一样多的列，将空单元格添加到未指定足够视图的行。
 
-网格设置列中所有单元格的宽度，以满足列最宽单元格的需求。在上面的示例中，第一列的宽度取决于该列包含的最宽的 [Text](https://developer.apple.com/documentation/swiftui/text) 视图的宽度。其他列包含 flexible 的 [Color](https://developer.apple.com/documentation/swiftui/color) 视图，平等地共享网格父视图提供的剩余水平空间。
+网格设置列中所有单元格的宽度，以满足列最宽单元格的需求。在上面的示例中，第一列的宽度取决于该列包含的最宽的 [Text](https://developer.apple.com/documentation/swiftui/text) 视图的宽度。其它列包含 flexible 的 [Color](https://developer.apple.com/documentation/swiftui/color) 视图，平等地共享网格父视图提供的剩余水平空间。
 
 同样，一行中最高的单元格设置整行的高度。上面网格第一列中的单元格仅需要每个字符串所需的高度，但 `Color` 单元格会扩展以平均共享网格可用的总高度。因此，颜色单元格决定行高。
 

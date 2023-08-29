@@ -6,7 +6,7 @@
 
 光线追踪函数和类型在命名空间 metal::raytracing 的 中定义。在 Metal 2.3 中，它们仅在计算函数（内核函数）中受支持，除非下面另有说明。从 Metal 2.4 开始，顶点、片段和图块函数也支持它们。
 
-## 6.18.1 加速结构函数
+## 加速结构函数
 
 在 Metal 2.3 中，调用以下函数之一来检查加速结构（参见第 2.17.6 节）是否为空：
 
@@ -41,7 +41,7 @@ uint get_instance_count() const
 
 此功能允许开发人员在使用多个加速结构类型时避免为每组标签提供专用交叉器，但由于遍历不需要这些标签的加速结构而导致潜在的性能成本。
 
-## 6.18.2 相交相交函数
+## 相交相交函数
 
 创建 intersector 对象后（请参阅第 2.17.5 节），你可以根据 junction_tags 的值调用以下 intersect 函数之一。
 
@@ -51,7 +51,7 @@ uint get_instance_count() const
 
 ``` 结果类型相交（...参数...）。````
 
-表 6. 27 显示了相交函数的可能参数。所有相交函数都必须具有 ray 和 accel_struct 参数。其他参数是可选的。
+表 6. 27 显示了相交函数的可能参数。所有相交函数都必须具有 ray 和 accel_struct 参数。其它参数是可选的。
 
 ## 表 6.27。相交函数输入参数
 
@@ -105,7 +105,7 @@ Acceleration_struct Accel_struct，uint 掩码，
 
 浮动时间，intersection_function_table func_table，线程 T &payload) const;
 
-## 6.18.3 控制遍历行为的 Intersector 函数
+## 控制遍历行为的 Intersector 函数
 
 所有操作系统：Metal 3.1 添加了对曲线的支持。
 
@@ -215,11 +215,11 @@ curve, // 自 Metal 3.1 起全部 };
 
 无效假设*曲线*类型（曲线\_类型 ct）
 
-使用以下函数设置要假定的曲线控制点的数量。默认为 0，这意味着将启用任意数量的控制点（适用于假设的曲线基础（如果有））。其他有效选项为 2、3 或 4，具体取决于曲线基础。
+使用以下函数设置要假定的曲线控制点的数量。默认为 0，这意味着将启用任意数量的控制点（适用于假设的曲线基础（如果有））。其它有效选项为 2、3 或 4，具体取决于曲线基础。
 
 无效假设*曲线*控制*点*计数（uint n）
 
-## 6.18.4 路口查询函数
+## 路口查询函数
 
 所有操作系统：自 Metal 2. 4 起支持交叉口查询
 
@@ -465,7 +465,7 @@ uint get_commited_instance_id（uint 深度）
 
 uint get_commited_user_instance_id(uint 深度);
 
-## 6.18.5 间接实例描述符
+## 间接实例描述符
 
 从 Metal 3.1 开始，开发人员可以从 GPU 填写间接实例描述符。Metal 提供了以下类型定义：
 
@@ -485,7 +485,7 @@ MTLAccelerationStructureInstanceOptions 选项； uint 掩码； uint intersecti
 
 Acceleration_struct PrimitiveAStruct = ...; MTLResourceID 资源\_id = PrimitiveAStruct;
 
-## 6.18.6 曲线实用函数
+## 曲线实用函数
 
 从 Metal 3.1 开始，Metal 提供了一组在标头 中定义的曲线实用函数。使用以下缩写：
 

@@ -15,7 +15,7 @@
 
 正如第 18 章所讨论的，周围的像素与选定的像素相加并进行处理，这导致大量像素被采样。当你移动到下一个像素时，你将对先前操作中已采样并求和的一定数量的像素进行重新采样。
 
-最早的卷积神经网络于 1994 年实现。第一个神经网络 _LeNet5_ 是由 Yann LeCun 创建的 LeNet5 的突破在于认识到可识别的图像特征存在并且可以在整个图像中检测到（见图 20.1）。然后可以提取这些特征并将其用作训练参数，并与其他图像中的类似特征进行比较。
+最早的卷积神经网络于 1994 年实现。第一个神经网络 _LeNet5_ 是由 Yann LeCun 创建的 LeNet5 的突破在于认识到可识别的图像特征存在并且可以在整个图像中检测到（见图 20.1）。然后可以提取这些特征并将其用作训练参数，并与其它图像中的类似特征进行比较。
 
 <Figure
   src={require("./20_1.jpg")}
@@ -147,7 +147,7 @@ _池化层_ 的作用是减少网络中图像的空间大小。该层将信息�
   edge="white"
 />
 
-池化层的基类是 `MPSCNNPooling`。这也是 `MPSCNNKernel` 以及用于构建神经网络的所有其他内核的子类。该基类有一个方法，`encode(commandBuffer:sourceImage:)`，用于将 `MPSCNNPooling` 对象编码为 `MTLCommandBuffer` 对象。
+池化层的基类是 `MPSCNNPooling`。这也是 `MPSCNNKernel` 以及用于构建神经网络的所有其它内核的子类。该基类有一个方法，`encode(commandBuffer:sourceImage:)`，用于将 `MPSCNNPooling` 对象编码为 `MTLCommandBuffer` 对象。
 
 有两种常用的池化层类型：最大池化层和平均池化层 `MPSCNNPoolingMax` 滤波器返回图像中每个像素的滤波器区域中像素的最大值 `MPSCNNPoolingAverage` 过滤器返回过滤区域中像素的平均值。
 
@@ -185,7 +185,7 @@ init(device: MTLDevice,
      flags: MPSCNNConvolutionFlags)
 ```
 
-`MPSCNNFullyConnected` 层是一个卷积层，因此需要一个 `MPSCNNConvolutionDescriptor`。所有其他参数应该看起来很熟悉，因为它们与卷积层相同。
+`MPSCNNFullyConnected` 层是一个卷积层，因此需要一个 `MPSCNNConvolutionDescriptor`。所有其它参数应该看起来很熟悉，因为它们与卷积层相同。
 
 ## 卷积数据源
 

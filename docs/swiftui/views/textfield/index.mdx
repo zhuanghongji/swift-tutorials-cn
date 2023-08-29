@@ -32,7 +32,7 @@ import NeverACImage from "./auto-cap/never.png";
 
 ## 概述
 
-创建具有标签（label）和绑定值（a binding to a value）的文本输入框。如果值为字符串，则当用户键入或以其他方式编辑输入框中的文本时，文本输入框会不断更新此值。对于非字符串类型，它会在用户提交其编辑时更新值，例如按 _Return_ 键。
+创建具有标签（label）和绑定值（a binding to a value）的文本输入框。如果值为字符串，则当用户键入或以其它方式编辑输入框中的文本时，文本输入框会不断更新此值。对于非字符串类型，它会在用户提交其编辑时更新值，例如按 _Return_ 键。
 
 以下示例演示了一个接受用户名的文本输入框，以及该输入框下方的 `Text` 视图，该视图影射（shadows）了 `username` 持续更新的值。`Text` 视图在用户开始和结束编辑时更改颜色。当用户将其完成的录入（entry）提交到文本输入框时，`onSubmit(of:_:)` 修饰器将调用内部的 `validate(name:)` 方法。
 
@@ -114,7 +114,7 @@ var body: some View {
 
 </ScreenshotBlock>
 
-如果你试着将上面的 format style 改成其他的枚举值，你会发现：
+如果你试着将上面的 format style 改成其它的枚举值，你会发现：
 
 <ScreenshotBlock src={WilliamImage}>
 

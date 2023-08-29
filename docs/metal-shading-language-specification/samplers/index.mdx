@@ -58,7 +58,7 @@ iOS：从 Metal 2.3 开始支持 Clip_to_border 地址模式或 border_color。
 
 使用 clamp_to_border，在纹理外部采样仅使用纹理坐标的边框颜色（并且不使用纹理边缘的任何颜色）。如果地址模式为 clamp_to_border，则 border_color 有效。
 
-钳位到零相当于钳位到边界，其边框颜色为透明黑色（0.0，0.0，0.0），并且具有来自纹理的 alpha 分量值。如果 clamp_to_zero 是一个或多个纹理坐标的地址模式，则当边框颜色为 transparent_black 时，其他纹理坐标可以使用 clamp_to_border 的地址模式。否则，行为是未定义的。
+钳位到零相当于钳位到边界，其边框颜色为透明黑色（0.0，0.0，0.0），并且具有来自纹理的 alpha 分量值。如果 clamp_to_zero 是一个或多个纹理坐标的地址模式，则当边框颜色为 transparent_black 时，其它纹理坐标可以使用 clamp_to_border 的地址模式。否则，行为是未定义的。
 
 如果 coord 设置为 Pixel，则 min_filter 和 mag_filter 值必须相同，mip_filter 值必须为 none，并且地址模式必须为钳位到零、钳位到边界或钳位到边缘。
 

@@ -87,7 +87,7 @@ struct ContentView: View {
 
 如果值发生变化，SwiftUI 会更新视图中依赖于该值的任何部分。例如，如果用户更改外观设置（Appearance settings）为 `.light` 时，视图显示如上左图，为 `.dark` 时则如上右图。
 
-你可以使用此属性包装器来读取（但不能设置）环境值。 SwiftUI 根据系统设置自动更新一些环境值，并为其他环境值提供合理的默认值。你可以使用 `environment(_:_:)` 视图修饰符覆盖其中一些，也可以设置你定义的 "自定义环境值"。
+你可以使用此属性包装器来读取（但不能设置）环境值。 SwiftUI 根据系统设置自动更新一些环境值，并为其它环境值提供合理的默认值。你可以使用 `environment(_:_:)` 视图修饰符覆盖其中一些，也可以设置你定义的 "自定义环境值"。
 
 有关 SwiftUI 提供的环境值的完整列表，请参阅 `EnvironmentValues` 结构体的属性。有关创建 "自定义环境值" 的信息，请参阅 `EnvironmentKey` 协议。
 
@@ -149,7 +149,7 @@ SwiftUI 以 `EnvironmentValues` 结构体向应用程序的视图暴露一组值
 @Environment(\.locale) var locale: Locale
 ```
 
-使用你声明的属性来动态控制视图的布局。 SwiftUI 根据设备特征、系统状态或用户设置自动设置或更新许多环境值，例如 [pixelLength](https://developer.apple.com/documentation/swiftui/environmentvalues/pixellength)、[scenePhase](https://developer.apple.com/documentation/swiftui/environmentvalues/scenephase) 或 [locale](https://developer.apple.com/documentation/swiftui/environmentvalues/locale)。对于其他的，比如 [lineLimit](https://developer.apple.com/documentation/swiftui/environmentvalues/linelimit)，SwiftUI 提供了一个合理的默认值。
+使用你声明的属性来动态控制视图的布局。 SwiftUI 根据设备特征、系统状态或用户设置自动设置或更新许多环境值，例如 [pixelLength](https://developer.apple.com/documentation/swiftui/environmentvalues/pixellength)、[scenePhase](https://developer.apple.com/documentation/swiftui/environmentvalues/scenephase) 或 [locale](https://developer.apple.com/documentation/swiftui/environmentvalues/locale)。对于其它的，比如 [lineLimit](https://developer.apple.com/documentation/swiftui/environmentvalues/linelimit)，SwiftUI 提供了一个合理的默认值。
 
 你可以使用 [environment(_:_:)](<https://developer.apple.com/documentation/swiftui/view/environment(_:_:)>) 视图修饰器设置或覆盖某些值：
 

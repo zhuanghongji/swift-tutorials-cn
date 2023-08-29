@@ -101,7 +101,7 @@ Source: [http://www.rorydriscoll.com/2008/08/01/catmull-clark-subdivision-the-ba
 
 ## Metal 镶嵌固定功能管道
 
-图 14.6 中所示的 Metal 曲面细分管道与你将在本书中了解的所有其他管道不同，因为它需要所有三种着色器类型的实例：顶点、片段和内核。本章简要概述了内核着色器在曲面细分管道中所扮演的角色。本书的第二部分对内核着色器和计算管道进行了更全面的概述。
+图 14.6 中所示的 Metal 曲面细分管道与你将在本书中了解的所有其它管道不同，因为它需要所有三种着色器类型的实例：顶点、片段和内核。本章简要概述了内核着色器在曲面细分管道中所扮演的角色。本书的第二部分对内核着色器和计算管道进行了更全面的概述。
 
 <Figure
   src={require("./14_6.jpg")}
@@ -252,7 +252,7 @@ vertex FunctionOutIn tessellation_vertex_triangle(
 
 ## 绘制补丁
 
-曲面细分的绘制调用与其他渲染编码器应用程序的绘制调用略有不同。在正常应用中，你告诉编码器你正在绘制什么类型的对象（点、线或三角形）。你可以使用 drawPatch 的变体来代替 drawPrimitives：
+曲面细分的绘制调用与其它渲染编码器应用程序的绘制调用略有不同。在正常应用中，你告诉编码器你正在绘制什么类型的对象（点、线或三角形）。你可以使用 drawPatch 的变体来代替 drawPrimitives：
 
 ```swift
 renderCommandEncoder.drawPatches(numberOfPatchControlPoints: 3,

@@ -46,7 +46,7 @@ GPU 将这种并行处理提升到了一个新的水平 GPU 不限于两个、�
 
 假设你雇用某人来创作你的艺术品。让别人免费创作艺术品
 
-你可以去做其他工作了。如果你让艺术家与你并行工作，你可以优化这种安排，这样当你的其他工作完成并且你准备好你的艺术作品时，它已经在等着你了。
+你可以去做其它工作了。如果你让艺术家与你并行工作，你可以优化这种安排，这样当你的其它工作完成并且你准备好你的艺术作品时，它已经在等着你了。
 
 由于你一次只能执行一个线程，因此通过将工作委托给美工人员可以提高效率。现在想象一下，你有一个完整的艺术家工作室，他们可以同时处理游戏的不同部分 GPU 就像那个动画工作室。由于 GPU 有数千个核心，因此可以发送到 GPU 的工作越多，可以同时完成的工作就越多，如图 15.2 所示。
 
@@ -62,7 +62,7 @@ GPU 将这种并行处理提升到了一个新的水平 GPU 不限于两个、�
 
 Apple 的 Grand Central Dispatch (GCD) 框架监视所有线程并安排工作。它检查用户是否正在与应用程序交互。如果用户开始交互，
 
-GCD 停止所有其他工作来处理主线程的要求。一旦工作完成，GCD 就可以回去安排其他任务在后台完成 A9 芯片功能如此强大，以至于所有这一切都可以无缝地进行，而用户无需意识到幕后发生的所有资源处理。
+GCD 停止所有其它工作来处理主线程的要求。一旦工作完成，GCD 就可以回去安排其它任务在后台完成 A9 芯片功能如此强大，以至于所有这一切都可以无缝地进行，而用户无需意识到幕后发生的所有资源处理。
 
 你可以使用许多编程模型来创建并行性。并行性可以构建到计算机体系结构、数据级别和指令级别 GPU 是建立在数据并行性之上的 CPU 并行性超出了本书的范围，但主要内容是 GPU 的并行性远远高于 CPU，并且向 GPU 发送工作可以给你带来巨大的性能优势。
 
@@ -105,13 +105,13 @@ kernel void kernel_function(
 }
 ```
 
-该函数必须以名称 kernel 开头，以区别于顶点函数或片段函数。返回类型必须为 `void`。接下来是内核函数的名称。与处理其他类型的函数一样，你可以将参数表中的参数位置作为参数传递给内核函数。
+该函数必须以名称 kernel 开头，以区别于顶点函数或片段函数。返回类型必须为 `void`。接下来是内核函数的名称。与处理其它类型的函数一样，你可以将参数表中的参数位置作为参数传递给内核函数。
 
 ## Metal 计算命令编码器
 
 发送到 GPU 的所有工作都被编码到 `MTLCommandEncoder` 实例中。有四种不同类型的命令编码器。到目前为止，在本书中，你已经学会了如何使用其中三个。本章介绍第四个也是最后一个：Metal 计算命令编码器（MTLComputeCommandEncoder）。
 
-设置 `MTLComputeCommandEncoder` 比像任何其他对象一样简单地实例化它要复杂一些。它需要几个步骤并首先设置一些其他对象：
+设置 `MTLComputeCommandEncoder` 比像任何其它对象一样简单地实例化它要复杂一些。它需要几个步骤并首先设置一些其它对象：
 
 ```swift
 var device: MTLDevice!
@@ -124,7 +124,7 @@ func setupMetal() {
 }
 ```
 
-设置 `MTLComputeCommandEncoder` 的方法 `makeComputeCommandEncoder()` 存在于 `MTLCommandBuffer` 对象上 `MTLCommandBuffer` 对象由 `MTLCommandQueue` 上的 `makeCommandBuffer()` 方法初始化 `MTLCommandQueue` 又由 `MTLDevice` 上的 `makeCommandQueue()` 方法创建。因此，要初始化 `MTLComputeCommandEncoder`，你需要设置一系列其他 Metal 对象，所有这些对象都会初始化链中的下一个。
+设置 `MTLComputeCommandEncoder` 的方法 `makeComputeCommandEncoder()` 存在于 `MTLCommandBuffer` 对象上 `MTLCommandBuffer` 对象由 `MTLCommandQueue` 上的 `makeCommandBuffer()` 方法初始化 `MTLCommandQueue` 又由 `MTLDevice` 上的 `makeCommandQueue()` 方法创建。因此，要初始化 `MTLComputeCommandEncoder`，你需要设置一系列其它 Metal 对象，所有这些对象都会初始化链中的下一个。
 
 将这三个对象全部初始化并就位后，你可以调用 `MTLCommandBuffer` 上的方法来初始化 `MTLComputeCommandEncoder`：
 
@@ -177,7 +177,7 @@ computeEncoder.setComputePipelineState(computePipelineState)
 
 执行工作的各个单元称为 _线程_。线程是以下集合之一
 
-通过调度命令在设备上调用的内核函数的并行执行。线程通过其在网格中的线程位置和线程组中的线程位置来与集合中的其他执行区分开来。
+通过调度命令在设备上调用的内核函数的并行执行。线程通过其在网格中的线程位置和线程组中的线程位置来与集合中的其它执行区分开来。
 
 GPU 对 GPU 上的每个线程进行微观管理的效率并不高。相反，它们被组装在 _线程组_ 中。线程由一个或多个处理元素作为在计算单元上执行的线程组的一部分来执行，如图 15.3 所示。它们还共享一个指令指针，这意味着它们都同时执行相同的指令。线程组上可以执行的线程数就是 _线程执行宽度_。与计算机科学中的许多概念一样，最大执行宽度是 2 的幂。它根据你使用的 iPhone 版本而变化。功能更强大的 iPhone 具有更深的执行宽度。第 16 章“ Metal 图像处理”中探讨了这个概念。
 

@@ -26,7 +26,7 @@ ushort get_color_coverage_mask(ushort2 coord, ushort color_index) const;
 
 color_index 是从 0 到 get_num_colors() - 1 的值。
 
-## 6.13.1 具有隐式布局的图像块的函数
+## 具有隐式布局的图像块的函数
 
 使用以下函数以像素速率读取或写入图像块内给定 (x, y) 坐标的图像块：
 
@@ -60,7 +60,7 @@ const imageblock_slice<E, imageblock_layout_implicit> slice(ushort color_index, 
 
 要复制的区域的原点为 (0,0)。没有参数 size 的 slice(...) 成员函数复制图像块的整个宽度和高度。
 
-## 6.13.2 具有显式布局的图像块的函数
+## 具有显式布局的图像块的函数
 
 使用以下成员函数获取对图像块内的 (x, y) 坐标给出的特定位置的图像块数据的引用。当以像素速率读取或写入图像块中的数据成员时，请使用这些成员函数。
 
@@ -102,7 +102,7 @@ slice(const threadgroup_imageblock E& data_member, ushort2 大小) const;
 
 要复制的区域的原点为 (0,0)。没有参数 size 的 slice(...) 成员函数复制图像块的整个宽度和高度。
 
-## 6.13.3 将图像块切片写入纹理中的区域
+## 将图像块切片写入纹理中的区域
 
 在这些纹理类型中使用以下 write(...) 成员函数将与图像块中的切片关联的像素写入从坐标给定的位置开始的纹理。请注意，从 imageblock_slice 写入纹理必须具有匹配的 MSAA 模式，否则结果是未定义的。
 

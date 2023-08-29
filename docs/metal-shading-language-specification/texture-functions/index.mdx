@@ -100,7 +100,7 @@ calculate_clamped_lod - 与 calculate_unclamped_lod 类似，但额外限制 LOD
 
 - 在纹理 mip 计数限制内，- 在采样器的 lod_clamp 最小值和最大值内 - 小于或等于采样器的 max_anisotropy 值
 
-## 6.12.1 一维纹理
+## 一维纹理
 
 该成员函数从一维纹理中采样。
 
@@ -174,7 +174,7 @@ voidatomic_max(uint 坐标，ulong4 操作数)
 
 voidatomic_max(ushort 坐标，ulong4 操作数)
 
-## 6.12.2 一维纹理数组
+## 一维纹理数组
 
 该成员函数从一维纹理数组中采样：
 
@@ -250,7 +250,7 @@ voidatomic_max(uint 坐标、uint 数组、ulong4 操作数)
 
 voidatomic_max(ushort 坐标，ushort 数组，ulong4 操作数)
 
-## 6.12.3 2D 纹理
+## 2D 纹理
 
 对于本节中的函数，以下数据类型和相应的构造函数可以指定采样选项（lod_options）：
 
@@ -384,7 +384,7 @@ texture2d tex;采样器；浮点数 2 坐标； int2 偏移量；浮动罗德；
 
 // 使用 mipmap 级别和偏移量进行采样。clr = tex.sample(s, 坐标, 水平(lod), 偏移量);
 
-## 6.12.4 2D 纹理数组
+## 2D 纹理数组
 
 对于本节中的函数，以下数据类型和相应的构造函数可以指定采样选项（lod_options）：
 
@@ -506,7 +506,7 @@ voidatomic_max(uint 2 坐标，uint 数组，ulong4 操作数)
 
 voidatomic_max(ushort 2 坐标，ushort 数组，ulong4 操作数)
 
-## 6.12.5 3D 纹理
+## 3D 纹理
 
 对于本节中的函数，以下数据类型和相应的构造函数可以指定采样选项（lod_options）：
 
@@ -620,7 +620,7 @@ voidatomic_max(uint 3 坐标，ulong4 操作数)
 
 voidatomic_max(ushort 3 坐标，ulong4 操作数)
 
-## 6.12.6 立方体纹理
+## 立方体纹理
 
 对于本节中的函数，以下数据类型和相应的构造函数可以指定采样选项（lod_options）：
 
@@ -722,7 +722,7 @@ min_lod_clamp min_lod_clamp_options) const
 
 浮点 calculate_unclamped_lod（采样器 s，浮点 3 坐标）；
 
-## 6.12.7 立方体纹理数组
+## 立方体纹理数组
 
 对于本节中的函数，以下数据类型和相应的构造函数可以指定采样选项（lod_options）：
 
@@ -802,7 +802,7 @@ uint get_num_mip_levels() const
 
 浮点 calculate_unclamped_lod（采样器 s，浮点 3 坐标）；
 
-## 6.12.8 2D 多重采样纹理
+## 2D 多重采样纹理
 
 这些成员函数从 2D 多重采样纹理执行无采样器读取：
 
@@ -826,7 +826,7 @@ uint get_num_samples() const
 
 稀疏*颜色-电视稀疏*读取（uint 2 坐标，uint 样本）const
 
-## 6.12.9 2D 多重采样纹理数组
+## 2D 多重采样纹理数组
 
 macOS：自 Metal 2 起。
 

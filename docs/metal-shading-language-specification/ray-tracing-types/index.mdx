@@ -4,7 +4,7 @@
 
 所有操作系统：自 Metal 2.3 起支持光线追踪类型。这些类型在命名空间 metal::raytracing 的头文件 中定义。在 Metal 2.3 中，这些类型仅在计算函数（内核函数）中受支持，除非下面另有说明。从 Metal 2.4 开始，顶点、片段和图块函数也支持它们。在 Metal 3.1 中，光线追踪支持曲线和多级实例。
 
-## 2.17.1 光线追踪交叉点标签
+## 光线追踪交叉点标签
 
 所有操作系统：从 Metal 2. 3 开始支持光线追踪相交标签。
 
@@ -14,7 +14,7 @@ Intersection_tags 在命名空间 metal::raytracing 的头文件 中定义。它
 
 标签用于配置光线追踪过程并控制不同类型和表的行为和语义。这些标签标识相交的加速器结构的类型、可用于相交函数的内置参数、相交函数表中相交函数的类型、相交类型或相交查询对象上可用的方法以及相交中返回的数据结果类型。
 
-intersector_tags 的标签类型和顺序必须与 intersection_function_table、intersection_result、intersector 和 intersection_query 的相关使用之间匹配，否则编译器将生成错误。如果实例、primitive_motion 和 instance_motion 标签出现在用于与加速结构相交的其他光线跟踪类型上，则相交的加速结构类型必须与 instancing、primitive_motion 和 instance_motion 标签的顺序相匹配。在交集函数表中调用交集函数时，开发人员必须确保它们使用相同的有序标签集，否则结果是不确定的。
+intersector_tags 的标签类型和顺序必须与 intersection_function_table、intersection_result、intersector 和 intersection_query 的相关使用之间匹配，否则编译器将生成错误。如果实例、primitive_motion 和 instance_motion 标签出现在用于与加速结构相交的其它光线跟踪类型上，则相交的加速结构类型必须与 instancing、primitive_motion 和 instance_motion 标签的顺序相匹配。在交集函数表中调用交集函数时，开发人员必须确保它们使用相同的有序标签集，否则结果是不确定的。
 
 ## 表 2.9。路口标签
 
@@ -46,7 +46,7 @@ Extended_limits 标签可以添加到上面列出的所有组合中。
 
 在 Metal 3.1 中，curve_data 可以添加到上面列出的所有组合中。交叉标签 max_levels 可以添加到上面包含实例的任何组合中。
 
-## 2.17.2 射线类型
+## 射线类型
 
 射线结构是相交所需射线属性的容器。
 
@@ -70,7 +70,7 @@ struct ray
 
 射线方向不需要标准化，尽管它确实需要非零。
 
-## 2.17.3 交集函数表
+## 交集函数表
 
 junction_function_table 结构类型描述了传递到着色器的自定义交集函数表，如第 5.1.6 节中所定义。交集标记根据表 2 进行定义。9. junction_function_table 类型和交集函数上的交集标记必须匹配。这种声明的一个例子是
 
@@ -132,7 +132,7 @@ template<typename T>
                                   uint index)
 ```
 
-## 2.17.4 交集结果类型
+## 交集结果类型
 
 交集的结果在 junction_result 结构中返回，其中 junction_tags 在表 2 中定义。9. 返回结构定义为
 
@@ -196,7 +196,7 @@ struct intersection_result
                 triangle_barycentric_coord.y))
 ```
 
-## 2.17.5 交叉线类型
+## 交叉线类型
 
 intersector 结构类型定义了一个控制加速结构遍历的对象，并定义了像 intersect() 这样的与射线相交的函数。创建交集时，请使用 junction_tags（如表 2. 9 中所述）来专门说明其运行的加速结构类型以及可用的功能（请参阅第 6.18.2 节）。相交类型上的相交标记必须与其关联的相交函数相匹配（第 5.1.6 节），否则行为未定义。
 
@@ -216,7 +216,7 @@ intersector 结构类型为 2.17.5 节中定义的交集结果类型提供了一
 intersector<intersection_tags...>::result
 ```
 
-## 2.17.6 加速结构类型
+## 加速结构类型
 
 所有操作系统：从 Metal 2. 3 开始支持加速结构类型。
 
@@ -292,7 +292,7 @@ intersectMotionKernel(
 
 有关加速结构为空时要调用的函数，请参阅第 6.18.1 节。
 
-## 2.17.7 交集查询类型
+## 交集查询类型
 
 所有操作系统：自 Metal 2. 4 起支持交叉口查询
 

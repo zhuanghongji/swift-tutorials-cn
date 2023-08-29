@@ -7,11 +7,11 @@
   value="https://docs.swift.org/swift-book/documentation/the-swift-programming-language/enumerations"
 />
 
-枚举为一组相关值定义了一个通用类型，并使您能够在代码中以类型安全的方式使用这些值。
+枚举为一组相关值定义了一个通用类型，并使你能够在代码中以类型安全的方式使用这些值。
 
-如果您熟悉 C，就会知道 C 枚举将相关名称分配给一组整数值。Swift 中的枚举要灵活得多，并且不必为枚举的每个案例都提供一个值。如果为每个枚举案例提供一个值（称为原始值），则该值可以是字符串、字符或任何整数或浮点类型的值。
+如果你熟悉 C，就会知道 C 枚举将相关名称分配给一组整数值。Swift 中的枚举要灵活得多，并且不必为枚举的每个案例都提供一个值。如果为每个枚举案例提供一个值（称为原始值），则该值可以是字符串、字符或任何整数或浮点类型的值。
 
-或者，枚举案例可以指定任何类型的关联值与每个不同的案例值一起存储，就像其他语言中的联合或变体一样。您可以将一组常见的相关案例定义为一个枚举的一部分，每个枚举都有一组不同的适当类型的值与之关联。
+或者，枚举案例可以指定任何类型的关联值与每个不同的案例值一起存储，就像其它语言中的联合或变体一样。你可以将一组常见的相关案例定义为一个枚举的一部分，每个枚举都有一组不同的适当类型的值与之关联。
 
 Swift 中的枚举本身就是一流的类型。它们采用了许多传统上仅由类支持的特性，例如计算属性以提供有关枚举当前值的附加信息，以及实例方法以提供与枚举表示的值相关的功能。枚举也可以定义初始化器来提供一个初始的 case 值；可以扩展以扩展其原始实现之外的功能；并且可以符合提供标准功能的协议。
 
@@ -19,7 +19,7 @@ Swift 中的枚举本身就是一流的类型。它们采用了许多传统上�
 
 ## 枚举语法
 
-您使用关键字引入枚举 enum 并将它们的整个定义放在一对大括号中：
+你使用关键字引入枚举 enum 并将它们的整个定义放在一对大括号中：
 
 ```swift
 enum SomeEnumeration {
@@ -38,7 +38,7 @@ enum CompassPoint {
 }
 ```
 
-枚举中定义的值（例如 north、south、east 和 west）是它的枚举案例。您使用 case 关键字来引入新的枚举案例。
+枚举中定义的值（例如 north、south、east 和 west）是它的枚举案例。你使用 case 关键字来引入新的枚举案例。
 
 :::note
 与 C 和 Objective-C 等语言不同，Swift 枚举用例没有默认设置的整数值。在上面的示例中，、和不隐式等于、和。相反，不同的枚举案例本身就是值，具有明确定义的.CompassPointnorthsoutheastwest0123CompassPoint
@@ -52,23 +52,23 @@ enum Planet {
 }
 ```
 
-每个枚举定义定义一个新类型。与 Swift 中的其他类型一样，它们的名称（例如和）以大写字母开头。为枚举类型提供单数而非复数名称，以便它们读起来不言自明：CompassPointPlanet
+每个枚举定义定义一个新类型。与 Swift 中的其它类型一样，它们的名称（例如和）以大写字母开头。为枚举类型提供单数而非复数名称，以便它们读起来不言自明：CompassPointPlanet
 
 ```swift
 var directionToHead = CompassPoint.west
 ```
 
-当使用 的可能值之一初始化时，会推断出的类型。一旦声明为 a ，您可以使用更短的点语法将其设置为不同的值：directionToHeadCompassPointdirectionToHeadCompassPointCompassPoint
+当使用 的可能值之一初始化时，会推断出的类型。一旦声明为 a ，你可以使用更短的点语法将其设置为不同的值：directionToHeadCompassPointdirectionToHeadCompassPointCompassPoint
 
 ```swift
 directionToHead = .east
 ```
 
-的类型是已知的，因此您可以在设置其值时删除类型。当使用显式类型的枚举值时，这会产生高度可读的代码。directionToHead
+的类型是已知的，因此你可以在设置其值时删除类型。当使用显式类型的枚举值时，这会产生高度可读的代码。directionToHead
 
 ## 使用 Switch 语句匹配枚举值
 
-您可以将单个枚举值与 switch 语句匹配：
+你可以将单个枚举值与 switch 语句匹配：
 
 ```swift
 directionToHead = .south
@@ -85,7 +85,7 @@ case .west:
 // Prints "Watch out for penguins"
 ```
 
-您可以将此代码阅读为：
+你可以将此代码阅读为：
 
 “考虑. 在它等于的情况下，打印。在等于的情况下，打印。”directionToHead.north"Lots of planets have a north".south"Watch out for penguins"
 
@@ -93,7 +93,7 @@ case .west:
 
 如控制流中所述，switch 在考虑枚举的情况时，语句必须详尽无遗。如果 casefor.west 被省略，这段代码就不会编译，因为它没有考虑完整的案例列表。要求详尽无遗可确保不会意外遗漏枚举案例。CompassPoint
 
-当为每个枚举案例提供一个不合适时 case，您可以提供一个 default 案例来涵盖任何未明确解决的案例：
+当为每个枚举案例提供一个不合适时 case，你可以提供一个 default 案例来涵盖任何未明确解决的案例：
 
 ```swift
 let somePlanet = Planet.earth
@@ -108,7 +108,7 @@ default:
 
 ## 迭代枚举案例
 
-对于某些枚举，收集所有该枚举的案例很有用。您可以通过在枚举名称后写入来启用它。Swift 将所有案例的集合公开为枚举类型的属性。这是一个例子：: CaseIterableallCases
+对于某些枚举，收集所有该枚举的案例很有用。你可以通过在枚举名称后写入来启用它。Swift 将所有案例的集合公开为枚举类型的属性。这是一个例子：: CaseIterableallCases
 
 ```swift
 enum Beverage: CaseIterable {
@@ -119,7 +119,7 @@ print("\(numberOfChoices) beverages available")
 // Prints "3 beverages available"
 ```
 
-在上面的示例中，您编写以访问包含所有枚举案例的集合。您可以像使用任何其他集合一样使用 — 集合的元素是枚举类型的实例，因此在本例中它们是值。上面的示例计算了有多少个案例，下面的示例使用-循环遍历所有案例。Beverage.allCasesBeverageallCasesBeverageforin
+在上面的示例中，你编写以访问包含所有枚举案例的集合。你可以像使用任何其它集合一样使用 — 集合的元素是枚举类型的实例，因此在本例中它们是值。上面的示例计算了有多少个案例，下面的示例使用-循环遍历所有案例。Beverage.allCasesBeverageallCasesBeverageforin
 
 ```swift
 for beverage in Beverage.allCases {
@@ -134,15 +134,15 @@ for beverage in Beverage.allCases {
 
 ## 关联值
 
-上一节中的示例展示了枚举的情况如何在其自身的权利中是定义的（和类型化的）值。您可以将常量或变量设置为，并在以后检查此值。但是，有时能够将其他类型的值与这些 case 值一起存储是很有用的。此附加信息称为关联值，每次您将该案例用作代码中的值时它都会有所不同。Planet.earth
+上一节中的示例展示了枚举的情况如何在其自身的权利中是定义的（和类型化的）值。你可以将常量或变量设置为，并在以后检查此值。但是，有时能够将其它类型的值与这些 case 值一起存储是很有用的。此附加信息称为关联值，每次你将该案例用作代码中的值时它都会有所不同。Planet.earth
 
-您可以定义 Swift 枚举来存储任何给定类型的关联值，并且如果需要，枚举的每种情况的值类型都可以不同。与这些类似的枚举在其他编程语言中称为可区分联合、标记联合或变体。
+你可以定义 Swift 枚举来存储任何给定类型的关联值，并且如果需要，枚举的每种情况的值类型都可以不同。与这些类似的枚举在其它编程语言中称为可区分联合、标记联合或变体。
 
 例如，假设库存跟踪系统需要通过两种不同类型的条形码来跟踪产品。一些产品标有 UPC 格式的一维条形码，它使用数字 0 来 9。每个条形码都有一个数字系统数字，后跟五个制造商代码数字和五个产品代码数字。这些后面跟着一个校验位，以验证代码是否已被正确扫描：
 
 ![](./barcode-upc.png)
 
-其他产品标有 QR 码格式的二维条码，可以使用任何 ISO 8859-1 字符，并且可以编码长达 2,953 个字符的字符串：
+其它产品标有 QR 码格式的二维条码，可以使用任何 ISO 8859-1 字符，并且可以编码长达 2,953 个字符的字符串：
 
 ![](./barcode-qr.png)
 
@@ -163,7 +163,7 @@ enum Barcode {
 
 这个定义不提供任何实际的 IntorString 值——它只是定义常量和变量在等于 or 时可以存储的关联值的类型。BarcodeBarcode.upcBarcode.qrCode
 
-然后您可以使用以下任一类型创建新条形码：
+然后你可以使用以下任一类型创建新条形码：
 
 ```swift
 var productBarcode = Barcode.upc(8, 85909, 51226, 3)
@@ -171,7 +171,7 @@ var productBarcode = Barcode.upc(8, 85909, 51226, 3)
 
 此示例创建一个名为 的新变量，并为其分配一个值和关联的元组值。productBarcodeBarcode.upc(8, 85909, 51226, 3)
 
-您可以为同一产品分配不同类型的条形码：
+你可以为同一产品分配不同类型的条形码：
 
 ```swift
 productBarcode = .qrCode("ABCDEFGHIJKLMNOP")
@@ -179,7 +179,7 @@ productBarcode = .qrCode("ABCDEFGHIJKLMNOP")
 
 此时，原始值及其整数值将替换为新值及其字符串值。类型的常量和变量可以存储 a 或 a （连同它们的关联值），但它们在任何给定时间只能存储其中一个。Barcode.upcBarcode.qrCodeBarcode.upc.qrCode
 
-您可以使用 switch 语句检查不同的条形码类型，类似于使用 Switch 语句匹配枚举值中的示例。然而，这一次，关联值被提取为 switch 语句的一部分。您将每个关联值提取为常量（带 let 前缀）或变量（带 var 前缀）以在 switch 案例主体中使用：
+你可以使用 switch 语句检查不同的条形码类型，类似于使用 Switch 语句匹配枚举值中的示例。然而，这一次，关联值被提取为 switch 语句的一部分。你将每个关联值提取为常量（带 let 前缀）或变量（带 var 前缀）以在 switch 案例主体中使用：
 
 ```swift
 switch productBarcode {
@@ -222,12 +222,12 @@ enum ASCIIControlCharacter: Character {
 原始值可以是字符串、字符或任何整数或浮点数类型。每个原始值在其枚举声明中必须是唯一的。
 
 :::note
-原始值与关联值不同。当您第一次在代码中定义枚举时，原始值将设置为预填充值，如上面的三个 ASCII 代码。特定枚举案例的原始值始终相同。当您根据其中一个枚举案例创建新常量或变量时，会设置关联值，并且每次这样做时都可能不同。
+原始值与关联值不同。当你第一次在代码中定义枚举时，原始值将设置为预填充值，如上面的三个 ASCII 代码。特定枚举案例的原始值始终相同。当你根据其中一个枚举案例创建新常量或变量时，会设置关联值，并且每次这样做时都可能不同。
 :::
 
 ## 隐式分配的原始值
 
-当您使用存储整数或字符串原始值的枚举时，您不必为每种情况显式分配原始值。如果你不这样做，Swift 会自动为你分配值。
+当你使用存储整数或字符串原始值的枚举时，你不必为每种情况显式分配原始值。如果你不这样做，Swift 会自动为你分配值。
 
 例如，当整数用于原始值时，每种情况的隐式值都比前一种情况多 1。如果第一种情况没有设置值，则其值为 0。
 
@@ -253,7 +253,7 @@ enum CompassPoint: String {
 
 在上面的例子中，有一个隐含的原始值，等等。CompassPoint.south"south"
 
-您可以使用其属性访问枚举案例的原始值：rawValue
+你可以使用其属性访问枚举案例的原始值：rawValue
 
 ```swift
 let earthsOrder = Planet.earth.rawValue
@@ -265,7 +265,7 @@ let sunsetDirection = CompassPoint.west.rawValue
 
 ## 从原始值初始化
 
-如果您使用原始值类型定义枚举，则该枚举会自动接收一个初始值设定项，该初始值设定项采用原始值类型的值（作为称为 的参数）并返回枚举 case 或。您可以使用此初始化程序来尝试创建枚举的新实例。rawValuenil
+如果你使用原始值类型定义枚举，则该枚举会自动接收一个初始值设定项，该初始值设定项采用原始值类型的值（作为称为 的参数）并返回枚举 case 或。你可以使用此初始化程序来尝试创建枚举的新实例。rawValuenil
 
 此示例根据其原始值 识别天王星 7：
 
@@ -280,7 +280,7 @@ let possiblePlanet = Planet(rawValue: 7)
 原始值初始值设定项是一个可失败初始值设定项，因为并非每个原始值都会返回一个枚举案例。有关详细信息，请参阅可失败的初始化程序。
 :::
 
-如果您尝试查找位置为 的行星 11，则原始值初始值设定项返回的可选 Planet 值将为 nil：
+如果你尝试查找位置为 的行星 11，则原始值初始值设定项返回的可选 Planet 值将为 nil：
 
 ```swift
 let positionToFind = 11
@@ -301,7 +301,7 @@ if let somePlanet = Planet(rawValue: positionToFind) {
 
 ## 递归枚举
 
-递归枚举是将枚举的另一个实例作为一个或多个枚举案例的关联值的枚举。您通过在枚举案例之前写入来指示枚举案例是递归的 indirect，这告诉编译器插入必要的间接层。
+递归枚举是将枚举的另一个实例作为一个或多个枚举案例的关联值的枚举。你通过在枚举案例之前写入来指示枚举案例是递归的 indirect，这告诉编译器插入必要的间接层。
 
 例如，这是一个存储简单算术表达式的枚举：
 
@@ -313,7 +313,7 @@ enum ArithmeticExpression {
 }
 ```
 
-您还可以 indirect 在枚举开始之前编写，以便为所有具有关联值的枚举案例启用间接访问：
+你还可以 indirect 在枚举开始之前编写，以便为所有具有关联值的枚举案例启用间接访问：
 
 ```swift
 indirect enum ArithmeticExpression {

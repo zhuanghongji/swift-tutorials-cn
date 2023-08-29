@@ -40,7 +40,7 @@ T insert_bits(T base, T insert, uint offset, uint bits) 所有操作系统：自
 
 ``` 返回插入到基数中的最低有效位的插入。````
 
-``` 结果的位 [offset, offset+bits- 1 ] 取自 insert 的位 [ 0 , bits- 1 ]，所有其他位直接取自 base 的相应位。如果位为零，则结果为基数。如果偏移量和位数之和大于用于存储操作数的位数，则结果未定义。````
+``` 结果的位 [offset, offset+bits- 1 ] 取自 insert 的位 [ 0 , bits- 1 ]，所有其它位直接取自 base 的相应位。如果位为零，则结果为基数。如果偏移量和位数之和大于用于存储操作数的位数，则结果未定义。````
 
 T32 mad24(T32 x、T32 y、T32 z) 所有操作系统：自 Metal 2 .1 起。
 

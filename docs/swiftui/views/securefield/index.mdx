@@ -10,9 +10,9 @@ import SecureFieldFormImage from "./secure-field-form.png";
 
 ## 概述
 
-在你希望行为类似于 `TextField` 但不希望用户的文本可见，请使用 `SecureField`。通常，你可以使用它来输入密码和其他敏感信息。
+在你希望行为类似于 `TextField` 但不希望用户的文本可见，请使用 `SecureField`。通常，你可以使用它来输入密码和其它敏感信息。
 
-一个 `SecureField` 使用一个字符串值的绑定，以及一个用户提交编辑时执行的闭包，例如按 _Return_ 键。该输入框在每次按键（keystroke）或其他编辑时更新绑定字符串，因此你可以随时从另一个控件（如 "完成" 按钮）读取其值。
+一个 `SecureField` 使用一个字符串值的绑定，以及一个用户提交编辑时执行的闭包，例如按 _Return_ 键。该输入框在每次按键（keystroke）或其它编辑时更新绑定字符串，因此你可以随时从另一个控件（如 "完成" 按钮）读取其值。
 
 下面的示例演示了一个绑定到字符串 `password` 的 `SecureField`。如果用户在 Secure Field 中提交编辑，则 `onCommit` 闭包会将 password 字符串发送到 `handleLogin()` 方法。
 
