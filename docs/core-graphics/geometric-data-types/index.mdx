@@ -1,3 +1,1118 @@
 # 几何数据类型
 
-[Core Graphics](https://developer.apple.com/documentation/coregraphics)
+<OriginalLink
+  title="Geometric Data Types"
+  value="https://developer.apple.com/documentation/coregraphics#2008762"
+/>
+
+## CGFloat
+
+Core Graphics 和相关框架中浮点标量值的基本类型。
+
+```swift
+@available(macOS 10.0, macCatalyst 13.0, iOS 2.0, watchOS 1.0, tvOS 9.0, *)
+@frozen public struct CGFloat {
+    // ...
+
+    /// The native type used to store the CGFloat, which is Float on
+    /// 32-bit architectures and Double on 64-bit architectures.
+    public typealias NativeType = Double
+
+    /// The native value.
+    public var native: CGFloat.NativeType
+}
+```
+
+### 概述
+
+这种类型的大小和精度取决于 CPU 架构。当你为 64 位 CPU 构建时，[CGFloat](https://developer.apple.com/documentation/corefoundation/cgfloat) 类型是 64 位 IEEE 双精度浮点类型，相当于 [Double](https://developer.apple.com/documentation/swift/double) 类型。当你为 32 位 CPU 构建时，CGFloat 类型是 32 位 IEEE 单精度浮点类型，相当于 [Float](https://developer.apple.com/documentation/swift/float) 类型。
+
+### 初始化器
+
+#### 常见初始化器
+
+```swift
+@frozen public struct CGFloat {
+    // ...
+
+    // 创建一个初始化为零的实例
+    public init()
+
+    // value 四舍五入到最接近的可表示 Self
+    public init(_ value: Float)
+
+    // value 四舍五入到最接近的可表示 Self
+    public init(_ value: Double)
+
+    // 创建一个初始化为 value 的实例
+    public init(_ value: CGFloat)
+}
+```
+
+示例如下：
+
+```swift
+let a = CGFloat()                  // 0
+
+let valueFloat: Float = 1.23
+let b = CGFloat(valueFloat)        // 1.230000019073486
+
+let valueDouble: Double = 1.2345
+let c = CGFloat(valueDouble)       // 1.2345
+
+let d = CGFloat(c)                 // 1.2345
+
+// error-start
+// error: binary operator '==' cannot be applied to operands of
+// type 'CGFloat.NativeType' (aka 'Double') and 'Float'
+print(b.native == valueFloat)
+// error-end
+
+print(d.native == valueDouble)     // true
+```
+
+值得注意的是，在 64 位 CPU 架构上使用 `init(_ value: Float)` 初始化器时，会有一个 `Float` to `Double` 的转换：
+
+```swift
+let valueFloat: Float = 1.23
+let e = Double(valueFloat)           // 1.230000019073486
+let f = CGFloat(valueFloat)          // 1.230000019073486
+let g = CGFloat(Double(valueFloat))  // 1.230000019073486
+```
+
+#### 其它初始化器
+
+除了上面四种常见的初始化器外，`CGFloat` 还扩展了其它一些初始化器。部分列举如下：
+
+```swift
+extension CGFloat : SignedNumeric {
+    // ...
+
+    // 创建一个新值，四舍五入到最接近的可能表示形式
+    public init<T>(_ source: T) where T : BinaryInteger
+}
+
+extension CGFloat : BinaryFloatingPoint {
+    // ...
+
+    // 从符号、指数和有效数进行初始化
+    public init(sign: FloatingPointSign, exponent: Int, significand: CGFloat)
+}
+```
+
+示例如下：
+
+```swift
+let valueInt: Int = -1
+let a = CGFloat(valueInt)    // -1
+
+let valueUInt: UInt = 1
+let b = CGFloat(valueUInt)   // 1
+
+let c = CGFloat(sign: .plus, exponent: 2, significand: 3)
+// result = (sign == .minus ? -1 : 1) * significand * Double.radix ** exponent
+// c = 1 * 2 * 2(radix) ** 3 = 12
+```
+
+### 实例属性
+
+```swift
+extension CGFloat : BinaryFloatingPoint {
+    // ...
+
+    // true 当且仅当 self 为零、subnormal 或 normal（不是无穷大或 NaN）
+    public var isFinite: Bool { get }
+
+    // true 当且仅当 self 是无穷大
+    public var isInfinite: Bool { get }
+
+    // true 当且仅当 self 为 NaN
+    public var isNaN: Bool { get }
+
+    // true 当且仅当 self 为 +0.0 或 -0.0
+    public var isZero: Bool { get }
+
+    // true 当且仅当 self 是 normal 的（非零、次正规、无穷大或 NaN）
+    public var isNormal: Bool { get }
+
+
+    // self 大小的以 r 为底的对数的整数部分，其中 r 是基数（二进制为 2，十进制为 10）。实现 IEEE 754 logB 操作。
+    public var exponent: Int { get }
+}
+
+extension CGFloat : CustomStringConvertible {
+
+    /// self 的文本表示
+    public var description: String { get }
+}
+```
+
+```swift
+let a = CGFloat(-1)
+let b = CGFloat(0)
+let c = CGFloat(8)
+
+print(a.isFinite)     // true
+print(b.isFinite)     // true
+print(c.isFinite)     // true
+
+print(a.isInfinite)   // false
+print(a.isNaN)        // false
+
+print(a.isZero)       // false
+print(b.isZero)       // true
+print(c.isZero)       // false
+
+print(a.isNormal)     // true
+print(b.isNormal)     // false
+print(c.isNormal)     // true
+
+print(a.exponent)     // 0
+print(b.exponent)     // -9223372036854775808
+print(c.exponent)     // 3
+
+print(a.description)  // -1.0
+```
+
+要想判断一个 `CGFloat` 是否为零，也可以通过以下方式：
+
+```swift
+print(b == .zero)     // true
+print(b == 0)         // true
+print(b == 0.0)       // true
+```
+
+### 类型属性
+
+```swift
+extension CGFloat : BinaryFloatingPoint {
+    // ...
+
+    // 正无穷大
+    public static var infinity: CGFloat { get }
+
+    // NaN
+    public static var nan: CGFloat { get }
+
+    // 数学常数 π (3.14159…)
+    public static var pi: CGFloat { get }
+}
+
+extension BinaryFloatingPoint {
+    // ...
+
+    // 浮点类型的基数或求幂底数
+    @inlinable public static var radix: Int { get }
+}
+
+extension AdditiveArithmetic where Self : ExpressibleByIntegerLiteral {
+    // ...
+
+    // 零值
+    @inlinable public static var zero: Self { get }
+}
+```
+
+示例如下：
+
+```swift
+CGFloat.infinity  // ∞
+
+CGFloat.nan       // NaN
+
+CGFloat.pi        // 3.141592653589793
+
+CGFloat.radix     // 2
+
+CGFloat.zero      // 0
+```
+
+### 实例方法
+
+```swift
+extension CGFloat : BinaryFloatingPoint {
+    // ...
+
+    // 将两个给定值的乘积与该值相加，计算时不进行中间舍入
+    public mutating func addProduct(_ lhs: CGFloat, _ rhs: CGFloat)
+
+    // 返回两个给定值的乘积与该值相加的结果，计算时不进行中间舍入
+    public func addingProduct(_ lhs: Self, _ rhs: Self) -> Self
+
+
+}
+
+extension CGFloat : Strideable {
+
+    // 用于计算两个 CGFloat 值之间的距离，它返回一个将当前值与给定值之间的距离
+    public func distance(to other: CGFloat) -> CGFloat
+
+    // 用于进行常量增量操作的方法
+    // 它接受一个浮点数作为参数，将当前 CGFloat 值增加给定的增量，并返回一个新的 CGFloat 值
+    public func advanced(by amount: CGFloat) -> CGFloat
+
+    public typealias Stride = CGFloat
+}
+
+extension FloatingPoint {
+    // ...
+
+    // 使用 "schoolbook rounding" 返回该值舍入为整数值
+    public func rounded() -> Self
+
+    // 使用 "schoolbook rounding" 将此值舍入为整数值
+    public mutating func round()
+
+    // 返回两个给定值中较大的一个
+    @inlinable public static func maximum(_ x: Self, _ y: Self) -> Self
+
+    // 返回两个给定值中较小的一个
+    @inlinable public static func minimum(_ x: Self, _ y: Self) -> Self
+
+    // 返回指定范围内的随机值
+    @inlinable public static func random(in range: ClosedRange<Self>) -> Self
+}
+```
+
+示例如下：
+
+```swift
+let a = CGFloat(2)
+let b = CGFloat(3)
+
+var c = CGFloat(4)
+c.addProduct(a, b)
+// c = 10
+
+let d = CGFloat(4)
+let e = d.addingProduct(a, b)
+// d == 4
+// e == 10
+```
+
+```swift
+let a = CGFloat(2)
+let b = CGFloat(3)
+let c = CGFloat(4)
+
+a.advanced(by: 2) // 4
+b.advanced(by: 2) // 5
+c.advanced(by: 2) // 6
+
+a.distance(to: 2) // 0
+b.distance(to: 2) // -1
+c.distance(to: 2) // -2
+```
+
+```swift
+var a = CGFloat(1.23)
+var b = CGFloat(4.56)
+
+a.round()  // a == 1
+b.round()  // b == 5
+```
+
+```swift
+let a = CGFloat(1.23)
+let b = CGFloat(4.56)
+
+let c = a.rounded()
+// a == 1.23
+// c == 1
+
+let d = b.rounded()
+// b == 4.56
+// d == 5
+```
+
+### 类型方法
+
+```swift
+
+```
+
+```swift
+let a = CGFloat(1.23)
+let b = CGFloat(4.56)
+
+let max = CGFloat.maximum(a, b)  // 4.56
+let min = CGFloat.minimum(a, b)  // 1.23
+
+let r1 = CGFloat.random(in: 0...1)    // 0.2811304193310532
+let r2 = CGFloat.random(in: 0...10)   // 5.990554344529989
+let r3 = CGFloat.random(in: 0...100)  // 96.37853633888278
+```
+
+## CGPoint
+
+包含二维坐标系中的点的结构体。
+
+```swift
+public struct CGPoint {
+
+    public init()
+
+    public init(x: Double, y: Double)
+
+    public var x: Double
+
+    public var y: Double
+}
+```
+
+### 创建 Point 值
+
+```swift
+extension CGPoint {
+    // ...
+
+    // 创建一个坐标指定为整数值的点
+    public init(x: Int, y: Int)
+
+    // 创建一个坐标指定为浮点值的点
+    public init(x: Double, y: Double)
+}
+```
+
+示例如下：
+
+```swift
+let a = CGPoint(x: 0.1, y: 0.2)
+a.x  // 0.1
+a.y  // 0.2
+
+let b = CGPoint(x: 2, y: 3)
+b.x  // 2
+b.y  // 3
+
+// 要注意的是，上面的 x, y 在不同平台上类型是不一样的：
+// iOS, macOS, Mac Catalyst, tvOS, visionOS: Double
+// watchOS: Float
+```
+
+### 特殊值
+
+```swift
+extension CGPoint {
+    // ...
+
+    // 位置为 (0,0) 的点
+    public static var zero: CGPoint { get }
+}
+
+public struct CGPoint {
+    // ...
+
+    // 创建位置为 (0,0) 的点
+    public init()
+}
+```
+
+示例如下：
+
+```swift
+let a = CGPoint.zero
+a.x  // 0
+a.y  // 0
+
+let b: CGPoint = .zero
+b.x  // 0
+b.y  // 0
+
+let c = CGPoint()
+c.x  // 0
+c.y  // 0
+```
+
+### 转换点
+
+```swift
+extension CGPoint {
+
+    // 返回现有点的仿射变换产生的点
+    public func applying(_ t: CGAffineTransform) -> CGPoint
+}
+```
+
+示例如下：
+
+```swift
+let origin = CGPoint(x: 2, y: 3)
+
+let a = origin.applying(CGAffineTransform(1, 2, 3, 4, 5, 6))
+// a = {x: 16, y: 22}
+
+let b = origin.applying(CGAffineTransform(2, 3, 4, 5, 6, 7))
+// b = {x: 22, y: 28}
+```
+
+## CGSize
+
+包含宽度和高度值的结构体。
+
+```swift
+public struct CGSize {
+
+    public init()
+
+    public init(width: Double, height: Double)
+
+    public var width: Double
+
+    public var height: Double
+}
+```
+
+### 概述
+
+[CGSize](https://developer.apple.com/documentation/corefoundation/cgsize) 结构体有时用于表示距离向量（distance vector），而不是物理大小（physical size）。作为向量，其值可以为负。要 normalize 一个 [CGSize](https://developer.apple.com/documentation/corefoundation/cgsize) 结构体，使其大小由正值表示，可调用 [CGRectStandardize(\_:)](https://developer.apple.com/documentation/coregraphics/1456432-cgrectstandardize) 函数。
+
+### 几何属性
+
+```swift
+let a = CGSize(width: 0.1, height: 0.2)
+a.width   // 0.1
+a.height  // 0.2
+
+let b = CGSize(width: 2, height: 3)
+b.width   // 2
+b.height  // 3
+```
+
+### 特殊价值
+
+```swift
+extension CGSize {
+    // ...
+
+    public static var zero: CGSize { get }
+}
+
+public struct CGSize {
+    // ...
+
+    public init()
+}
+```
+
+示例如下：
+
+```swift
+let a = CGSize.zero
+a.width   // 0
+a.height  // 0
+
+let b: CGSize = .zero
+b.width   // 0
+b.height  // 0
+
+let c = CGSize()
+c.width   // 0
+c.height  // 0
+```
+
+### 变换尺寸
+
+```swift
+extension CGSize {
+
+    // 返回现有高度和宽度转换所得的高度和宽度
+    public func applying(_ t: CGAffineTransform) -> CGSize
+}
+```
+
+示例如下：
+
+```swift
+let origin = CGSize(width: 2, height: 3)
+
+let a = origin.applying(CGAffineTransform(1, 2, 3, 4, 5, 6))
+// a = {width: 11, height: 16}
+
+let b = origin.applying(CGAffineTransform(2, 3, 4, 5, 6, 7))
+// b = {width: 16, height: 21}
+```
+
+### 比较尺寸
+
+```swift
+extension CGSize {
+    // ...
+
+    // 返回两个大小是否相等
+    public func equalTo(_ size2: CGSize) -> Bool
+}
+```
+
+示例如下：
+
+```swift
+let a = CGSize(width: 0, height: 0)
+let b = CGSize(width: 2, height: 3)
+
+a.equalTo(.zero)  // true
+b.equalTo(.zero)  // false
+b.equalTo(CGSize(width: 2, height: 3))  // true
+```
+
+## CGRect
+
+包含矩形的位置和尺寸的结构体。
+
+```swift
+public struct CGRect {
+    // ...
+
+    public var origin: CGPoint
+
+    public var size: CGSize
+}
+```
+
+### 概述
+
+在默认的 Core Graphics 坐标空间中，原点位于矩形的左下角，矩形向右上角延伸。如果上下文具有翻转坐标空间（iOS 上通常是这种情况），则原点位于左上角，矩形向右下角延伸。
+
+### 创建矩形值
+
+```swift
+public struct CGRect {
+    // ...
+
+    // 建具有指定原点和大小的矩形
+    public init(origin: CGPoint, size: CGSize)
+}
+
+extension CGRect {
+    // ...
+
+    // 创建一个矩形，其坐标和尺寸指定为 CGFloat 值
+    public init(x: CGFloat, y: CGFloat, width: CGFloat, height: CGFloat)
+
+    // 创建一个坐标和尺寸指定为浮点值的矩形
+    public init(x: Double, y: Double, width: Double, height: Double)
+
+    // 创建一个坐标和尺寸指定为整数值的矩形
+    public init(x: Int, y: Int, width: Int, height: Int)
+}
+```
+
+示例如下：
+
+```swift
+let a = CGRect(origin: .zero, size: CGSize(width: 2, height: 3))
+
+let x: CGFloat = 1.1
+let y: CGFloat = 1.2
+let width: CGFloat = 1.3
+let heigh: CGFloat = 1.4
+let b = CGRect(x: x, y: y, width: width, height: heigh)
+
+let c = CGRect(x: 1, y: 2, width: 3, height: 4)
+let d = CGRect(x: 1.0, y: 2.0, width: 3.0, height: 4.0)
+```
+
+### 特殊值
+
+```swift
+extension CGRect {
+    // ...
+
+    // 具有无限延伸的矩形
+    public static var infinite: CGRect { get }
+
+    // 空矩形，表示无效值
+    public static var null: CGRect { get }
+}
+
+extension CGRect {
+    // ...
+
+    // 原点和大小均为零的矩形
+    public static var zero: CGRect { get }
+}
+
+public struct CGRect {
+    // ...
+
+    public init()
+}
+```
+
+示例如下：
+
+```swift
+let a = CGRect.infinite
+a.origin.x      // -8.988465674311579E+307
+a.origin.y      // -8.988465674311579E+307
+a.size.width    // 1.797693134862316E+308
+a.size.height   // 1.797693134862316E+308
+
+let b = CGRect.null
+b.origin.x      // ∞
+b.origin.y      // ∞
+b.size.width    // 0
+b.size.height   // 0
+
+let c = CGRect.zero
+c.origin.x      // 0
+c.origin.y      // 0
+c.size.width    // 0
+c.size.height   // 0
+
+let d = CGRect()
+d.origin.x      // 0
+d.origin.y      // 0
+d.size.width    // 0
+d.size.height   // 0
+```
+
+对于上述三种比较特殊的类型属性，`CGRect` 也提供了三个对应的 Get 属性进行判断：
+
+```swift
+extension CGRect {
+    // ...
+
+    // 返回矩形是否是无限的
+    public var isInfinite: Bool { get }
+
+    // 返回矩形是否等于空矩形
+    public var isNull: Bool { get }
+
+    // 返回矩形的宽度或高度是否为零，或者是否为空矩形
+    public var isEmpty: Bool { get }
+}
+```
+
+示例如下：
+
+```swift
+a.isInfinite    // true
+b.isNull        // true
+c.isEmpty       // true
+```
+
+### 计算几何属性
+
+`CGRect` 除了提供 `origin`（指定矩形原点坐标的点）和 `size`（定矩形的高度和宽度的尺寸）这两个几何属性之外，还提供了其它一些计算属性：
+
+```swift
+extension CGRect {
+    // ...
+
+    // 返回矩形的宽度
+    public var width: CGFloat { get }
+
+    // 返回矩形的高度
+    public var height: CGFloat { get }
+
+    // 返回矩形 x 坐标的最小值
+    public var minX: CGFloat { get }
+
+    // 返回确定（establish）矩形中心的 x 坐标
+    public var midX: CGFloat { get }
+
+    // 返回矩形 x 坐标的最大值
+    public var maxX: CGFloat { get }
+
+    // 返回矩形 y 坐标的最小值
+    public var minY: CGFloat { get }
+
+    // 返回确定（establish）矩形中心的 y 坐标
+    public var midY: CGFloat { get }
+
+    // 返回矩形 y 坐标的最大值
+    public var maxY: CGFloat { get }
+}
+```
+
+示例如下：
+
+```swift
+let a = CGRect(x: 1, y: 2, width: 3, height: 4)
+
+a.width     // 3
+a.height    // 4
+
+a.minX      // 1
+a.midX      // 2.5
+a.maxX      // 4
+
+a.minY      // 2
+a.midY      // 4
+a.maxY      // 6
+
+// 注：坐标最左上角是原点 (0, 0)，往右 x 增大，往下 y 增大
+```
+
+### 检查特性
+
+除了上面我们提到的 `isInfinite`、`isNull` 和 `isEmpty` 这三个检查特性（Get 属性）外，`CGRect` 还提供了其它一些检查特性（方法）：
+
+```swift
+extension CGRect {
+    // ...
+
+    // 返回两个矩形是否相交
+    public func intersects(_ rect2: CGRect) -> Bool
+
+    // 返回矩形是否包含指定点
+    public func contains(_ point: CGPoint) -> Bool
+
+    // 返回第一个矩形是否包含第二个矩形
+    public func contains(_ rect2: CGRect) -> Bool
+}
+```
+
+示例如下：
+
+```swift
+let a = CGRect(x: 1, y: 2, width: 3, height: 4)
+let b = CGRect(x: 2, y: 3, width: 4, height: 5)
+let c = CGRect(x: 4, y: 5, width: 6, height: 7)
+
+a.intersects(b)     // true
+b.intersects(c)     // true
+a.intersects(c)     // false
+```
+
+```swift
+let a = CGRect(x: 1, y: 2, width: 3, height: 4)
+
+a.contains(CGPoint(x: 3, y: 4))     // true
+a.contains(CGPoint(x: 4, y: 5))     // false
+
+a.contains(CGRect(origin: .zero,
+                  size: CGSize(width: 2, height: 2)))       // false
+a.contains(CGRect(origin: CGPoint(x: 2, y: 2),
+                  size: CGSize(width: 2, height: 2)))       // true
+a.contains(CGRect(origin: CGPoint(x: 2, y: 2),
+                  size: CGSize(width: 10, height: 10)))     // false
+
+a.contains(a)   // true
+```
+
+### 比较矩形
+
+类似 `CGSize`，`CGRect` 也有一个 `equalTo` 方法：
+
+```swift
+extension CGRect {
+    // ...
+
+    // 返回两个矩形的大小和位置是否相等
+    public func equalTo(_ rect2: CGRect) -> Bool
+}
+```
+
+示例如下：
+
+```swift
+let a = CGRect(x: 1, y: 2, width: 3, height: 4)
+a.equalTo(CGRect(origin: CGPoint(x: 1, y: 2),
+                 size: CGSize(width: 3, height: 4)))    // true
+
+let b = CGRect()
+b.equalTo(.zero)    // true
+
+a.equalTo(b)        // false
+```
+
+## CGVector
+
+包含二维向量的结构体。
+
+```swift
+public struct CGVector {
+
+    // 创建一个向量，其分量均为零
+    public init()
+
+    // 创建一个向量，分别指定其 x 和 y 分量的值
+    public init(dx: Double, dy: Double)
+
+    // 向量的 x 分量
+    public var dx: Double
+
+    // 向量的 y 分量
+    public var dy: Double
+}
+```
+
+示例如下：
+
+```swift
+let a = CGVector()
+a.dx    // 0
+a.dy    // 0
+
+let b = CGVector(dx: 2.0, dy: 3.0)
+b.dx    // 2
+b.dy    // 3
+```
+
+`CGVector` 并没有 `equalTo` 方法，但是你可以通过 `==` 进行判断，比如：
+
+```swift
+a == .zero  // true
+```
+
+## CGAffineTransform
+
+用于绘制 2D 图形的仿射（affine）变换矩阵。
+
+```swift
+public struct CGAffineTransform {
+
+    public init()
+
+    public init(a: Double, b: Double, c: Double, d: Double, tx: Double, ty: Double)
+
+    // 矩阵中位置 [1,1] 处的条目（entry）
+    public var a: Double
+
+    // 矩阵中位置 [1,2] 处的条目（entry）
+    public var b: Double
+
+    // 矩阵中位置 [2,1] 处的条目（entry）
+    public var c: Double
+
+    // 矩阵中位置 [2,2] 处的条目（entry）
+    public var d: Double
+
+    // 矩阵中位置 [3,1] 处的条目（entry）
+    public var tx: Double
+
+    // 矩阵中位置 [3,2] 处的条目（entry）
+    public var ty: Double
+}
+```
+
+### 概述
+
+仿射变换矩阵用于旋转、缩放、平移或倾斜你在图形上下文中绘制的对象。[CGAffineTransform](https://developer.apple.com/documentation/corefoundation/cgaffinetransform) 类型提供用于创建、连接（concatenating）和应用仿射变换的函数。
+
+仿射变换由 3 x 3 矩阵表示：
+
+<Figure src={require("./image_1.png")} size={120} edge="white" />
+
+由于第三列始终为 `(0, 0, 1)` ，因此 `CGAffineTransform` 数据结构仅包含前两列的值。
+
+从概念上讲，仿射变换将表示绘图中每个点 `(x, y)` 的行向量乘以该矩阵，生成表示对应点 `(x', y')` 的向量：
+
+<Figure src={require("./image_2.png")} size={320} edge="white" />
+
+给定 3 x 3 矩阵，以下方程用于将一个坐标系中的点 `(x, y)` 转换为另一个坐标系中的结果点 `(x', y')`。
+
+<Figure src={require("./image_3.png")} size={160} edge="white" />
+
+因此，矩阵 "连接（links）" 了两个坐标系 —— 它指定一个坐标系中的点如何映射到另一个坐标系中的点。
+
+请注意，你通常不需要直接创建仿射变换。例如，如果你只想绘制缩放或旋转的对象，则无需构造仿射变换来执行此操作。操作绘图的最直接方法（无论是通过移动、缩放还是旋转）是分别调用函数 [translateBy(x:y:)](https://developer.apple.com/documentation/coregraphics/cgcontext/1455286-translateby)、[scaleBy(x:y:)](https://developer.apple.com/documentation/coregraphics/cgcontext/1454659-scaleby) 或 [rotate(by:)](https://developer.apple.com/documentation/coregraphics/cgcontext/1456228-rotate)。通常，如果你想稍后重用它，你通常应该只创建仿射变换。
+
+### 初始化器
+
+```swift
+extension CGAffineTransform {
+    // ...
+
+    // 返回根据你提供的平移值构造的仿射变换矩阵
+    public init(translationX tx: CGFloat, y ty: CGFloat)
+
+    // 返回根据你提供的缩放值构造的仿射变换矩阵
+    public init(scaleX sx: CGFloat, y sy: CGFloat)
+
+    // 返回根据你提供的旋转值构造的仿射变换矩阵
+    public init(rotationAngle angle: CGFloat)
+}
+```
+
+示例如下：
+
+```swift
+let a = CGAffineTransform()
+a.a     // 0
+a.b     // 0
+a.c     // 0
+a.d     // 0
+a.tx    // 0
+a.ty    // 0
+
+let b = CGAffineTransform(a: 1, b: 2, c: 3, d: 4, tx: 5, ty: 6)
+
+let c = CGAffineTransform(rotationAngle: 45)
+c.a     // 0.5253219888177297
+c.b     // 0.8509035245341184
+c.c     // -0.8509035245341184
+c.d     // 0.5253219888177297
+c.tx    // 0
+c.ty    // 0
+
+let d = CGAffineTransform(scaleX: 2, y: 1)
+d.a     // 2
+d.b     // 0
+d.c     // 0
+d.d     // 1
+d.tx    // 0
+d.ty    // 0
+
+// 即：
+// d = 2 0 0
+//     0 1 0
+//     0 0 1
+
+let e = CGAffineTransform(translationX: 4, y: 3)
+e.a     // 1
+e.b     // 0
+e.c     // 0
+e.d     // 1
+e.tx    // 4
+e.ty    // 3
+
+// 即：
+// e = 1 0 0
+//     0 1 0
+//     4 3 1
+```
+
+如果用上面的 `a`、`b`、`c`、`d` 和 `e` 对某个点进行矩阵变换的话，示例如下：
+
+```swift
+let p = CGPoint(x: 10, y: 20)
+
+let pa = p.applying(a)
+// pa = {x: 0, y: 0}
+//
+// a = 0 0 0
+//     0 0 0
+//     0 0 1
+//
+// pa.x = 0 * 10 + 0 * 20 + 0 = 0
+// pa.y = 0 * 10 + 0 * 20 + 0 = 0
+
+
+let pb = p.applying(b)
+// pb = {x: 75, y: 106}
+//
+// b = 1 2 0
+//     3 4 0
+//     5 6 1
+//
+// pb.x = 1 * 10 + 3 * 20 + 5 = 75
+// pb.y = 2 * 10 + 4 * 20 + 6 = 106
+
+let pc = p.applying(c)
+// pc = {x: -11.765, y: 19.015}
+//
+// c = 0.5253219888177297  0.8509035245341184 0
+//     -0.8509035245341184 0.5253219888177297 0
+//     0                   0                  1
+//
+// pc.x = 0.5253219888177297 * 10 + -0.8509035245341184 * 20 + 0 = -11.76485060250507
+// pc.y = 0.8509035245341184 * 10 + 0.5253219888177297 * 20 + 0 = 19.015475021695778
+
+let pd = p.applying(d)
+// pd = {x: 20, y: 20}
+//
+// d = 2 0 0
+//     0 1 0
+//     0 0 1
+//
+// pd.x = 2 * 10 + 0 * 20 + 0 = 20
+// pd.y = 0 * 10 + 1 * 20 + 0 = 20
+
+let pe = p.applying(e)
+// pe = {x: 14, y: 23}
+//
+// e = 1 0 0
+//     0 1 0
+//     4 3 1
+//
+// pe.x = 1 * 10 + 0 * 20 + 4 = 14
+// pe.y = 0 * 10 + 1 * 20 + 3 = 23.0
+```
+
+:::note
+
+在编写你的联系代码时，你可以通过下面这个函数来打印 "计算公式" 和 "矩阵本身"：
+
+```swift
+func printEquations(_ p: CGPoint, _ affine: CGAffineTransform) {
+    let px = affine.a * p.x + affine.c * p.y + affine.tx
+    print("p2.x = \(affine.a) * \(p.x) + \(affine.c) * \(p.y) + \(affine.tx) = \(px)")
+
+    let py = affine.b * p.x + affine.d * p.y + affine.ty
+    print("p2.y = \(affine.b) * \(p.x) + \(affine.d) * \(p.y) + \(affine.ty) = \(py)")
+}
+
+func printAffine(_ affine: CGAffineTransform) {
+    print("\(affine.a) \(affine.b) 0")
+    print("\(affine.c) \(affine.d) 0")
+    print("\(affine.tx) \(affine.ty) 1")
+    print("")
+}
+```
+
+比如：
+
+```swift
+printEquations(p, a)
+// p2.x = 0.0 * 10.0 + 0.0 * 20.0 + 0.0 = 0.0
+// p2.y = 0.0 * 10.0 + 0.0 * 20.0 + 0.0 = 0.0
+
+printAffine(CGAffineTransform(a: 1, b: 2, c: 3, d: 4, tx: 5, ty: 6))
+// 1.0 2.0 0
+// 3.0 4.0 0
+// 5.0 6.0 1
+```
+
+:::
+
+### 实例方法
+
+```swift
+extension CGAffineTransform {
+    // ...
+
+    // 返回通过平移现有仿射变换构造的仿射变换矩阵
+    public func translatedBy(x tx: CGFloat, y ty: CGFloat) -> CGAffineTransform
+
+    // 返回通过缩放现有仿射变换构造的仿射变换矩阵
+    public func scaledBy(x sx: CGFloat, y sy: CGFloat) -> CGAffineTransform
+
+    // 返回通过旋转现有仿射变换构造的仿射变换矩阵
+    public func rotated(by angle: CGFloat) -> CGAffineTransform
+
+    // 返回通过反转现有仿射变换构造的仿射变换矩阵
+    public func inverted() -> CGAffineTransform
+}
+```
+
+示例如下：
+
+```swift
+let origin = CGAffineTransform(a: 1, b: 2, c: 3, d: 4, tx: 5, ty: 6)
+// 1.0 2.0 0
+// 3.0 4.0 0
+// 5.0 6.0 1
+
+let a = origin.inverted()
+// -2.0 1.0 0
+// 1.5 -0.5 0
+// 1.0 -2.0 1
+
+let b = origin.rotated(by: 180)
+// -3.0019179762593495 -4.401530681051038  0
+// -0.9942275714397438 -0.7915350047637715 0
+// 5.0                 6.0                 1
+
+let c = origin.scaledBy(x: 1, y: 2)
+// 1.0 2.0 0
+// 6.0 8.0 0
+// 5.0 6.0 1
+
+let d = origin.translatedBy(x: 1, y: 2)
+// 1.0  2.0  0
+// 3.0  4.0  0
+// 12.0 16.0 1
+```
