@@ -1,6 +1,5 @@
 import React from 'react'
 import Image from '@theme/IdealImage'
-import './index.module.css'
 
 type Item = {
   title?: string 
@@ -16,30 +15,38 @@ type ScreenshotTableProps = {
 export default function ScreenshotTable({ headDisabled = false, data, size = 160 }: ScreenshotTableProps) {
 
   return (
-    <table>
-      {headDisabled ? null : (
-        <thead>
-        {
-          data.map((item, index) => {
-            const { title = '', src } = item 
-            return <td key={`${index}_${title}`}>{title}</td>
-          })
-        }
-      </thead>
-      )}
-      
-      <tbody>
-        {
-          data.map((item, index) => {
-            const { title = '', src } = item 
-            return (
-              <td key={`${index}_${title}`}>
-                <Image style={{ width: size }} img={src} />
-              </td>
-            )
-          })
-        }
-      </tbody>
-    </table>
-  );
+    <div style={{ display: 'flex', justifyContent: 'center', width: '100%' }}>
+      <center>
+      <table>
+        {headDisabled ? null : (
+          <thead>
+            {
+              data.map((item, index) => {
+                const { title = '', src } = item 
+                return <td key={`${index}_${title}`}>{title}</td>
+              })
+            }
+          </thead>
+        )}
+    
+        <tbody>
+          {
+            data.map((item, index) => {
+              const { title = '', src } = item 
+              return (
+                <td key={`${index}_${title}`}>
+                  <div style={{ width: '100%', display: 'flex', justifyContent: 'center' }}>
+                    <div  style={{ width: size  }}>
+                      <Image style={{ width: size }} img={src}  />
+                    </div>
+                  </div>
+                </td>
+              )
+            })
+          }
+        </tbody>
+      </table>
+      </center>
+    </div>
+  )
 }

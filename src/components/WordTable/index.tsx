@@ -1,6 +1,6 @@
 import React, { PropsWithChildren } from 'react'
 import WordRow, { WordRowProps } from '../WordRow'
-import './index.module.css'
+import styles from './index.module.css'
 
 type WordTableProps = PropsWithChildren<{
   category: string
@@ -14,13 +14,13 @@ export default function WordTable({ category, rows = [], children }: WordTablePr
       <br />
       <div>{category}</div>
       <br />
-      <table>
+      <table className={styles.table}>
         <thead>
           <tr>
-            <td>单词</td>
-            <td>发音</td>
-            <td>释义</td>
-            <td>原句</td>
+            <td className={styles.title}>单词</td>
+            <td className={styles.title}>发音</td>
+            <td className={styles.title}>释义</td>
+            <td className={styles.title}>原句</td>
           </tr>
         </thead>
         <tbody>

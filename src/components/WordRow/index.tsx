@@ -10,9 +10,9 @@ export interface WordRowProps {
 export default function WordRow({ value, symbol, paraphrase, sentence }: WordRowProps) {
   return (
       <tr>
-        <td>{value}</td>
-        <td>{`[ ${symbol} ]`}</td>
-        <td>{paraphrase}</td>
+        <td style={{ width: '10rem' }}>{value}</td>
+        <td style={{ width: '10rem' }}>{`[ ${symbol} ]`}</td>
+        <td style={{ width: '10rem' }}>{paraphrase}</td>
         <td>{sentence}</td>
       </tr>
   )
