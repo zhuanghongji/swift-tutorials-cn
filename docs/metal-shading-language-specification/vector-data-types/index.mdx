@@ -2,199 +2,177 @@
 
 <OrigninalPDF title="2.2 Vector Data Types" />
 
-Metal 支持系统矢量数学库实现的矢量数据类型的子集。Metal 支持这些向量类型名称，其中 n 是 2 、 3 或 4 ，分别表示 2 - 、 3 - 或 4 - 分量向量类型：
+Metal 支持系统矢量数学库实现的矢量数据类型的子集。Metal 支持这些向量类型名称，其中 `n` 是 `2`、`3` 或 `4` ，分别表示 `2-`、`3-` 或 `4-` 分量向量类型：
 
-- booln - charn - Shortn - intn - longn - ucharn - ushortn - uintn - ulongn - halfn - bfloatn （自 Metal 3. 1 起支持） - floatn
+- `booln`
+- `charn`
+- `Shortn`
+- `intn`
+- `longn`
+- `ucharn`
+- `ushortn`
+- `uintn`
+- `ulongn`
+- `halfn`
+- `bfloatn` （自 Metal 3. 1 起支持）
+- `floatn`
 
-Metal 还支持 vec，其中 T 是有效的标量类型，n 是 2 、 3 或 4 ，表示 2 - 、 3 - 或 4 - 分量向量类型。
+Metal 还支持 `vec<T, n>`，其中 `T` 是有效的标量类型，`n` 是 `2`、`3` 或 `4` ，表示 `2-`、`3-` 或 `4-` 分量向量类型。
 
-表 2. 3 列出了矢量数据类型的大小和对齐方式。
+表 2.3 列出了矢量数据类型的大小和对齐方式。
 
-## 表 2.3。矢量数据类型的大小和对齐方式
-
-`类型大小（以字节为单位）`
-
-` 对齐方式（以字节为单位）`
-
-`布尔2 2 2`
-
-`布尔3 4 4`
-
-`布尔4 4 4`
-
-`char2 uchar2`
-
-### 2 2
-
-`char3 uchar3`
-
-### 4 4
-
-`char4 uchar4`
-
-### 4 4
-
-`short2 ushort2`
-
-### 4 4
-
-`short3 ushort3`
-
-### 8 8
-
-`short4 ushort4`
-
-### 8 8
-
-`int2 uint2`
-
-### 8 8
-
-`int3 uint3`
-
-### 16 16
-
-`int4 uint4`
-
-### 16 16
-
-`long2 ulong2`
-
-### 16 16
-
-`long3 ulong3`
-
-### 32 32
-
-`long4 ulong4`
-
-### 32 32
-
-`一半 2 4 4`
-
-`类型大小（以字节为单位）`
-
-` 对齐方式（以字节为单位）`
-
-`half3 8 8`
-
-`半 4 8 8`
-
-`bfloat 2 4 4`
-
-``bfloat3 8 8````
-
-`bfloat 4 8 8`
-
-``float2 8 8````
-
-``float3 16 16````
-
-``float4 16 16````
+<TableView
+  num="2.3"
+  title="Size and alignment of vector data types"
+  headers={["Type", "Size \n(in bytes)", "Alignment \n(in bytes)"]}
+  datasList={[
+    ["bool2", "2", "2"],
+    ["bool3", "4", "4"],
+    ["bool4", "4", "4"],
+    ["char2 \nunchar4", "2", "2"],
+    ["char3 \nuchar3", "4", "4"],
+    ["char4 \nuchar4", "4", "4"],
+    ["short2 \nushort2", "4", "4"],
+    ["short3 \nushort3", "8", "8"],
+    ["short4 \nushort4", "8", "8"],
+    ["int2 \nuint2", "8", "8"],
+    ["int3 \nuint3", "16", "16"],
+    ["int4 \nuint4", "16", "16"],
+    ["long2 \nulong2", "16", "16"],
+    ["long3 \nulong3", "32", "32"],
+    ["long4 \nulong4", "32", "32"],
+    ["half2", "4", "4"],
+    ["half3", "8", "8"],
+    ["half4", "8", "8"],
+    ["bfloat2", "4", "4"],
+    ["bfloat3", "8", "8"],
+    ["bfloat4", "8", "8"],
+    ["float2", "8", "8"],
+    ["float3", "16", "16"],
+    ["float4", "16", "16"],
+  ]}
+/>
 
 ## 访问向量分量
 
 你可以使用数组索引来访问向量分量。数组索引 0 指向量的第一个分量，索引 1 指第二个分量，依此类推。以下示例展示了访问数组组件的各种方法：
 
+```cpp
 pos = float4(1.0f, 2.0f, 3.0f, 4.0f);
 
-浮点数 x = pos[0]; // x = 1.0
-
-浮点数 z = pos[2]; // z = 3.0
+float x = pos[0]; // x = 1.0
+float z = pos[2]; // z = 3.0
 
 float4 vA = float4(1.0f, 2.0f, 3.0f, 4.0f);
-
-浮点 4 vB；
+float4 vB;
 
 for (int i=0; i<4; i++)
+    vB[i] = vA[i] * 2.0f // vB = (2.0, 4.0, 6.0, 8.0);
+```
 
-``` vB[i] = vA[i] \* 2.0f // vB = (2.0, 4.0, 6.0, 8.0); ````
+Metal 支持使用句点 `.` 作为选择运算符来访问向量分量，使用可能指示坐标或颜色数据的字母：
 
-Metal 支持使用句点 (.) 作为选择运算符来访问向量分量，使用可能指示坐标或颜色数据的字母：
-
-<矢量数据类型>.xyzw
-
-<矢量数据类型>.rgba
+```cpp
+<vector_data_type>.xyzw
+<vector_data_type>.rgba
+```
 
 以下代码初始化向量测试，然后使用 .xyzw 或 .rgba 选择语法来访问各个组件：
 
-int4 测试 = int4(0, 1, 2, 3);
-
-int a = 测试.x; // a = 0
-
-int b = 测试.y; // b = 1
-
-int c = 测试.z; // c = 2
-
-int d = 测试.w; // d = 3
-
-int e = 测试.r; // e = 0
-
-int f = 测试.g; // f = 1
-
-int g = 测试.b; // g = 2
-
-int h = 测试.a; // h = 3
+```cpp
+int4 test = int4(0, 1, 2, 3);
+int a = test.x;  //  a = 0
+int b = test.y;  //  b = 1
+int c = test.z;  //  c = 2
+int d = test.w;  //  d = 3
+int e = test.r;  //  e = 0
+int f = test.g;  //  f = 1
+int g = test.b;  //  g = 2
+int h = test.a;  //  h = 3
+```
 
 组件选择语法允许选择多个组件：
 
-浮动 4c;
-
+```cpp
+float4 c;
 c.xyzw = float4(1.0f, 2.0f, 3.0f, 4.0f);
-
-c.z = 1.0f；
-
+c.z = 1.0f;
 c.xy = float2(3.0f, 4.0f);
-
 c.xyz = float3(3.0f, 4.0f, 5.0f);
+```
 
 组件选择语法还允许组件的排列或复制：
 
+```cpp
 float4 pos = float4(1.0f, 2.0f, 3.0f, 4.0f);
-
-float4 swiz = pos.upx; // swiz = (4.0f, 3.0f, 2.0f, 1.0f)
-
-float4 dup = pos.xxyy; // dup = (1.0f, 1.0f, 2.0f, 2.0f)
+float4 swiz = pos.wzyx; // swiz = (4.0f, 3.0f, 2.0f, 1.0f)
+float4 dup = pos.xxyy;  // dup = (1.0f, 1.0f, 2.0f, 2.0f)
+```
 
 组件组表示法可以出现在表达式的左侧（左值）。要形成左值，你可以应用 swizzling。生成的左值可以是标量或向量类型，具体取决于指定的分量数量。每个组件必须是受支持的标量或向量类型。向量类型的结果左值不得包含重复的组件。
 
+```cpp
 float4 pos = float4(1.0f, 2.0f, 3.0f, 4.0f);
-
-// 位置 = (5.0, 2.0, 3.0, 6.0)
-
+// pos = (5.0, 2.0, 3.0, 6.0)
 pos.xw = float2(5.0f, 6.0f);
 
-// 位置 = (8.0, 2.0, 3.0, 7.0)
-
+// pos = (8.0, 2.0, 3.0, 7.0)
 pos.wx = float2(7.0f, 8.0f);
 
-// 位置 = (3.0, 5.0, 9.0, 7.0)
-
+// pos = (3.0, 5.0, 9.0, 7.0)
 pos.xyz = float3(3.0f, 5.0f, 9.0f);
+```
 
 将混合值分配给变量时，GPU 可能需要读取现有值，修改它，然后将结果写回。上例中对 pos.xw 的赋值导致 GPU 加载 float4 值，将值 5.0f 和 6.0f 混洗到其中，并将结果写回 pos。如果两个线程同时写入向量的不同组件，则结果是不确定的。
 
 不允许使用以下向量分量访问方法，并且会导致编译时错误：
 
-- 访问超出为向量类型声明的组件是错误的。2 - 分量向量数据类型只能访问 .xy 或 .rg 元素。3 - 分量向量数据类型只能访问 .xyz 或 .rgb 元素。浮动 2 位置； // 这是一个 2 分量向量。pos.x = 1.0f； // x 是合法的，y 也是合法的。位置 z = 1.0f； // z 是非法的，w 也是非法的。z 是第三个分量。浮动 3 位置； // 这是一个 3 分量向量。位置 z = 1.0f； // z 对于 3 分量向量是合法的。位置 w = 1.0f； // 这是非法的。w 是第四个分量。- 在左侧访问同一组件两次是不明确的并且是一个错误：
+- 访问超出为向量类型声明的组件是错误的。2-component 分量向量数据类型只能访问 `.xy` 或 `.rg` 元素。3-component 向量数据类型只能访问 `.xyz` 或 `.rgb` 元素。
 
-``` // 这是非法的，因为 'x' 使用了两次。pos.xx = float2(3.0f, 4.0f); ````
+```cpp
+float2 pos;   // This is a 2-component vector.
+pos.x = 1.0f; // x is legal and so is y.
+pos.z = 1.0f; // z is illegal and so is w. z is the 3rd
+component.
+float3 pos;   // This is a 3-component vector.
+pos.z = 1.0f; // z is legal for a 3-component vector.
+pos.w = 1.0f; // This is illegal. w is the 4th component.
+```
+
+- 访问同一组件两次是不明确的并且是一个错误：
+
+```cpp
+// This is illegal because 'x' is used twice.
+pos.xx = float2(3.0f, 4.0f);
+```
 
 - 访问不同数量的组件会出错：
 
-``` // 由于 float2 和 float4 不匹配，这是非法的。pos.xy = float4(1.0f, 2.0f, 3.0f, 4.0f); ````
+```cpp
+// This is illegal due to a mismatch between float2 and float4.
+pos.xy = float4(1.0f, 2.0f, 3.0f, 4.0f);
+```
 
-- 在一次访问中混合使用 .rgba 和 .xyzw 语法是错误的：
+- 在一次访问中混合使用 `.rgba` 和 `.xyzw` 语法是错误的：
 
-`float4 pos = float4(1.0f, 2.0f, 3.0f, 4.0f); pos.x = 1.0f; // 好的 pos.g = 2.0f; // 好的`
+```cpp
+float4 pos = float4(1.0f, 2.0f, 3.0f, 4.0f);
+pos.x = 1.0f; // OK
+pos.g = 2.0f; // OK
 
-``` // 由于混合了 rgba 和 xyzw 属性，这些是非法的。pos.xg = float2(3.0f, 4.0f); float3 坐标 = pos.ryz; ````
+// These are illegal due to mixing rgba and xyzw attributes.
+pos.xg = float2(3.0f, 4.0f);
+float3 coord = pos.ryz;
+```
 
 - 对带有 swizzles 的向量的指针或引用是错误的：
 
-``` float4 pos = float4(1.0f, 2.0f, 3.0f, 4.0f); my_func(&pos.xy); // 这是一个指向 swizzle 的非法指针。````
+```cpp
+float4 pos = float4(1.0f, 2.0f, 3.0f, 4.0f);
+my_func(&pos.xy); // This is an illegal pointer to a swizzle.
+```
 
-向量类型上的 sizeof 运算符返回向量的大小，以分量数 \* 每个分量的大小给出。例如，sizeof(float4) 返回 16，sizeof(half4) 返回 8。
+向量类型上的 `sizeof` 运算符返回向量的大小，以分量数 \* 每个分量的大小给出。例如，`sizeof(float4)` 返回 16，`sizeof(half4)` 返回 8。
 
 ## 向量构造函数
 
@@ -202,61 +180,50 @@ pos.xyz = float3(3.0f, 5.0f, 9.0f);
 
 如果从多个标量、一个或多个向量或者标量和向量的混合构造一个向量，则该向量的分量将按照参数分量的顺序构造。参数是从左到右消耗的。在消耗下一个参数的任何组件之前，每个参数都会按顺序消耗其所有组件。
 
-这是 float4 的构造函数列表：
+这是 `float4` 的构造函数列表：
 
-float4(浮点 x);
-
-float4(浮点 x, 浮点 y, 浮点 z, 浮点 w);
-
+```cpp
+float4(float x);
+float4(float x, float y, float z, float w);
 float4(float2 a, float2 b);
-
-float4(float2 a,float b,float c);
-
-float4（浮点 a，浮点 b，浮点 2 c）；
-
-float4（浮点 a，浮点 2 b，浮点 c）；
-
+float4(float2 a, float b, float c);
+float4(float a, float b, float2 c);
+float4(float a, float2 b, float c);
 float4(float3 a, float b);
-
 float4(float a, float3 b);
+float4(float4 x);
+```
 
-浮点 4(浮点 4x);
+这是 `float3` 的构造函数列表：
 
-这是 float3 的构造函数列表：
-
-浮点 3（浮点 x）；
-
-float3(浮点数 x, 浮点数 y, 浮点数 z);
-
+```cpp
+float3(float x);
+float3(float x, float y, float z);
 float3(float a, float2 b);
-
-float3(float2 a,float b);
-
+float3(float2 a, float b);
 float3(float3 x);
+```
 
-这是 float2 的构造函数列表：
+这是 `float2` 的构造函数列表：
 
-浮点 2（浮点 x）；
-
-float2(浮点数 x, 浮点数 y);
-
-浮点 2(浮点 2x);
+```cpp
+float2(float x);
+float2(float x, float y);
+float2(float2 x);
+```
 
 以下示例说明了上述构造函数的用法：
 
-浮点数 x = 1.0f，y = 2.0f，z = 3.0f，w = 4.0f；
-
+```cpp
+float x = 1.0f, y = 2.0f, z = 3.0f, w = 4.0f;
 float4 a = float4(0.0f);
-
 float4 b = float4(x, y, z, w);
-
 float2 c = float2(5.0f, 6.0f);
 
 float2 a = float2(x, y);
-
 float2 b = float2(z, w);
-
 float4 x = float4(a.xy, b.xy);
+```
 
 向量构造函数初始化不足会导致编译时错误。
 
@@ -266,102 +233,73 @@ float4 x = float4(a.xy, b.xy);
 
 支持的打包向量类型名称为：
 
--packed_charn -packed_shortn -packed_intn -packed_ucharn -packed_ushortn -packed_uintn -packed_halfn -packed bfloatn（从 Metal 3 .1 开始支持） -packed_floatn -packed_longn（从 Metal 2.3 开始支持）
+- packed_charn
+- packed_shortn
+- packed_intn
+- packed_ucharn
+- packed_ushortn
+- packed_uintn
+- packed_halfn
+- packed bfloatn (supported since Metal 3.1)
+- packed_floatn
+- packed_longn (supported since Metal 2.3)
 
-其中 n 为 2、3 或 4，分别表示 2 - 、 3 - 或 4 - 分量向量类型。（packed_booln 向量类型名称被保留。）
+其中 n 为 2、3 或 4，分别表示 2- 、 3- 或 4- 分量向量类型。（`packed_booln` 向量类型名称被保留。）
 
-Metal 还支持 Packed_vec，其中 T 是有效的标量类型，n 是 2 、 3 或 4 ，表示 2 - 、 3 - 或 4 - 分量打包向量类型。
+Metal 还支持 `Packed_vec<T, n>`，其中 `T` 是有效的标量类型，`n` 是 `2`、`3` 或 `4` ，表示 `2-`、`3-` 或 `4-` 分量打包向量类型。
 
-表 2. 4 列出了打包矢量数据类型的大小和对齐方式。
+表 2.4 列出了打包矢量数据类型的大小和对齐方式。
 
-## 表 2.4。打包矢量数据类型的大小和对齐方式
-
-**类型大小（以字节为单位）对齐方式（以字节为单位）**
-
-打包\_char2、打包\_uchar2
-
-### 2 1
-
-打包\_char3、打包\_uchar3
-
-### 3 1
-
-打包\_char4、打包\_uchar4
-
-### 4 1
-
-Packed_short2、packed_ushort2
-
-### 4 2
-
-Packed_short3、packed_ushort3
-
-### 6 2
-
-Packed_short4、packed_ushort4
-
-### 8 2
-
-打包 int2、打包 uint2
-
-### 8 4
-
-Packed_int3、packed_uint3
-
-### 12 4
-
-打包 int4、打包 uint4
-
-### 16 4
-
-打包\_half2 4 2
-
-打包\_half3 6 2
-
-打包\_half4 8 2
-
-packed_bfloat2 4 2
-
-packed_bfloat3 6 2
-
-packed_bfloat4 8 2
-
-打包浮点 2 8 4
-
-packed_float3 12 4
-
-packed_float4 16 4
-
-打包长 2 16 8
-
-打包长 3 24 8
-
-packed_long4 32 8
+<TableView
+  num="2.4"
+  title="Size and alignment of packed vector data types"
+  headers={["Type", "Size (in bytes)", "Alignment (in bytes)"]}
+  datasList={[
+    ["packed_char2,\npacked_uchar2", "2", "1"],
+    ["packed_char3,\npacked_uchar3", "3", "1"],
+    ["packed_char4,\npacked_uchar4", "4", "1"],
+    ["packed_short2,\npacked_ushort2", "4", "2"],
+    ["packed_short3,\npacked_ushort3", "6", "2"],
+    ["packed_short4,\npacked_ushort4", "8", "2"],
+    ["packed_int2,\npacked_uint2", "8", "4"],
+    ["packed_int3,\npacked_uint3", "12", "4"],
+    ["packed_int4,\npacked_uint4", "16", "4"],
+    ["packed_half2", "4", "2"],
+    ["packed_half3", "6", "2"],
+    ["packed_half4", "8", "2"],
+    ["packed_bfloat2", "4", "2"],
+    ["packed_bfloat3", "6", "2"],
+    ["packed_bfloat4", "8", "2"],
+    ["packed_float2", "8", "4"],
+    ["packed_float3", "12", "4"],
+    ["packed_float4", "16", "4"],
+    ["packed_long2", "16", "8"],
+    ["packed_long3", "24", "8"],
+    ["packed_long4", "32", "8"],
+  ]}
+/>
 
 打包矢量数据类型通常用作数据存储格式。Metal 支持打包向量数据类型的赋值、算术、逻辑、关系和复制构造函数运算符。Metal 还支持从打包向量数据类型到对齐向量数据类型的加载和存储，反之亦然。
 
 例子：
 
-设备 float4 \*缓冲区；
+```cpp
+device float4 *buffer;
+device packed_float4 *packed_buffer;
+int i;
+packed_float4 f ( buffer[i] );
+pack_buffer[i] = buffer[i];
 
-设备 Packed_float4 \*packed_buffer;
+// An operator used to convert from packed_float4 to float4.
+buffer[i] = float4( packed_buffer[i] );
+```
 
-整数我；
-
-Packed_float4 f ( 缓冲区 [i] );
-
-pack_buffer[i] = 缓冲区[i];
-
-// 用于从 packed_float4 转换为 float4 的运算符。
-
-buffer[i] = float4(packed_buffer[i]);
-
-你可以使用数组索引来访问打包向量数据类型的组件。从 Metal 2.1 开始，你可以使用 .xyzw 或 .rgba 选择语法来访问打包矢量数据类型的组件。打包向量数据类型混合时的语义和限制与向量类型相同。
+你可以使用数组索引来访问打包向量数据类型的组件。从 Metal 2.1 开始，你可以使用 `.xyzw` 或 `.rgba` 选择语法来访问打包矢量数据类型的组件。打包向量数据类型混合时的语义和限制与向量类型相同。
 
 例子：
 
-Packed_float4 f；
-
-f[0] = 1.0f； // 好的
-
-f.x = 1.0f； // 从 Metal 2.1 开始就可以了
+```cpp
+packed_float4 f;
+f[0] = 1.0f;  // OK
+f.x = 1.0f;   // OK since Metal 2.1
+```

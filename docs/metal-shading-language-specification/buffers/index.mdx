@@ -2,18 +2,31 @@
 
 <OrigninalPDF title="2.8 Buffers" />
 
-MSL 将缓冲区实现为指向设备、常量或线程组地址空间中描述的内置或用户定义数据类型的指针。（有关这些地址空间属性的更多信息，请分别参见第 4.1、4.2 和 4.4 节。）
+MSL 将缓冲区实现为指向 `device`、`constant` 或 `threadgroup` 地址空间中描述的内置或用户定义数据类型的指针。（有关这些地址空间属性的更多信息，请分别参见第 4.1、4.2 和 4.4 节。）
 
 普通 Metal 缓冲器可能包含：
 
-- 基本类型，例如 float 和 int - 向量和矩阵类型 - 缓冲区类型数组 - 缓冲区类型结构 - 缓冲区类型联合
+- 基本类型，例如 `float` 和 `int`
+- 向量和矩阵类型
+- 缓冲区类型数组
+- 缓冲区类型结构
+- 缓冲区类型联合
 
-注意：从 Metal 2.3 开始，Metal 支持包含 long 或 ulong 数据类型的缓冲区。
+注意：从 Metal 2.3 开始，Metal 支持包含 `long` 或 `ulong` 数据类型的缓冲区。
 
 下面的示例显示缓冲区作为执行 Phong 插值模型的函数的参数。前两个参数是设备地址空间中的缓冲区。第三个参数是常量地址空间中的缓冲区。
 
-顶点 ColorInOut phong_vertex(const device Packed_float3* 顶点 [[buffer(0)]]、const device Packed_float3* 法线 [[buffer(1)]]、常量 AAPL::uniforms_t& 制服 [[buffer(2)]]、unsigned int vid [[vertex_id]]) { ... }
+```cpp
+vertex ColorInOut
+phong_vertex(const device packed_float3* vertices [[buffer(0)]],
+             const device packed_float3* normals [[buffer(1)]],
+             constant AAPL::uniforms_t& uniforms [[buffer(2)]],
+             unsigned int vid [[vertex_id]])
+{
+   ...
+}
+```
 
-有关示例中使用的 buffer(n) 属性的更多信息，请参阅第 5.2.1 节。
+有关示例中使用的 `buffer(n)` 属性的更多信息，请参阅第 5.2.1 节。
 
 有关参数缓冲区的详细信息，请参阅第 2.13 节。

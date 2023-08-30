@@ -8,53 +8,35 @@ macOS：自 Metal 2.3 起支持像素数据类型。
 
 Metal 像素数据类型是一种模板化类型，描述像素格式类型及其对应的 ALU 类型。ALU 类型表示加载操作返回的类型和为存储操作指定的输入类型。像素数据类型通常在所有地址空间中可用。（有关地址空间的更多信息，请参阅第 4 节。）
 
-表 2. 6 列出了 MSL 中支持的像素数据类型及其大小和对齐方式。
+表 2.6 列出了 MSL 中支持的像素数据类型及其大小和对齐方式。
 
-## 表 2.6。Metal 像素数据类型
-
-`像素数据类型支持的 T 值`
-
-`大小（以字节为单位）`
-
-` 对齐方式（以字节为单位）`
-
-`r8unorm half 或 float 1 1`
-
-`r8snorm half 或 float 1 1`
-
-`r16unorm<T> float 2 2`
-
-`r16snorm<T> float 2 2`
-
-`rg8unorm half2 或 float2 2 1`
-
-`像素数据类型支持的 T 值`
-
-`大小（以字节为单位）`
-
-` 对齐方式（以字节为单位）`
-
-`rg8snorm half2 或 float2 2 1`
-
-`rg16unorm<T> float2 4 2`
-
-`rg16snorm<T> float2 4 2`
-
-`rgba8unorm half4 或 float4 4 1`
-
-`srgba8unorm half4 或 float4 4 1`
-
-`rgba8snorm half4 或 float4 4 1`
-
-`rgba16unorm<T> float4 8 2`
-
-`rgba16snorm<T> float4 8 2`
-
-`rgb10a2 half4 或 float4 4 4`
-
-`rg11b10f half3 或 float3 4 4`
-
-`rgb9e5 half3 或 float3 4 4`
+<TableView
+  num="2.6"
+  title="Metal pixel data types"
+  headers={[
+    "Pixel Data Type ",
+    "Supported values of T",
+    "Size (in bytes)",
+    "Alignment (in bytes)",
+  ]}
+  datasList={[
+    ["r8unorm<T>", "half or float", "1", "1"],
+    ["r8snorm<T>", "half or float", "1", "1"],
+    ["r16unorm<T>", "float", "2", "2"],
+    ["r16snorm<T>", "float", "2", "2"],
+    ["rg8unorm<T>", "half2 or float2", "2", "1"],
+    ["rg8snorm<T>", "half2 or float2", "2", "1"],
+    ["rg16unorm<T>", "float2", "4", "2"],
+    ["rg16snorm<T>", "float2", "4", "2"],
+    ["rgba8unorm<T>", "half4 or float4", "4", "1"],
+    ["srgba8unorm<T>", "half4 or float4", "4", "1"],
+    ["rgba8snorm<T>", "half4 or float4", "4", "1"],
+    ["rgba16unorm<T>", "float4", "8", "2"],
+    ["rgba16snorm<T>", "float4", "8", "2"],
+    ["rgb10a2<T>", "half4 or float4", "4", "4"],
+    ["rg11b10f<T>", "half3 or float3", "4", "4"],
+  ]}
+/>
 
 仅允许像素数据类型与其对应的 ALU 类型之间的赋值和相等/不等比较。（以下示例显示了 buffer(n) 属性，第 5.2.1 节对此进行了解释。）
 
@@ -63,11 +45,11 @@ Metal 像素数据类型是一种模板化类型，描述像素格式类型及�
 ```cpp
 kernel void
 my_kernel(device rgba8unorm<half4> *p [[buffer(0)]],
-     uint gid [[thread_position_in_grid]], …)
+          uint gid [[thread_position_in_grid]], …)
 {
-rgba8unorm<half4> x = p[index]; half4 val = p[gid]; …
-p[gid] = val;
-p[index] = x;
+     rgba8unorm<half4> x = p[index]; half4 val = p[gid]; …
+     p[gid] = val;
+     p[index] = x;
 }
 ```
 
@@ -75,15 +57,15 @@ p[index] = x;
 
 ```cpp
 struct Foo {
-rgba8unorm<half4> a;
+     rgba8unorm<half4> a;
 };
 
 kernel void
 my_kernel(device Foo *p [[buffer(0)]],
-     uint gid [[thread_position_in_grid]], …)
+          uint gid [[thread_position_in_grid]], …)
 {
-half4 a = p[gid].a;
-…
-p[gid].a = a;
+     half4 a = p[gid].a;
+     …
+     p[gid].a = a;
 }
 ```

@@ -4,69 +4,74 @@
 
 纹理数据类型是一维、二维或三维纹理数据的句柄，对应于纹理的单个 mipmap 级别的全部或部分。以下模板定义了特定的纹理数据类型：
 
-枚举类访问 { 样本、读取、写入、read_write }；
+```cpp
+enum class access { sample, read, write, read_write };
+texture1d<T, access a = access::sample>
+texture1d_array<T, access a = access::sample>
+texture2d<T, access a = access::sample>
+texture2d_array<T, access a = access::sample>
+texture3d<T, access a = access::sample>
+texturecube<T, access a = access::sample>
+texturecube_array<T, access a = access::sample>
+texture2d_ms<T, access a = access::read>
+texture2d_ms_array<T, access a = access::read>
+```
 
-texture1d
+要将 `sample_compare` 与深度格式一起使用，你需要声明以下纹理类型之一：
 
-texture1d_array
+```cpp
+depth2d<T, access a = access::sample>
+depth2d_array<T, access a = access::sample>
+depthcube<T, access a = access::sample>
+depthcube_array<T, access a = access::sample>
+depth2d_ms<T, access a = access::read>
+depth2d_ms_array<T, access a = access::read>
+```
 
-texture2d
+macOS 自 Metal 2 起支持 `texture2d_ms_array` 和 `depth2d_ms_array`。自 Metal 1 起支持所有其它类型。
 
-texture2d_array
+自 Metal 1 以来，iOS 支持除 `texture2d_ms_array` 和 `depth2d_ms_array` 之外的所有类型。
 
-texture3d
+T 指定从纹理读取时返回的组件之一的颜色类型或写入纹理时指定的组件之一的颜色类型。对于纹理类型（深度纹理类型除外），`T` 可以是 `half`、`float`、`short`、`ushort`、`int` 或 `uint`。对于深度纹理类型，`T` 必须是浮点型。
 
-纹理立方
+如果 `T` 为 `int` 或 `Short`，则与纹理关联的数据必须使用有符号整数格式。如果 `T` 为 `uint` 或 `ushort`，则与纹理关联的数据必须使用无符号整数格式。如果 `T` 是一半，则与纹理关联的数据必须是标准化（有符号或无符号整数）或半精度格式。如果 `T` 是浮点型，则与纹理关联的数据必须是标准化（有符号或无符号整数）、半精度或单精度格式。
 
-texturecube_array
+这些 `access` 属性描述了对访问纹理的支持：
 
-texture2d_ms
+- `sample`：图形或内核函数可以对纹理对象进行采样。样本意味着使用和不使用采样器读取纹理的能力。
+- `read`：如果没有采样器，图形或内核函数只能读取纹理对象。
+- `write`：图形或内核函数可以写入纹理对象。
+- `read_write`：图形或内核函数可以读取和写入纹理对象。
 
-texture2d_ms_array
+所有操作系统：自 Metal 1.2 起支持 `read_write` 访问。自 Metal 1 以来的其它访问限定符。
 
-要将 sample_compare 与深度格式一起使用，你需要声明以下纹理类型之一：
-
-height2d
-
-height2d_array
-
-深度立方
-
-heightcube_array
-
-height2d_ms
-
-height2d_ms_array
-
-macOS 自 Metal 2 起支持 texture2d_ms_array 和 depth2d_ms_array。自 Metal 1 起支持所有其它类型。
-
-自 Metal 1 以来，iOS 支持除 texture2d_ms_array 和 depth2d_ms_array 之外的所有类型。
-
-T 指定从纹理读取时返回的组件之一的颜色类型或写入纹理时指定的组件之一的颜色类型。对于纹理类型（深度纹理类型除外），T 可以是 half、float、short、ushort、int 或 uint。对于深度纹理类型，T 必须是浮点型。
-
-如果 T 为 int 或 Short，则与纹理关联的数据必须使用有符号整数格式。如果 T 为 uint 或 ushort，则与纹理关联的数据必须使用无符号整数格式。如果 T 是一半，则与纹理关联的数据必须是标准化（有符号或无符号整数）或半精度格式。如果 T 是浮点型，则与纹理关联的数据必须是标准化（有符号或无符号整数）、半精度或单精度格式。
-
-这些访问属性描述了对访问纹理的支持：
-
-- 样本 - 图形或内核函数可以对纹理对象进行采样。样本意味着使用和不使用采样器读取纹理的能力。- 读取 — 如果没有采样器，图形或内核函数只能读取纹理对象。- 写入 — 图形或内核函数可以写入纹理对象。- read_write — 图形或内核函数可以读取和写入纹理对象。
-
-所有操作系统：自 Metal 1.2 起支持读写访问。自 Metal 1 以来的其它访问限定符。
-
-多重采样纹理仅支持读取属性。深度纹理仅支持采样和读取属性。
+多重采样纹理仅支持 `read` 属性。深度纹理仅支持 `sample` 和 `read` 属性。
 
 以下示例使用带有纹理对象参数的访问限定符：
 
-void foo (texture2d imgA [[texture(0)]],texture2d imgB [[texture(1)]],texture2d imgC [[texture( 2)]]) {...}
+```cpp
+void foo (texture2d<float> imgA [[texture(0)]],
+     texture2d<float, access::read> imgB [[texture(1)]], texture2d<float, access::write> imgC [[texture(2)]])
+{…}
+```
 
-（有关纹理属性的描述，请参见第 5.2.1 节。）
+（有关 `texture` 属性的描述，请参见第 5.2.1 节。）
 
-你可以使用纹理类型作为函数内声明的任何变量的变量类型。函数内声明的纹理类型变量的访问属性必须是 access::read 或 access:sample。在不使用 access::read 或 access:sample 限定符的情况下将函数内的变量声明为纹理类型会导致编译错误。
+你可以使用纹理类型作为函数内声明的任何变量的变量类型。函数内声明的纹理类型变量的访问属性必须是 `access::read` 或 `access:sample`。在不使用 `access::read` 或 `access:sample` 限定符的情况下将函数内的变量声明为纹理类型会导致编译错误。
 
 例子：
 
-void foo (texture2d imgA [[texture(0)]],texture2d imgB [[texture(1)]],texture2d imgC [[texture( 2)]]) {texture2d<浮点> x = imgA; // 确定 texture2d y = imgB; // 确定 texture2d z; // 这是非法的。
-
+```cpp
+void foo (texture2d<float> imgA [[texture(0)]],
+     texture2d<float, access::read> imgB [[texture(1)]],
+texture2d<float, access::write> imgC [[texture(2)]])
+{
+    texture2d<float> x = imgA; // OK
+    texture2d<float, access::read> y = imgB; // OK
+    texture2d<float, access::write> z; // This is illegal.
+    …
 }
+```
 
 ## 纹理缓冲区
 
@@ -74,15 +79,18 @@ void foo (texture2d imgA [[texture(0)]],texture2d imgB [[texture(1)]],texture2d 
 
 纹理缓冲区是一种纹理类型，可以访问大型一维像素数据数组，并以优化的性能对该数据执行像素格式之间的动态类型转换。纹理缓冲区比其它技术更有效地处理类型转换，允许访问更大的元素计数，并处理越界读取访问。类似的类型转换可以通过以下任一方式在没有纹理缓冲区的情况下实现：
 
-- 从纹理对象读取像素数据（就像任何其它数组一样）并执行像素转换为所需的格式。- 将纹理对象包裹在缓冲区对象的数据周围，然后通过纹理访问共享缓冲区数据。这种包裹技术提供了像素转换，但需要额外的处理步骤，并且纹理的大小受到限制。
+- 从纹理对象读取像素数据（就像任何其它数组一样）并执行像素转换为所需的格式。
+- 将纹理对象包裹在缓冲区对象的数据周围，然后通过纹理访问共享缓冲区数据。这种包裹技术提供了像素转换，但需要额外的处理步骤，并且纹理的大小受到限制。
 
-以下模板定义了不透明类型 texture_buffer，你可以像使用任何纹理一样使用它：
+以下模板定义了不透明类型 `texture_buffer`，你可以像使用任何纹理一样使用它：
 
-texture_buffer
+```cpp
+texture_buffer<T, access a = access::read>
+```
 
-访问可以是读、写或 read_write 之一。
+`access` 可以是 `read`、`write` 或 `read_write` 之一。
 
-T 指定从纹理缓冲区读取时返回的组件类型或写入纹理缓冲区时指定的组件类型。对于纹理缓冲区，T 可以是 half、float、short、ushort、int 或 uint 之一。
+`T` 指定从纹理缓冲区读取时返回的组件类型或写入纹理缓冲区时指定的组件类型。对于纹理缓冲区，`T` 可以是 `half`、`float`、`short`、`ushort`、`int` 或 `uint` 之一。
 
 对于没有 Alpha 通道的格式（例如 R、RG 或 RGB），越界读取将返回 (0, 0, 0, 1)。对于带有 alpha 的格式（例如 RGBA），越界读取将返回 (0, 0, 0, 0)。对于某些设备，越界读取可能会降低性能。
 
@@ -90,6 +98,6 @@ T 指定从纹理缓冲区读取时返回的组件类型或写入纹理缓冲区
 
 纹理缓冲区可以支持比通用 1D 纹理更多的纹理数据，其最大宽度为 16384。但是，你无法对纹理缓冲区进行采样。
 
-纹理缓冲区还会转换数据，以请求的纹理格式提供数据，而不管源的格式如何。创建纹理缓冲区时，可以指定缓冲区中数据的格式（例如 RGBA8Unorm），稍后着色器函数可以将其读取为转换后的类型（例如 float4）。因此，单个管道状态对象可以访问以不同像素格式存储的数据，而无需重新编译。
+纹理缓冲区还会转换数据，以请求的纹理格式提供数据，而不管源的格式如何。创建纹理缓冲区时，可以指定缓冲区中数据的格式（例如 `RGBA8Unorm`），稍后着色器函数可以将其读取为转换后的类型（例如 `float4`）。因此，单个管道状态对象可以访问以不同像素格式存储的数据，而无需重新编译。
 
 纹理缓冲区与纹理类型一样，可以声明为着色器函数的局部变量的类型。有关纹理缓冲区数组的信息，请参阅第 2.12.1 节。有关纹理缓冲区的更多信息，请参阅第 6.12.16 节。

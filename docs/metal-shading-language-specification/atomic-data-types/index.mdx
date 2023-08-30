@@ -4,18 +4,14 @@
 
 原子类型的对象不受数据竞争的影响。如果一个线程写入原子对象，而另一个线程从中读取，则行为是明确定义的。
 
-Metal 支持 atomic，其中对于支持 Metal 2.4 及更高版本的所有操作系统，T 可以是 int、uint、bool 或 ulong，或者对于支持 Metal 3 及更高版本的所有操作系统，T 可以是 float。
+Metal 支持 `atomic<T>`，其中对于支持 Metal 2.4 及更高版本的所有操作系统，`T` 可以是 `int`、`uint`、`bool` 或 `ulong`，或者对于支持 Metal 3 及更高版本的所有操作系统，`T` 可以是 `float`。
 
 Metal 为原子类型提供了以下类型别名：
 
-atomic_int 一种 atomic 的别名类型，适用于支持 Metal 1 及更高版本的操作系统。
-
-atomic_uint 一种 atomic 的别名类型，适用于支持 Metal 1 及更高版本的操作系统。
-
-atomic_bool 支持 Metal 2.4 及更高版本的操作系统的 atomic 别名类型。
-
-atomic_ulong 支持 Metal 2.4 及更高版本的操作系统的 atomic 别名类型。
-
-atomic_float 一种 atomic 的别名类型，适用于支持 Metal 3 及更高版本的操作系统。
+- `atomic_int` A type of alias of `atomic<int>` for OSes that support Metal 1 and later.
+- `atomic_uint` A type of alias of `atomic<uint>` for OSes that support Metal 1 and later.
+- `atomic_bool` A type of alias of `atomic<bool>` for OSes that support Metal 2.4 and later.
+- `atomic_ulong` A type of alias of `atomic<ulong>` for OSes that support Metal 2.4 and later.
+- `atomic_float` A type of alias of `atomic<float>` for OSes that support Metal 3 and later.
 
 Metal 原子函数（如第 6.15 节所述）只能使用 Metal 原子数据类型。这些原子函数是 C++14 原子函数和同步函数的子集。

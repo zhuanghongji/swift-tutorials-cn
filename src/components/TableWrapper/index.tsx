@@ -1,6 +1,6 @@
 import React, { PropsWithChildren } from 'react'
 
-type ScreenshotProps = PropsWithChildren<{
+type TableWrapperProps = PropsWithChildren<{
   num: string 
   title: string
 }>
@@ -8,14 +8,14 @@ type ScreenshotProps = PropsWithChildren<{
 /**
  * 表格容器
  */
-export default function TableWrapper({ num, title, children  }: ScreenshotProps) {
+export default function TableWrapper({ num, title, children  }: TableWrapperProps) {
   
   return (
     <div style={{ display: 'flex', flexDirection: 'column', width: '100%', justifyContent: 'center', alignItems: 'center' }}>
       <center>
         {children}
       </center>
-      <div><strong>{`表 ${num} - ${title}`}</strong></div>
+      <div><strong>{`Table ${num} - ${title}`}</strong></div>
       <br/>
     </div>
   )

@@ -102,5 +102,79 @@
     "prefix": "origninalpdf",
     "body": ["<OrigninalPDF title=\"$1\" />"],
     "description": "Create OrigninalPDF"
+  },
+  "Create MD Table": {
+    "scope": "md,mdx",
+    "prefix": "mdtable",
+    "body": [
+      "| $1         |                          |",
+      "| ---------- | ------------------------ |",
+      "|            |                          |"
+    ],
+    "description": "Create MD Table"
+  },
+  "Create MD TableView2": {
+    "scope": "md,mdx",
+    "prefix": "mdtableview2",
+    "body": [
+      "<TableView",
+      "  num=\"$1\"",
+      "  title=\"$2\"",
+      "  headers={[\"\", \"\"]}",
+      "  datasList={[",
+      "    [\"\", \"\"],",
+      "    [\"\", \"\"],",
+      "    [\"\", \"\"],",
+      "    [\"\", \"\"],",
+      "    [\"\", \"\"],",
+      "    [\"\", \"\"],",
+      "    [\"\", \"\"],",
+      "    [\"\", \"\"],",
+      "  ]}",
+      "/>"
+    ],
+    "description": "Create MD TableView2"
+  },
+  "Create MD TableView3": {
+    "scope": "md,mdx",
+    "prefix": "mdtableview3",
+    "body": [
+      "<TableView",
+      "  num=\"$1\"",
+      "  title=\"$2\"",
+      "  headers={[\"\", \"\", \"\"]}",
+      "  datasList={[",
+      "    [\"\", \"\", \"\"],",
+      "    [\"\", \"\", \"\"],",
+      "    [\"\", \"\", \"\"],",
+      "    [\"\", \"\", \"\"],",
+      "    [\"\", \"\", \"\"],",
+      "    [\"\", \"\", \"\"],",
+      "    [\"\", \"\", \"\"],",
+      "    [\"\", \"\", \"\"],",
+      "  ]}",
+      "/>"
+    ],
+    "description": "Create MD TableView3"
+  },
+  "Create MD TableViewDataGenerator": {
+    "scope": "md,mdx",
+    "prefix": "mdtableviewgenerator",
+    "body": ["<TableViewDataGenerator />"],
+    "description": "Create MD TableViewDataGenerator"
+  },
+  "Create MD TableWrapper": {
+    "scope": "md,mdx",
+    "prefix": "mdtablewrapper",
+    "body": [
+      "<TableWrapper num=\"$1\" title=\"$2\">",
+      "",
+      "|            |                          |",
+      "| ---------- | ------------------------ |",
+      "|            |                          |",
+      "",
+      "</TableWrapper>"
+    ],
+    "description": "Create MD Table"
   }
 }
