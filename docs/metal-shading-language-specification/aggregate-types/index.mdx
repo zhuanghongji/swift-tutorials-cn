@@ -17,9 +17,9 @@ array<typename T, size_t N>
 const array<typename T, size_t N>
 ```
 
-typename 应是使用 access::read 或 access::sample 属性声明的纹理类型。在自 Metal 2 起的 macOS 上以及自 Metal 2.2 起至少具有 A12 硬件的 iOS 上，还提供了对可写纹理数组 (access::write) 的支持。（有关纹理类型的更多信息，请参阅第 2.9 节。）
+`typename` 应是使用 `access::read` 或 `access::sample` 属性声明的纹理类型。在自 Metal 2 起的 macOS 上以及自 Metal 2.2 起至少具有 A12 硬件的 iOS 上，还提供了对可写纹理数组 (`access::write`) 的支持。（有关纹理类型的更多信息，请参阅第 2.9 节。）
 
-使用 access::read 限定符构造一个纹理缓冲区数组（参见第 2.9.1 节）：
+使用 `access::read` 限定符构造一个纹理缓冲区数组（参见第 2.9.1 节）：
 
 ```cpp
 array<texture_buffer<T>, size t N>
@@ -34,29 +34,29 @@ const array<sampler, size_t N>
 
 你可以将纹理数组或采样器数组作为参数传递给函数（图形、内核或用户函数），或者将纹理或样本数组声明为函数内的局部变量。你还可以在程序范围内声明采样器数组。除非在参数缓冲区中使用（请参阅第 2.13 节），否则不能在结构中声明 array 类型（纹理、纹理缓冲区或采样器的数组）。
 
-MSL 还添加了对 array_ref 的支持。array_ref 表示 T 类型的 size() 元素的不可变数组。T 必须是采样器类型或受支持的纹理类型，包括纹理缓冲区。数组的存储不属于 array_ref 对象。隐式转换是由具有连续迭代器（例如 metal::array）的类型提供的。array_ref 的常见用途是将纹理数组作为参数传递给函数，以便它们可以接受各种数组类型。
+MSL 还添加了对 `array_ref` 的支持。`array_ref` 表示 `T` 类型的 `size()` 元素的不可变数组。`T` 必须是采样器类型或受支持的纹理类型，包括纹理缓冲区。数组的存储不属于 `array_ref` 对象。隐式转换是由具有连续迭代器（例如 `metal::array`）的类型提供的。`array_ref` 的常见用途是将纹理数组作为参数传递给函数，以便它们可以接受各种数组类型。
 
-array_ref 类型不能作为参数传递给图形和内核函数。但是，array_ref 类型可以作为参数传递给用户函数。array_ref 类型不能在函数内声明为局部变量。
+`array_ref` 类型不能作为参数传递给图形和内核函数。但是，`array_ref` 类型可以作为参数传递给用户函数。`array_ref` 类型不能在函数内声明为局部变量。
 
-2.12.1.1 到 2.12.1.3 节中列出的成员函数可用于纹理数组、采样器数组和 array_ref 类型。
+2.12.1.1 到 2.12.1.3 节中列出的成员函数可用于纹理数组、采样器数组和 `array_ref<T>` 类型。
 
-## 2.12.1.1 使用运算符访问数组元素
+### 使用运算符访问数组元素
 
-可以使用 [] 运算符访问纹理、纹理缓冲区或采样器数组的元素：
+可以使用 `[]` 运算符访问纹理、纹理缓冲区或采样器数组的元素：
 
 ```cpp
 reference operator[] (size_t pos);
 ```
 
-可以使用 [] 运算符的以下变体来访问纹理、纹理缓冲区或采样器数组的元素或模板化类型 array_ref ：
+可以使用 `[]` 运算符的以下变体来访问纹理、纹理缓冲区或采样器数组的元素或模板化类型 `array_ref<T>` ：
 
 ```cpp
 constexpr const_reference operator[] (size_t pos) const;
 ```
 
-## 2.12.1.2 阵列容量
+### 阵列容量（Array Capacity）
 
-size() 返回纹理、纹理缓冲区或采样器数组中的元素数量。
+`size()` 返回纹理、纹理缓冲区或采样器数组中的元素数量。
 
 ```cpp
 constexpr size_t size();
@@ -68,8 +68,8 @@ constexpr size_t size() const;
 ```cpp
 kernel void
 my_kernel(const array<texture2d<float>, 10> src [[texture(0)]],
-     texture2d<float, access::write> dst [[texture(10)]],
-…)
+          texture2d<float, access::write> dst [[texture(10)]],
+          …)
 {
     for (int i=0; i<src.size(); i++)
     {
@@ -80,7 +80,7 @@ my_kernel(const array<texture2d<float>, 10> src [[texture(0)]],
 }
 ```
 
-## 2.12.1.3 模板化数组的构造函数
+### 模板化数组的构造函数
 
 ```cpp
 constexpr array_ref();
@@ -131,7 +131,8 @@ my_kernel_B(const array<texture2d<float>, 20> src [[texture(0)]],  texture2d<flo
 下面是在程序范围内声明的采样器数组的示例：
 
 ```cpp
-constexpr array<sampler, 2> = { sampler(address::clamp_to_zero),    sampler(coord::pixel) };
+constexpr array<sampler, 2> = { sampler(address::clamp_to_zero),
+                                sampler(coord::pixel) };
 ```
 
 ## 缓冲区、纹理和采样器的结构
@@ -155,13 +156,13 @@ my_kernel(Foo f)
 
 ```cpp
 struct Foo {
-texture2d<float>  a [[texture(0)]];
-depth2d<float>    b [[texture(1)]];
+    texture2d<float>  a [[texture(0)]];
+    depth2d<float>    b [[texture(1)]];
 };
 
 struct Bar {
-Foo f;
-sampler s [[sampler(0)]];
+    Foo f;
+    sampler s [[sampler(0)]];
 };
 
 [[kernel]] void
@@ -177,9 +178,9 @@ my_kernel(device Foo& f) // This is an illegal use.
 {…}
 
 struct MyResources {
-texture2d<float>  a [[texture(0)]];
-depth2d<float>    b [[texture(1)]];
-int c;
+    texture2d<float>  a [[texture(0)]];
+    depth2d<float>    b [[texture(1)]];
+    int c;
 };
 
 [[kernel]] void

@@ -4,28 +4,53 @@
 
 所有操作系统：自 Metal 2. 3 起支持类型。
 
-在头文件中定义的 visible_function_table 类型用于表示存储在设备内存中的可见函数的函数指针表（参见第 5.1.4 节）。在 Metal 2.3 中，它可以在计算（内核）函数中使用。从 Metal 2.4 开始，它可以用于片段、顶点和图块函数。它是一种不透明类型，无法从 GPU 修改表的内容。visible_function_table 类型可以在参数缓冲区中使用，或者使用缓冲区绑定点直接传递给限定函数。
+在头文件 `<metal_visible_function_table>,` 中定义的 `visible_function_table` 类型用于表示存储在设备内存中的可见函数的函数指针表（参见第 5.1.4 节）。在 Metal 2.3 中，它可以在计算（内核）函数中使用。从 Metal 2.4 开始，它可以用于片段、顶点和图块函数。它是一种不透明类型，无法从 GPU 修改表的内容。`visible_function_table` 类型可以在参数缓冲区中使用，或者使用缓冲区绑定点直接传递给限定函数。
 
-使用模板参数 T 声明一个 visible_function_table 类型，其中
+使用模板参数 T 声明一个 `visible_function_table` 类型，其中 `T` 是表中存储的函数的签名，使用以下模板函数。
 
-T 是表中存储的函数的签名，使用以下模板函数。
+```cpp
+visible_function_table<typename T>
+```
 
-visible_function_table<类型名称 T>
+以下示例显示如何声明与定义为 "`[[visible]] int func(float f)`" 的函数兼容的表。
 
-以下示例显示如何声明与定义为“[[visible]] int func(float f)”的函数兼容的表。
+```cpp
+visible_function_table<int(float)> functions;
+```
 
-visible_function_table 函数；
+要从表中获取可见的函数指针，请使用 `[]` 运算符。
 
-要从表中获取可见的函数指针，请使用 [] 运算符。
+```cpp
+using fnptr = T (*)(…) [[visible]]
+fnptr operator[](uint index) const;
+```
 
-使用 fnptr = T (\*)(...) [[visible]] fnptr 运算符[](uint index) const;
+`size()` 返回表中函数指针条目的数量。
 
-size() 返回表中函数指针条目的数量。uint size() 常量
+```c
+uint size() const
+```
 
-如果表为空，empty() 返回 true。bool 空() 常量
+如果表为空，`empty()` 返回 `true`。
 
-以下函数可用于确定表是否为空的 visible_function_table。空的 visible_function_table 是一个不指向任何东西的表。bool is_null_visible_function_table(visible_function_table);
+```c
+bool empty() const
+```
+
+以下函数可用于确定表是否为空的 `visible_function_table`。空的 `visible_function_table` 是一个不指向任何东西的表。
+
+```c
+bool is_null_visible_function_table(visible_function_table<T>);
+```
 
 以下示例显示如何在缓冲区中传递表。
 
-使用 TFuncSig = void(float, int); kernel void F(uint tid [[thread_position_in_grid]], device float\* buf [[buffer(0)]],visible_function_table table [[buffer(1)]]) { uint tsize = table.size();表[tid % tsize](buf[tid], tid); }
+```cpp
+using TFuncSig = void(float, int);
+kernel void F(uint tid [[thread_position_in_grid]],
+              device float* buf [[buffer(0)]],
+              visible_function_table<TFuncSig> table [[buffer(1)]]) {
+    uint tsize = table.size();
+    table[tid % tsize](buf[tid], tid);
+}
+```

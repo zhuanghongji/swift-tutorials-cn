@@ -2,136 +2,189 @@
 
 <OrigninalPDF title="2.19 Mesh Shader Types" />
 
-所有操作系统：自 Metal 3 起就支持网格着色器类型。这些类型在网格管道中用于渲染几何体，并在标头 中定义。
+所有操作系统：自 Metal 3 起就支持网格着色器类型。这些类型在网格管道中用于渲染几何体，并在头文件 `<metal_mesh>` 中定义。
 
 ## 网格属性类型
 
 所有操作系统：从 Metal 3 开始就支持网格网格 PropertyType。
 
-对象函数（请参阅第 5.1.7 节）可以使用 mesh_grid_properties 类型来指定要从对象阶段为给定线程组分派的网格网格的大小。
+对象函数（请参阅第 5.1.7 节）可以使用 `mesh_grid_properties` 类型来指定要从对象阶段为给定线程组分派的网格网格的大小。
 
 调用以下成员函数来控制将调度的网格线程组的数量。
 
-无效 set_threadgroups_per_grid(uint3)
+```c
+void set_threadgroups_per_grid(uint3)
+```
 
-如果对象网格的给定线程组的成员函数 set_threadgroups_per_grid 从未被调用，则不会为给定对象网格线程组调度任何网格网格。对 set_threadgroups_per_grid 的调用表现为每个线程执行的对线程组内存的写入。
+如果对象网格的给定线程组的成员函数 `set_threadgroups_per_grid` 从未被调用，则不会为给定对象网格线程组调度任何网格网格。对 `set_threadgroups_per_grid` 的调用表现为每个线程执行的对 `threadgroup` 内存的写入。
 
 ## 网格类型
 
 所有操作系统：从 Metal 3 开始就支持网格类型。
 
-网格函数（参见第 5.1.8 节）可以使用 mesh 结构类型的参数来表示导出的网格数据。表 2. 10 描述了网格模板参数。
+网格函数（参见第 5.1.8 节）可以使用 `mesh<V, P, NV, NP, t>` 结构类型的参数来表示导出的网格数据。表 2.10 描述了网格模板参数。
 
-## 表 2.10。网格模板参数
+<TableView
+  num="2.10"
+  title="Mesh Template Parameter"
+  headers={["Parameter", "Description"]}
+  datasList={[
+    ["V", "V is the vertex type."],
+    ["P", "P is the primitive type."],
+    ["NV", "NV is the maximum number of vertices."],
+    ["NP", "NP is the maximum number of primitives."],
+    [
+      "t",
+      "t specifies the topology of the mesh. It is one of the following enum values: \n`enum topology {  point, line, triangle }`",
+    ],
+  ]}
+/>
 
-`模板参数`
+有效的顶点类型 `V` 遵循与 5.2.3.3 节中定义的顶点函数返回类型相同的规则，但具有以下限制。顶点类型可以是：
 
-` 描述`
+- float4 表示顶点位置
 
-``` V V 是顶点类型。````
+或用户定义的结构：
 
-`` P P 是原始类型。````
-
-`` NV NV 是最大顶点数。````
-
-`模板参数`
-
-` 描述`
-
-`` NP NP 是基元的最大数量。````
-
-` t t 指定网格的拓扑。它是以下枚举值之一：枚举拓扑{点、线、三角形}`
-
-有效的顶点类型 V 遵循与 5.2.3.3 节中定义的顶点函数返回类型相同的规则，但具有以下限制。顶点类型可以是
-
-- float4 表示顶点位置或用户定义的结构：- 包含具有 [[position]] 属性的字段。- 可能包括整数或浮点类型的标量或向量的其它字段。- 支持表 2 中的以下属性。11. 每个属性可以在顶点类型中使用一次。
+- 包含具有 `[[position]]` 属性的字段。
+- 可能包括整数或浮点类型的标量或向量的其它字段。
+- 支持表 2.11 中的以下属性。每个属性可以在顶点类型中使用一次。
 
 ## 表 2.11。网格顶点属性
 
-` 属性对应的数据类型`
+<TableView
+  num="2.11"
+  title="Mesh Vertex Attributes"
+  headers={["Attribute", "Corresponding Data Types ", "Description"]}
+  datasList={[
+    [
+      "clip_distance",
+      "float or float[n] \nn needs to be known at compile time",
+      "Distance from vertex to clipping plane",
+    ],
+    [
+      "invariant",
+      "Not applicable; needs to be used with [[position]]",
+      "Marks the output position such that if the sequence of operations used to compute the output position in multiple vertex shaders is identical, there is a high likelihood that the resulting output position computed by these vertex shaders are the same value. Requires users to pass -fpreserve-invariance. See the description below for more information.",
+    ],
+    ["point_size", "float", "Size of a point primitive"],
+    ["position", "float4", "The transformed vertex position"],
+    [
+      "shared",
+      "Not applicable",
+      "If present, then for every amplification_id, the output shall have the same value.",
+    ],
+  ]}
+/>
 
-` 描述`
+有效的基本类型遵循与片段输入部分 5.2.3.4 相同的规则。有效的原始类型是：
 
-`Clip_distance float 或 float[n] n 需要在编译时知道`
+- `void` indicating no per-primitive type
 
-`从顶点到裁剪平面的距离`
+或用户定义的结构：
 
-`` 不变量 不适用；需要与 [[position]] ``` 一起使用
+- 包括整数或浮点类型的标量或向量字段
+- 仅支持表 2.12 中的以下属性。每个属性可以在基元类型中使用一次。
 
-``` 标记输出位置，以便如果多个顶点着色器中用于计算输出位置的操作序列相同，则这些顶点着色器计算的结果输出位置很可能是相同的值。要求用户传递-fpreserve-invariance。请参阅下面的描述以了解更多信息。````
+<TableView
+  num="2.12"
+  title="Mesh Primitive Attributes"
+  headers={["Attribute", "Corresponding Data Types", "Description"]}
+  datasList={[
+    [
+      "primitive_culled",
+      "bool",
+      "If set to true, the primitive is not rendered.",
+    ],
+    [
+      "primitive_id",
+      "uint",
+      "The per-primitive identifier used with barycentric coordinates.",
+    ],
+    [
+      "render_target_array_index",
+      "uchar, ushort, or uint",
+      "The render target array index, which refers to the face of a cubemap, data at a specified depth of a 3D texture, an array slice of a texture array, an array slice, or face of a cubemap array. For a cubemap, the render target array index is the face index, which is a value from 0 to 5. For a cubemap array the render target array index is computed as: array slice index * 6 + face index.",
+    ],
+    [
+      "viewport_array_index",
+      "uchar, ushort, or uint",
+      "The viewport (and scissor rectangle) index value of the primitive.",
+    ],
+  ]}
+/>
 
-` 属性对应的数据类型`
-
-` 描述`
-
-`point_size float 点基元的大小`
-
-`position float4 变换后的顶点位置`
-
-``` 共享 不适用 如果存在，则对于每个 amplification_id，输出应具有相同的值。````
-
-有效的基本类型遵循与片段输入部分 5.2.3.4 相同的规则。有效的原始类型是
-
-- void 表示没有每个基元类型
-
-或用户定义的结构
-
-- 包括整数或浮点类型的标量或向量字段 - 仅支持表 2 中的以下属性。12. 每个属性可以在基元类型中使用一次。
-
-`表 2.12. 网格体原始属性`
-
-` 属性对应的数据类型`
-
-` 描述`
-
-``` Primitive_culled bool 如果设置为 true，则不渲染图元。````
-
-``` Primitive_id uint 与重心坐标一起使用的每个基元标识符。````
-
-`render_target_array_ind ex`
-
-`uchar、ushort 或 uint`
-
-``` 渲染目标数组索引，指立方体贴图的面、3D 纹理指定深度的数据、纹理数组的数组切片、数组切片或立方体贴图数组的面。对于立方体贴图，渲染目标数组索引是面索引，其值为 0 到 5 之间的值。对于立方体贴图数组，渲染目标数组索引计算如下：数组切片索引 \* 6 + 面索引。````
-
-`viewport_array_index uchar、ushort 或 uint`
-
-``` 图元的视口（和剪刀矩形）索引值。````
-
-如果网格 未使用 [[primitive_culled]] 指定字段，则行为是渲染图元。如果片段着色器读取该字段，则读取的值为 false，因为该片段调用属于非剔除基元。
+如果 `mesh<V, P, NV, NP, t>` 未使用 `[[primitive_culled]]` 指定字段，则行为是渲染图元。如果片段着色器读取该字段，则读取的值为 `false`，因为该片段调用属于非剔除基元。
 
 顶点和基元类型成员接受插值和采样限定符。该行为在第 5.2.3.4 节中指定。
 
 为了最大限度地减少网格片段链接中可能出现的用户错误，用户定义的顶点和图元类型的字段名称在顶点和图元类型之间需要是唯一的。
 
-网格 的示例是
+一个 `mesh<V, P, NV, NP, t>` 的示例是：
 
-struct VertexOut { float4 位置 [[位置]];
-
+```cpp
+struct VertexOut {
+    float4 position [[position]];
+};
+struct PrimitiveOut
+{
+    float color [[flat]];
 };
 
-struct PrimitiveOut { 浮点颜色 [[平]]; };
-
-使用 custom_mesh_t = metal::mesh;
+using custom_mesh_t = metal::mesh<VertexOut, PrimitiveOut, 64, 64,
+                                  metal::topology::triangle>;
+```
 
 网格类型包含以下静态数据成员。
 
-## 表 2.13。网格静态成员
+<TableView
+  num="2.13"
+  title="Mesh Static Members"
+  headers={["Member variable", "Description"]}
+  datasList={[
+    ["uint max_vertices", "The maximum number of vertices in the mesh (NV)."],
+    [
+      "uint max_primitive",
+      "The maximum number of primitives in the mesh (NP).",
+    ],
+    [
+      "uint indices_per_primitive",
+      "The number of indices per primitive based on topology t.",
+    ],
+    [
+      "uint max_indices",
+      "The maximum number of indices (max_primitive * indices_per_primitive).",
+    ],
+  ]}
+/>
 
-` 成员变量说明`
+调用以下成员函数来为范围 `[0, max_vertices]` 的索引 `I` 设置顶点：
 
-uint max_vertices (^) 网格中的最大顶点数 (NV)。uint max_primitive 网格中图元的最大数量 (NP)。uintindexs_per_primitive 基于拓扑 t 的每个基元的索引数。uint max_indices (^) 索引的最大数量 (max_primitive \*indexes_per_primitive)。调用以下成员函数将索引 I 处的顶点设置在 [0, max_vertices) 范围内。void set_vertex(uint I, V v) **如果 P 不为 void，则调用以下成员函数在 [0,** max_primitive **) 范围内设置索引 I 处的图元。**
+```c
+void set_vertex(uint I, V v)
+```
 
-无效 set_primitive(uint I, P p)
+If `P` is not void, call the following member function to set the primitive at index `I` in the range [0, `max_primitive`].
 
-调用以下成员来设置基元计数，其中 c 在 [0, max_primitive] 范围内。
+```c
+void set_primitive(uint I, P p)
+```
 
-无效 set_primitive_count（uint c）
+Call the following member to set the primitive count where `c` is in the range [0, `max_primitive`].
 
-调用以下成员来设置 I 在 [0, max_indices) 范围内的索引。
+```c
+void set_primitive_count(uint c)
+```
 
-无效 set_index(uint I, uchar v)
+Call the following member to set the index where `I` is in the range [0, `max_indices`].
 
-如果索引缓冲区中的位置有效并且索引缓冲区中的位置是 2（uchar2 重载）或 2（uchar 4 重载）的倍数，则调用以下 set_indices 函数来设置索引是合法的。索引 I 需要在 [0, max_indices) 范围内。
+```c
+void set_index(uint I, uchar v)
+```
 
-无效 set_indices（uint I，uchar2 v）无效 set_indices（uint I，uchar4 v）
+It is legal to call the following `set_indices` functions to set the indices if the position in the index buffer is valid and if the position in the index buffer is a multiple of 2 (`uchar2` overload) or 2 (`uchar4` overload). The index I needs to be in the range [0, `max_indices`].
+
+```c
+void set_indices(uint I, uchar2 v)
+void set_indices(uint I, uchar4 v)
+```

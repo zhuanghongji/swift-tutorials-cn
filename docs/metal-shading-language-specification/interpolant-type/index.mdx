@@ -2,14 +2,14 @@
 
 <OrigninalPDF title="2.18 Interpolant Type" />
 
-所有操作系统：自 Metal 2. 3 起支持插值类型。
+所有操作系统：自 Metal 2.3 起支持插值类型。
 
-中定义的插值类型 interpolant 是一个模板化类型，它封装了用于拉模型插值的片段着色器输入（第 6.11 节）。类型参数 T 和 P 分别表示输入的数据类型和透视正确性。T 支持的值为标量和向量浮点类型。P 支持的值是 interpolation::perspective 和 interpolation::no_perspective 类型。
+`<metal_interpolate>` 中定义的插值类型 `interpolant<T,P>` 是一个模板化类型，它封装了用于拉模型插值的片段着色器输入（第 6.11 节）。类型参数 `T` 和 `P` 分别表示输入的数据类型和透视正确性。`T` 支持的值为标量和向量浮点类型。`P` 支持的值是 `interpolation::perspective` 和 `interpolation::no_perspective` 类型。
 
-你只能在以下上下文中使用 interpolant 类型声明变量：
+你只能在以下上下文中使用 `interpolant<T,P>` 类型声明变量：
 
-- 作为带有 [[stage_in]] 的片段着色器输入参数。此类声明必须与具有相同名称或 [[user(name)]] 属性的相应 T 类型顶点着色器输出参数匹配。该声明不能具有采样和插值属性（第 5.4 节）。
+- 作为带有 `[[stage_in]]` 的片段着色器输入参数。此类声明必须与具有相同名称或 `[[user(name)]]` 属性的相应 `T` 类型顶点着色器输出参数匹配。该声明不能具有采样和插值属性（第 5.4 节）。
 
 - 作为本地或临时变量，需要将其初始化为上述变量的副本。
 
-interpolant 变量不会自动转换为 T 类型的值。而是通过调用几种插值方法之一来检索值（请参阅第 6.11 节）。如果 P 的值为 interpolation::perspective，则插值应是透视正确的。
+`interpolant<T,P>` 变量不会自动转换为 `T` 类型的值。而是通过调用几种插值方法之一来检索值（请参阅第 6.11 节）。如果 `P` 的值为 `interpolation::perspective`，则插值应是透视正确的。

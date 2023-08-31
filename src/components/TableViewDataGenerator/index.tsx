@@ -1,19 +1,24 @@
-import React, { PropsWithChildren, useMemo } from 'react'
+import React, { useMemo } from 'react'
 
-const INPUT_LINE_NUM = 4
+// 一行的个数
+const INPUT_LINE_NUM = 2
+
+// 在一行中要进行换行，用 \t 代替，解析时会自动替换成 \n
 const INPUT_TEXT = `
-r8unorm<T>
-half or float
-1
-1
-r8snorm<T>
-half or float
-1
-1
-r16unorm<T>
-float
-2
-2
+Member variable 
+Description 
+
+uint max_vertices 
+The maximum number of vertices in the mesh (NV). 
+
+uint max_primitive 
+The maximum number of primitives in the mesh (NP). 
+
+uint indices_per_primitive 
+The number of indices per primitive based on topology t.  
+
+uint max_indices 
+The maximum number of indices (max_primitive * indices_per_primitive). 
 `
 
 /**
@@ -23,13 +28,14 @@ export default function TableViewDataGenerator() {
   const datasLists = useMemo(() => {
     const result: string[][] = []
     let datas: string[] = []
-    INPUT_TEXT.split('\n').map(v => v.trim()).filter(v => v ? true : false).forEach(v => {
+    INPUT_TEXT.split('\n').map(v => v.trim().replace(/\t/g, '\n')).filter(v => v ? true : false).forEach(v => {
       if (datas.length === INPUT_LINE_NUM) {
         result.push(datas)
         datas = []
       }
       datas.push(v)
     })
+    result.push(datas)
     return result
   }, [])
 

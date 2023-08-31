@@ -163,7 +163,7 @@ __METAL__         // Set if compiled with the unified Metal language
 # 指定模块缓存的路径。如果未提供，编译器将选择适合系统的默认值。
 
 -fmodule-map-file=<file>
-# 如果加载了指定模块映射文件的目录或其子目录之一的标头，则加载指定的模块映射文件。
+# 如果加载了指定模块映射文件的目录或其子目录之一的头文件，则加载指定的模块映射文件。
 ```
 
 如果你使用支持 iOS 16 或 macOS 13 的 SDK 进行构建，-fmodules 具有以下附加选项。
@@ -234,7 +234,7 @@ Metal 定义了几个宏，可用于确定着色器运行的平台。以下宏�
 - TARGET_OS_MACCATALYST ：生成的代码将在 MacOS 下运行
 - TARGET_OS_SIMULATOR ：生成的代码将在模拟器下运行
 
-请注意，此标头不是 `<metal_stdlib>` 的一部分。
+请注意，此头文件不是 `<metal_stdlib>` 的一部分。
 
 ## 动态库链接器选项
 

@@ -6,95 +6,94 @@
 
 ## 统一类型的需要
 
-在下面的函数示例中，变量 i 用于索引 texInput 给出的纹理数组。变量 i 是非均匀的；也就是说，对于执行绘图或调度调用的图形或内核函数的线程，它可以具有不同的值，如下例所示。因此，纹理采样硬件必须处理样本请求，该请求可以为执行图形或内核函数的线程引用不同的纹理以进行绘制或分派调用。
+在下面的函数示例中，变量 `i` 用于索引 `texInput` 给出的纹理数组。变量 `i` 是非均匀的；也就是说，对于执行绘图或调度调用的图形或内核函数的线程，它可以具有不同的值，如下例所示。因此，纹理采样硬件必须处理样本请求，该请求可以为执行图形或内核函数的线程引用不同的纹理以进行绘制或分派调用。
 
 ```cpp
 kernel void
 my_kernel(array<texture2d<float>, 10> texInput,
-array<texture2d<float>, 10> texOutput,
-sampler s,
-…,
-
-uint2 gid [[thread_position_in_grid]])
+          array<texture2d<float>, 10> texOutput,
+          sampler s,
+          ...,
+          uint2 gid [[thread_position_in_grid]])
 {
-int i = …;
-float4 color = texInput[i].sample(s, float2(gid));
-…;
-texOutput[i].write(color, float2(gid));
+    int i = ...;
+    float4 color = texInput[i].sample(s, float2(gid));
+    ...;
+    texOutput[i].write(color, float2(gid));
 }
 ```
 
-如果变量 i 对于执行绘制或分派调用的图形或内核函数的所有线程具有相同的值（统一），并且如果该信息被传送到硬件，则纹理采样硬件可以应用适当的优化。可以为纹理写入提出类似的论点，其中在运行时计算的变量用作纹理数组的索引或一个或多个缓冲区的索引。
+如果变量 `i` 对于执行绘制或分派调用的图形或内核函数的所有线程具有相同的值（统一），并且如果该信息被传送到硬件，则纹理采样硬件可以应用适当的优化。可以为纹理写入提出类似的论点，其中在运行时计算的变量用作纹理数组的索引或一个或多个缓冲区的索引。
 
-为了表明该变量对于执行绘制或调度调用的图形或内核函数的所有线程来说是统一的，MSL 添加了一个名为 uniform 的新模板类（在头文件 metal_uniform 中可用），可用于在图形或内核函数内声明变量。该模板类只能用算术类型（例如布尔型、整数和浮点型）和向量类型来实例化。
+为了表明该变量对于执行绘制或调度调用的图形或内核函数的所有线程来说是统一的，MSL 添加了一个名为 uniform 的新模板类（在头文件 `metal_uniform` 中可用），可用于在图形或内核函数内声明变量。该模板类只能用算术类型（例如布尔型、整数和浮点型）和向量类型来实例化。
 
-下面的代码是上一个示例的修改版本，其中变量 i 被声明为统一类型：
+下面的代码是上一个示例的修改版本，其中变量 `i` 被声明为 `uniform` 类型：
 
 ```cpp
 kernel void
 my_kernel(array<texture2d<float>, 10> texInput,
-array<texture2d<float>, 10> texOutput,
-sampler s,
-…,
-uint2 gid [[thread_position_in_grid]])
+          array<texture2d<float>, 10> texOutput,
+          sampler s,
+          ...,
+          uint2 gid [[thread_position_in_grid]])
 {
-uniform<int> i = …;
-float4 color = texInput[i].sample(s, float2(gid));
-…;
-texOutput[i].write(color, float2(gid));
+    uniform<int> i = ...;
+    float4 color = texInput[i].sample(s, float2(gid));
+    ...;
+    texOutput[i].write(color, float2(gid));
 }
 ```
 
 ## Uniform 类型的行为
 
-如果变量是统一类型，并且该变量对于执行内核或图形函数的所有线程不具有相同的值，则行为未定义。
+如果变量是 `uniform` 类型，并且该变量对于执行内核或图形函数的所有线程不具有相同的值，则行为未定义。
 
 统一变量隐式类型转换为非统一类型。将使用统一变量计算的表达式的结果分配给统一变量是合法的，但将非统一变量分配给统一变量会导致编译时错误。在下面的示例中，乘法将均匀变量 x 合法地转换为非均匀乘积 z。但是，将非均匀变量 z 分配给均匀变量 b 会导致编译时错误。
 
 ```cpp
-uniform<int> x = …;
-int y = …;
-int z = x*y;        // x is converted to a non-uniform for a
+uniform<int> x = ...;
+int y = ...;
+int z = x * y;          // x is converted to a non-uniform for a
 multiply
-uniform<int> b = z; // illegal; compile-time error
+uniform<int> b = z;     // illegal; compile-time error
 ```
 
 声明统一元素数组：
 
 ```cpp
-uniform<float> bar[10]; // elements stored in bar array are uniform
+uniform<float> bar[10];   // elements stored in bar array are uniform
 ```
 
 统一类型对于函数的参数和返回类型都是合法的。例如：
 
 ```cpp
-uniform<int> foo(…); // foo returns a uniform integer value
-int bar(uniform<int> a, …);
+uniform<int> foo(...);        // foo returns a uniform integer value
+int bar(uniform<int> a, ...);
 ```
 
 声明指向统一类型的指针是合法的，但声明统一指针是不合法的。例如：
 
 ```cpp
-device uniform<int> *ptr; // values pointed to by ptr are uniform
+device uniform<int> *ptr;   // values pointed to by ptr are uniform
 uniform<device int *> ptr;  // illegal; compile-time error
 ```
 
 将均匀变量与非均匀变量相结合的表达式的结果是非均匀的。如果将非均匀结果分配给均匀变量（如下例所示），则行为未定义。（前端可能会生成编译时错误，但不保证一定会发生。）
 
 ```cpp
-uniform<int> i = …;
-int j = …;
-if (i < j) { // non-uniform result for expression (i < j)
-…
-i++;  // compile-time error, undefined behavior
+uniform<int> i = ...;
+int j = ...;
+if (i < j) {  // non-uniform result for expression (i < j)
+    ...
+    i++;      // compile-time error, undefined behavior
 }
 ```
 
 下面的例子是类似的：
 
 ```cpp
-bool p = … // non-uniform condition.
-uniform<int> a = …, b = …;
+bool p = ... // non-uniform condition.
+uniform<int> a = ..., b = ...;
 uniform<int> c = p ? a : b; // compile-time error, undefined
 behavior
 ```

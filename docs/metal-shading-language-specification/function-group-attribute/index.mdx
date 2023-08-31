@@ -17,13 +17,13 @@
 
 float h(visible_function_table<float(float)> table, float (*fnptr[3])(float))
 {
-  // indirect call to table[0] is restricted to “group1”
-  [[function_groups("group1")]] float x = table[0](1.0f);
+    // indirect call to table[0] is restricted to “group1”
+    [[function_groups("group1")]] float x = table[0](1.0f);
 
-  // indirect call to `fnptr[0]` can call any function
-  x += fnptr[0](2.0f);
+    // indirect call to `fnptr[0]` can call any function
+    x += fnptr[0](2.0f);
 
-  // indirect call to `fnptr[1]` is restricted to "group2"+"group3"
-  [[function_groups("group2", "group3")]] return x + fnptr[1](3.0f);
+    // indirect call to `fnptr[1]` is restricted to "group2"+"group3"
+    [[function_groups("group2", "group3")]] return x + fnptr[1](3.0f);
 }
 ```

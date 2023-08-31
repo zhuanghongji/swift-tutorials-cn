@@ -2,212 +2,263 @@
 
 <OrigninalPDF title="2.17 Ray Tracing Types" />
 
-所有操作系统：自 Metal 2.3 起支持光线追踪类型。这些类型在命名空间 metal::raytracing 的头文件 中定义。在 Metal 2.3 中，这些类型仅在计算函数（内核函数）中受支持，除非下面另有说明。从 Metal 2.4 开始，顶点、片段和图块函数也支持它们。在 Metal 3.1 中，光线追踪支持曲线和多级实例。
+所有操作系统：自 Metal 2.3 起支持光线追踪类型。这些类型在命名空间 `metal::raytracing` 的头文件 `<metal_raytracing>` 中定义。在 Metal 2.3 中，这些类型仅在计算函数（内核函数）中受支持，除非下面另有说明。从 Metal 2.4 开始，顶点、片段和图块函数也支持它们。在 Metal 3.1 中，光线追踪支持曲线和多级实例。
 
 ## 光线追踪交叉点标签
 
 所有操作系统：从 Metal 2. 3 开始支持光线追踪相交标签。
 
-Intersection_tags 在命名空间 metal::raytracing 的头文件 中定义。它们列于表 2. 9 中，并在定义时用于光线追踪
+`intersection_tags` 在命名空间 `metal::raytracing` 的头文件 `<metal_raytracing>` 中定义。它们列于表 2.9 中，并在定义时用于光线追踪：
 
-- 相交函数（[[intersection]] 第 5.1.6 节） - 相交函数表（intersection_function_table 第 2.17.3 节） - 相交结果（intersection_result 第 2.17.4 节） - 相交线类型和相关函数（相交线第 6.18.2 节） - 加速度结构类型（acceleration_struct 2.17.6 和 6.18.1 节） - 交集查询（intersection_query 6.18.4 节）。
+- 相交函数（`[[intersection]]`）
+- 相交函数表（`intersection_function_table`）
+- 相交结果（`intersection_result`）
+- 相交线类型和相关函数（`intersector`）
+- 加速度结构类型（`acceleration_structure`）
+- 交集查询（`intersection_query`）
 
 标签用于配置光线追踪过程并控制不同类型和表的行为和语义。这些标签标识相交的加速器结构的类型、可用于相交函数的内置参数、相交函数表中相交函数的类型、相交类型或相交查询对象上可用的方法以及相交中返回的数据结果类型。
 
-intersector_tags 的标签类型和顺序必须与 intersection_function_table、intersection_result、intersector 和 intersection_query 的相关使用之间匹配，否则编译器将生成错误。如果实例、primitive_motion 和 instance_motion 标签出现在用于与加速结构相交的其它光线跟踪类型上，则相交的加速结构类型必须与 instancing、primitive_motion 和 instance_motion 标签的顺序相匹配。在交集函数表中调用交集函数时，开发人员必须确保它们使用相同的有序标签集，否则结果是不确定的。
+`intersector_tags` 的标签类型和顺序必须与 `intersection_function_table`、`intersection_result`、`intersector` 和 `intersection_query` 的相关使用之间匹配，否则编译器将生成错误。相交的加速结构类型必须与 instancing、primitive_motion 和 instance_motion 标签的顺序相匹配，如果它们出现在用于与加速结构相交的其它光线跟踪类型上的话。在交集函数表中调用 `intersection` 函数时，开发人员必须确保它们使用相同的有序标签集，否则结果是不确定的。
 
-## 表 2.9。路口标签
-
-`交叉点标签描述`
-
-``` instancing 该标签表示交集函数可以读取内置的 instance_id 和/或 user_instance_id，如 5.2.3.7 节所述，并且加速结构是实例加速结构。````
-
-``` intersector::intersect() 函数和 junction_query 假设加速结构需要是一个 instance_acceleration_struct，并且它返回 instance_id 值。````
-
-**交叉口标签说明**
-
-triangle_data (^) 该标签指示三角形交集函数可以读取具有 barycentric_coord 或 front_faceing 属性的输入参数，如第 5.2.3.7 节所述。该标签不能用于定义加速结构。intersector::intersect() 函数和 intersection_query 返回 triangle_barycentric_coord 和 triangle_front_faceing 值。world_space_data 该标签指示使用该标签声明的交集函数可以查询 world_space_origin、world_space_direction、object_to_world_transform 和 world_to_object_transform，如第 5.2.3.7 节所述。该标签不能用于定义加速结构或 intersection_query。它支持 intersector 和 junction_function_table 中的世界空间数据。Primitive_motion 所有操作系统：自 Metal 2. 4 起。此标签支持 intersector、intersection_query、intersection_function_table 和加速结构中的原始级别运动。instance_motion 所有操作系统：自 Metal 2. 4 此标签支持 intersector、intersection_query、intersection_function_table 和加速结构中的实例级运动。Extended_limits 所有操作系统：自 Metal 2. 4 此标签表示传递给交集函数的加速结构是使用基元数量、几何图形数量、实例数量的扩展限制构建的，并增加了用于可见性掩模的位数。该标签不能用于定义加速结构。curve_data 从 Metal 3 开始。1 该标签使曲线交点的 curve_parameter 可以作为 Intersection_query 对象方法中 Intersection_result 对象的字段，并作为交集函数的输入参数，如第 5.2.3.7 节所述。
-
-`交叉点标签描述`
-
-`max_levels 自 Metal 3.1`
-
-``` 该标签支持 intersector、intersection_query 和 junction_function_table 中的多级实例化。它不能用于加速结构。Count 是一个模板参数，决定了可以遍历的最大加速结构层数。对于交集查询，它必须在 [2, 16] 之间。对于交集来说它必须是[2,32]。对于 intersection_function_table，需要与 intersection_query 或 intersector 配合使用。````
+<TableView
+  num="2.9"
+  title="Intersection Tags"
+  headers={["Intersection Tag", "Description"]}
+  datasList={[
+    [
+      "instancing",
+      "This tag indicates intersection functions can read the built-in instance_id and/or user_instance_id as described in section 5.2.3.7, and the acceleration structure is an instance acceleration structure. \n\nThe intersector<intersection_tags...>::intersect() function and intersection_query< intersection_tags...> assume that the acceleration structure needs to be an instance_acceleration_structure and it returns the instance_id value.",
+    ],
+    [
+      "triangle_data",
+      "This tag indicates triangle intersection functions can read input parameters with barycentric_coord or front_facing attribute as described in section 5.2.3.7. This tag cannot be used in defining an acceleration structure. \n\nThe intersector<intersection_tags...>::intersect() function and intersection_query< intersection_tags...> returns the triangle_barycentric_coord and triangle_front_facing values.",
+    ],
+    [
+      "world_space_data",
+      "This tag indicates intersection functions declared with this tag can query world_space_origin, world_space_direction, object_to_world_transform, and world_to_object_transform as described in section 5.2.3.7. This tag cannot be used in defining an acceleration structure or intersection_query. It enables support for world space data in intersector and intersection_function_table.",
+    ],
+    [
+      "primitive_motion \nAll OS: Since Metal 2.4.",
+      "This tag enables support for primitive level motion in intersector, intersection_query, intersection_function_table, and acceleration structures.",
+    ],
+    [
+      "instance_motion \nAll OS: Since Metal 2.4",
+      "This tag enables support for instance level motion in intersector, intersection_query, intersection_function_table, and acceleration structure.",
+    ],
+    [
+      "extended_limits \nAll OS: Since Metal 2.4",
+      "This tag indicates acceleration structures passed to intersection functions are built with extended limits for the number of primitives, number of geometries, number of instances, and increases the number of bits used for visibility masks. This tag cannot be used in defining an acceleration structure.",
+    ],
+    [
+      "curve_data \nSince Metal 3.1",
+      "This tag makes the curve_parameter of the curve intersection point available as a field of intersection_result object from methods of the intersection_query objects, and as input parameter to intersection functions as described in section 5.2.3.7.",
+    ],
+    [
+      "max_levels<Count> \nSince Metal 3.1",
+      "This tag enables support for multi-level instancing in intersector, intersection_query and intersection_function_table. It cannot be used in acceleration structures. Count is a template parameter that determines the maximum number of acceleration structure levels that can be traversed. It must be between [2, 16] for intersection_query. It must be [2,32] for intersector. For intersection_function_table, it needs to match it use with intersection_query or intersector.",
+    ],
+  ]}
+/>
 
 在 Metal 2.3 中，以下是交叉标签的有效组合：
 
-- 无标签 - triangle_data - 实例化 - 实例化、triangle_data - 实例化、world_space_data - 实例化、triangle_data、world_space_data
+- no `tags`
+- `triangle_data`
+- `instancing`
+- `instancing`, `triangle_data`
+- `instancing`, `world_space_data`
+- `instancing`, `triangle_data`, `world_space_data`
 
 Metal 2.4 添加了以下附加有效组合：
 
--primitive_motion -triangle_data、primitive_motion -实例化、primitive_motion -实例化、triangle_data、primitive_motion -实例化、world_space_data、primitive_motion -实例化、triangle_data、world_space_data、primitive_motion -instance_motion -实例化、instance_motion -实例化、triangle_data、instance_motion -实例化、world_space_data、instance_motion -实例化、 三角形数据、 世界空间数据、 实例运动 - 实例化、 原始运动、 实例运动 - 实例化、 三角形数据、 原始运动、 实例运动 - 实例化、 世界空间数据、 原始运动、 实例运动 - 实例化、 三角形数据、 世界空间数据、 原始运动、 实例运动
+- `primitive_motion`
+- `triangle_data`, `primitive_motion`
+- `instancing`, `primitive_motion`
+- `instancing`, `triangle_data`, `primitive_motion`
+- `instancing`, `world_space_data`, `primitive_motion`
+- `instancing`, `triangle_data`, `world_space_data`, `primitive_motion`
+- `instance_motion`
+- `instancing`, `instance_motion`
+- `instancing`, `triangle_data`, `instance_motion`
+- `instancing`, `world_space_data`, `instance_motion`
+- `instancing`, `triangle_data`, `world_space_data`, `instance_motion`
+- `instancing`, `primitive_motion`, `instance_motion`
+- `instancing`, `triangle_data`, `primitive_motion`, `instance_motion`
+- `instancing`, `world_space_data`, `primitive_motion`, `instance_motion`
+- `instancing`, `triangle_data`, `world_space_data`, `primitive_motion`, `instance_motion`
 
-Extended_limits 标签可以添加到上面列出的所有组合中。
+`extended_limits` 标签可以添加到上面列出的所有组合中。
 
-在 Metal 3.1 中，curve_data 可以添加到上面列出的所有组合中。交叉标签 max_levels 可以添加到上面包含实例的任何组合中。
+在 Metal 3.1 中，`curve_data` 可以添加到上面列出的所有组合中。交叉标签 `max_levels<Count>` 可以添加到上面包含 `instancing` 的任何组合中。
 
-## 射线类型
+## 光线类型
 
-射线结构是相交所需射线属性的容器。
+光线结构是相交所需光线属性的容器。
 
 ```cpp
 struct ray
 {
-  ray(float3 origin = 0.0f, float3 direction = 0.0f,
-      float min_distance = 0.0f, float max_distance = INFINITY);
-  float3 origin;
-  float3 direction;
-  float min_distance;
-  float max_distance;
+    ray(float3 origin = 0.0f, float3 direction = 0.0f,
+        float min_distance = 0.0f, float max_distance = INFINITY);
+    float3 origin;
+    float3 direction;
+    float min_distance;
+    float max_distance;
 };
 ```
 
-射线的原点和方向场位于世界空间中。当射线对象传递到自定义相交或三角形相交函数时，min_distance 和 max_distance 字段将基于当前搜索间隔：当发现候选相交时，max_distance 将减小以匹配新缩小的搜索间隔。在交集函数中，原点和方向将位于对象空间中。
+光线的 `origin` 和 `direction` 字段位于世界空间中。当光线对象传递到自定义相交或三角形相交函数时，`min_distance` 和 `max_distance` 字段将基于当前搜索间隔：当发现候选相交时，`max_distance` 将减小以匹配新缩小的搜索间隔。在交集函数中，`origin` 和 `direction` 将位于对象空间中。
 
-射线可能是无效的。无效光线的示例包括：
+`ray` 可能是无效的。无效光线的示例包括：
 
-- 原点或方向上的 INF 或 NaN - min_distance == NaN 或 max_distance == NaN - min_distance == INF（请注意，max_distance 可能为正 INF）。- 长度(射线方向) == 0.0 - 最小距离 > 最大距离 - 最小距离 < 0.0 或 最大距离 < 0.0
+- INF's or NaN's in `origin` or `direction`
+- `min_distance` == NaN or `max_distance` == NaN
+- `min_distance` == INF (Note that `max_distance` may be positive INF).
+- length(`ray.direction`) == 0.0
+- `min_distance` > `max_distance`
+- `min_distance` < 0.0 or `max_distance` < 0.0
 
-射线方向不需要标准化，尽管它确实需要非零。
+光线方向不需要标准化，尽管它确实需要非零。
 
 ## 交集函数表
 
-junction_function_table 结构类型描述了传递到着色器的自定义交集函数表，如第 5.1.6 节中所定义。交集标记根据表 2 进行定义。9. junction_function_table 类型和交集函数上的交集标记必须匹配。这种声明的一个例子是
+`intersection_function_table<intersection_tags...>` 结构类型描述了传递到着色器的自定义交集函数表，如第 5.1.6 节中所定义。交集标记（ intersection tags）根据表 2.9 进行定义。`intersection_function_table` 类型和交集函数上的交集标记必须匹配。这种声明的一个例子是：
 
-```cpp
-intersection_function_table<triangle_data, instancing>
-intersectionFuncs;
+```c
+intersection_function_table<triangle_data, instancing> intersectionFuncs;
 ```
 
-调用以下函数检查交集函数表是否为空。
+调用以下函数检查 `intersection_function_table` 是否为 `null`。
 
-```cpp
-bool
-is_null_intersection_function_table(
-   intersection_function_table< intersection_tags...>)
+```c
+bool is_null_intersection_function_table(
+      intersection_function_table<intersection_tags...>)
 ```
 
-调用以下成员函数来检查 junction_function_table 是否为空。
+调用以下成员函数来检查 `intersection_function_table` 是否为空。
 
-```
+```c
 bool empty() const
 ```
 
 调用以下成员函数返回 `intersection_function_table` 中的条目数。
 
-```
+```c
 uint size() const
 ```
 
-Metal 3 支持以下函数：get_buffer 和 get_visible_function_table。
+Metal 3 支持以下函数：
 
-调用以下成员函数以返回 junction_function_table 中索引处的缓冲区，其中 T 是设备或常量地址空间中的指针或引用。
+- `get_buffer`
+- `get_visible_function_table`
 
-```
+调用以下成员函数以返回 `intersection_function_table` 中索引处的缓冲区，其中 `T` 是设备或 `constant` 地址空间中的指针或引用。
+
+```c
 template<typename T>
-  T get_buffer(uint index) const
+    T get_buffer(uint index) const
 ```
 
-调用以下成员函数以返回 intersection_function_table 索引处的 visible_function_table。T 是存储在表中的函数的签名。
+调用以下成员函数以返回 `intersection_function_table` 索引处的 `visible_function_table<T>`。`T` 是存储在表中的函数的签名。
 
-```
+```c
 template <typename T> visible_function_table<T>
-  get_visible_function_table(uint index) const;
+    get_visible_function_table(uint index) const;
 ```
 
-Metal 3.1 支持以下函数：set_buffer 和 set_visible_function_table。
+Metal 3.1 支持以下函数：
 
-调用以下成员函数以在 junction_function_table 条目中的索引位置处设置设备或常量缓冲区对象。
+- `set_buffer`
+- `set_visible_function_table`
 
-```
+调用以下成员函数以在 `intersection_function_table` 条目中的索引位置处设置 `device` 或 `constant` 缓冲区对象。
+
+```c
 void set_buffer(const device void *buf, uint index)
 void set_buffer(constant void *buf, uint index)
 ```
 
-调用以下成员函数将 visible_function_table 设置在 intersection_function_table 中的索引位置，其中 T 是存储在表中的函数的签名。
+调用以下成员函数将 `visible_function_table` 设置在 `intersection_function_table` 中的索引位置，其中 `T` 是存储在表中的函数的签名。
 
-```
+```c
 template<typename T>
-  void set_visible_function_table(visible_function_table<T> vft,
-                                  uint index)
+    void set_visible_function_table(visible_function_table<T> vft,
+                                    uint index)
 ```
 
 ## 交集结果类型
 
-交集的结果在 junction_result 结构中返回，其中 junction_tags 在表 2 中定义。9. 返回结构定义为
+交集的结果在 `intersection_result<intersection_tags...>` 结构中返回，其中 `intersection_tags` 在表 2.9 中定义。返回结构定义为：
 
 ```cpp
 class intersection_type {
-  none,
-  triangle,
-  bounding_box,
-  curve          // Available as of Metal 3.1
+    none,
+    triangle,
+    bounding_box,
+    curve          // Available as of Metal 3.1
 };
 
 template <typename...intersection_tags>
 struct intersection_result
 {
-  intersection_type type;
-  float             distance;
-  uint              primitive_id;
-  uint              geometry_id;
+    intersection_type type;
+    float distance;
+    uint primitive_id;
+    uint geometry_id;
 
-  const device void *primitive_data;  // Available as of Metal 3
+    const device void *primitive_data;  // Available as of Metal 3
 
-  // Available only if intersection_tags include instancing without   // max_levels<Count>
-  uint              instance_id;
-  uint              user_instance_id; // Available as of Metal 2.4
-  // As of Metal 3.1, replaces instance_id and user_instance_id with   // an array if intersection_tags include instancing and
-  // max_levels<Count>.
-  uint instance_count;          // The number of instances
-                                // intersected by the ray.
-  uint instance_id[Count - 1];  // The instance IDs of instances
-                                // intersected by the ray.
-  uint user_instance_id[Count - 1]; // The user instance IDs of
-                                    // instances intersected by
-                                    // the ray.
+    // Available only if intersection_tags include instancing without   // max_levels<Count>
+    uint instance_id;
+    uint user_instance_id; // Available as of Metal 2.4
+
+    // As of Metal 3.1, replaces instance_id and user_instance_id with
+    // an array if intersection_tags include instancing and
+    // max_levels<Count>.
+    uint instance_count;              // The number of instances intersected by the ray.
+    uint instance_id[Count - 1];      // The instance IDs of instances intersected by the ray.
+    uint user_instance_id[Count - 1]; // The user instance IDs of instances intersected by the ray.
 
 
-  // Available only if intersection_tags include triangle_data.
-  float2            triangle_barycentric_coord;
-  bool              triangle_front_facing;
+    // Available only if intersection_tags include triangle_data.
+    float2 triangle_barycentric_coord;
+    bool triangle_front_facing;
 
-  // As of Metal 2.4, the following is available only if
-  // intersection_tags include world_space_data and instancing
-  float4x3          world_to_object_transform;
-  float4x3          object_to_world_transform;
+    // As of Metal 2.4, the following is available only if
+    // intersection_tags include world_space_data and instancing
+    float4x3 world_to_object_transform;
+    float4x3 object_to_world_transform;
 
-  // As of Metal 3.1, the following is available only if
-  // intersection_tags include curve_data.
-  float curve_parameter;
+    // As of Metal 3.1, the following is available only if
+    // intersection_tags include curve_data.
+    float curve_parameter;
 };
 ```
 
-如果光线无效，则返回 `intersection::none`。
+如果 `ray` 无效，则返回 `intersection::none`。
 
-返回的距离是在世界空间中。
+返回的 `distance` 是在世界空间中。
 
-对于顶点属性 v0、v1 和 v2，指定三角形重心点处的属性值为：
+对于顶点属性 `v0`、`v1` 和 `v2`，指定三角形重心点处的属性值为：
 
 ```cpp
-  v1 * triangle_barycentric_coord.x +
-  v2 * triangle_barycentric_coord.y +
-  v0 * (1.0f - (triangle_barycentric_coord.x +
-                triangle_barycentric_coord.y))
+v1 * triangle_barycentric_coord.x +
+v2 * triangle_barycentric_coord.y +
+v0 * (1.0f - (triangle_barycentric_coord.x + triangle_barycentric_coord.y))
 ```
 
 ## 交叉线类型
 
-intersector 结构类型定义了一个控制加速结构遍历的对象，并定义了像 intersect() 这样的与射线相交的函数。创建交集时，请使用 junction_tags（如表 2. 9 中所述）来专门说明其运行的加速结构类型以及可用的功能（请参阅第 6.18.2 节）。相交类型上的相交标记必须与其关联的相交函数相匹配（第 5.1.6 节），否则行为未定义。
+`intersector<intersection_tags...>` 结构类型定义了一个控制加速结构遍历的对象，并定义了像 `intersect()` 这样的与光线相交的函数。创建交集时，请使用 `intersection_tags`（如表 2.9 中所述）来专门说明其运行的加速结构类型以及可用的功能（请参阅第 6.18.2 节）。相交类型上的相交标记必须与其关联的相交函数相匹配（第 5.1.6 节），否则行为未定义。
 
 ```cpp
-
 // Create a default intersector
 intersector<> primitiveIntersector;
 
-// Create an intersector that is specialized to support triangle and // world space data.
-intersector<triangle_data, instancing, world_space_data>
-instanceInter;
+// Create an intersector that is specialized to support triangle and
+// world space data.
+intersector<triangle_data, instancing, world_space_data> instanceInter;
 ```
 
 intersector 结构类型为 2.17.5 节中定义的交集结果类型提供了一种方便的类型：
@@ -218,35 +269,38 @@ intersector<intersection_tags...>::result
 
 ## 加速结构类型
 
-所有操作系统：从 Metal 2. 3 开始支持加速结构类型。
+所有操作系统：从 Metal 2.3 开始支持加速结构类型。
 
 所有操作系统：自 Metal 2.4 起支持加速结构模板类型。
 
 Metal 2.3 支持两种类型的加速结构：
 
-- 原始加速结构 - 实例加速结构。
+- `primitive_acceleration_structure`
+- `instance_acceleration_structure`
 
 这些是不透明对象，可以使用缓冲区绑定点或通过参数缓冲区直接绑定：
 
 ```cpp
 struct AccelerationStructs {
-  primitive_acceleration_structure prim_accel;
-  instance_acceleration_structure inst_accel;
-  array<primitive_acceleration_structure, 2> prim_accel_array;
-  array<instance_acceleration_structure, 2>  inst_accel_array;
+    primitive_acceleration_structure prim_accel;
+    instance_acceleration_structure inst_accel;
+    array<primitive_acceleration_structure, 2> prim_accel_array;
+    array<instance_acceleration_structure, 2>  inst_accel_array;
 };
 
 [[kernel]]
-void
-intersectInstancesKernel(
-   primitive_acceleration_structure prim_accel [[buffer(0)]],
-   instance_acceleration_structure inst_accel [[buffer(1)]],
-   device AccelerationStructs *accels [[buffer(3)]]) {…}
+void intersectInstancesKernel(
+    primitive_acceleration_structure prim_accel [[buffer(0)]],
+    instance_acceleration_structure inst_accel [[buffer(1)]],
+    device AccelerationStructs *accels [[buffer(3)]]
+) {
+    // ...
+}
 ```
 
-可以创建此类类型的默认初始化变量，并且默认值是加速结构的空值。
+可以创建此类类型的默认初始化变量，并且默认值是加速结构的 `null`。
 
-在 Metal 2.4 中，加速结构被模板化类型 Acceleration_struct 取代。模板参数 Intersection_tags 可以为空，也可以是 instancing、primitive_motion 或 instance_motion 的组合，如表 2 中所定义。9. 交叉点标签。例如，下面定义了一个支持原始运动的实例加速结构。
+在 Metal 2.4 中，加速结构被模板化类型 `acceleration_structure<intersection_tags...>` 取代。模板参数 `intersection_tags` 可以为空，也可以是 `instancing`、`primitive_motion` 或 `instance_motion` 的组合，如表 2.9 中所定义。交叉点标签（Intersection Tags）。例如，下面定义了一个支持原始运动的实例加速结构。
 
 ```cpp
 acceleration_structure<instancing, primitive_motion> accel_struct;
@@ -254,41 +308,39 @@ acceleration_structure<instancing, primitive_motion> accel_struct;
 
 以下标签组合可用于声明原始加速结构
 
-- 无标签
-- Primitive_motion
+- no `tags`
+- `primitive_motion`
 
 以下标签组合可用于声明实例加速结构
 
-- 实例化
-- 实例化、primitive_motion
-- 实例化、instance_motion
-- 实例化、primitive_motion、instance_motion
+- `instancing`
+- `instancing`, `primitive_motion`
+- `instancing`, `instance_motion`
+- `instancing`, `primitive_motion`, `instance_motion`
 
-为了保持向后兼容性，primitive_acceleration_struct 被别名为 `acceleration_struct<>`，`instance_acceleration_struct` 被别名为 `acceleration_struct`。
+为了保持向后兼容性，`primitive_acceleration_struct` 被别名为 `acceleration_struct<>`，`instance_acceleration_struct` 被别名为 `acceleration_struct<instancing>`。
 
 和以前一样，这些是不透明对象，可以使用缓冲区绑定点或通过参数缓冲区直接绑定：
 
 ```cpp
 struct AccelerationMotionStructs {
-  acceleration_structure<primitive_motion> prim_motion_accel;
-  acceleration_structure<instancing,
-                         instance_motion> inst_motion_accel;
-  array<acceleration_structure<>, 2> prim_accel_array;
-  array<acceleration_structure<instancing>, 2> inst_accel_array;
+    acceleration_structure<primitive_motion> prim_motion_accel;
+    acceleration_structure<instancing, instance_motion> inst_motion_accel;
+    array<acceleration_structure<>, 2> prim_accel_array;
+    array<acceleration_structure<instancing>, 2> inst_accel_array;
 };
 
 [[kernel]]
-void
-intersectMotionKernel(
-  acceleration_structure<primitive_motion> prim   [[buffer(15)]],
-  acceleration_structure<instancing,
-                         primitive_motion, instance_motion>
-                                           inst   [[buffer(16)]],
-  device AccelerationMotionStructs        *accels [[buffer(17)]])
-{…}
+void intersectMotionKernel(
+    acceleration_structure<primitive_motion> prim [[buffer(15)]],
+    acceleration_structure<instancing, primitive_motion, instance_motion> inst [[buffer(16)]],
+    device AccelerationMotionStructs *accels [[buffer(17)]]
+) {
+    // ...
+}
 ```
 
-将这些加速结构从 Metal API 绑定到计算或图形函数时，加速结构的类型必须与着色器中定义的类型相匹配。例如加速结构，可以将不支持 primitive_motion 的实例加速结构绑定到需要具有 primitive_motion 的实例加速结构的着色器。例如，具有实例加速结构的 Metal 缓冲区可以传递给具有 Acceleration_Structure 的着色器，也可以通过 Acceleration_Structure 传递给着色器。这一功能允许开发人员编写一个着色器函数，该函数可以处理带有或不带有 primitive_motion 的加速结构，但代价是光线追踪运行时检查基元运动。为了避免这种成本，开发人员可以编写两个函数，其中一个使用带 Primitive_motion 的加速结构，另一个不使用。
+将这些加速结构从 Metal API 绑定到计算或图形函数时，加速结构的类型必须与着色器中定义的类型相匹配。例如加速结构，可以将不支持 `primitive_motion` 的实例加速结构绑定到需要具有 `primitive_motion` 的实例加速结构的着色器。例如，具有实例加速结构的 Metal 缓冲区可以传递给具有 `acceleration_structure<instancing>` 的着色器，也可以通过 `acceleration_structure<instancing, primitive_motion>` 传递给着色器。这一功能允许开发人员编写一个着色器函数，该函数可以处理带有或不带有 `primitive_motion` 的加速结构，但代价是光线追踪运行时检查基元运动。为了避免这种成本，开发人员可以编写两个函数，其中一个使用带 `primitive_motion` 的加速结构，另一个不使用。
 
 有关加速结构为空时要调用的函数，请参阅第 6.18.1 节。
 
@@ -296,20 +348,21 @@ intersectMotionKernel(
 
 所有操作系统：自 Metal 2. 4 起支持交叉口查询
 
-Intersection_query 类型定义一个对象，使用户能够完全控制光线跟踪过程以及何时调用自定义相交代码。路口查询对象提供了一组函数，通过加速结构和查询遍历信息来推进查询。创建 Intersection_query 类型时，使用 junction_tags（在表 2. 9 中定义）来专门指定加速结构的类型以及可用的函数（请参阅第 6.18.4 节）。它支持以下交叉标签组合：
+`intersection_query<intersection_tags...>` 类型定义一个对象，使用户能够完全控制光线跟踪过程以及何时调用自定义相交代码。路口查询对象提供了一组函数，通过加速结构和查询遍历信息来推进查询。在创建 `intersection_query<intersection_tags...>` 类型时，使用 `intersection_tags`（在表 2.9 中定义）来专门指定加速结构的类型以及可用的函数（请参阅第 6.18.4 节）。它支持以下交叉标签组合：
 
-- 无标签
-- triangle_data
-- 实例化 - 实例化，triangle_data
+- no `tags`
+- `triangle_data`
+- `instancing`
+- `instancing`, `triangle_data`
 
 Metal 3.1 支持以下附加组合：
 
 - `instancing`, `max_levels<Count>`
 - `instancing`, `triangle_data`, `max_levels<Count>`
 
-在 Metal 3.1 中，curve_data 可以添加到上面列出的所有组合中。
+在 Metal 3.1 中，`curve_data` 可以添加到上面列出的所有组合中。
 
-Intersection_query 类型有以下限制
+`intersection_query<intersection_tags...>` 类型有以下限制
 
 - 它不能用于结构/联合的成员
 - 它不能从函数返回
