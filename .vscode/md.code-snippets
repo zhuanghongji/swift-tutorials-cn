@@ -137,7 +137,11 @@
       "    [\"\", \"\"],",
       "    [\"\", \"\"],",
       "  ]}",
-      "/>"
+      "/>",
+      "",
+      "<TableViewDataGenerator />",
+      "",
+      "$0"
     ],
     "description": "Create MD TableView2"
   },
@@ -159,7 +163,11 @@
       "    [\"\", \"\", \"\"],",
       "    [\"\", \"\", \"\"],",
       "  ]}",
-      "/>"
+      "/>",
+      "",
+      "<TableViewDataGenerator />",
+      "",
+      "$0"
     ],
     "description": "Create MD TableView3"
   },

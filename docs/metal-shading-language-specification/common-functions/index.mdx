@@ -2,39 +2,38 @@
 
 <OrigninalPDF title="6.2 Common Functions" />
 
-表 6. 1 中的函数在头文件 中定义。T 是标量或半向量或浮点浮点类型之一。
+表 6.1 中的函数在头文件 `<metal_common>` 中定义。`T` 是标量或半向量或浮点浮点类型之一。
 
-## 表 6.1。Metal 标准库中的常用函数
+<TableView
+  num="6.1"
+  title="Common functions in the Metal standard library"
+  headers={["Built-in Common Functions", "Description"]}
+  datasList={[
+    [
+      "T clamp(T x, T minval, T maxval)",
+      "Returns fmin(fmax(x, minval), maxval). \n\nResults are undefined if minval > maxval.",
+    ],
+    [
+      "T mix(T x, T y, T a)",
+      "Returns the linear blend of x and y implemented as: x + (y - x) * a \n\na needs to be a value in the range 0.0 to 1.0. If a is not in the range 0.0 to 1.0, the return values are undefined.",
+    ],
+    [
+      "T saturate(T x)",
+      "Clamp the specified value within the range of 0.0 to 1.0.",
+    ],
+    [
+      "T sign(T x)",
+      "Returns 1.0 if x > 0, -0.0 if x = -0.0, +0.0 if x = +0.0, or -1.0 if x < 0. Returns 0.0 if x is a NaN.",
+    ],
+    [
+      "T smoothstep(T edge0, T edge1, T x)",
+      "Returns 0.0 if x <= edge0 and 1.0 if x >= edge1 and performs a smooth Hermite interpolation between 0 and 1 when edge0 < x < edge1. This is useful in cases where you want a threshold function with a smooth transition. \n\nThis is equivalent to: t = clamp((x - edge0)/(edge1 - edge0), 0, 1); return t * t * (3 - 2 * t); \n\nResults are undefined if edge0 >= edge1 or if x, edge0, or edge1 is a NaN.",
+    ],
+    [
+      "T step(T edge, T x)",
+      "Returns 0.0 if x < edge, otherwise it returns 1.0.",
+    ],
+  ]}
+/>
 
-`内置常用函数说明`
-
-`T 钳位(T x, T minval, T maxval)`
-
-``` 返回 fmin(fmax(x, minval), maxval)。````
-
-``` 如果 minval > maxval，结果未定义。````
-
-`T mix(T x, T y, T a) 返回 x 和 y 的线性混合，实现为：x + (y - x) * a`
-
-`````a 需要是 0.0 到 1.0 范围内的值。如果 a 不在 0.0 到 1.0 范围内，则返回值未定义。
-
-``` T saturate(T x) 将指定值限制在 0.0 到 1.0 的范围内。````
-
-``` T sign(T x) 如果 x > 0，则返回 1.0；如果 x = - 0.0，则返回 - 0.0；如果 x = +0.0，则返回 +0.0；如果 x < 0，则返回 - 1.0。如果 x 为 NaN，则返回 0.0。````
-
-
-
-``内置常用函数说明``
-
-``T smoothstep(T 边缘0, T 边缘1, T x) ``
-
-``` 如果 x <= edge0，则返回 0.0；如果 x >= edge1，则返回 1.0，并且当 edge0 < x < edge1 时，在 0 和 1 之间执行平滑 Hermite 插值。当你想要具有平滑过渡的阈值函数时，这非常有用。````
-
-``` 这相当于：t=clamp((x -edge0)/(edge1 -edge0), 0, 1);返回 t * t * (3 - 2 * t); ````
-
-``` 如果edge0 >= edge1 或者x、edge0 或edge1 是NaN，则结果未定义。````
-
-``` T step(T edge, T x) 如果 x < edge，则返回 0.0，否则返回 1.0。````
-
-对于单精度浮点，Metal 还支持以下常用函数的精确且快速的变体：钳位和饱和。快速和精确函数变体之间的差异以不同方式处理 NaN。在快速变体中，NaN 的行为未定义，而精确变体遵循 IEEE 754 NaN 处理规则。ffast-math 编译器选项（请参阅第 1.5.3 节）在编译 Metal 源代码时选择适当的变体。此外，metal::precise 和 metal::fast 嵌套命名空间提供了一种显式方法来选择这些常用函数的快速或精确变体。
-`````
+对于单精度浮点，Metal 还支持以下常用函数的精确且快速的变体：`clamp` 和 `saturate`。快速和精确函数变体之间的差异以不同方式处理 NaN。在快速变体中，NaN 的行为未定义，而精确变体遵循 IEEE 754 NaN 处理规则。`ffast-math` 编译器选项（请参阅第 1.5.3 节）在编译 Metal 源代码时选择适当的变体。此外，`metal::precise` 和 `metal::fast` 嵌套命名空间提供了一种显式方法来选择这些常用函数的快速或精确变体。

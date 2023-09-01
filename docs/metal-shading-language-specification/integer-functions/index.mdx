@@ -2,90 +2,83 @@
 
 <OrigninalPDF title="6.3 Integer Functions" />
 
-表 6. 2 中的整数函数在头文件 中定义。T 是标量或向量整数类型之一。Tu 是相应的无符号标量或向量整数类型。T32 是标量或向量 32 位 int 或 uint 类型之一。
+表 6.2 中的整数函数在头文件 `<metal_integer>` 中定义。`T` 是标量或向量整数类型之一。`Tu` 是相应的无符号标量或向量整数类型。`T32` 是标量或向量 32 位 `int` 或 `uint` 类型之一。
 
-## 表 6.2。Metal 标准库中的整数函数
+<TableView
+  num="6.2"
+  title="Integer functions in the Metal standard library"
+  headers={["Built-in Integer Functions", "Description"]}
+  datasList={[
+    ["T abs(T x)", "Returns |x|."],
+    ["Tu absdiff(T x, T y)", "Returns |x-y| without modulo overflow."],
+    ["T addsat(T x, T y)", "Returns x + y and saturates the result."],
+    [
+      "T clamp(T x, T minval, T maxval)",
+      "Returns min(max(x, minval), maxval). \n\nResults are undefined if minval > maxval.",
+    ],
+    [
+      "T clz(T x)",
+      "Returns the number of leading 0-bits in x, starting at the most significant bit position. If x is 0, returns the size in bits of the type of x or component type of x, if x is a vector",
+    ],
+    [
+      "T ctz(T x)",
+      "Returns the count of trailing 0-bits in x. If x is 0, returns the size in bits of the type of x or if x is a vector, the component type of x.",
+    ],
+    [
+      "T extract_bits(T x, uint offset, uint bits) \nAll OS: Since Metal 1.2.",
+      "Extract bits [offset, offset+bits-1] from x, returning them in the least significant bits of the result. \n\nFor unsigned data types, the most significant bits of the result are set to zero. For signed data types, the most significant bits are set to the value of bit offset+bits-1. \n\nIf bits is zero, the result is zero. If the sum of offset and bits is greater than the number of bits used to store the operand, the result is undefined.",
+    ],
+    [
+      "T hadd(T x, T y)",
+      "Returns (x + y) >> 1. The intermediate sum does not modulo overflow.",
+    ],
+    [
+      "T insert_bits(T base, T insert, uint offset, uint bits) \nAll OS: Since Metal 1.2.",
+      "Returns the insertion of the bits least-significant bits of insert into base. \n\nThe result has bits [offset, offset+bits-1] taken from bits [0, bits-1] of insert, and all other bits are taken directly from the corresponding bits of base. If bits is zero, the result is base. If the sum of offset and bits is greater than the number of bits used to store the operand, the result is undefined.",
+    ],
+    [
+      "T32 mad24(T32 x, T32 y, T32 z) \nAll OS: Since Metal 2.1.",
+      "Uses mul24 to multiply two 24-bit integer values x and y, adds the 32-bit integer result to the 32-bit integer z, and returns that sum.",
+    ],
+    ["T madhi(T a, T b, T c)", "Returns mulhi(a, b) + c."],
+    ["T madsat(T a, T b, T c)", "Returns a * b + c and saturates the result."],
+    ["T max(T x, T y)", "Returns y if x < y, otherwise it returns x."],
+    [
+      "T max3(T x, T y, T z)\nAll OS: Since Metal 2.1.",
+      "Returns max(x, max(y, z)).",
+    ],
+    [
+      "T median3(T x, T y, T z) \nAll OS: Since Metal 2.1.",
+      "Return the middle value of x, y, and z.",
+    ],
+    ["T min(T x, T y)", "Returns y if y < x, otherwise it returns x."],
+    [
+      "T min3(T x, T y, T z) \nAll OS: Since Metal 2.1.",
+      "Returns min(x, min(y, z)).",
+    ],
+    [
+      "T32 mul24(T32 x, T32 y) \nAll OS: Since Metal 2.1.",
+      "Multiplies two 24-bit integer values x and y and returns the 32-bit integer result. x and y are 32-bit integers but only the low 24 bits perform the multiplication. (See details following this table.)",
+    ],
+    [
+      "T mulhi(T x, T y)",
+      "Computes x * y and returns the high half of the product of x and y.",
+    ],
+    ["T popcount(T x)", "Returns the number of non-zero bits in x."],
+    [
+      "T reverse_bits(T x) \nAll OS: Since Metal 2.1.",
+      "Returns the reversal of the bits of x. The bit numbered n of the result is taken from bit (bits - 1) - n of x, where bits is the total number of bits used to represent x.",
+    ],
+    [
+      "T rhadd(T x, T y)",
+      "Returns (x + y + 1) >> 1. The intermediate sum does not modulo overflow.",
+    ],
+    [
+      "T rotate(T v, T i)",
+      "For each element in v, the bits are shifted left by the number of bits given by the corresponding element in i. Bits shifted off the left side of the element are shifted back in from the right.",
+    ],
+    ["T subsat(T x, T y)", "Returns x - y and saturates the result."],
+  ]}
+/>
 
-`内置整数函数说明`
-
-``` T abs(T x) 返回 |x|。````
-
-``` Tu absdiff(T x, T y) 返回 |x-y|无模溢出。````
-
-``` T addsat(T x, T y) 返回 x + y 并使结果饱和。````
-
-`T 钳位(T x, T minval, T maxval)`
-
-``` 返回 min(max(x, minval), maxval)。````
-
-``` 如果 minval > maxval，结果未定义。````
-
-**内置整数函数说明**
-
-T clz(T x) 返回 x 中前导 0 位的数量，从最高有效位位置开始。如果 x 为 0，则返回 x 类型或 x 组件类型的位大小（如果 x 是向量）
-
-T ctz(T x) 返回 x 中尾随 0 位的计数。如果 x 为 0，则返回 x 类型的大小（以位为单位），或者如果 x 是向量，则返回 x 的分量类型。
-
-T extract_bits(T x, uint offset, uint bits) 所有操作系统：自 Metal 1 .2 起。
-
-``` 从 x 中提取位 [offset, offset+bits- 1]，并以结果的最低有效位返回它们。````
-
-`对于无符号数据类型，结果的最高有效位设置为零。对于有符号数据类型，最高有效位设置为位偏移+位- 1 的值。`
-
-`` 如果位为零，则结果为零。如果偏移量和位数之和大于用于存储操作数的位数，则结果未定义。````
-
-T hadd(T x, T y) 返回 (x + y) >> 1。中间和不会模溢出。
-
-T insert_bits(T base, T insert, uint offset, uint bits) 所有操作系统：自 Metal 1 .2 起。
-
-``` 返回插入到基数中的最低有效位的插入。````
-
-``` 结果的位 [offset, offset+bits- 1 ] 取自 insert 的位 [ 0 , bits- 1 ]，所有其它位直接取自 base 的相应位。如果位为零，则结果为基数。如果偏移量和位数之和大于用于存储操作数的位数，则结果未定义。````
-
-T32 mad24(T32 x、T32 y、T32 z) 所有操作系统：自 Metal 2 .1 起。
-
-``` 使用 mul24 将两个 24 位整数值 x 和 y 相乘，将 32 位整数结果与 32 位整数 z 相加，然后返回该和。````
-
-T madhi(T a, T b, T c) 返回 mulhi(a, b) + c。
-
-T madsat(T a, T b, T c) 返回 a \* b + c 并使结果饱和。
-
-T max(T x, T y) 如果 x < y，则返回 y，否则返回 x。
-
-T max3(T x, T y, T z) 所有操作系统：自 Metal 2.1 起。
-
-``` 返回 max(x, max(y, z))。````
-
-`内置整数函数说明`
-
-``` T Median3(T x, T y, T z) 所有操作系统：自 Metal 2.1 起。````
-
-``` 返回 x、y 和 z 的中间值。````
-
-``` T min(T x, T y) 如果 y < x，则返回 y，否则返回 x。````
-
-``` T min3(T x, T y, T z) 所有操作系统：自 Metal 2.1 起。````
-
-``` 返回 min(x, min(y, z))。````
-
-``` T32 mul24(T32 x, T32 y) 所有操作系统：自 Metal 2.1 起。````
-
-``` 将两个 24 位整数值 x 和 y 相乘并返回 32 位整数结果。x 和 y 是 32 位整数，但只有低 24 位执行乘法。（请参阅此表后面的详细信息。）````
-
-``` T mulhi(T x, T y) 计算 x \* y 并返回 x 和 y 乘积的高半部分。````
-
-``` T popcount(T x) 返回 x 中非零位数。````
-
-``` Tverse_bits(T x) 所有操作系统：自 Metal 2.1 起。````
-
-`返回 x 的位的反转。结果中编号为 n 的位取自 bit (bits`
-
-- 1. - x 的 n，其中位数是用于表示 x 的位数。
-
-``` T rhadd(T x, T y) 返回 (x + y + 1) >> 1。中间和不会模溢出。````
-
-``` Trotate(T v, T i) 对于 v 中的每个元素，这些位将左移 i 中相应元素给出的位数。从元素左侧移出的位将从右侧移回。````
-
-``` T subsat(T x, T y) 返回 x - y 并使结果饱和。````
-
-仅当 x 和 y 是有符号整数并且 x 和 y 在 [-2^23, 2^23 - 1] 范围内，或者如果 x 和 y 是无符号整数并且 x 和 y 在范围 [0, 2^24 - 1]。如果 x 和 y 不在该范围内，则乘法结果由实现定义。
+仅当 `x` 和 `y` 是有符号整数并且 `x` 和 `y` 在 `[-2^23, 2^23 - 1]` 范围内，或者如果 `x` `和` y 是无符号整数并且 `x` 和 `y` 在范围 `[0, 2^24 - 1]` 时，`mul24` 函数会 operates。如果 `x` 和 `y` 不在该范围内，则乘法结果由实现定义。

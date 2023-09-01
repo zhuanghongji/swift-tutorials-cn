@@ -2,34 +2,50 @@
 
 <OrigninalPDF title="6.8 Geometric Functions" />
 
-表 6. 11 中的函数在头文件 中定义。T 是向量浮点类型（floatn 或 halfn）。Ts 指的是相应的标量类型。（如果 T 为 floatn ，则标量类型 Ts 为 float。如果 T 为 halfn ，则 Ts 为 half。）
+表 6.11 中的函数在头文件 中定义。`T` 是向量浮点类型（`floatn` 或 `halfn`）。`Ts` 指的是相应的标量类型。（如果 `T` 为 `floatn`，则标量类型 `Ts` 为 `float`。如果 `T` 为 `halfn`，则 `Ts` 为 `half`。）
 
-## 表 6.11。Metal 标准库中的几何函数
+<TableView
+  num="6.11"
+  title="Geometric functions in the Metal standard library"
+  headers={["Built-in Geometric Functions", "Description"]}
+  datasList={[
+    [
+      "T cross(T x, T y)",
+      "Return the cross product of x and y. \nT needs to be a 3-component vector type.",
+    ],
+    [
+      "Ts distance(T x, T y)",
+      "Return the distance between x and y, which is length(x-y)",
+    ],
+    [
+      "Ts distance_squared(T x, T y)",
+      "Return the square of the distance between x and y.",
+    ],
+    [
+      "Ts dot(T x, T y)",
+      "Return the dot product of x and y, which is x[0] * y[0] + x[1] * y[1] + … T faceforward(T N, T I, T Nref) If dot(Nref, I) < 0.0 return N, otherwise return -N.",
+    ],
+    [
+      "Ts length(T x)",
+      "Return the length of vector x, which is sqrt(x[0]2 + x[1]2 + ...)",
+    ],
+    [
+      "Ts length_squared(T x)",
+      "Return the square of the length of vector x, which is (x[0]2 + x[1]2 + ...)",
+    ],
+    [
+      "T normalize(T x)",
+      "Return a vector in the same direction as x but with a length of 1.",
+    ],
+    [
+      "T reflect(T I, T N)",
+      "For the incident vector I and surface orientation N, compute normalized N (NN), and return the reflection direction: I - 2 * dot(NN, I) * NN.",
+    ],
+    [
+      "T refract(T I, T N, Ts eta)",
+      "For the incident vector I and surface normal N, and the ratio of indices of refraction eta, return the refraction vector. \nThe input parameters for the incident vector I and the surface normal N needs to already be normalized to get the desired results.",
+    ],
+  ]}
+/>
 
-`内置几何函数说明`
-
-``` T cross(T x, T y) 返回 x 和 y 的叉积。T 需要是 3 分量向量类型。````
-
-`Ts distance(T x, T y) 返回 x 和 y 之间的距离，即 length(x-y)`
-
-``` Ts distance_squared(T x, T y) 返回 x 和 y 之间距离的平方。````
-
-`Ts dot(T x, T y) 返回 x 和 y 的点积，即 x[0] * y[0] + x[1] * y[1] + ...`
-
-`T 面朝前（T N，T I，T Nref）`
-
-`如果 dot(Nref, I) < 0.0 返回 N，否则返回 - N。`
-
-`Ts length(T x) 返回向量 x 的长度，即 sqrt(x[0]2 + x[1]2 + ...)`
-
-`Ts length_squared(T x) 返回向量 x 长度的平方，即 (x[0]2 + x[1]2 + ...)`
-
-`T Normalize(T x) 返回与 x 方向相同但长度为 1 的向量。`
-
-``` T Reflect(T I, T N) 对于入射矢量 I 和表面方向 N，计算归一化 N (NN)，并返回反射方向：I - 2 _ dot(NN, I) _ NN。````
-
-`内置几何函数说明`
-
-``` T refract(T I, T N, Ts eta) 对于入射矢量 I 和表面法线 N，以及折射率 eta 的比率，返回折射矢量。入射矢量 I 和表面法线 N 的输入参数需要进行归一化才能获得所需的结果。````
-
-对于单精度浮点，Metal 还支持以下几何函数的精确且快速的变体：距离、长度和归一化。要在编译 Metal 源时选择适当的变体，请使用 ffast-math 编译器选项（请参阅第 1.5.3 节）。此外，metal::precise 和 metal::fast 嵌套命名空间也可用，并提供了一种显式方法来选择这些几何函数的快速或精确变体。
+对于单精度浮点，Metal 还支持以下几何函数的精确且快速的变体：`distance`, `length` 和 `normalize`。要在编译 Metal 源时选择适当的变体，请使用 `ffast-math` 编译器选项（请参阅第 1.5.3 节）。此外，`metal::precise` 和 `metal::fast` 嵌套命名空间也可用，并提供了一种显式方法来选择这些几何函数的快速或精确变体。

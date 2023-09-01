@@ -2,18 +2,27 @@
 
 <OrigninalPDF title="5.3 Storage Class Specifiers" />
 
-Metal 支持静态和外部存储类说明符。Metal 不支持 thread_local 存储类说明符。
+Metal 支持 `static` 和 `extern` 存储类说明符。Metal 不支持 `thread_local` 存储类说明符。
 
-只能对程序作用域中声明的函数和变量或函数内部声明的变量使用 extern 存储类说明符。静态存储类说明符仅适用于在程序范围内声明的设备变量（请参阅第 4.2 节），不适用于在图形或内核函数内声明的变量。以下示例错误地对内核函数内声明的变量 b 和 c 使用了 static 说明符。
+只能对程序作用域中声明的函数和变量或函数内部声明的变量使用 `extern` 存储类说明符。`static` 存储类说明符仅适用于在程序范围内声明的设备变量（请参阅第 4.2 节），不适用于在图形或内核函数内声明的变量。以下示例错误地对内核函数内声明的变量 b 和 c 使用了 `static` 说明符。
 
-外部常量 float4noise_table[256]； static const float4 color_table[256] = {...};//这里，static 就可以了。
+```cpp
+extern constant float4 noise_table[256];
+static constant float4 color_table[256] = {…};// Here, static is ok.
+extern void my_foo(texture2d<float> img);
+extern void my_bar(device float *a);
 
-extern void my_foo(texture2d img); extern void my_bar(设备浮动\*a);
+[[kernel]] void my_kernel(texture2d<float> img [[texture(0)]],
+                          device float *ptr [[buffer(0)]])
+{
+    extern constant float4 a;
+    static constant float4 b; // Here, static is an error.
+    static float c;           // Here, static is an error.
 
-[[kernel]] void my_kernel(texture2d img [[texture(0)]], device float \*ptr [[buffer(0)]]) { extern 常量 float4 a;静态常量 float4 b; // 这里，static 是一个错误。静态浮点 c； // 这里，static 是一个错误。
-
-``` my_foo(img); ````
-
-``` my_bar(ptr); ````
-
+    ...
+    my_foo(img);
+    ...
+    my_bar(ptr);
+    ...
 }
+```

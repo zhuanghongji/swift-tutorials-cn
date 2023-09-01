@@ -2,22 +2,27 @@
 
 <OrigninalPDF title="6.6 Matrix Functions" />
 
-表 6. 8 中的函数在头文件 中定义。T 是浮点数或半数。
+表 6. 8 中的函数在头文件 `<metal_matrix>` 中定义。`T` 是 `float` 或 `half`。
 
-## 表 6.8。Metal 标准库中的矩阵函数
-
-`内置矩阵函数说明`
-
-`浮点行列式(floatnxn) 半行列式(halfnxn)`
-
-``` 计算矩阵的行列式。该矩阵必须是方阵。````
-
-`floatmxn 转置(floatnxm) halfmxn 转置(halfnxm)`
-
-`` 转置矩阵。````
+<TableView
+  num="6.8"
+  title="Matrix functions in the Metal standard library"
+  headers={["Built-in Matrix Functions", "Description"]}
+  datasList={[
+    [
+      "float determinant(floatnxn) \nhalf determinant(halfnxn)",
+      "Compute the determinant of the matrix. The matrix needs to be a square matrix.",
+    ],
+    [
+      "floatmxn transpose(floatnxm) \nhalfmxn transpose(halfnxm)",
+      "Transpose a matrix.",
+    ],
+  ]}
+/>
 
 例子：
 
-浮点 4x4 毫安；
-
-浮点数 det = 行列式(mA)；
+```c
+float4x4 mA;
+float det = determinant(mA);
+```

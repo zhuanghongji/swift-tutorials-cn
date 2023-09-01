@@ -9,9 +9,12 @@
 ```cpp
 uint2 gid [[thread_position_in_grid]];
 
-float4 get_color(texture2d texInput, 采样器 s) { return texInput.sample(s, float2(gid)); }
+float4 get_color(texture2d<float> texInput, sampler s) {
+    return texInput.sample(s, float2(gid));
+}
 
-[[kernel]] void my_kernel(texture2d texInput, 采样器 s, ...) { auto color = get_color(texInput, s);
-
+[[kernel]] void my_kernel(texture2d<float> texInput, sampler s, ...) {
+    auto color = get_color(texInput, s);
+    // ...
 }
 ```

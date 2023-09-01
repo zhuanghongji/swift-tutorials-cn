@@ -5,20 +5,35 @@ const INPUT_LINE_NUM = 2
 
 // 在一行中要进行换行，用 \t 代替，解析时会自动替换成 \n
 const INPUT_TEXT = `
-Member variable 
+Built-in Geometric Functions 
 Description 
 
-uint max_vertices 
-The maximum number of vertices in the mesh (NV). 
+T cross(T x, T y)  
+Return the cross product of x and y.  \tT needs to be a 3-component vector type. 
 
-uint max_primitive 
-The maximum number of primitives in the mesh (NP). 
+Ts distance(T x, T y) 
+Return the distance between x and y, which is length(x-y) 
 
-uint indices_per_primitive 
-The number of indices per primitive based on topology t.  
+Ts distance_squared(T x, T y) 
+Return the square of the distance between x and y. 
 
-uint max_indices 
-The maximum number of indices (max_primitive * indices_per_primitive). 
+Ts dot(T x, T y) 
+Return the dot product of x and y,  which is x[0] * y[0] + x[1] * y[1] + … T faceforward(T N, T I, T Nref) If dot(Nref, I) < 0.0 return N, otherwise return -N. 
+
+Ts length(T x) 
+Return the length of vector x, which is sqrt(x[0]2 + x[1]2 + ...) 
+
+Ts length_squared(T x) 
+Return the square of the length of vector x,  which is (x[0]2 + x[1]2 + ...) 
+
+T normalize(T x) 
+Return a vector in the same direction as x but with a length of 1. 
+
+T reflect(T I, T N) 
+For the incident vector I and surface orientation N, compute normalized N (NN), and return the reflection direction: I - 2 * dot(NN, I) * NN.  
+
+T refract(T I, T N, Ts eta) 
+For the incident vector I and surface normal N, and the ratio of indices of refraction eta, return the refraction vector. \tThe input parameters for the incident vector I and the surface normal N needs to already be normalized to get the desired results. 
 `
 
 /**

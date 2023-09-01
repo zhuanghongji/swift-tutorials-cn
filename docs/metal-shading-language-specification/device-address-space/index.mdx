@@ -8,12 +8,17 @@
 
 一些例子是：
 
-// 具有四个分量的浮点向量数组。设备 float4 \*颜色；
+```cpp
+// An array of a float vector with four components.
+device float4 *color;
 
-struct Foo { 浮动 a[3];整数 b[2]； };
+struct Foo {
+    float a[3];
+    int b[2];
+};
 
-// Foo 元素的数组。
+// An array of Foo elements.
+device Foo *my_info;
+```
 
-设备 Foo \*my_info;
-
-由于你始终从设备地址空间分配纹理对象，因此不需要纹理类型的设备地址属性。你无法直接访问纹理对象的元素，因此请使用内置函数读取和写入纹理对象（请参见第 6.12 节）。
+由于你始终从 `device` 地址空间分配纹理对象，因此不需要纹理类型的设备地址属性。你无法直接访问纹理对象的元素，因此请使用内置函数读取和写入纹理对象（请参见第 6.12 节）。

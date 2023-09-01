@@ -2,10 +2,18 @@
 
 <OrigninalPDF title="5.5 Per-Fragment Function versus Per-Sample Function" />
 
-片段函数通常按片段执行。采样属性标识片段输入插值是按样本还是按片段。同样，[[sample_id]] 属性标识当前样本索引，[[color(m)]] 属性标识目标片段颜色或样本颜色（对于多重采样颜色附件）值。如果将这些属性中的任何一个与片段函数的参数一起使用，则片段函数可能会按样本而不是按像素执行。（实现可能决定仅执行依赖于每个样本值的代码来执行每个样本，而片段函数的其余部分可以执行每个片段。）
+片段函数通常按片段执行。采样属性标识片段输入插值是按样本还是按片段。同样，`[[sample_id]]` 属性标识当前样本索引，`[[color(m)]]` 属性标识目标片段颜色或样本颜色（对于多重采样颜色附件）值。如果将这些属性中的任何一个与片段函数的参数一起使用，则片段函数可能会按样本而不是按像素执行。（实现可能决定仅执行依赖于每个样本值的代码来执行每个样本，而片段函数的其余部分可以执行每个片段。）
 
-只有指定了样本访问权限（或使用 [[sample_id]] 或 [[color(m)]] 属性声明的输入）在每个片段或每个样本的调用之间有所不同，而其它输入仍然在像素中心进行插值。
+只有指定了样本访问权限（或使用 `[[sample_id]]` 或 `[[color(m)]]` 属性声明的输入）在每个片段或每个样本的调用之间有所不同，而其它输入仍然在像素中心进行插值。
 
-以下示例使用 [[color(m)]] 属性来指定此片段函数在每个样本的基础上执行：
+以下示例使用 `[[color(m)]]` 属性来指定此片段函数在每个样本的基础上执行：
 
-[[fragment]] float4 my_fragment(float2 tex_coord [[stage_in]]，texture2d img [[texture(0)]]，采样器 s [[sampler(0)]]，float4 帧缓冲区 [[color(0)] ]) { return c = mix(img.sample(s, tex_coord), framebuffer, mix_factor); }
+```cpp
+[[fragment]] float4 my_fragment(float2 tex_coord [[stage_in]],
+                                texture2d<float> img [[texture(0)]],
+                                sampler s [[sampler(0)]],
+                                float4 framebuffer [[color(0)]]
+) {
+    return c = mix(img.sample(s, tex_coord), framebuffer, mix_factor);
+}
+```
