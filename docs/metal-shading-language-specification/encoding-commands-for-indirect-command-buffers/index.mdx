@@ -2,13 +2,13 @@
 
 <OrigninalPDF title="6.16 Encoding Commands for Indirect Command Buffers" />
 
-间接命令缓冲区 (ICB) 支持将 Metal 命令编码到 Metal 缓冲区中以供重复使用。稍后，你可以将这些编码的命令提交给 CPU 或 GPU 执行。渲染和计算命令的 ICB 使用 command_buffer 类型将命令编码到 ICB 对象中（在 Metal 框架中由 MTLIndirectCommandBuffer 表示）：
+间接命令缓冲区 (ICB) 支持将 Metal 命令编码到 Metal 缓冲区中以供重复使用。稍后，你可以将这些编码的命令提交给 CPU 或 GPU 执行。渲染和计算命令的 ICB 使用 `command_buffer` 类型将命令编码到 ICB 对象中（在 Metal 框架中由 `MTLIndirectCommandBuffer` 表示）：
 
-结构体 command_buffer {
-
-size_t size() 常量；
-
+```c
+struct command_buffer {
+    size_t size() const;
 };
+```
 
 ICB 可以包含渲染或计算命令，但不能同时包含两者。从渲染编码器执行计算命令是非法的。从计算编码器执行渲染命令也是如此。
 
@@ -20,117 +20,329 @@ ICB 允许将绘制命令编码到 Metal 缓冲区中，以便随后在 GPU 上�
 
 在着色语言函数中，使用 command_buffer 类型将 ICB 的命令编码到 Metal 缓冲区对象中，该对象提供对 render_command 结构的索引访问。
 
-结构参数 {
-
-命令缓冲区 cmd_buffer；
-
+```c
+struct arguments {
+    command_buffer cmd_buffer;
 };
 
-内核无效生产者（设备参数&args，
-
-ushort cmd_idx [[网格中的线程位置]])
-
-{
-
-render_command cmd(args.cmd_buffer, cmd_idx);
-
-...
-
+kernel void producer(device arguments &args,
+                     ushort cmd_idx [[thread_position_in_grid]]
+) {
+    render_command cmd(args.cmd_buffer, cmd_idx);
+    ...
 }
+```
 
-render_command 可以对任何绘制命令类型进行编码。以下 render_command 的公共接口在头文件 中定义。要将 render_pipeline_state 对象传递给着色器，请使用参数缓冲区。在参数缓冲区内，管道状态可以作为标量或数组传递。
+`render_command` 可以对任何绘制命令类型进行编码。以下 `render_command` 的公共接口在头文件 `<metal_command_buffer>` 中定义。要将 `render_pipeline_state` 对象传递给着色器，请使用参数缓冲区。在参数缓冲区内，管道状态可以作为标量或数组传递。
 
-set_render_pipeline_state(...) 和渲染管道状态自 Metal 2.1 起在 macOS 上可用，自 Metal 2.2 起在 iOS 上可用。
+`set_render_pipeline_state(...)` 和渲染管道状态自 Metal 2.1 起在 macOS 上可用，自 Metal 2.2 起在 iOS 上可用。
 
-枚举类 primitive_type {点，线，line_strip，三角形，triangle_strip};
+```cpp
+enum class primitive_type { point, line, line_strip, triangle, triangle_strip };
 
-struct render_command { public: 显式 render_command(command_buffer icb, unsigned cmd_index);无效 set_render_pipeline_state(render_pipeline_state pipeline_state);
+struct render_command {
+public:
+    explicit render_command(command_buffer icb, unsigned cmd_index);
+    void set_render_pipeline_state(
+            render_pipeline_state pipeline_state);
 
-template <typename T ...> void set_vertex_buffer(device T *buffer, uint index); template <typename T ...> void set_vertex_buffer(constant T *buffer, uint index);
+    template <typename T ...>
+    void set_vertex_buffer(device T *buffer, uint index);
+    template <typename T ...>
+    void set_vertex_buffer(constant T *buffer, uint index);
 
-// Metal 3.1：支持传递顶点步幅 template void set_vertex_buffer(device T *buffer, size_t stride, uint index); template void set_vertex_buffer(constant T *buffer, size_t stride, uint index);
+    // Metal 3.1: Supported passing vertex strides
+    template <typename T ...>
+    void set_vertex_buffer(device T *buffer, size_t stride, uint index);
 
-template <typename T ...> void set_fragment_buffer(device T *buffer, uint index); template <typename T ...> void set_fragment_buffer(constant T *buffer, uint index);
+    template <typename T ...>
+    void set_vertex_buffer(constant T *buffer, size_t stride, uint index);
 
-void draw_primitives(primitive_type type, uint vertex_start, uint vertex_count, uint instance_count, uint base_instance);
+    template <typename T ...>
+    void set_fragment_buffer(device T *buffer, uint index);
+    template <typename T ...>
+    void set_fragment_buffer(constant T *buffer, uint index);
 
-// 基于 index_buffer 重载 draw_indexed_primitives void draw_indexed_primitives(primitive_type type, uint index_count, device ushort \*index_buffer,
+    void draw_primitives(primitive_type type,
+                         uint vertex_start,
+                         uint vertex_count,
+                         uint instance_count,
+                         uint base_instance);
 
-uint 实例计数、uint 基础顶点、uint 基础实例）；
+    // Overloaded draw_indexed_primitives based on index_buffer
+    void draw_indexed_primitives(primitive_type type,
+                                 uint index_count,
+                                 device ushort *index_buffer,
+                                 uint instance_count,
+                                 uint base_vertex,
+                                 uint base_instance);
 
-void draw_indexed_primitives(primitive_type type, uint index_count, device uint \*index_buffer, uint instance_count, uint base_vertex, uint base_instance);
+    void draw_indexed_primitives(primitive_type type,
+                                 uint index_count,
+                                 device uint *index_buffer,
+                                 uint instance_count,
+                                 uint base_vertex,
+                                 uint base_instance);
 
-voiddraw_indexed_primitives(primitive_type 类型，uintindex_count，常量 ushort\*index_buffer，uintinstance_count，uintbase_vertex，uintbase_instance);
+    void draw_indexed_primitives(primitive_type type,
+                                 uint index_count,
+                                 constant ushort *index_buffer,
+                                 uint instance_count,
+                                 uint base_vertex,
+                                 uint base_instance);
 
-voiddraw_indexed_primitives(primitive_type 类型，uintindex_count，常量 uint\*index_buffer，uintinstance_count，uintbase_vertex，uintbase_instance);
+    void draw_indexed_primitives(primitive_type type,
+                                 uint index_count,
+                                 constant uint *index_buffer,
+                                 uint instance_count,
+                                 uint base_vertex,
+                                 uint base_instance);
 
-// 基于 patch_index_buffer 和 // tessellation_factor_buffer 重载 draw_patches void draw_patches(uint number_of_patch_control_points, uint patch_start, uint patch_count, const device uint *patch_index_buffer, uint instance_count, uint base_instance, const device MTLQuadTessellationFactorsHalf *tessellation_factor_buffer, uint instance_stride = 0);
+    // Overloaded draw_patches based on patch_index_buffer and
+    // tessellation_factor_buffer
+    void draw_patches(uint number_of_patch_control_points,
+                      uint patch_start,
+                      uint patch_count,
+                      const device uint *patch_index_buffer,
+                      uint instance_count,
+                      uint base_instance,
+                      const device MTLQuadTessellationFactorsHalf *tessellation_factor_buffer,
+                      uint instance_stride = 0);
 
-void draw_patches(uint number_of_patch_control_points, uint patch_start, uint patch_count, const device uint *patch_index_buffer, uint instance_count, uint base_instance, const device MTLTriangleTessellationFactorsHalf *tessellation_factor_buffer, uint instance_stride = 0);
+    void draw_patches(uint number_of_patch_control_points,
+                      uint patch_start,
+                      uint patch_count,
+                      const device uint *patch_index_buffer,
+                      uint instance_count,
+                      uint base_instance,
+                      const device MTLTriangleTessellationFactorsHalf *tessellation_factor_buffer,
+                      uint instance_stride = 0);
 
-void draw_patches(uint number_of_patch_control_points, uint patch_start, uint patch_count, const device uint \*patch_index_buffer,
+    void draw_patches(uint number_of_patch_control_points,
+                      uint patch_start,
+                      uint patch_count,
+                      const device uint *patch_index_buffer,
+                      uint instance_count,
+                      uint base_instance,
+                      constant MTLQuadTessellationFactorsHalf *tessellation_factor_buffer,
+                      uint instance_stride = 0);
 
-uint instance_count，uint base_instance，常量 MTLQuadTessellationFactorsHalf \*tessellation_factor_buffer，uint instance_stride = 0);
+    void draw_patches(uint number_of_patch_control_points,
+                      uint patch_start,
+                      uint patch_count,
+                      const device uint *patch_index_buffer,
+                      uint instance_count,
+                      uint base_instance,
+                      constant MTLTriangleTessellationFactorsHalf *tessellation_factor_buffer,
+                      uint instance_stride = 0);
 
-void draw_patches(uint number_of_patch_control_points, uint patch_start, uint patch_count, const device uint *patch_index_buffer, uint instance_count, uint base_instance, 常量 MTLTriangleTessellationFactorsHalf *tessellation_factor_buffer, uint instance_stride = 0);
+    void draw_patches(uint number_of_patch_control_points,
+                      uint patch_start,
+                      uint patch_count,
+                      constant uint *patch_index_buffer,
+                      uint instance_count,
+                      uint base_instance,
+                      const device MTLQuadTessellationFactorsHalf *tessellation_factor_buffer,
+                      uint instance_stride = 0);
 
-void draw_patches(uint number_of_patch_control_points, uint patch_start, uint patch_count, 常量 uint *patch_index_buffer, uint instance_count, uint base_instance, const device MTLQuadTessellationFactorsHalf *tessellation_factor_buffer, uint instance_stride = 0);
+    void draw_patches(uint number_of_patch_control_points,
+                      uint patch_start,
+                      uint patch_count,
+                      constant uint *patch_index_buffer,
+                      uint instance_count,
+                      uint base_instance,
+                      const device MTLTriangleTessellationFactorsHalf *tessellation_factor_buffer,
+                      uint instance_stride = 0);
 
-void draw_patches(uint number_of_patch_control_points, uint patch_start, uint patch_count, 常量 uint *patch_index_buffer, uint instance_count, uint base_instance, const device MTLTriangleTessellationFactorsHalf *tessellation_factor_buffer, uint instance_stride = 0);
+    void draw_patches(uint number_of_patch_control_points,
+                      uint patch_start,
+                      uint patch_count,
+                      constant uint *patch_index_buffer,
+                      uint instance_count,
+                      uint base_instance,
+                      constant MTLQuadTessellationFactorsHalf *tessellation_factor_buffer,
+                      uint instance_stride = 0);
 
-void draw_patches(uint number_of_patch_control_points, uint patch_start, uint patch_count, 常量 uint *patch_index_buffer, uint instance_count, uint base_instance, 常量 MTLQuadTessellationFactorsHalf *tessellation_factor_buffer, uint instance_stride = 0);
+    void draw_patches(uint number_of_patch_control_points,
+                      uint patch_start,
+                      uint patch_count,
+                      constant uint *patch_index_buffer,
+                      uint instance_count,
+                      uint base_instance,
+                      constant MTLTriangleTessellationFactorsHalf *tessellation_factor_buffer,
+                      uint instance_stride = 0);
 
-void draw_patches(uint number_of_patch_control_points, uint patch_start, uint patch_count, 常量 uint *patch_index_buffer, uint instance_count, uint base_instance, 常量 MTLTriangleTessellationFactorsHalf *tessellation_factor_buffer, uint instance_stride = 0);
+    // Overloaded draw_indexed_patches based on patch_index_buffer,
+    // control_point_index_buffer and tessellation_factor_buffer
 
-// 基于 patch_index_buffer 重载 draw_indexed_pa​​tches，
+    void draw_indexed_patches(uint number_of_patch_control_points,
+                              uint patch_start,
+                              uint patch_count,
+                              const device uint *patch_index_buffer,
+                              const device void *control_point_index_buffer,
+                              uint instance_count, uint base_instance,
+                              const device MTLQuadTessellationFactorsHalf *tessellation_factor_buffer,
+                              uint instance_stride = 0);
 
-// control_point_index_buffer 和 tessellation_factor_buffer
+    void draw_indexed_patches(uint number_of_patch_control_points,
+                              uint patch_start,
+                              uint patch_count,
+                              const device uint *patch_index_buffer,
+                              const device void *control_point_index_buffer,
+                              uint instance_count,
+                              uint base_instance,
+                              const device MTLTriangleTessellationFactorsHalf *tessellation_factor_buffer,
+                              uint instance_stride = 0);
 
-void draw_indexed_pa​​tches(uint number_of_patch_control_points, uint patch_start, uint patch_count, const device uint *patch_index_buffer, const device void *control_point_index_buffer, uint instance_count, uint base_instance, const device MTLQuadTessellationFactorsHalf \*tessellation_factor_buffer, uint instance_stride = 0);
+    void draw_indexed_patches(uint number_of_patch_control_points,
+                              uint patch_start,
+                              uint patch_count,
+                              const device uint *patch_index_buffer,
+                              const device void *control_point_index_buffer,
+                              uint instance_count,
+                              uint base_instance,
+                              constant MTLQuadTessellationFactorsHalf *tessellation_factor_buffer,
+                              uint instance_stride = 0);
 
-void draw_indexed_pa​​tches(uint number_of_patch_control_points, uint patch_start, uint patch_count, const device uint *patch_index_buffer, const device void *control_point_index_buffer, uint instance_count, uint base_instance, const device MTLTriangleTessellationFactorsHalf \*tessellation_factor_buffer, uint instance_stride = 0);
+    void draw_indexed_patches(uint number_of_patch_control_points,
+                              uint patch_start,
+                              uint patch_count,
+                              const device uint *patch_index_buffer,
+                              const device void *control_point_index_buffer,
+                              uint instance_count,
+                              uint base_instance,
+                              constant MTLTriangleTessellationFactorsHalf *tessellation_factor_buffer,
+                              uint instance_stride = 0);
 
-void draw_indexed_pa​​tches(uint number_of_patch_control_points, uint patch_start, uint patch_count, const device uint *patch_index_buffer, const device void *control_point_index_buffer, uint instance_count, uint base_instance, 常量 MTLQuadTessellationFactorsHalf \*tessellation_factor_buffer, uint instance_stride = 0);
+    void draw_indexed_patches(uint number_of_patch_control_points,
+                              uint patch_start,
+                              uint patch_count,
+                              const device uint *patch_index_buffer,
+                              constant void *control_point_index_buffer,
+                              uint instance_count, uint base_instance,
+                              const device MTLQuadTessellationFactorsHalf *tessellation_factor_buffer,
+                              uint instance_stride = 0);
 
-void draw_indexed_pa​​tches(uint number_of_patch_control_points, uint patch_start, uint patch_count, const device uint *patch_index_buffer, const device void *control_point_index_buffer, uint instance_count, uint base_instance, 常量 MTLTriangleTessellationFactorsHalf \*tessellation_factor_buffer, uint instance_stride = 0);
+    void draw_indexed_patches(uint number_of_patch_control_points,
+                              uint patch_start,
+                              uint patch_count,
+                              const device uint *patch_index_buffer,
+                              constant void *control_point_index_buffer,
+                              uint instance_count, uint base_instance,
+                              const device MTLTriangleTessellationFactorsHalf *tessellation_factor_buffer,
+                              uint instance_stride = 0);
 
-void draw_indexed_pa​​tches(uint number_of_patch_control_points, uint patch_start, uint patch_count, const device uint *patch_index_buffer, 常量 void *control_point_index_buffer, uint instance_count, uint base_instance, const device MTLQuadTessellationFactorsHalf \*tessellation_factor_buffer, uint instance_stride = 0);
+    void draw_indexed_patches(uint number_of_patch_control_points,
+                              uint patch_start,
+                              uint patch_count,
+                              const device uint *patch_index_buffer,
+                              constant void *control_point_index_buffer,
+                              uint instance_count, uint base_instance,
+                              constant MTLQuadTessellationFactorsHalf *tessellation_factor_buffer,
+                              uint instance_stride = 0);
 
-void draw_indexed_pa​​tches(uint number_of_patch_control_points,
+    void draw_indexed_patches(uint number_of_patch_control_points,
+                              uint patch_start,
+                              uint patch_count,
+                              const device uint *patch_index_buffer,
+                              constant void *control_point_index_buffer,
+                              uint instance_count, uint base_instance,
+                              constant MTLTriangleTessellationFactorsHalf *tessellation_factor_buffer,
+                              uint instance_stride = 0);
 
-uint patch_start，uint patch_count，常量设备 uint *patch_index_buffer，常量 void *control_point_index_buffer，uint instance_count，uint base_instance，常量设备 MTLTriangleTessellationFactorsHalf \*tessellation_factor_buffer，uint instance_stride = 0);
+    void draw_indexed_patches(uint number_of_patch_control_points,
+                              uint patch_start,
+                              uint patch_count,
+                              constant uint *patch_index_buffer,
+                              const device void *control_point_index_buffer,
+                              uint instance_count, uint base_instance,
+                              const device MTLQuadTessellationFactorsHalf *tessellation_factor_buffer,
+                              uint instance_stride = 0);
 
-void draw_indexed_pa​​tches(uint number_of_patch_control_points, uint patch_start, uint patch_count, const device uint *patch_index_buffer, 常量 void *control_point_index_buffer, uint instance_count, uint base_instance, 常量 MTLQuadTessellationFactorsHalf \*tessellation_factor_buffer, uint instance_stride = 0);
+    void draw_indexed_patches(uint number_of_patch_control_points,
+                              uint patch_start,
+                              uint patch_count,
+                              constant uint *patch_index_buffer,
+                              const device void *control_point_index_buffer,
+                              uint instance_count,
+                              uint base_instance,
+                              const device MTLTriangleTessellationFactorsHalf *tessellation_factor_buffer,
+                              uint instance_stride = 0);
 
-void draw_indexed_pa​​tches(uint number_of_patch_control_points, uint patch_start, uint patch_count, const device uint *patch_index_buffer, 常量 void *control_point_index_buffer, uint instance_count, uint base_instance, 常量 MTLTriangleTessellationFactorsHalf \*tessellation_factor_buffer, uint instance_stride = 0);
 
-void draw_indexed_pa​​tches(uint number_of_patch_control_points, uint patch_start, uint patch_count, 常量 uint *patch_index_buffer, const device void *control_point_index_buffer, uint instance_count, uint base_instance, const device MTLQuadTessellationFactorsHalf \*tessellation_factor_buffer, uint instance_stride = 0);
+    void draw_indexed_patches(uint number_of_patch_control_points,
+                              uint patch_start,
+                              uint patch_count,
+                              constant uint *patch_index_buffer,
+                              const device void *control_point_index_buffer,
+                              uint instance_count, uint base_instance,
+                              constant MTLQuadTessellationFactorsHalf *tessellation_factor_buffer,
+                              uint instance_stride = 0);
 
-void draw_indexed_pa​​tches(uint number_of_patch_control_points, uint patch_start, uint patch_count, 常量 uint *patch_index_buffer, const device void *control_point_index_buffer, uint instance_count, uint base_instance, const device MTLTriangleTessellationFactorsHalf \*tessellation_factor_buffer, uint instance_stride = 0);
+    void draw_indexed_patches(uint number_of_patch_control_points,
+                              uint patch_start,
+                              uint patch_count,
+                              constant uint *patch_index_buffer,
+                              const device void *control_point_index_buffer,
+                              uint instance_count, uint base_instance,
+                              constant MTLTriangleTessellationFactorsHalf *tessellation_factor_buffer,
+                              uint instance_stride = 0);
 
-void draw_indexed_pa​​tches(uint number_of_patch_control_points, uint patch_start, uint patch_count, 常量 uint *patch_index_buffer, const device void *control_point_index_buffer,
+    void draw_indexed_patches(uint number_of_patch_control_points,
+                              uint patch_start,
+                              uint patch_count,
+                              constant uint *patch_index_buffer,
+                              constant void *control_point_index_buffer,
+                              uint instance_count,
+                              uint base_instance,
+                              const device MTLQuadTessellationFactorsHalf *tessellation_factor_buffer,
+                              uint instance_stride = 0);
 
-uint instance_count，uint base_instance，常量 MTLQuadTessellationFactorsHalf \*tessellation_factor_buffer，uint instance_stride = 0);
+    void draw_indexed_patches(uint number_of_patch_control_points,
+                              uint patch_start,
+                              uint patch_count,
+                              constant uint *patch_index_buffer,
+                              constant void *control_point_index_buffer,
+                              uint instance_count,
+                              uint base_instance,
+                              const device MTLTriangleTessellationFactorsHalf *tessellation_factor_buffer,
+                              uint instance_stride = 0);
 
-void draw_indexed_pa​​tches(uint number_of_patch_control_points, uint patch_start, uint patch_count, 常量 uint *patch_index_buffer, const device void *control_point_index_buffer, uint instance_count, uint base_instance, 常量 MTLTriangleTessellationFactorsHalf \*tessellation_factor_buffer, uint instance_stride = 0);
+    void draw_indexed_patches(uint number_of_patch_control_points,
+                              uint patch_start,
+                              uint patch_count,
+                              constant uint *patch_index_buffer,
+                              constant void *control_point_index_buffer,
+                              uint instance_count,
+                              uint base_instance,
+                              constant MTLQuadTessellationFactorsHalf *tessellation_factor_buffer,
+                              uint instance_stride = 0);
 
-void draw_indexed_pa​​tches(uint number_of_patch_control_points, uint patch_start, uint patch_count, 常量 uint *patch_index_buffer, 常量 void *control_point_index_buffer, uint instance_count, uint base_instance, const device MTLQuadTessellationFactorsHalf \*tessellation_factor_buffer, uint instance_stride = 0);
+    void draw_indexed_patches(uint number_of_patch_control_points,
+                              uint patch_start,
+                              uint patch_count,
+                              constant uint *patch_index_buffer,
+                              constant void *control_point_index_buffer,
+                              uint instance_count, uint base_instance,
+                              constant MTLTriangleTessellationFactorsHalf *tessellation_factor_buffer,
+                              uint instance_stride = 0);
 
-void draw_indexed_pa​​tches(uint number_of_patch_control_points, uint patch_start, uint patch_count, 常量 uint *patch_index_buffer, 常量 void *control_point_index_buffer, uint instance_count, uint base_instance, const device MTLTriangleTessellationFactorsHalf \*tessellation_factor_buffer, uint instance_stride = 0);
+    // Reset the entire command. After reset(), without further
+    // modifications, execution of this command shall not perform
+    // any action.
+    void reset();
 
-void draw_indexed_pa​​tches(uint number_of_patch_control_points, uint patch_start, uint patch_count, 常量 uint *patch_index_buffer, 常量 void *control_point_index_buffer, uint instance_count, uint base_instance, 常量 MTLQuadTessellationFactorsHalf \*tessellation_factor_buffer, uint instance_stride = 0);
+    // Copy the content of the `source` command into this command.
+    void copy_command(render_command source);
+};
+```
 
-void draw_indexed_pa​​tches(uint number_of_patch_control_points, uint patch_start, uint patch_count, 常量 uint *patch_index_buffer, 常量 void *control_point_index_buffer, uint instance_count, uint base_instance, 常量 MTLTriangleTessellationFactorsHalf \*tessellation_factor_buffer, uint instance_stride = 0);
+当访问 `command_buffer` 时，Metal 不会检查访问是否在范围内。如果访问超出缓冲区的容量，则行为未定义。
 
-// 重置整个命令。在 reset()之后，如果没有进一步修改，执行该命令将不会执行任何操作。无效重置（）；
+`render_command` 中公开的方法镜像了 `MTLIndirectRenderCommand` 的接口，并且与 `MTLRenderCommandEncoder` 类似。与 `MTLRenderCommandEncoder` 的显着差异是：
 
-// 将 `source` 命令的内容复制到此命令中。无效 copy_command（render_command 源）； };
-
-当访问 command_buffer 时，Metal 不会检查访问是否在范围内。如果访问超出缓冲区的容量，则行为未定义。
-
-render_command 中公开的方法镜像了 MTLIndirectRenderCommand 的接口，并且与 MTLRenderCommandEncoder 类似。与 MTLRenderCommandEncoder 的显着差异是：
-
-- 对 render_command 中的 draw\* 方法的调用对命令所采取的操作进行编码。如果多次调用，则只有最后一次调用有效。- 曲面细分参数直接在 render_command::draw_patches 和 render_command::draw_indexed_pa​​tches 中传递。其它调用不会设置曲面细分参数。
+- 对 `render_command` 中的 `draw*` 方法的调用对命令所采取的操作进行编码。如果多次调用，则只有最后一次调用有效。
+- 曲面细分参数直接在 `render_command::draw_patches` 和 `render_command::draw_indexed_patches` 中传递。其它调用不会设置曲面细分参数。
 
 ## 在间接命令缓冲区中编码计算命令
 
@@ -140,56 +352,102 @@ macOS：自 Metal 2.3 起支持计算命令的间接命令缓冲区。
 
 ICB 允许将调度命令编码到 Metal 缓冲区中，以便随后在 GPU 上执行。
 
-在着色语言函数中，使用 command_buffer 类型将 ICB 的命令编码到 Metal 缓冲区对象中，该对象提供对 compute_command 结构的索引访问。
+在着色语言函数中，使用 `command_buffer` 类型将 ICB 的命令编码到 Metal 缓冲区对象中，该对象提供对 `compute_command` 结构的索引访问。
 
-结构体参数 { command_buffer cmd_buffer; }; [[kernel]] void Producer（设备参数 &args，ushort cmd_idx [[thread_position_in_grid]]）{compute_command cmd（args.cmd_buffer，cmd_idx）; ... }
+```cpp
+struct arguments {
+    command_buffer cmd_buffer;
+};
+[[kernel]] void producer(device arguments &args,
+                         ushort cmd_idx [[thread_position_in_grid]]) {
+    compute_command cmd(args.cmd_buffer, cmd_idx);
+    ...
+}
+```
 
-compute_command 可以对任何调度命令类型进行编码。头文件中定义了 compute_command 的以下公共接口。compute_pipeline_state 类型表示计算管道状态，只能是
+`compute_command` 可以对任何调度命令类型进行编码。头文件 `<metal_command_buffer>` 中定义了 `compute_command` 的以下公共接口。compute_pipeline_state 类型表示计算管道状态，只能是通过参数缓冲区传递给着色器。在参数缓冲区内，管道状态可以作为标量或数组传递。
 
-通过参数缓冲区传递给着色器。在参数缓冲区内，管道状态可以作为标量或数组传递。
+```cpp
+struct compute_command {
+public:
+    explicit compute_command(command_buffer icb, unsigned cmd_index);
 
-structcompute_command { public: 显式 compute_command(command_buffer icb, unsigned cmd_index);
+    void set_compute_pipeline_state(compute_pipeline_state pipeline);
 
-无效 set_compute_pipeline_state（compute_pipeline_state 管道）；
+    template <typename T ...>
+    void set_kernel_buffer(device T *buffer, uint index);
+    template <typename T ...>
+    void set_kernel_buffer(constant T *buffer, uint index);
 
-template <typename T ...> void set_kernel_buffer(device T *buffer, uint index); template <typename T ...> void set_kernel_buffer(constant T *buffer, uint index);
+    // Metal 3.1: Supports passing kernel strides
+    template <typename T ...>
+    void set_kernel_buffer(device T *buffer, size_t stride, uint index);
+    template <typename T ...>
+    void set_kernel_buffer(constant T *buffer, size_t stride, uint index);
 
-// Metal 3.1：支持传递内核步长模板 void set_kernel_buffer(device T *buffer, size_t stride, uint index); template void set_kernel_buffer(constant T *buffer, size_t stride, uint index);
+    void set_barrier();
+    void clear_barrier();
 
-无效 set_barrier();无效 clear_barrier();
+    void concurrent_dispatch_threadgroups(
+             uint3 threadgroups_per_grid,
+             uint3 threads_per_threadgroup);
 
-无效并发\_dispatch_threadgroups（uint3 threadgroups_per_grid，uint3threads_per_threadgroup）;无效并发\_dispatch_threads（uint3threads_per_grid，uint3threads_per_threadgroup）；
+    void concurrent_dispatch_threads(uint3 threads_per_grid,
+                                     uint3 threads_per_threadgroup);
 
-void set_threadgroup_memory_length(uint 长度, uint 索引); void set_stage_in_region(uint3 原点，uint3 大小);
+    void set_threadgroup_memory_length(uint length, uint index);
+    void set_stage_in_region(uint3 origin, uint3 size);
 
-// 重置整个命令。在 reset()之后，如果没有进一步修改，执行该命令将不会执行任何操作。无效重置（）；
+    // Reset the entire command. After reset(), without further
+    // modifications, execution of this command shall not perform
+    // any action.
+    void reset();
 
-// 将 `source` 命令的内容复制到此命令中。void copy_command(compute_command 源); };
+    // Copy the content of the `source` command into this command.
+     void copy_command(compute_command source);
+};
+```
 
-当访问 command_buffer 时，Metal 不会检查访问是否在范围内。如果访问超出缓冲区的容量，则行为未定义。
+当访问 `command_buffer` 时，Metal 不会检查访问是否在范围内。如果访问超出缓冲区的容量，则行为未定义。
 
-compute_command 中公开的方法镜像了 MTLIndirectComputeCommand 的接口，并且与 MTLComputeCommandEncoder 类似。
+`compute_command` 中公开的方法镜像了 `MTLIndirectComputeCommand` 的接口，并且与 `MTLComputeCommandEncoder` 类似。
 
-在 ICB 中，调度始终是并发的。对 compute_command 中的 concurrent_dispatch\* 方法的调用对命令所采取的操作进行编码。如果多次调用，则只有最后一次调用有效。
+在 ICB 中，调度始终是并发的。对 `compute_command` 中的 `concurrent_dispatch*` 方法的调用对命令所采取的操作进行编码。如果多次调用，则只有最后一次调用有效。
 
 应用程序负责在需要的地方设置障碍。ICB 中编码的屏障不会影响父编码器。
 
-在将 command_buffer 作为参数传递给着色器之前，CPU 可能已经初始化了 command_buffer 内的各个命令。如果 CPU 尚未初始化命令，则必须在使用该命令之前重置该命令。
+在将 `command_buffer` 作为参数传递给着色器之前，CPU 可能已经初始化了 `command_buffer` 内的各个命令。如果 CPU 尚未初始化命令，则必须在使用该命令之前重置该命令。
 
-**6.16.3 复制间接命令缓冲区的命令**
+## 复制间接命令缓冲区的命令
 
-通过 operator=复制命令结构（render_command 或 compute_command）不会复制命令的内容，而只会使目标命令指向与源命令相同的缓冲区和索引。要复制命令的内容，请调用第 6.16.1 和 6.16.2 节中列出的 copy_command 函数。
+通过 `operator=` 复制命令结构（`render_command` 或 `compute_command`）不会复制命令的内容，而只会使目标命令指向与源命令相同的缓冲区和索引。要复制命令的内容，请调用第 6.16.1 和 6.16.2 节中列出的 `copy_command` 函数。
 
-仅支持在指向兼容命令缓冲区的命令之间进行复制。仅当两个命令缓冲区具有匹配的 ICB 描述符（MTLIndirectCommandBufferDescriptor 对象）时，它们才是兼容的。命令本身还必须引用缓冲区内的有效索引。以下示例说明使用 copy_command 将渲染命令的内容从 cmd0 复制到 cmd1：
+仅支持在指向兼容命令缓冲区的命令之间进行复制。仅当两个命令缓冲区具有匹配的 ICB 描述符（`MTLIndirectCommandBufferDescriptor` 对象）时，它们才是兼容的。命令本身还必须引用缓冲区内的有效索引。以下示例说明使用 `copy_command` 将渲染命令的内容从 `cmd0` 复制到 `cmd1`：
 
-结构体参数 { command_buffer cmd_buffer; render_pipeline_state pipeline_state_0; render_pipeline_state pipeline_state_1; };
+```cpp
+struct arguments {
+    command_buffer cmd_buffer;
+    render_pipeline_state pipeline_state_0;
+    render_pipeline_state pipeline_state_1;
+};
 
-[[kernel]] void Producer(设备参数 &args) { render_command cmd0(args.cmd_buffer, 0); render_command cmd1(args.cmd_buffer, 1); cmd0.set_render_pipeline_state(args.pipeline_state_0);
+[[kernel]] void producer(device arguments &args) {
+    render_command cmd0(args.cmd_buffer, 0);
+    render_command cmd1(args.cmd_buffer, 1);
+    cmd0.set_render_pipeline_state(args.pipeline_state_0);
 
-// 使索引 1 处的命令指向索引 0 处的命令。cmd1 = cmd0;
+    // Make the command at index 1 point to command at index 0.
+    cmd1 = cmd0;
 
-// 更改缓冲区中索引 0 处的命令的管道状态。cmd1.set_render_pipeline_state(args.pipeline_state_0);
+    // Change the pipeline state for the command at index 0 in the
+    // buffer.
+    cmd1.set_render_pipeline_state(args.pipeline_state_0);
 
-// 缓冲区中索引 1 处的命令尚未修改。cmd1 = render_command(args.cmd_buffer, 1);
+    // The command at index 1 in the buffer is not yet modified.
+    cmd1 = render_command(args.cmd_buffer, 1);
 
-// 将索引 0 处的命令内容复制到索引 1 处的命令。cmd1.copy_command(cmd0); }
+    // Copy the content of the command at index 0 to command at
+    // index 1.
+    cmd1.copy_command(cmd0);
+}
+```

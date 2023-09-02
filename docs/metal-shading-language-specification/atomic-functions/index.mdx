@@ -8,154 +8,208 @@ Metal 编程语言实现了 C++14 原子和同步操作的子集。Metal 原子�
 
 尽管存在许多此类实例，但对原子类型的操作只有几种。本节详细说明了每种一般类型。
 
-原子函数在头文件 中定义。
+原子函数在头文件 `<metal_atomic>` 中定义。
 
 ## 内存顺序
 
-枚举 memory_order 指定详细的常规（非原子）内存同步操作（请参阅 C++14 规范的第 29.3 节），并且可以提供操作排序。对于原子操作，memory_order_relaxed 是唯一的枚举值。使用 memory_order_relaxed，没有同步或排序约束；该操作只需要原子性。这些操作不会对内存进行排序，但它们保证原子性和修改顺序的一致性。放松记忆的典型用途
-
-排序正在更新计数器，例如引用计数器，因为这只需要原子性，但既不需要排序也不需要同步。
+枚举 `memory_order` 指定详细的常规（非原子）内存同步操作（请参阅 C++14 规范的第 29.3 节），并且可以提供操作排序。对于原子操作，`memory_order_relaxed` 是唯一的枚举值。使用 `memory_order_relaxed`，没有同步或排序约束；该操作只需要原子性。这些操作不会对内存进行排序，但它们保证原子性和修改顺序的一致性。放松记忆的典型用途排序正在更新计数器，例如引用计数器，因为这只需要原子性，但既不需要排序也不需要同步。
 
 ## 原子函数
 
-此外，对原子对象的访问可以建立线程间同步，并按照 memory_order 指定的顺序对非原子内存访问进行排序。
+此外，对原子对象的访问可以建立线程间同步，并按照 `memory_order` 指定的顺序对非原子内存访问进行排序。
 
 在本节各小节中描述的原子函数中：
 
-- A 指原子类型之一。- C 指其相应的非原子类型。- M 指算术运算的另一个参数的类型。对于原子整数类型，M 是 C。
+- `A` 指原子类型之一。
+- `C` 指其相应的非原子类型。
+- `M` 指算术运算的另一个参数的类型。对于原子整数类型，`M` 是 `C`。
 
-请注意，每个原子函数可能仅支持某些类型。在下面的每个部分中，我们都会指出支持哪种类型 A。
+请注意，每个原子函数可能仅支持某些类型。在下面的每个部分中，我们都会指出支持哪种类型 `A`。
 
-所有操作系统：除非另有说明，否则从 Metal 1 开始就支持名称以 \_explicit 结尾的函数（例如 atomic_store_explicit 或 atomic_load_explicit）。Metal 3 仅支持设备内存的 atomic_float。
+所有操作系统：除非另有说明，否则从 Metal 1 开始就支持名称以 `_explicit` 结尾的函数（例如 `atomic_store_explicit` 或 `atomic_load_explicit`）。Metal 3 仅支持设备内存的 `atomic_float`。
 
-iOS：自 Metal 2 起支持 atomic_store、atomic_load、atomic_exchange、atomic_compare_exchange_weak、atomic_fetch_key 函数。
+iOS：自 Metal 2 起支持 `atomic_store`、`atomic_load`、`atomic_exchange`、`atomic_compare_exchange_weak`、`atomic_fetch_key` 函数。
 
-## 6.15.2. 1 原子存储函数
+### 原子存储函数
 
-这些函数自动用所需的值替换对象指向的值。这些函数支持 atomic_int、atomic_uint、atomic_bool 和 atomic_float 原子类型 A。
+这些函数自动用所需的值替换对象指向的值。这些函数支持 `atomic_int`、`atomic_uint`、`atomic_bool` 和 `atomic_float` 原子类型 `A`。
 
-所有操作系统：支持 atomic_store_explicit 函数并支持 memory_order_relaxed，如所示。
+所有操作系统：支持 `atomic_store_explicit` 函数并支持 `memory_order_relaxed`，如所示。
 
-voidatomic_store_explicit(threadgroup A\* object, Cdesired, memory_order order) // 所有操作系统：自 Metal 2 起。
+```c
+void atomic_store_explicit(threadgroup A* object,
+                           C desired,
+                           memory_order order) // All OS: Since Metal 2.
 
-voidatomic_store_explicit(volatile threadgroup A\* object, Cdesired, memory_order order) // 所有操作系统：自 Metal 1 以来。
+void atomic_store_explicit(volatile threadgroup A* object,
+                           C desired,
+                           memory_order order) // All OS: Since Metal 1.
 
-voidatomic_store_explicit(device A\* object, Cdesired, memory_order order) // 所有操作系统：自 Metal 2 起。
+void atomic_store_explicit(device A* object,
+                           C desired,
+                           memory_order order) // All OS: Since Metal 2.
 
-voidatomic_store_explicit(易失性设备 A\* 对象, C 所需, memory_order order) // 所有操作系统: 自 Metal 1 以来。
+void atomic_store_explicit(volatile device A* object,
+                           C desired,
+                           memory_order order) // All OS: Since Metal 1.
+```
 
-## 6.15.2.2 原子加载函数
+### 原子加载函数
 
-这些函数以原子方式获取对象指向的值。这些函数支持 atomic_int、atomic_uint、atomic_bool 和 atomic_float 原子类型 A。
+这些函数以原子方式获取 `object` 指向的值。这些函数支持 `atomic_int`、`atomic_uint`、`atomic_bool` 和 `atomic_float` 原子类型 `A`。
 
-所有操作系统：支持 atomic_load_explicit 函数并支持 memory_order_relaxed，如所示。
+所有操作系统：支持 `atomic_load_explicit` 函数并支持 `memory_order_relaxed`，如所示。
 
-Catomic_load_explicit(const threadgroup A\* object, memory_order order) // 所有操作系统：自 Metal 2 起。
+```c
+C atomic_load_explicit(const threadgroup A* object,
+                       memory_order order) // All OS: Since Metal 2.
+C atomic_load_explicit(const volatile threadgroup A* object,
+                       memory_order order) // All OS: Since Metal 1.
+C atomic_load_explicit(const device A* object,
+                       memory_order order) // All OS: Since Metal 2.
+C atomic_load_explicit(const volatile device A* object,
+                       memory_order order) // All OS: Since Metal 1.
+```
 
-Catomic_load_explicit(const volatile threadgroup A\* object, memory_order order) // 所有操作系统：自 Metal 1 以来。
+### 原子交换函数
 
-Catomic_load_explicit(const device A\* object, memory_order order) // 所有操作系统：自 Metal 2 起。
+这些函数以原子方式将 `object` 指向的值替换为 `desired` 的值，并返回先前保存的值 `object`。这些函数支持 `atomic_int`、`atomic_uint`、`atomic_bool` 和 `atomic_float` 原子类型 `A`。
 
-Catomic_load_explicit(const 易失性设备 A\* 对象, memory_order order) // 所有操作系统：自 Metal 1 以来。
+所有操作系统：支持 `atomic_exchange_explicit` 函数，并支持 `memory_order_relaxed`，如所示。
 
-## 6.15.2.3 原子交换函数
+```c
+C atomic_exchange_explicit(threadgroup A* object,
+                           C desired,
+                           memory_order order) // All OS: Since Metal 2.
 
-这些函数以原子方式将对象指向的值替换为所需的值，并返回先前保存的值对象。这些函数支持 atomic_int、atomic_uint、atomic_bool 和 atomic_float 原子类型 A。
+C atomic_exchange_explicit(volatile threadgroup A* object,
+                           C desired,
+                           memory_order order) // All OS: Since Metal 1.
 
-所有操作系统：支持 atomic_exchange_explicit 函数，并支持 memory_order_relaxed，如所示。
+C atomic_exchange_explicit(device A* object,
+                           C desired,
+                           memory_order order) // All OS: Since Metal 2.
 
-Catomic_exchange_explicit(threadgroup A\* object, Cdesired, memory_order order) // 所有操作系统：自 Metal 2 起。
+C atomic_exchange_explicit(volatile device A* object,
+                           C desired,
+                           memory_order order) // All OS: Since Metal 1.
+```
 
-Catomic_exchange_explicit(volatile threadgroup A\* object, Cdesired, memory_order order) // 所有操作系统：自 Metal 1 以来。
+### 原子比较和交换函数
 
-Catomic_exchange_explicit(device A\* object, Cdesired, memory_order order) // 所有操作系统：自 Metal 2 起。
+这些比较和交换函数以原子方式将 `*object` 中的值与 `*expected` 中的值进行比较。如果这些值相等，则 compare-and-exchange 函数执行 read-modify-write 操作以将 `*object` 替换为 `desired`。否则，如果这些值不相等，则比较和交换函数会将实际值从 `*object` 加载到 `*expected` 中。如果 `*object` 中的基础原子值已成功更改，则比较和交换函数返回 `true`；否则返回 `false`。这些功能支持 `atomic_int`、`atomic_uint`、`atomic_bool` 和 `atomic_float` 的原子类型 `A`。
 
-Catomic*exchange_explicit（易失性设备 A\* 对象，C 所需，内存*顺序顺序） // 所有操作系统：自 Metal 1 以来。
+复制的执行方式与 `std::memcpy` 类似。比较和交换函数的效果是：
 
-## 6.15.2.4 原子比较和交换函数
-
-这些比较和交换函数以原子方式将 *object 中的值与 *expected 中的值进行比较。如果这些值相等，则比较和交换函数执行读取-修改-写入操作以将 *object 替换为所需的。否则，如果这些值不相等，则比较和交换函数会将实际值从 *object 加载到 *expected 中。如果 *object 中的基础原子值已成功更改，则比较和交换函数返回 true；否则返回 false。这些功能
-
-支持 atomic_int、atomic_uint、atomic_bool 和 atomic_float 的原子类型 A。
-
-复制的执行方式与 std::memcpy 类似。比较和交换函数的效果是：
-
-if (memcmp(对象，预期，sizeof(\*对象)) == 0) {
-
-memcpy(对象, &desired, sizeof(\*object));
-
-} 别的 {
-
-memcpy(预期, 对象, sizeof(\*object));
-
+```cpp
+if (memcmp(object, expected, sizeof(*object)) == 0) {
+    memcpy(object, &desired, sizeof(*object));
+} else {
+    memcpy(expected, object, sizeof(*object));
 }
+```
 
-所有操作系统：支持 atomic_compare_exchange_weak_explicit 函数，如所示；支持 memory_order_relaxed 用于指示成功和失败。如果比较为真，则成功的值影响内存访问，如果比较为假，则失败的值影响内存访问。
+所有操作系统：支持 `atomic_compare_exchange_weak_explicit` 函数，如所示；支持 `memory_order_relaxed` 用于指示成功和失败。如果比较为 `true`，则 `success` 的值影响内存访问，如果比较为 `false`，则 `failure` 的值影响内存访问。
 
-boolatomic_compare_exchange_weak_explicit(threadgroup A* object, C *expected, Cdesired, memory_order success, memory_order failure) // 所有操作系统：自 Metal 2 起。
+```c
+bool atomic_compare_exchange_weak_explicit(threadgroup A* object,
+                                           C *expected,
+                                           C desired,
+                                           memory_order success,
+                                           memory_order failure) // All OS: Since Metal 2.
 
-boolatomic_compare_exchange_weak_explicit(volatile threadgroup A* object, C *expected, Cdesired, memory_order success, memory_order failure) // 所有操作系统：自 Metal 1 以来。
+bool atomic_compare_exchange_weak_explicit(volatile threadgroup A* object,
+                                           C *expected,
+                                           C desired,
+                                           memory_order success,
+                                           memory_order failure)  // All OS: Since Metal 1.
 
-boolatomic_compare_exchange_weak_explicit(device A* object, C *expected, Cdesired, memory_order success, memory_order failure) // 所有操作系统：自 Metal 2 起。
+bool atomic_compare_exchange_weak_explicit(device A* object,
+                                           C *expected,
+                                           C desired,
+                                           memory_order success,
+                                           memory_order failure)  // All OS: Since Metal 2.
 
-boolatomic_compare_exchange_weak_explicit(易失性设备 A* 对象，C *预期，C 需要，内存顺序成功，内存顺序失败) // 所有操作系统：自 Metal 1 以来。
+bool atomic_compare_exchange_weak_explicit(volatile device A* object,
+                                           C *expected,
+                                           C desired,
+                                           memory_order success,
+                                           memory_order failure)  // All OS: Since Metal 1.
+```
 
 ## 6.15.2.5 原子获取和修改函数
 
 所有操作系统：如所示，支持以下原子获取和修改函数。
 
-唯一支持的 order 值是 memory_order_relaxed。
+唯一支持的 `order` 值是 `memory_order_relaxed`。
 
-Catomic*fetch* _key_ \_explicit(threadgroup A\* object, M operand, memory_order order) // 所有操作系统：自 Metal 2 起。
+```c
+C atomic_fetch_key_explicit(threadgroup A* object,
+                            M operand,
+                            memory_order order) // All OS: Since Metal 2.
 
-Catomic*fetch* _key_\_explicit(易失性线程组 A\* 对象，M 操作数，内存\_顺序顺序) // 所有操作系统：自 Metal 1 以来。
+C atomic_fetch_key_explicit(volatile threadgroup A* object,
+                            M operand,
+                            memory_order order) // All OS: Since Metal 1.
 
-Catomic*fetch* _key_ \_explicit(device A\* object, M operand, memory_order order) // 所有操作系统：自 Metal 2 起。
+C atomic_fetch_key_explicit(device A* object,
+                            M operand,
+                            memory_order order) // All OS: Since Metal 2.
 
-Catomic*fetch* _key_\_explicit(易失性设备 A\* 对象，M 操作数，内存\_顺序顺序) // 所有操作系统：自 Metal 1 以来。
+C atomic_fetch_key_explicit(volatile device A* object,
+                            M operand,
+                            memory_order order) // All OS: Since Metal 1.
+```
 
-函数名称中的键是表 6.24 第一列中列出的操作名称的占位符，例如 atomic_fetch_add_explicit。表 6. 24 中详述的运算是算术和按位计算。该函数自动用指定计算的结果替换对象指向的值（表 6. 24 的第三列）。该函数返回对象先前保存的值。没有未定义的结果。
+函数名称中的 `key` 是表 6.24 第一列中列出的操作名称的占位符，例如 `atomic_fetch_add_explicit`。表 6.24 中详述的运算是算术和按位计算。该函数自动用指定计算的结果替换 `object` 指向的值（表 6.24 的第三列）。该函数返回 `object` 先前保存的值。没有未定义的结果。
 
-这些函数适用于任何类型为 atomic_int 和 atomic_uint 的原子对象。atomic_float 支持 Add 和 Sub。
+这些函数适用于任何类型为 `atomic_int` 和 `atomic_uint` 的原子对象。`atomic_float` 支持 Add 和 Sub。
 
-## 表 6.24。原子操作
+<TableView
+  num="6.24"
+  title="Atomic operations"
+  headers={["Key", "Operator", "Computation"]}
+  datasList={[
+    ["add", "+", "Addition"],
+    ["and", "&", "Bitwise and"],
+    ["max", "max", "Compute max"],
+    ["min", "min", "Compute min"],
+    ["or", "|", "Bitwise inclusive or"],
+    ["sub", "-", "Subtraction"],
+    ["xor", "^", "Bitwise exclusive or"],
+  ]}
+/>
 
-`关键操作符计算`
+这些操作是原子 read-modify-write 操作。对于有符号整数类型，算术运算使用二进制补码表示形式，并在溢出时进行静默 wrap-around。
 
-`添加 + 加法`
+### 原子修改函数（64 位）
 
-`和 & 按位和`
+所有操作系统：Metal 从 Metal 2.4 开始支持以下原子修改函数。请参阅 "Metal Feature Set Tables" 以确定哪些 GPU 支持此功能。
 
-`max max 计算 max`
+这些函数适用于任何 `atomic_ulong` 类型的原子对象。唯一支持的 `order` 值是 `memory_order_relaxed`。
 
-`min min 计算 min`
+```c
+void atomic_key_explicit(device A* object,
+                         M operand,
+                         memory_order order)
 
-``` 或 |按位包含或 ````
+void atomic_key_explicit(volatile device A* object,
+                         M operand,
+                         memory_order order)
+```
 
-`sub - 减法`
-
-`xor ^ 按位异或`
-
-这些操作是原子读-修改-写操作。对于有符号整数类型，算术运算使用二进制补码表示形式，并在溢出时进行静默环绕。
-
-## 6.15.2.6 原子修改函数（64 位）
-
-所有操作系统：Metal 从 Metal 2.4 开始支持以下原子修改函数。请参阅 Metal 功能集表以确定哪些 GPU 支持此功能。
-
-这些函数适用于任何 atomic_ulong 类型的原子对象。唯一支持的 order 值是 memory_order_relaxed。
-
-voidatomic_key_explicit(设备 A\*对象，M 操作数，内存顺序顺序)
-
-voidatomic_key_explicit(易失性设备 A\*对象，M 操作数，内存顺序顺序)
-
-函数名称中的键是表 6. 25 第一列中列出的操作名称的占位符，例如 atomic_max_explicit。表 6. 25 中详细列出了算术运算。该函数自动用指定计算的结果替换对象指向的值（表 6. 25 的第三列）。该函数返回 void。没有未定义的结果。
+函数名称中的 `key` 是表 6.25 第一列中列出的操作名称的占位符，例如 `atomic_max_explicit`。表 6.25 中详细列出了算术运算。该函数自动用指定计算的结果替换对象指向的值（表 6.25 的第三列）。该函数返回 `void`。没有未定义的结果。
 
 ## 表 6.25。原子修改操作
 
-`关键操作符计算`
-
-`max max 计算 max`
-
-`min min 计算 min`
+<TableView
+  num="6.25"
+  title=" Atomic modify operations"
+  headers={["Key", "Operator", "Computation"]}
+  datasList={[
+    ["max", "max", "Compute max"],
+    ["min", "min", "Compute min"],
+  ]}
+/>
 
 这些操作是原子读-修改-写操作。

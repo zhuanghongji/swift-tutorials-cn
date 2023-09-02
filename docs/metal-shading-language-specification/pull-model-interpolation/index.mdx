@@ -4,20 +4,28 @@
 
 所有操作系统：自 Metal 2.3 起支持拉模型插值。
 
-插值类型 interpolant （第 2.18 节）和相关方法在 中定义。在片段函数中，你可以通过调用其方法来显式插值 interpolant 类型的值，如下所示。插值可以以不同的模式被多次采样和插值，并且可以被传递到其它函数以在那里被采样和插值。透视正确性在参数的所有插值中由其类型中的 P 值固定。
+插值类型 `interpolant<T,P>` （第 2.18 节）和相关方法在 `<metal_interpolate>` 中定义。在片段函数中，你可以通过调用其方法来显式插值 `interpolant<T,P>` 类型的值，如下所示。插值可以以不同的模式被多次采样和插值，并且可以被传递到其它函数以在那里被采样和插值。透视正确性在参数的所有插值中由其类型中的 `P` 值固定。
 
-` 插值方法说明`
-
-``` T interpolate_at_center() 在像素中心采样着色器输入，返回与输入具有 [[center_perspective]] 或 [[center_no_perspective]] 类型 T 相同的值。````
-
-``` T interpolate_at_centroid() 在像素的覆盖区域内采样着色器输入，返回相同的值，就好像输入具有带有 [[centroid_perspective]] 或 [[centroid_no_perspective]] 的类型 T。````
-
-`T interpolate_at_offset(float2 偏移量)`
-
-``` 在距像素左上角的指定窗口坐标偏移处采样着色器输入。````
-
-`` 允许的偏移分量在 1/16 像素网格的 [0.0, 1.0) 范围内。````
-
-`T interpolate_at_sample(uint 样本)`
-
-``` 位于指定样本索引位置的样本着色器输入，返回相同的值，就像输入具有 [[sample_perspective]] 或 [[sample_no_perspective]] 的类型 T 并且处于着色器的指定每样本评估中一样。如果给定索引的样本不存在，则插值的位置未定义。````
+<TableView
+  num=""
+  title=""
+  headers={["Interpolant method", "Description"]}
+  datasList={[
+    [
+      "T interpolate_at_center()",
+      "Sample shader input at the center of a pixel, returning the same value as if the input had type T with `[[center_perspective]]` or `[[center_no_perspective]]`.",
+    ],
+    [
+      "T interpolate_at_centroid()",
+      "Sample shader input within the covered area of the pixel, returning the same value as if the input had type T with `[[centroid_perspective]]` or `[[centroid_no_perspective]]`.",
+    ],
+    [
+      "T interpolate_at_offset(float2 offset)",
+      "Sample shader input at a specified window-coordinate offset from a pixel's top-left corner. Allowable offset components are in the range `[0.0, 1.0)` along a 1/16 pixel grid.",
+    ],
+    [
+      "T interpolate_at_sample(uint sample)",
+      "Sample shader input at the location of the specified sample index, returningthe same value as if the input had type T with `[[sample_perspective]]` or `[[sample_no_perspective]]` and was in the specified per-sample evaluation of the shader. If a sample of the given index does not exist, the position of interpolation is undefined.",
+    ],
+  ]}
+/>

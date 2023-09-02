@@ -4,571 +4,800 @@
 
 所有操作系统：从 Metal 2.3 开始支持光线追踪功能。
 
-光线追踪函数和类型在命名空间 metal::raytracing 的 中定义。在 Metal 2.3 中，它们仅在计算函数（内核函数）中受支持，除非下面另有说明。从 Metal 2.4 开始，顶点、片段和图块函数也支持它们。
+光线追踪函数和类型在命名空间 `metal::raytracing` 的 `<metal_raytracing>` 中定义。在 Metal 2.3 中，它们仅在计算函数（内核函数）中受支持，除非下面另有说明。从 Metal 2.4 开始，顶点、片段和图块函数也支持它们。
 
 ## 加速结构函数
 
-在 Metal 2.3 中，调用以下函数之一来检查加速结构（参见第 2.17.6 节）是否为空：
+在 Metal 2.3 中，调用以下函数之一来检查加速结构（参见第 2.17.6 节）是否为 `null`：
 
-bool is_null_primitive_acceleration_struct(primitive_acceleration_struct)
+```c
+bool is_null_primitive_acceleration_structure(primitive_acceleration_stru cture)
 
-bool is_null_instance_acceleration_struct (instance_acceleration_struct ure)
+bool is_null_instance_acceleration_structure(instance_acceleration_struct ure)
+```
 
 在 Metal 2.4 中，调用以下函数来检查加速结构是否为空。
 
-bool is_null_acceleration_struct(acceleration_struct)
+```c
+bool is_null_acceleration_structure(acceleration_structure<intersection_t ags...>)
+```
 
 在 Metal 3.1 中。Metal 支持使用以下函数迭代实例加速结构引用的加速结构：
 
 调用以下函数查询实例加速结构中实例的数量。
 
+```c
 uint get_instance_count() const
+```
 
 调用以下函数来检索实例加速结构中包含的实例所引用的加速结构。返回类型是第 2.17.6 节中定义的模板化类型。
 
-```
-模板 <类型名称... 交叉点标签> 加速结构< 交叉点标签...>
+```cpp
+template <typename... intersection_tags> acceleration_structure< intersection_tags...>
 ```
 
 如果声明的返回类型与实例加速结构中包含的实例引用的加速结构类型不匹配，则结果未定义。不使用实例和/或基元运动标签的实例加速结构可以作为包含这些标签的加速结构类型返回。例如，没有任何运动（实例或基元）的实例加速结构可以返回为：
 
-```
-- 加速结构<实例>
-- 加速结构<实例、实例运动>
-- 加速结构<实例、原始运动>
-- 加速结构<实例、原始运动、实例运动>
-```
+- `acceleration_structure<instancing>`
+- `acceleration_structure<instancing, instance_motion>`
+- `acceleration_structure<instancing, primitive_motion>`
+- `acceleration_structure<instancing, primitive_motion, instance_motion>`
 
 此功能允许开发人员在使用多个加速结构类型时避免为每组标签提供专用交叉器，但由于遍历不需要这些标签的加速结构而导致潜在的性能成本。
 
 ## 相交相交函数
 
-创建 intersector 对象后（请参阅第 2.17.5 节），你可以根据 junction_tags 的值调用以下 intersect 函数之一。
+创建 `intersector<intersection_tags...> ` 对象后（请参阅第 2.17.5 节），你可以根据 `intersection_tags` 的值调用以下 intersect 函数之一。
 
-## 表 6.26。相交函数
+<TableView
+  num="6.26"
+  title="Intersect function"
+  headers={["Function"]}
+  datasList={[["result_type intersect(...parameters...). "]]}
+/>
 
-` 函数`
+表 6.27 显示了 `intersect` 函数的可能参数。所有 `intersect` 函数都必须具有 `ray` 和 `accel_struct` 参数。其它参数是可选的。
 
-``` 结果类型相交（...参数...）。````
+<TableView
+  num="6.27"
+  title="Intersect functions input parameters"
+  headers={["Parameter", "Description"]}
+  datasList={[
+    ["ray", "Ray properties"],
+    [
+      "accel_struct",
+      "Acceleration structure of type acceleration_structure< intersection_tags...>.",
+    ],
+    [
+      "mask",
+      "Intersection mask to be AND'd with instance mask defined in the Metal API MTLAccelerationStructureInstanceDescriptor. Instances with non-overlapping masks will be skipped.",
+    ],
+    [
+      "time \nAll OS: Since Metal 2.4.",
+      "The time associated with the ray. The parameter exists if the intersection_tags have primitive_motion or instance_motion.",
+    ],
+    [
+      "func_table",
+      "Intersection function table of type intersection_function_table<intersection_tags...>. See section 2.17.3.",
+    ],
+    [
+      "payload",
+      "User payload object, which is passed by reference. When the user calls intersect(), the payload parameter is copied to the ray_data address space and passed to the intersection function. \n\nThe result is copied on the exit of the intersection function (section 5.1.6) and the payload object is updated.",
+    ],
+  ]}
+/>
 
-表 6. 27 显示了相交函数的可能参数。所有相交函数都必须具有 ray 和 accel_struct 参数。其它参数是可选的。
+The `result_type` is `using result_type = intersection_result<intersection_tags...>;`
 
-## 表 6.27。相交函数输入参数
+仅当 `intersection_tags` 没有 `instancing` 时，以下一组相交函数才可用。
 
-` 参数说明`
+```cpp
+result_type intersect(ray ray, primitive_acceleration_structure accel_struct) const;
 
-ray (^) 射线属性 accel*struct (^) Acceleration_struct 类型的加速结构。mask (^) 与 Metal API MTLAccelerationStructureInstanceDescriptor 中定义的实例掩码进行 AND 运算的交集掩码。具有不重叠掩码的实例将被跳过。time 所有操作系统：自 Metal 2. 4. 与射线关联的时间。如果交集*标签具有 primitive_motion 或 instance_motion，则该参数存在。func_table (^) intersection_function_table 类型的交集函数表。参见第 2.17.3 节。Payload (^) 用户负载对象，通过引用传递。当用户调用 intersect() 时，payload 参数被复制到 ray_data 地址空间并传递给交集函数。结果被复制到交集函数的出口（第 5.1.6 节），并且有效负载对象被更新。result_type 使用 result_type = junction_result;仅当 intersect_tags 没有实例化时，以下一组 intersect 函数才可用：result_type intersect( ray ray, Primitive_acceleration_struct accel_struct) const; result_type intersect( ray ray, Primitive_acceleration_struct accel_struct, junction_function_table func_table) const;
+result_type intersect(ray ray,
+                      primitive_acceleration_structure accel_struct,
+                      intersection_function_table<intersection_tags...> func_table) const;
 
-template result_type intersect( ray ray, Primitive_acceleration_struct accel_struct, junction_function_table func_table, thread T &payload) const;
+template <typename T> result_type intersect(ray ray,
+                                            primitive_acceleration_structure accel_struct,
+                                            intersection_function_table<intersection_tags...> func_table,
+                                            thread T &payload) const;
+```
 
-仅当 Intersection_tags 具有实例化时，以下一组相交函数才可用。
+仅当 `intersection_tags` 具有 `instancing` 时，以下一组相交函数才可用。
 
-result_type intersect( ray ray, instance_acceleration_struct accel_struct, uint mask = ~0U) const;
+```cpp
+result_type intersect(ray ray,
+                      instance_acceleration_structure accel_struct,
+                      uint mask = ~0U) const;
 
-result_type intersect( ray ray, instance_acceleration_struct accel_struct, junction_function_table func_table) const;
 
-template result_type intersect( ray ray, instance_acceleration_struct accel_struct,
+result_type intersect(ray ray,
+                      instance_acceleration_structure accel_struct,
+                      intersection_function_table<intersection_tags...> func_table) const;
 
-intersection_function_table func_table, 线程 T &payload) const;
+template <typename T> result_type intersect(ray ray,
+                                            instance_acceleration_structure accel_struct,
+                                            intersection_function_table<intersection_tags...> func_table,
+                                            thread T &payload) const;
 
-result_type intersect( ray ray, instance_acceleration_struct accel_struct, uint mask,
+result_type intersect(ray ray,
+                      instance_acceleration_structure accel_struct,
+                      uint mask,
+                      intersection_function_table<intersection_tags...> func_table) const;
 
-intersection_function_table<intersection_tags...> func_table) const;
+template <typename T> result_type intersect(ray ray,
+                                            instance_acceleration_structure accel_struct,
+                                            uint mask,
+                                            intersection_function_table<intersection_tags...> func_table,
+                                            thread T &payload) const;
+```
 
-模板 <类型名称 T> 结果类型相交（
+从 Metal 2.4 开始，如果 `intersection_tags` 具有 `primitive_motion` 或 `instance_motion`，则可以使用以下一组相交函数。
 
-ray ray，instance_acceleration_struct accel_struct，uint mask，intersection_function_table func_table，线程 T &payload) const;
+```cpp
+template <typename T, intersection_tags...> result_type intersect(
+      ray ray,
+      acceleration_structure< intersection_tags...> accel_struct,
+      float time) const;
 
-从 Metal 2.4 开始，如果 junction_tags 具有 Primitive_motion 或 instance_motion，则可以使用以下一组相交函数。
+template <typename T, intersection_tags...> result_type intersect(
+      ray ray,
+      acceleration_structure< intersection_tags...> accel_struct,
+      float time,
+      intersection_function_table<intersection_tags...> func_table) const;
 
-template result_type intersect( ray ray, Acceleration_struct Accel_struct, float time) const;
+template <typename T, intersection_tags...> result_type intersect(
+      ray ray,
+      acceleration_structure< intersection_tags...> accel_struct,
+      float time,
+      intersection_function_table<intersection_tags...> func_table,
+      thread T &payload) const;
+```
 
-template result_type intersect( ray ray, Acceleration_struct Accel_struct, float time, junction_function_table func_table) const;
+从 Metal 2.4 开始，仅当 junction_tags 具有 `instancing` 以及 `primitive_motion` 或 `instance_motion` 时，以下一组相交函数才可用。
 
-模板 result_type intersect( ray ray, Acceleration_struct Accel_struct，浮点时间，intersection_function_table func_table,
+```cpp
+template <typename T, intersection_tags...>  result_type intersect(
+      ray ray,
+      acceleration_structure< intersection_tags...> accel_struct,
+      uint mask = ~0U,
+      float time = 0.0f) const;
 
-线程 T &payload) const;
+template <typename T, intersection_tags...> result_type intersect(
+      ray ray,
+      acceleration_structure< intersection_tags...> accel_struct,
+      uint mask,
+      float time,
+      intersection_function_table<intersection_tags...> func_table) const;
 
-从 Metal 2.4 开始，仅当 junction_tags 具有实例化以及 Primitive_motion 或 instance_motion 时，以下一组相交函数才可用。
-
-模板 result_type intersect( ray ray,
-
-Acceleration_struct Accel_struct，uint 掩码 = ~0U，浮动时间 = 0.0f) const；
-
-模板 result_type intersect( ray ray, Acceleration_struct< junction_tags...> Accel_struct, uint mask,
-
-浮动时间，intersection_function_table func_table) const;
-
-模板 result_type intersect( ray ray,
-
-Acceleration_struct Accel_struct，uint 掩码，
-
-浮动时间，intersection_function_table func_table，线程 T &payload) const;
+template <typename T, intersection_tags...> result_type intersect(
+      ray ray,
+      acceleration_structure< intersection_tags...> accel_struct,
+      uint mask,
+      float time,
+      intersection_function_table<intersection_tags...> func_table,
+      thread T &payload) const;
+```
 
 ## 控制遍历行为的 Intersector 函数
 
 所有操作系统：Metal 3.1 添加了对曲线的支持。
 
-要覆盖遍历的默认行为，可以使用 intersector 对象的以下成员函数。
+要覆盖遍历的默认行为，可以使用 `intersector<intersection_tags...>` 对象的以下成员函数。
 
-## 表 6.28。相交函数来控制遍历
+<TableView
+  num="6.28"
+  title="Intersect functions to control traversal"
+  headers={["Functions to control traversal behavior"]}
+  datasList={[
+    ["void set_triangle_front_facing_winding(winding)"],
+    ["void set_geometry_cull_mode(geometry_cull_mode)"],
+    ["void set_opacity_cull_mode(opacity_cull_mode)"],
+    ["void force_opacity(forced_opacity)"],
+    ["void assume_geometry_type(geometry_type)"],
+    ["void assume_identity_transforms(bool)"],
+    ["void accept_any_intersection(bool)"],
+  ]}
+/>
 
-`控制遍历行为的函数`
+三角形有两个边或 "面"。正面绕组确定从射线原点看时哪个三角形面被视为“正面”面。如果从射线原点看，顶点按顺时针顺序出现，并且正面绕线是顺时针方向，则可见面为正面。另一张脸是背面。如果正面绕线是逆时针方向，则相反。使用以下函数更改默认绕线（`clockwise`）：
 
-`void set_triangle_front_faceing_winding(winding)`
-
-`void set_geometry_cull_mode(geometry_cull_mode)`
-
-`void set_opacity_cull_mode(opacity_cull_mode)`
-
-`无效force_opacity(forced_opacity)`
-
-`` 无效假设_几何类型（几何类型）`
-
-`无效假设_身份变换（布尔）`
-
-`void accept_any_intersection(bool)`
-
-三角形有两个边或“面”。正面绕组确定从射线原点看时哪个三角形面被视为“正面”面。如果从射线原点看，顶点按顺时针顺序出现，并且正面绕线是顺时针方向，则可见面为正面。另一张脸是背面。如果正面绕线是逆时针方向，则相反。使用以下函数更改默认绕线（顺时针）：
-
-枚举类缠绕{
-
-顺时针，
-
-逆时针
-
-}; void set_triangle_front_faceing_winding(winding w);
+```cpp
+enum class winding {
+    clockwise,
+    counterclockwise
+};
+void set_triangle_front_facing_winding(winding w);
+```
 
 要更改默认的三角形剔除模式（无），请使用以下函数。
 
-枚举类 triangle_cull_mode {无，前面，
-
-后退 };
-
+```cpp
+enum class triangle_cull_mode {
+    none,
+    front,
+    back
+};
 void set_triangle_cull_mode(triangle_cull_mode tcm);
+```
 
-如果剔除模式设置为正面，则正面从射线原点可见的三角形不考虑相交。否则，如果剔除模式设置为背面，则背面从射线原点可见的三角形不考虑相交。
+如果剔除模式设置为 `front`，则正面从射线 `ray` 可见的三角形不考虑相交。否则，如果剔除模式设置为背面，则背面从射线原点可见的三角形不考虑相交。
 
 以下函数可用于设置交集以从候选几何图形集中剔除所有边界框或三角形基元。默认的几何剔除模式是无。
 
-枚举类 geometry_cull_mode {无，
+```cpp
+enum class geometry_cull_mode {
+    none,
+    triangle,
+    bounding_box,
+    curve         // Since Metal 3.1
+};
 
-三角形、bounding_box、曲线 // 自 Metal 3.1 起
+void set_geometry_cull_mode(geometry_cull_mode gcm);
+```
 
-### };
+默认不透明度剔除模式为 `none`。使用以下函数更改不透明度。请参阅下文，了解不透明度将如何影响三角形和边界框图元。
 
-无效 set_geometry_cull_mode（geometry_cull_mode gcm）；
+```cpp
+enum class opacity_cull_mode {
+    none,
+    opaque,
+    non_opaque
+};
 
-默认不透明度剔除模式为无。使用以下函数更改不透明度。请参阅下文，了解不透明度将如何影响三角形和边界框图元。
+void set_opacity_cull_mode(opacity_cull_mode ocm);
+```
 
-枚举类 opacity_cull_mode { none, opaque, non_opaque };
+调用以下函数来覆盖每个实例和每个几何图形的强制容量设置。默认值是 `none`。
 
-无效 set_opacity_cull_mode（opacity_cull_mode ocm）；
+```cpp
+enum class forced_opacity {
+    none,
+    opaque,
+    non_opaque
+};
 
-调用以下函数来覆盖每个实例和每个几何图形的强制容量设置。默认值是无。
+void force_opacity(forced_opacity fo);
+```
 
-枚举类 forced_opacity {
+三角形基元也可以根据其不透明度进行剔除：`opaque` 三角形将不会运行任何交集函数。`non_opaque` 三角形将运行其交集函数来接受或拒绝命中。
 
-无、不透明、non_opaque };
+`PrimitiveAccelerationStructure` 通过声明 `MTLAccelerationStructureGeometryFlagOpaque` 来编码三角形是不透明还是非不透明。可以通过调用 `intersector.force_opacity()` 来覆盖不透明度。如果使用，它将优先于每个实例的不透明性标志（`MTLAccelerationStructureInstanceFlagOpaque` 和 `MTLAccelerationStructureInstanceFlagNonOpaque`），而后者又优先于每个几何体的不透明性。
 
-无效 force_opacity（forced_opacity fo）；
+对于自定义边界框基元，将以与三角形相同的方式评估不透明度（首先是 `intersector.set_opacity_cull_mode()`，然后是 InstanceFlags，然后是 GeometryFlags）。`opaque` 参数通知边界框相交程序已解析的不透明状态。然后，交集函数可以使用它来影响其对是否遇到命中的评估。
 
-三角形基元也可以根据其不透明度进行剔除：不透明三角形将不会运行任何交集函数。非不透明三角形将运行其交集函数来接受或拒绝命中。
+`intersector.set_opacity_cull_mode()` 将根据原始类型的不透明性跳过它们。
 
-PrimitiveAccelerationStructure 通过声明 MTLAccelerationStructureGeometryFlagOpaque 来编码三角形是不透明还是非不透明。可以通过调用 intersector.force_opacity() 来覆盖不透明度。如果使用，它将优先于每个实例的不透明性标志（MTLAccelerationStructureInstanceFlagOpaque 和 MTLAccelerationStructureInstanceFlagNonOpaque），而后者又优先于每个几何体的不透明性。
+如果 `intersector.force_opacity()` 设置为 `opaque` 或 `non_opaque`，则 `intersector.set_opacity_cull_mode()` 必须为 `none`。反之亦然：不透明度覆盖和不透明度剔除不能混合使用。非法组合的结果是不确定的。
 
-对于自定义边界框基元，将以与三角形相同的方式评估不透明度（首先是 intersector.set_opacity_cull_mode()，然后是 InstanceFlags，然后是 GeometryFlags）。不透明参数通知边界框相交程序已解析的不透明状态。然后，交集函数可以使用它来影响其对是否遇到命中的评估。
+使用以下函数来声明加速结构是否包含三角形、边界框和/或曲线几何体。默认几何体是 `geometry_type::triangle | geometry_type::bounding_box`。默认情况下，Metal 假设加速结构不包含曲线几何体以提高性能。使用包含 `geometry_type::curve` 的值调用 `assume_geometry_type`，以使曲线能够在相交调用或相交查询步骤中相交。
 
-intersector.set_opacity_cull_mode() 将根据原始类型的不透明性跳过它们。
+```c
+enum class geometry_type {
+    none,
+    triangle,
+    bounding_box,
+    curve,        // Since Metal 3.1
+    all
+};
 
-如果 intersector.force_opacity() 设置为 opaque 或 non_opaque，则 intersector.set_opacity_cull_mode() 必须为 none。反之亦然：不透明度覆盖和不透明度剔除不能混合使用。非法组合的结果是不确定的。
+void assume_geometry_type(geometry_type gt)
+```
 
-使用以下函数来声明加速结构是否包含三角形、边界框和/或曲线几何体。默认几何体是 geometry_type::triangle |几何类型::边界框。默认情况下，Metal 假设加速结构不包含曲线几何体以提高性能。使用包含 geometry_type::curve 的值调用 assume_geometry_type，以使曲线能够在相交调用或相交查询步骤中相交。
+要将交集对象设置为立即返回它找到的第一个交集，请使用值 `true` 调用以下函数。默认为 `false`。此函数的用途之一是当你只需要知道一个点从另一点是否可见时，例如渲染阴影或环境光遮挡时。
 
-枚举类 geometry_type {无，三角形，bounding_box，
+```c
+void assume_identity_transforms(bool value);
+```
 
-curve, // 自 Metal 3.1 起全部 };
+从 Metal 3.1 开始，使用以下函数为 `intersector` 和 `intersection_query` 添加提示，指定曲线基础、控制点数量和曲线类型，以优化特定曲线类型的遍历。
 
-无效假设*几何*类型（几何\_类型 GT）
+请注意，`curve_basis` 是一个枚举而不是位掩码。
 
-要将相交对象设置为采用识别变换，请使用值 true 调用以下函数。默认为 false。
+```cpp
+enum class curve_basis {
+    bspline,
+    catmull_rom,
+    linear,
+    bezier,
+    all,
+};
 
-无效假设*身份*变换（布尔值）；
+enum class curve_type {
+    round,
+    flat,
+    all,
+};
+```
 
-要将交集对象设置为立即返回它找到的第一个交集，请使用值 true 调用以下函数。默认为 false。此函数的用途之一是当你只需要知道一个点从另一点是否可见时，例如渲染阴影或环境光遮挡时。
+使用以下函数设置要假设的曲线基函数。默认为 `curve_basis::all`，这意味着将启用所有曲线基函数。
 
-无效 accept_any_intersection（布尔值）；
+```c
+void assume_curve_basis(curve_basis cb)
+```
 
-从 Metal 3.1 开始，使用以下函数为 intersector 和 intersection_query 添加提示，指定曲线基础、控制点数量和曲线类型，以优化特定曲线类型的遍历。
+使用以下函数设置要假定的曲线类型。默认为 `curve_type::all`，这意味着两种曲线类型都将启用。
 
-请注意，curve_basis 是一个枚举而不是位掩码。
-
-枚举类 curve_basis { bspline, catmull_rom, 线性, 贝塞尔曲线, all, };
-
-枚举类 curve_type { round, flat, all, };
-
-使用以下函数设置要假设的曲线基函数。默认为 curve_basis::all，这意味着将启用所有曲线基函数。
-
-无效假设*曲线*基础（曲线\_基础 cb）
-
-使用以下函数设置要假定的曲线类型。默认为 curve_type::all，这意味着两种曲线类型都将启用。
-
-无效假设*曲线*类型（曲线\_类型 ct）
+```c
+void assume_curve_type(curve_type ct)
+```
 
 使用以下函数设置要假定的曲线控制点的数量。默认为 0，这意味着将启用任意数量的控制点（适用于假设的曲线基础（如果有））。其它有效选项为 2、3 或 4，具体取决于曲线基础。
 
-无效假设*曲线*控制*点*计数（uint n）
+```c
+void assume_curve_control_point_count(uint n)
+```
 
-## 路口查询函数
+## 相交查询函数
 
 所有操作系统：自 Metal 2. 4 起支持交叉口查询
 
 所有操作系统：自 Metal 3.1 起交叉点查询支持曲线
 
-要开始遍历并查询遍历特定信息，请使用非默认构造函数创建一个交集查询对象（请参阅第 2.17.7 节）或首先调用 reset(...)。如果未按此顺序调用，则行为未定义。
+要开始遍历并查询遍历特定信息，请使用非默认构造函数创建一个交集查询对象（请参阅第 2.17.7 节）或首先调用 `reset(...)`。如果未按此顺序调用，则行为未定义。
 
-表 6. 29 、表 6. 31 和表 6. 32 显示了可以根据遍历期间遇到的几何类型调用的函数列表，假设 next() 返回 true。请注意，某些函数是成对出现的：候选函数和已提交的原语。当第一次调用 next() 时，遍历后报告的图元始终是候选者，直到用户通过在查询对象上调用 commit_triangle_intersection()、commit_bounding_box_intersection() 或 commit_curve_intersection() 提交图元。请注意，在没有用户相交的情况下进行测试的不透明三角形在相交时会自动提交。
+表 6. 29 、表 6. 31 和表 6. 32 显示了可以根据遍历期间遇到的几何类型调用的函数列表，假设 `next()` 返回 `true`。请注意，某些函数是成对出现的：候选函数和已提交的原语。当第一次调用 `next()` 时，遍历后报告的图元始终是候选者，直到用户通过在查询对象上调用 `commit_triangle_intersection()`、`commit_bounding_box_intersection()` 或 `commit_curve_intersection()` 提交图元。请注意，在没有用户相交的情况下进行测试的不透明三角形在相交时会自动提交。
 
-## 表 6.29。路口查询功能
+<TableView
+  num="6.29"
+  title="Intersection query functions"
+  headers={["Functions", "Triangle", "Bounding", "Curve"]}
+  datasList={[
+    ["void reset(...)", "*", "*", "*"],
+    ["bool next()", "*", "*", "*"],
+    ["void abort()", "*", "*", "*"],
+    ["intersection_type get_candidate_intersection_type() ", "*", "*", "*"],
+    ["intersection_type get_committed_intersection_type() ", "*", "*", "*"],
+    ["void commit_triangle_intersection()", "*", "", ""],
+    ["void commit_bounding_box_intersection(float distance)", "", "*", ""],
+    ["void commit_curve_intersection() \nSince Metal 3.1", "", "", "*"],
+  ]}
+/>
 
-`函数三角形边界曲线`
+从 Metal 3.1 开始，当使用 `max_levels<Count>` 交集标签指定时，交集查询支持以下函数。
 
-void Reset(...) (^) \* \* _ bool next() (^) _ \* _ void abort() (^) _ \* \* junction_type get_candidate_intersection_type()
+<TableView
+  num="6.30"
+  title="Intersection query functions with max_levels<Count>"
+  headers={["Functions", "Triangle", "Bounding", "Curve"]}
+  datasList={[
+    ["uint get_candidate_instance_count() \nSince Metal 3.1", "*", "*", "*"],
+    [
+      "uint get_candidate_instance_id(uint depth) \nSince Metal 3.1",
+      "*",
+      "*",
+      "*",
+    ],
+    [
+      "uint get_candidate_user_instance_id(uint depth) \nSince Metal 3.1",
+      "*",
+      "*",
+      "*",
+    ],
+    ["uint get_committed_instance_count() \nSince Metal 3.1", "*", "*", "*"],
+    [
+      "uint get_committed_instance_id(uint depth) \nSince Metal 3.1",
+      "*",
+      "*",
+      "*",
+    ],
+    [
+      "uint get_committed_user_instance_id(uint depth) \nSince Metal 3.1",
+      "*",
+      "*",
+      "*",
+    ],
+  ]}
+/>
 
-### \* \* \*
+<TableView
+  num="6.31"
+  title="Intersection query ray value functions"
+  headers={["Ray Values Functions", "Triangle", "Bounding", "Curve"]}
+  datasList={[
+    ["float3 get_world_space_ray_origin()", "*", "*", "*"],
+    ["float3 get_world_space_ray_direction()", "*", "*", "*"],
+    ["float get_ray_min_distance()", "*", "*", "*"],
+    ["intersection_params get_intersection_params()", "*", "*", "*"],
+  ]}
+/>
 
-`junction_type get_commissed_intersection_type()`
+<TableView
+  num="6.32"
+  title="Intersection query candidate value functions"
+  headers={[
+    "Candidate Intersections Value Functions",
+    "Triangle",
+    "Bounding",
+    "Curve",
+  ]}
+  datasList={[
+    ["float get_candidate_triangle_distance()", "*", "", ""],
+    ["uint get_candidate_instance_id()", "*", "*", "*"],
+    ["uint get_candidate_user_instance_id()", "*", "*", "*"],
+    ["uint get_candidate_geometry_id()", "*", "*", "*"],
+    ["uint get_candidate_primitive_id()", "*", "*", "*"],
+    ["float2 get_candidate_triangle_barycentric_coord()", "*", "", ""],
+    ["bool is_candidate_non_opaque_bounding_box()", "", "*", ""],
+    ["bool is_candidate_triangle_front_facing()", "*", "", ""],
+    ["float4x3 get_candidate_object_to_world_transform()", "*", "*", "*"],
+    ["float4x3 get_candidate_world_to_object_transform()", "*", "*", "*"],
+    ["float3 get_candidate_ray_origin()", "*", "*", "*"],
+    ["float3 get_candidate_ray_direction()", "*", "*", "*"],
+    [
+      "const device void * get_candidate_primitive_data() Since Metal 3",
+      "*",
+      "*",
+      "*",
+    ],
+  ]}
+/>
 
-### \* \* \*
-
-void commit_triangle_intersection() (^) \* void commit_bounding_box_intersection(浮动距离)
-
-###\*
-
-`void commit_curve_intersection() 自 Metal 3.1`
-
-###\*
-
-从 Metal 3.1 开始，当使用 max_levels 交集标签指定时，交集查询支持以下函数。
-
-## 表 6.30。使用 max_levels 的交集查询函数
-
-`函数三角形边界曲线`
-
-`uint get_candidate_instance_count() 自 Metal 3.1`
-
-### \* \* \*
-
-`uint get_candidate_instance_id(uint depth) 自 Metal 3.1`
-
-### \* \* \*
-
-`uint get_candidate_user_instance_id(uint depth) 自 Metal 3.1`
-
-### \* \* \*
-
-`uint get_commissed_instance_count() 自 Metal 3.1`
-
-### \* \* \*
-
-`uint get_commissed_instance_id(uint depth) 自 Metal 3.1`
-
-### \* \* \*
-
-`uint get_commissed_user_instance_id(uint depth) 自 Metal 3.1`
-
-### \* \* \*
-
-## 表 6.31。交点查询射线值函数
-
-**光线值函数三角形边界曲线**
-
-float3 get*world_space_ray_origin() (^) \* \* * float3 get*world_space_ray_direction() (^) * \* _ float get_ray_min_distance() (^) _ \* _ junction_params get_intersection_params() (^) _ \* \*
-
-## 表 6.32。交集查询候选值函数
-
-**候选交点值函数三角形边界曲线**
-
-float get*candidate_triangle_distance() (^) * uint get*candidate_instance_id() * \* _ uint get_candidate_user_instance_id() (^) _ \* _ uint get_candidate_geometry_id() (^) _ \* _ uint get_candidate_primitive_id() (^) _ \* \* float2 get_candidate_triangle_barycentric_coord()
-
-###\*
-
-bool is*candidate_non_opaque_bounding_box() (^) * bool is*candidate_triangle_front_faceing() (^) * float4x3 get_candidate_object_to_world_transform()
-
-### \* \* \*
-
-float4x3 get_candidate_world_to_object_transform()
-
-### \* \* \*
-
-float3 get*candidate_ray_origin() (^) \* \* * float3 get*candidate_ray_direction() (^) * \* _ const device void _ get_candidate_primitive_data() 自 Metal 3 起
-
-### \* \* \*
-
-## 表 6.33。相交查询提交值函数
-
-`承诺交点值函数三角形边界曲线`
-
-float get*commissed_distance() (^) \* \* * uint get*commissed_instance_id() (^) * \* _ uint get_commissed_user_instance_id() (^) _ \* _ uint get_commissed_geometry_id() (^) _ \* _ uint get_commissed_primitive_id() ( ^) _ \* \* float2 get_comfilled_triangle_barycentric_coord()
-
-###\*
-
-bool is_commited_triangle_front_face() (^) \* float4x3 get_comfilled_object_to_world_transform()
-
-### \* \* \*
-
-`float4x3 get_comfilled_world_to_object_transform()`
-
-### \* \* \*
-
-float3 get*commissed_ray_origin() (^) \* \* * float3 get*comfilled_ray_direction() (^) * \* _ const device void _ get_comfilled_primitive_data() 自 Metal 3 起
-
-### \* \* \*
-
-`float get_candidate_curve_parameter() 自 Metal 3.1`
-
-###\*
-
-`float get_commissed_curve_parameter() 自 Metal 3.1`
-
-###\*
+<TableView
+  num="6.33"
+  title="Intersect query committed value functions"
+  headers={[
+    "Committed Intersections Value Functions",
+    "Triangle",
+    "Bounding",
+    "Curve",
+  ]}
+  datasList={[
+    ["float get_committed_distance()", "*", "*", "*"],
+    ["uint get_committed_instance_id()", "*", "*", "*"],
+    ["uint get_committed_user_instance_id()", "*", "*", "*"],
+    ["uint get_committed_geometry_id()", "*", "*", "*"],
+    ["uint get_committed_primitive_id()", "*", "*", "*"],
+    ["float2 get_committed_triangle_barycentric_coord()", "*", "-", "-"],
+    ["bool is_committed_triangle_front_facing()", "*", "-", "-"],
+    ["float4x3 get_committed_object_to_world_transform()", "*", "*", "*"],
+    ["float4x3 get_committed_world_to_object_transform()", "*", "*", "*"],
+    ["float3 get_committed_ray_origin()", "*", "*", "*"],
+    ["float3 get_committed_ray_direction()", "*", "*", "*"],
+    [
+      "const device void * get_committed_primitive_data() \nSince Metal 3",
+      "*",
+      "*",
+      "*",
+    ],
+    ["float get_candidate_curve_parameter() Since Metal 3.1", "-", "-", "*"],
+    ["float get_committed_curve_parameter() \nSince Metal 3.1", "-", "-", "*"],
+  ]}
+/>
 
 调用以下函数查询需要考虑的候选三角形命中的距离。
 
+```c
 float get_candidate_triangle_distance()
+```
 
 调用以下函数查询当前提交的命中距离。
 
-浮动 get_commited_distance()
+```c
+float get_committed_distance()
+```
 
 调用以下函数查询当前候选命中的顶级结构实例 ID。
 
+```c
 uint get_candidate_instance_id()
+```
 
 调用以下函数查询当前候选命中的底层加速结构上用户提供的用户实例 ID。
 
+```c
 uint get_candidate_user_instance_id()
+```
 
 调用以下函数查询当前候选命中的底层结构几何 ID。
 
+```c
 uint get_candidate_geometry_id()
+```
 
 调用以下函数来查询当前候选命中的几何图形中的底层结构图元 ID。
 
+```c
 uint get_candidate_primitive_id()
+```
 
 调用以下函数查询当前提交命中的顶级结构实例 ID。
 
-uint get_commited_instance_id()
+```c
+uint get_committed_instance_id()
+```
 
 调用以下函数查询用户在底层加速结构上提供的当前提交命中的用户实例 ID。
 
-uint get_commited_user_instance_id()
+```c
+uint get_committed_user_instance_id()
+```
 
 调用以下函数查询当前提交命中的底层结构几何 ID。
 
-uint get_commited_geometry_id()
+```c
+uint get_committed_geometry_id()
+```
 
 调用以下函数来查询当前提交命中的几何体中的底层结构图元 ID。
 
-uint get_commissed_primitive_id()
+```c
+uint get_committed_primitive_id()
+```
 
 调用以下函数来查询当前候选命中对象空间中的射线原点。
 
+```c
 float3 get_candidate_ray_origin()
+```
 
 调用以下函数来查询当前命中候选对象空间中的射线方向。
 
+```c
 float3 get_candidate_ray_direction()
+```
 
 调用以下函数来查询当前提交命中的对象空间中的射线原点。
 
-float3 get_commited_ray_origin()
+```c
+float3 get_committed_ray_origin()
+```
 
 调用以下函数来查询当前提交命中的对象空间中的光线方向。
 
+```c
 float3 get_commissed_ray_direction()
+```
 
 调用以下函数来查询矩阵，以将当前命中候选的射线原点/方向从对象空间转换为世界空间。
 
+```c
 float4x3 get_candidate_object_to_world_transform()
+```
 
 调用以下函数来查询矩阵，以将当前候选命中的射线原点/方向从世界空间转换为对象空间。
 
+```c
 float4x3 get_candidate_world_to_object_transform()
+```
 
-调用以下函数来查询矩阵，以将当前提交的命中的射线原点/方向从对象空间转换为世界空间。float4x3 get_commited_object_to_world_transform()
+调用以下函数来查询矩阵，以将当前提交的命中的射线原点/方向从对象空间转换为世界空间。
+
+```c
+float4x3 get_committed_object_to_world_transform()
+```
 
 调用以下函数来查询矩阵，以将当前提交的命中的光线原点/方向从世界空间转换为对象空间。
 
-float4x3 get_commited_world_to_object_transform()
+```c
+float4x3 get_committed_world_to_object_transform()
+```
 
-调用以下函数查询候选命中位置重心坐标。当 get_candidate_intersection_type() 返回三角形时有效。
+调用以下函数查询候选命中位置重心坐标。当 `get_candidate_intersection_type()` 返回三角形时有效。
 
+```c
 float2 get_candidate_triangle_barycentric_coord()
+```
 
-对于顶点属性 v0、v1 和 v2，指定重心点处的值为：v1 _ barycentric_coord.x + v2 _ barycentric_coord.y + v0 \* (1.0f - (barycentric_coord.x + barycentric_coord.y))
+对于顶点属性 `v0`、`v1` 和 `v2`，指定重心点处的值为：
 
-调用以下函数查询提交的命中位置重心坐标。当 get_commited_intersection_type() 返回三角形时有效。
+```c
+v1 * barycentric_coord.x +
+v2 * barycentric_coord.y +
+v0 * (1.0f - (barycentric_coord.x + barycentric_coord.y))
+```
 
-float2 get_commited_triangle_barycentric_coord()
+调用以下函数查询提交的命中位置重心坐标。当 get_committed_intersection_type() 返回三角形时有效。
 
-调用以下函数来查询命中三角形候选对象是正面还是背面。如果是正面则返回 true，如果是背面则返回 false。当 get_candidate_intersection_type() 返回三角形时有效。
+```c
+float2 get_committed_triangle_barycentric_coord()
+```
 
-bool is_candidate_triangle_front_face()
+调用以下函数来查询命中三角形候选对象是正面还是背面。如果是正面则返回 true，如果是背面则返回 false。当 `get_candidate_intersection_type()` 返回 `triangle` 时有效。
 
-调用以下函数来查询提交的命中是正面还是背面。如果是正面则返回 true，如果是背面则返回 false。当 get_commited_intersection_type() 返回三角形时有效。
+```c
+bool is_candidate_triangle_front_facing()
+```
 
-bool is_commissed_triangle_front_faceing()
+调用以下函数来查询提交的命中是正面还是背面。如果是正面则返回 `true`，如果是背面则返回 `false`。当 `get_committed_intersection_type()` 返回三角形时有效。
+
+```c
+bool is_committed_triangle_front_facing()
+```
 
 调用以下函数来查询当前候选图元的每个图元数据。
 
-const device void \*get_candidate_primitive_data()
+```c
+const device void *get_candidate_primitive_data()
+```
 
 调用以下函数来查询当前提交命中的每个基元数据。
 
-const device void \*get_comfilled_primitive_data()
+```c
+const device void *get_committed_primitive_data()
+```
 
-从 Metal 3.1 开始，当 get_candidate_intersection_type() 返回 curve 并且交集标签具有 curve_data 时，可以调用以下两个函数：
+从 Metal 3.1 开始，当 `get_candidate_intersection_type()` 返回 `curve` 并且交集标签具有 `curve_data` 时，可以调用以下两个函数：
 
 调用以下命令查询当前候选曲线的曲线参数。
 
+```c
 float get_candidate_curve_parameter()
+```
 
-调用以下命令查询当前提交的交点的曲线参数。当 get_candidate_intersection_type() 返回曲线时有效。
+调用以下命令查询当前提交的交点的曲线参数。当 `get_candidate_intersection_type()` 返回 `curve` 时有效。
 
-float get_commited_curve_parameter()
+```c
+float get_committed_curve_parameter()
+```
 
-从 Metal 3.1 开始，当交集标签具有 max_levels 时，可以调用本节中的其余函数：
+从 Metal 3.1 开始，当交集标签具有 `max_levels<Count>` 时，可以调用本节中的其余函数：
 
 调用以下函数查询候选交集的实例数。
 
+```c
 uint get_candidate_instance_count()
+```
 
-调用以下函数查询候选交集的级别深度的实例 ID。
+调用以下函数查询候选交集的级别 `depth` 的实例 ID。
 
-uint get_candidate_instance_id（uint 深度）
+```c
+uint get_candidate_instance_id(uint depth)
+```
 
-调用以下函数查询候选交集的级别深度的用户实例 ID。
+调用以下函数查询候选交集的级别 `depth` 的用户实例 ID。
 
-uint get_candidate_user_instance_id（uint 深度）
+```c
+uint get_candidate_user_instance_id(uint depth)
+```
 
 调用以下函数查询已提交交集的实例数。
 
-uint get_commissed_instance_count()
+```c
+uint get_committed_instance_count()
+```
 
-调用以下函数查询提交交集的级别深度的实例 ID。
+调用以下函数查询提交交集的级别 `depth` 的实例 ID。
 
-uint get_commited_instance_id（uint 深度）
+```c
+uint get_committed_instance_id(uint depth)
+```
 
-调用以下函数查询提交交集的级别深度的用户实例 ID。
+调用以下函数查询提交交集的级别 `depth` 的用户实例 ID。
 
-uint get_commited_user_instance_id(uint 深度);
+```c
+uint get_committed_user_instance_id(uint depth);
+```
 
 ## 间接实例描述符
 
 从 Metal 3.1 开始，开发人员可以从 GPU 填写间接实例描述符。Metal 提供了以下类型定义：
 
-枚举 MTLAccelerationStructureInstanceOptions : uint { MTLAccelerationStructureInstanceOptionNone = 0, MTLAccelerationStructureInstanceOptionDisableTriangleCulling = (1 << 0),
+```cpp
+enum MTLAccelerationStructureInstanceOptions : uint {
+    MTLAccelerationStructureInstanceOptionNone = 0,
+    MTLAccelerationStructureInstanceOptionDisableTriangleCulling = (1 << 0),
 
-MTLAccelerationStructureInstanceOptionTriangleFrontFacingWindingCounterClockwise = (1 << 1), MTLAccelerationStructureInstanceOptionOpaque = (1 << 2), MTLAccelerationStructureInstanceOptionNonOpaque = (1 << 3), };
+    MTLAccelerationStructureInstanceOptionTriangleFrontFacingWindingCoun terClockwise = (1 << 1),
+    MTLAccelerationStructureInstanceOptionOpaque = (1 << 2),
+    MTLAccelerationStructureInstanceOptionNonOpaque = (1 << 3),
+};
 
-typedef packed_float3 MTLPackedFloat3; typedef packed_float3 MTLPackedFloat4x3[4];
+typedef packed_float3 MTLPackedFloat3;
+typedef packed_float3 MTLPackedFloat4x3[4];
 
-结构 MTLAccelerationStructureInstanceDescriptor { MTLPackedFloat4x3 conversionMatrix; MTLAccelerationStructureInstanceOptions 选项； uint 掩码； uint intersectionFunctionTableOffset； uint AccelerationStructureIndex； };
+struct MTLAccelerationStructureInstanceDescriptor {
+  MTLPackedFloat4x3 transformationMatrix;
+  MTLAccelerationStructureInstanceOptions options;
+  uint mask;
+  uint intersectionFunctionTableOffset;
+  uint accelerationStructureIndex;
+};
 
-结构 MTLAccelerationStructureUserIDInstanceDescriptor { MTLPackedFloat4x3 conversionMatrix;
+struct MTLAccelerationStructureUserIDInstanceDescriptor {
+  MTLPackedFloat4x3 transformationMatrix;
+  MTLAccelerationStructureInstanceOptions options;
+  uint mask;
+  uint intersectionFunctionTableOffset;
+  uint accelerationStructureIndex;
+  uint userID;
+};
+```
 
-MTLAccelerationStructureInstanceOptions 选项； uint 掩码； uint intersectionFunctionTableOffset； uint AccelerationStructureIndex； uint 用户 ID； };
+为了方便填写描述符，Metal 提供了从 `acceleration_structure<intersection_tags...>` 到 `MTLResourceID` 的隐式转换。
 
-为了方便填写描述符，Metal 提供了从 Acceleration_struct 到 MTLResourceID 的隐式转换。
-
-Acceleration_struct PrimitiveAStruct = ...; MTLResourceID 资源\_id = PrimitiveAStruct;
+```cpp
+acceleration_structure<primitive_motion> primitiveAStruct = ...;
+MTLResourceID resource_id = primitiveAStruct;
+```
 
 ## 曲线实用函数
 
-从 Metal 3.1 开始，Metal 提供了一组在头文件 中定义的曲线实用函数。使用以下缩写：
+从 Metal 3.1 开始，Metal 提供了一组在头文件 `<metal_curves>` 中定义的曲线实用函数。使用以下缩写：
 
-ps 是浮动或一半。
+`Ps` is `float` or `half`.
 
-P 是 Ps 的标量或向量。如果 Ps 是 float，则 P 是 float4。
+`P` is a scalar or a vector of `Ps`. If `Ps` is `float`, `P` is `float4`.
 
-这些函数返回给定曲线参数 t 和控制点 p0、p1 等的曲线上的位置或一阶或二阶导数。如表 6. 34 所示，这些函数支持二次贝塞尔曲线、三次贝塞尔曲线、二次 B 样条曲线、三次 B 样条曲线、三次 Hermite 和 Catmull-Rom 曲线。
+这些函数返回给定曲线参数 `t` 和控制点 `p0`、`p1` 等的曲线上的位置或一阶或二阶导数。如表 6.34 所示，这些函数支持二次贝塞尔曲线、三次贝塞尔曲线、二次 B 样条曲线、三次 B 样条曲线、三次 Hermite 和 Catmull-Rom 曲线。
 
-## 表 6.34。曲线效用函数
-
-` 功能说明`
-
-`P 贝塞尔曲线 ( Ps_t, P p0, P p1, P p2)`
-
-`返回二次贝塞尔曲线上的位置`
-
-`P bezier_derivative( Ps_t, P p0, P p1, P p2)`
-
-`返回二次贝塞尔曲线上的一阶导数`
-
-`P bezier_second_derivative( Ps_t, P p0, P p1, P p2)`
-
-`返回二次贝塞尔曲线的二阶导数`
-
-`P 贝塞尔曲线 ( Ps_t, P p0, P p1, P p2, P p3)`
-
-`返回三次贝塞尔曲线上的位置`
-
-`P bezier_derivative( Ps_t, P p0, P p1, P p2, P p3)`
-
-`返回三次贝塞尔曲线上的一阶导数`
-
-`P bezier_second_derivative( Ps_t, P p0, P p1, P p2, P p3)`
-
-`返回三次贝塞尔曲线的二阶导数`
-
-`P bspline( Ps_t, P p0, P p1, P p2)`
-
-`返回二次 B 样条曲线上的位置`
-
-**功能说明**
-
-P bspline_derivative( Ps_t, P p0, P p1, P p2)
-
-`返回二次 B 样条曲线上的一阶导数`
-
-P bspline_second_derivative( Ps_t, P p0, P p1, P p2)
-
-`返回二次 B 样条曲线的二阶导数`
-
-P bspline( Ps_t, P p0, P p1, P p2, P p3)
-
-`返回三次 B 样条曲线上的位置`
-
-P bspline_derivative( Ps_t, P p0, P p1, P p2, P p3)
-
-`返回三次 B 样条曲线上的一阶导数`
-
-P bspline_second_derivative( Ps_t, P p0, P p1, P p2, P p3)
-
-`返回三次 B 样条曲线上的二阶导数`
-
-P hermite( Ps_t, P p0, P p1, P m0, P m1)
-
-`返回三次 Hermite 曲线上的位置`
-
-P hermite_derivative( Ps_t, P p0, P p1, P m0, P m1)
-
-`返回三次 Hermite 曲线上的一阶导数`
-
-P hermite_second_derivative( Ps_t, P p0, P p1, P m0, P m1)
-
-`返回三次 Hermite 曲线上的二阶导数`
-
-P catmull_rom( Ps_t, P p0, P p1, P p2, P p3)
-
-`返回 Catmull-Rom 曲线上的位置`
-
-P catmull_rom_derivative( Ps_t, P p0, P p1, P p2, P p3)
-
-`返回 Catmull-Rom 曲线上的一阶导数`
-
-P catmull_rom_second_derivative( Ps_t, P p0, P p1, P p2, P p3)
-
-`返回 Catmull-Rom 曲线上的二阶导数`
+<TableView
+  num="6.34"
+  title="Curve Utility Functions"
+  headers={["Function", "Description"]}
+  datasList={[
+    [
+      "P bezier(Ps_t, P p0, P p1, P p2)",
+      "Returns the position on a quadratic Bézier curve",
+    ],
+    [
+      "P bezier_derivative(Ps_t, P p0, P p1, P p2)",
+      "Returns the first derivative on a quadratic Bézier curve",
+    ],
+    [
+      "P bezier_second_derivative(Ps_t, P p0, P p1, P p2)",
+      "Returns the second derivative on a quadratic Bézier curve",
+    ],
+    [
+      "P bezier(Ps_t, P p0, P p1, P p2, P p3)",
+      "Returns the position on a cubic Bézier curve",
+    ],
+    [
+      "P bezier_derivative(Ps_t, P p0, P p1, P p2, P p3)",
+      "Returns the first derivative on a cubic Bézier curve",
+    ],
+    [
+      "P bezier_second_derivative(Ps_t, P p0, P p1, P p2, P p3)",
+      "Returns the second derivative on a cubic Bézier curve",
+    ],
+    [
+      "P bspline(Ps_t, P p0, P p1, P p2)",
+      "Returns the position on a quadratic B-spline curve",
+    ],
+    [
+      "P bspline_derivative(Ps_t, P p0, P p1, P p2)",
+      "Returns the first derivative on a quadratic B-spline curve",
+    ],
+    [
+      "P bspline_second_derivative(Ps_t, P p0, P p1, P p2)",
+      "Returns the second derivative on a quadratic B-spline curve",
+    ],
+    [
+      "P bspline(Ps_t, P p0, P p1, P p2, P p3)",
+      "Returns the position on a cubic B-spline curve",
+    ],
+    [
+      "P bspline_derivative(Ps_t, P p0, P p1, P p2, P p3)",
+      "Returns the first derivative on a cubic B-spline curve",
+    ],
+    [
+      "P bspline_second_derivative(Ps_t, P p0, P p1, P p2, P p3)",
+      "Returns the second derivative on a cubic B-spline curve",
+    ],
+    [
+      "P hermite(Ps_t, P p0, P p1, P m0, P m1)",
+      "Returns the position on a cubic Hermite curve",
+    ],
+    [
+      "P hermite_derivative(Ps_t, P p0, P p1, P m0, P m1)",
+      "Returns the first derivative on a cubic Hermite curve",
+    ],
+    [
+      "P hermite_second_derivative(Ps_t, P p0, P p1, P m0, P m1)",
+      "Returns the second derivative on a cubic Hermite curve",
+    ],
+    [
+      "P catmull_rom(Ps_t, P p0, P p1, P p2, P p3)",
+      "Returns the position on a Catmull-Rom curve",
+    ],
+    [
+      "P catmull_rom_derivative(Ps_t, P p0, P p1, P p2, P p3)",
+      "Returns the first derivative on a Catmull-Rom curve",
+    ],
+    [
+      "P catmull_rom_second_derivative(Ps_t, P p0, P p1, P p2, P p3)",
+      "Returns the second derivative on a Catmull-Rom curve",
+    ],
+  ]}
+/>

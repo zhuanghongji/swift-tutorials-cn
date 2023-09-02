@@ -10,196 +10,375 @@ iOS：自 Metal 2 起支持图像块。
 
 以下成员函数查询有关图像块的信息：
 
+```c
 ushort get_width() const;
-
 ushort get_height() const;
-
 ushort get_num_samples() const;
+```
 
-使用以下成员函数查询图像块内由 (x, y) 坐标给出的特定位置的唯一颜色条目的数量：
+使用以下成员函数查询图像块内由 `(x, y)` 坐标给出的特定位置的唯一颜色条目的数量：
 
+```c
 ushort get_num_colors(ushort2 coord) const;
+```
 
 以下成员函数返回颜色覆盖掩码（即给定颜色是否覆盖图像块中的一个或多个样本）。每个样本由其在返回值中的位位置来标识。如果设置了一个位，则表明该样本使用颜色索引。
 
+```c
 ushort get_color_coverage_mask(ushort2 coord, ushort color_index) const;
+```
 
-color_index 是从 0 到 get_num_colors() - 1 的值。
+`color_index` 是从 `0` 到 `get_num_colors() - 1` 的值。
 
 ## 具有隐式布局的图像块的函数
 
-使用以下函数以像素速率读取或写入图像块内给定 (x, y) 坐标的图像块：
+使用以下函数以像素速率读取或写入图像块内给定 `(x, y)` 坐标的图像块：
 
-T 读取(ushort2 坐标) const;
+```c
+T read(ushort2 coord) const;
+void write(T data, ushort2 coord);
+```
 
-无效写入（T 数据，ushort2 坐标）；
+使用以下成员函数以采样率或颜色率读取或写入图像块。`coord` 指定图像块内的 `(x, y)` 坐标，`index` 是样本或颜色索引。
 
-使用以下成员函数以采样率或颜色率读取或写入图像块。coord 指定图像块内的 (x, y) 坐标，index 是样本或颜色索引。
+```c
+enum class imageblock_data_rate { color, sample };
 
-枚举类 imageblock_data_rate { 颜色，样本 }；
+T read(ushort2 coord,
+       ushort index,
+       imageblock_data_rate data_rate) const;
 
-T read(ushort2 坐标，ushort 索引，imageblock_data_rate data_rate) const;
-
-void write(T 数据，ushort2 坐标，ushort 索引，imageblock_data_rate data_rate);
+void write(T data,
+           ushort2 coord,
+           ushort index,
+           imageblock_data_rate data_rate);
+```
 
 例子：
 
-struct Foo { float4 到 [[color(0)]]; int4 b [[颜色(1)]]; };
+```cpp
+struct Foo {
+    float4 a [[color(0)]];
+    int4 b [[color(1)]];
+};
 
-kernel void my_kernel(imageblock img_blk, ushort2 cover [[thread_position_in_threadgroup]] ...) { ... Foo f = img_blk.read(lid); float4 r = f.a; ... f.a = r； ... img_blk.write(f, 盖); }
+kernel void my_kernel(imageblock<Foo, imageblock_layout_implicit> img_blk,
+                      ushort2 lid [[thread_position_in_threadgroup]] ...
+) {
+    ...
+    Foo f = img_blk.read(lid); float4 r = f.a;
+    ...
+    f.a = r;
+    ...
+    img_blk.write(f, lid);
+}
+```
 
 使用以下成员函数编写带有颜色覆盖蒙版的图像块。以颜色率写入图像块时必须使用此成员函数：
 
+```c
 void write(T data, ushort2 coord, ushort color_coverage_mask);
+```
 
-使用以下成员函数获取图像块中给定数据成员的切片区域。你可以使用这些函数将线程组中所有线程的图像块中描述的特定数据成员关联的数据写入纹理中的指定区域。color_index 指的是在 imageblock 中指定的具有 [[color(n)]] 属性的结构类型中声明的数据成员，其中 n 是 color_index。size 是复制切片的实际大小。
+使用以下成员函数获取图像块中给定数据成员的切片区域。你可以使用这些函数将线程组中所有线程的图像块中描述的特定数据成员关联的数据写入纹理中的指定区域。`color_index` 指的是在 `imageblock<T>` 中指定的具有 `[[color(n)]]` 属性的结构类型中声明的数据成员，其中 `n` 是 `color_index`。`size` 是复制切片的实际大小。
 
+```c
 const imageblock_slice<E, imageblock_layout_implicit> slice(ushort color_index) const;
-
 const imageblock_slice<E, imageblock_layout_implicit> slice(ushort color_index, ushort2 size) const;
+```
 
-要复制的区域的原点为 (0,0)。没有参数 size 的 slice(...) 成员函数复制图像块的整个宽度和高度。
+要复制的区域的原点为 `(0, 0)`。没有参数 `size` 的 `slice(...)` 成员函数复制图像块的整个宽度和高度。
 
 ## 具有显式布局的图像块的函数
 
-使用以下成员函数获取对图像块内的 (x, y) 坐标给出的特定位置的图像块数据的引用。当以像素速率读取或写入图像块中的数据成员时，请使用这些成员函数。
+使用以下成员函数获取对图像块内的 `(x, y)` 坐标给出的特定位置的图像块数据的引用。当以像素速率读取或写入图像块中的数据成员时，请使用这些成员函数。
 
-threadgroup_imageblock T\* 数据(ushort2 coord);
+```c
+threadgroup_imageblock T* data(ushort2 coord);
+const threadgroup_imageblock T* data(ushort2 coord) const;
+```
 
-const threadgroup_imageblock T\* 数据(ushort2 coord) const;
+使用以下成员函数获取对由图像块内的 `(x, y)` 坐标和样本或颜色索引给定的特定位置的图像块数据的引用。当以采样率或颜色率读取或写入图像块中的数据成员时，请使用这些成员函数。`T` 是 `imageblock<T>` 模板化声明中特定的类型。`coord` 是图像块中的坐标，`index` 是多采样图像块的样本或颜色索引。`data_rate` 指定索引是颜色索引还是样本索引。如果 `coord` 引用图像块维度之外的位置或者索引是无效索引，则 `data()` 的行为未定义。
 
-使用以下成员函数获取对由图像块内的 (x, y) 坐标和样本或颜色索引给定的特定位置的图像块数据的引用。当以采样率或颜色率读取或写入图像块中的数据成员时，请使用这些成员函数。T 是 imageblock 模板化声明中特定的类型。coord 是图像块中的坐标，index 是多采样图像块的样本或颜色索引。data_rate 指定索引是颜色索引还是样本索引。如果 coord 引用图像块维度之外的位置或者索引是无效索引，则 data() 的行为未定义。
+```c
+enum class imageblock_data_rate { color, sample };
 
-枚举类 imageblock_data_rate { 颜色，样本 }；
+threadgroup_imageblock T* data(ushort2 coord,
+                               ushort index,
+                               imageblock_data_rate data_rate);
 
-threadgroup_imageblock T\* 数据(ushort2 坐标，ushort 索引，imageblock_data_rate data_rate);
+const threadgroup_imageblock T* data(ushort2 coord,
+                                     ushort index,
+                                     imageblock_data_rate data_rate) const;
+```
 
-const threadgroup_imageblock T\* data(ushort2 坐标，ushort 索引，imageblock_data_rate data_rate) const;
-
-为以样本或颜色率存储像素的图像块调用 data(coord) 成员函数相当于调用 data(coord, 0, imageblock_data_rate::sample)。
+为以样本或颜色率存储像素的图像块调用 `data(coord)` 成员函数相当于调用 `data(coord, 0, imageblock_data_rate::sample)`。
 
 例子：
 
-struct Foo { rgba8unorm a;整数 b； };
+```cpp
+struct Foo {
+    rgba8unorm<half4> a;
+    int b;
+};
 
-kernel void my_kernel(imageblock img_blk, ushort2 cover [[thread_position_in_threadgroup]] ...) { ... threadgroup_imageblock Foo\* f = img_blk.data(lid); half4 r = f->a; f->a = r； ... }
+kernel void
+my_kernel(imageblock<Foo> img_blk, ushort2 lid [[thread_position_in_threadgroup]] ...)
+{
+    ...
+    threadgroup_imageblock Foo* f = img_blk.data(lid);
+    half4 r = f->a;
+    f->a = r;
+    ...
+}
+```
 
-使用以下 write 成员函数写入带有颜色覆盖蒙版的图像块。当以颜色率写入图像块时，必须使用此成员函数。
+使用以下 `write` 成员函数写入带有颜色覆盖蒙版的图像块。当以颜色率写入图像块时，必须使用此成员函数。
 
+```c
 void write(T data, ushort2 coord, ushort color_coverage_mask);
+```
 
-使用以下切片成员函数获取图像块结构中给定数据成员的切片区域。你可以使用此函数将线程组中所有线程的图像块结构中描述的特定数据成员关联的数据写入纹理中的指定区域。
+使用以下 `slice` 成员函数获取图像块结构中给定数据成员的切片区域。你可以使用此函数将线程组中所有线程的图像块结构中描述的特定数据成员关联的数据写入纹理中的指定区域。
 
-data_member 是在 imageblock 中指定的结构类型中声明的数据成员。size 是复制切片的实际大小。
+`data_member` 是在 `imageblock` 中指定的结构类型中声明的数据成员。`size` 是复制切片的实际大小。
 
+```c
 const imageblock_slice<E, imageblock_layout_explicit>
-
 slice(const threadgroup_imageblock E& data_member) const;
 
 const imageblock_slice<E, imageblock_layout_explicit>
+slice(const threadgroup_imageblock E& data_member, ushort2 size) const;
+```
 
-slice(const threadgroup_imageblock E& data_member, ushort2 大小) const;
-
-要复制的区域的原点为 (0,0)。没有参数 size 的 slice(...) 成员函数复制图像块的整个宽度和高度。
+要复制的区域的原点为 `(0, 0)`。没有参数 `size` 的 `slice(...)` 成员函数复制图像块的整个宽度和高度。
 
 ## 将图像块切片写入纹理中的区域
 
-在这些纹理类型中使用以下 write(...) 成员函数将与图像块中的切片关联的像素写入从坐标给定的位置开始的纹理。请注意，从 imageblock_slice 写入纹理必须具有匹配的 MSAA 模式，否则结果是未定义的。
+在这些纹理类型中使用以下 `write(...)` 成员函数将与图像块中的切片关联的像素写入从 `coord` 给定的位置开始的纹理。请注意，从 `imageblock_slice` 写入纹理必须具有匹配的 MSAA 模式，否则结果是未定义的。
 
 对于一维纹理：
 
-void write(imageblock_slice<E, imageblock_layout_explicit> slice, uint coord, uint lod = 0);
+```c
+void write(imageblock_slice<E, imageblock_layout_explicit> slice,
+           uint coord,
+           uint lod = 0);
 
-void write(imageblock_slice<E, imageblock_layout_explicit> slice, ushort coord, ushort lod = 0);
+void write(imageblock_slice<E, imageblock_layout_explicit> slice,
+           ushort coord,
+           ushort lod = 0);
 
-void write(imageblock_slice<E, imageblock_layout_implicit> slice, uint coord, uint lod = 0);
+void write(imageblock_slice<E, imageblock_layout_implicit> slice,
+           uint coord,
+           uint lod = 0);
 
-void write(imageblock_slice<E, imageblock_layout_implicit> slice, ushort coord, ushort lod = 0);
+void write(imageblock_slice<E, imageblock_layout_implicit> slice,
+           ushort coord,
+           ushort lod = 0);
+```
 
 对于一维纹理数组：
 
-void write(imageblock_slice slice, uint 坐标, uint 数组, uint lod = 0);
+```c
+void write(imageblock_slice<E, imageblock_layout_explicit> slice,
+           uint coord,
+           uint array,
+           uint lod = 0);
 
-void write(imageblock_slice 切片，ushort 坐标，ushort 数组，ushort lod = 0);
+void write(imageblock_slice<E, imageblock_layout_explicit> slice,
+           ushort coord,
+           ushort array,
+           ushort lod = 0);
 
-void write(imageblock_slice slice, uint 坐标, uint 数组, uint lod = 0);
+void write(imageblock_slice<E, imageblock_layout_implicit> slice,
+           uint coord,
+           uint array,
+           uint lod = 0);
 
-void write(imageblock_slice slice, ushort 坐标, ushort 数组, ushort lod = 0);
+void write(imageblock_slice<E, imageblock_layout_implicit> slice,
+           ushort coord,
+           ushort array,
+           ushort lod = 0);
+```
 
 对于 2D 纹理：
 
-void write(imageblock_slice 切片, uint2 坐标, uint lod = 0);
+```c
+void write(imageblock_slice<E, imageblock_layout_explicit> slice,
+           uint2 coord,
+           uint lod = 0);
 
-void write(imageblock_slice<E, imageblock_layout_explicit> slice, ushort2 coord, ushort lod = 0);
+void write(imageblock_slice<E, imageblock_layout_explicit> slice,
+           ushort2 coord,
+           ushort lod = 0);
 
-void write(imageblock_slice<E, imageblock_layout_implicit> slice, uint2 coord, uint lod = 0);
+void write(imageblock_slice<E, imageblock_layout_implicit> slice,
+           uint2 coord,
+           uint lod = 0);
 
-void write(imageblock_slice<E, imageblock_layout_implicit> slice, ushort2 coord, ushort lod = 0);
+void write(imageblock_slice<E, imageblock_layout_implicit> slice,
+           ushort2 coord,
+           ushort lod = 0);
+```
 
 对于 2D MSAA 纹理：
 
-void write(imageblock_slice 切片, uint2 坐标, uint lod = 0);
+```c
+void write(imageblock_slice<E, imageblock_layout_explicit> slice,
+           uint2 coord,
+           uint lod = 0);
 
-void write(imageblock_slice<E, imageblock_layout_explicit> slice, ushort2 coord, ushort lod = 0);
+void write(imageblock_slice<E, imageblock_layout_explicit> slice,
+           ushort2 coord,
+           ushort lod = 0);
 
-void write(imageblock_slice<E, imageblock_layout_implicit> slice, uint2 coord, uint lod = 0);
+void write(imageblock_slice<E, imageblock_layout_implicit> slice,
+           uint2 coord,
+           uint lod = 0);
 
-void write(imageblock_slice<E, imageblock_layout_implicit> slice, ushort2 coord, ushort lod = 0);
+void write(imageblock_slice<E, imageblock_layout_implicit> slice,
+           ushort2 coord,
+           ushort lod = 0);
+```
 
 对于 2D 纹理数组：
 
-void write(imageblock_slice slice, uint2 坐标, uint 数组, uint lod = 0);
+```c
+void write(imageblock_slice<E, imageblock_layout_explicit> slice,
+           uint2 coord,
+           uint array,
+           uint lod = 0);
 
-void write(imageblock_slice 切片, ushort2 坐标, ushort 数组, ushort lod = 0);
+void write(imageblock_slice<E, imageblock_layout_explicit> slice,
+           ushort2 coord,
+           ushort array,
+           ushort lod = 0);
 
-void write(imageblock_slice slice, uint2 坐标, uint 数组, uint lod = 0);
+void write(imageblock_slice<E, imageblock_layout_implicit> slice,
+           uint2 coord,
+           uint array,
+           uint lod = 0);
 
-void write(imageblock_slice slice, ushort2 坐标, ushort 数组, ushort lod = 0);
+void write(imageblock_slice<E, imageblock_layout_implicit> slice,
+           ushort2 coord,
+           ushort array,
+           ushort lod = 0);
+```
 
 对于立方体纹理：
 
-void write(imageblock_slice slice, uint2 坐标, uint 面, uint lod = 0);
+```c
+void write(imageblock_slice<E, imageblock_layout_explicit> slice,
+           uint2 coord,
+           uint face,
+           uint lod = 0);
 
-void write(imageblock_slice 切片，ushort2 坐标，ushort 面，ushort lod = 0);
+void write(imageblock_slice<E, imageblock_layout_explicit> slice,
+           ushort2 coord,
+           ushort face,
+           ushort lod = 0);
 
-void write(imageblock_slice slice, uint2 坐标, uint 面, uint lod = 0);
+void write(imageblock_slice<E, imageblock_layout_implicit> slice,
+           uint2 coord,
+           uint face,
+           uint lod = 0);
 
-void write(imageblock_slice 切片, ushort2 坐标, ushort 面, ushort lod = 0);
+void write(imageblock_slice<E, imageblock_layout_implicit> slice,
+           ushort2 coord,
+           ushort face,
+           ushort lod = 0);
+```
 
 对于立方体纹理数组：
 
-void write(imageblock_slice slice, uint2 坐标, uint 面, uint 数组, uint lod = 0);
+```c
+void write(imageblock_slice<E, imageblock_layout_explicit> slice,
+           uint2 coord,
+           uint face,
+           uint array,
+           uint lod = 0);
 
-void write(imageblock_slice 切片，ushort2 坐标，ushort 面，ushort 数组，ushort lod = 0);
+void write(imageblock_slice<E, imageblock_layout_explicit> slice,
+           ushort2 coord,
+           ushort face,
+           ushort array,
+           ushort lod = 0);
 
-void write(imageblock_slice slice, uint2 坐标, uint 面, uint 数组, uint lod = 0);
+void write(imageblock_slice<E, imageblock_layout_implicit> slice,
+           uint2 coord,
+           uint face,
+           uint array,
+           uint lod = 0);
 
-void write(imageblock_slice slice, ushort2 坐标, ushort 面, ushort 数组, ushort lod = 0);
+void write(imageblock_slice<E, imageblock_layout_implicit> slice,
+           ushort2 coord,
+           ushort face,
+           ushort array,
+           ushort lod = 0);
+```
 
 对于 3D 纹理：
 
-void write(imageblock_slice 切片, uint3 坐标, uint lod = 0);
+```c
+void write(imageblock_slice<E, imageblock_layout_explicit> slice,
+           uint3 coord,
+           uint lod = 0);
 
-void write(imageblock_slice<E, imageblock_layout_explicit> slice, ushort3 coord, ushort lod = 0);
+void write(imageblock_slice<E, imageblock_layout_explicit> slice,
+           ushort3 coord,
+           ushort lod = 0);
 
-void write(imageblock_slice<E, imageblock_layout_implicit> slice, uint3 coord, uint lod = 0);
+void write(imageblock_slice<E, imageblock_layout_implicit> slice,
+           uint3 coord,
+           uint lod = 0);
 
-void write(imageblock_slice<E, imageblock_layout_implicit> slice, ushort3 coord, ushort lod = 0);
+void write(imageblock_slice<E, imageblock_layout_implicit> slice,
+           ushort3 coord,
+           ushort lod = 0);
+```
 
 例子：
 
-struct Foo { half4 a;整数 b；浮动 c； };
+```c
+struct Foo {
+    half4 a;
+    int b;
+    float c;
+};
 
-内核无效 my_kernel(texture2d src [[texture(0)]]，texture2d dst [[texture(1)]]，imageblock img_blk，ushort2 cover [[thread_position_in_threadgroup]] , ushort2 gid [[thread_position_in_grid]]) { // 使用线程 ID 从输入图像中读取像素。half4 clr = src.read(gid);
+kernel void
+my_kernel(texture2d<half> src [[ texture(0) ]],
+          texture2d<half, access::write> dst [[ texture(1) ]],
+          imageblock<Foo> img_blk,
+          ushort2 lid [[ thread_position_in_threadgroup ]],
+          ushort2 gid [[ thread_position_in_grid ]]
+) {
+    // Read the pixel from the input image using the thread ID.
+    half4 clr = src.read(gid);
 
-// 获取图像切片。threadgroup_imageblock Foo\* f = img_blk.data(lid); // 使用线程组中的线程 ID 将像素写入图像块中。f->a = clr；
+    // Get the image slice.
+    threadgroup_imageblock Foo* f = img_blk.data(lid);
+    // Write the pixel in the imageblock using the thread ID in
+    // threadgroup.
+    f->a = clr;
 
-// 确保所有线程完成对图像块的写入的屏障。// 在这种情况下，每个线程都会写入其在图像块中的位置，因此不需要屏障。
+    // A barrier to make sure all threads finish writing to the
+    // imageblock.
+    // In this case, each thread writes to its location in the
+    // imageblock so a barrier is not necessary.
+    threadgroup_barrier(mem_flags::mem_threadgroup_imageblock);
 
-threadgroup_barrier(mem_flags::mem_threadgroup_imageblock);
+    // Process the pixels in imageblock, and update the elements in     // slice.
+    process_pixels_in_imageblock(img_blk, gid, lid);
 
-// 处理图像块中的像素，并更新 // 切片中的元素。process_pixels_in_imageblock(img_blk, gid, 成员);
+    // A barrier to make sure all threads finish writing to the
+    // elements in the imageblock.
+    threadgroup_barrier(mem_flags::mem_threadgroup_imageblock);
 
-// 确保所有线程完成对图像块中元素的写入的屏障。threadgroup_barrier(mem_flags::mem_threadgroup_imageblock);
-
-// 将图像块中的特定元素写入输出 // 图像。// 线程组中只有一个线程执行图像块写入。if (lid.x == 0 && cover.y == 0) dst.write(img_blk.slice(f->a), gid); }
+    // Write a specific element in an imageblock to the output
+    // image. Only one thread in the threadgroup performs the
+    // imageblock write.
+    if (lid.x == 0 && lid.y == 0)
+        dst.write(img_blk.slice(f->a), gid);
+}
+```

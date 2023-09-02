@@ -5,35 +5,62 @@ const INPUT_LINE_NUM = 2
 
 // 在一行中要进行换行，用 \t 代替，解析时会自动替换成 \n
 const INPUT_TEXT = `
-Built-in Geometric Functions 
+Function 
 Description 
 
-T cross(T x, T y)  
-Return the cross product of x and y.  \tT needs to be a 3-component vector type. 
+P bezier(Ps_t, P p0, P p1, P p2) 
+Returns the position on a quadratic Bézier curve 
 
-Ts distance(T x, T y) 
-Return the distance between x and y, which is length(x-y) 
+P bezier_derivative(Ps_t, P p0, P p1, P p2) 
+Returns the first derivative on a quadratic Bézier curve 
 
-Ts distance_squared(T x, T y) 
-Return the square of the distance between x and y. 
+P bezier_second_derivative(Ps_t, P p0, P p1, P p2) 
+Returns the second derivative on a quadratic Bézier curve 
 
-Ts dot(T x, T y) 
-Return the dot product of x and y,  which is x[0] * y[0] + x[1] * y[1] + … T faceforward(T N, T I, T Nref) If dot(Nref, I) < 0.0 return N, otherwise return -N. 
+P bezier(Ps_t, P p0, P p1, P p2, P p3) 
+Returns the position on a cubic Bézier curve 
 
-Ts length(T x) 
-Return the length of vector x, which is sqrt(x[0]2 + x[1]2 + ...) 
+P bezier_derivative(Ps_t, P p0, P p1, P p2, P p3) 
+Returns the first derivative on a cubic Bézier curve 
 
-Ts length_squared(T x) 
-Return the square of the length of vector x,  which is (x[0]2 + x[1]2 + ...) 
+P bezier_second_derivative(Ps_t, P p0, P p1, P p2, P p3) 
+Returns the second derivative on a cubic Bézier curve 
 
-T normalize(T x) 
-Return a vector in the same direction as x but with a length of 1. 
+P bspline(Ps_t, P p0, P p1, P p2) 
+Returns the position on a quadratic B-spline curve 
 
-T reflect(T I, T N) 
-For the incident vector I and surface orientation N, compute normalized N (NN), and return the reflection direction: I - 2 * dot(NN, I) * NN.  
+P bspline_derivative(Ps_t, P p0, P p1, P p2) 
+Returns the first derivative on a quadratic B-spline curve 
 
-T refract(T I, T N, Ts eta) 
-For the incident vector I and surface normal N, and the ratio of indices of refraction eta, return the refraction vector. \tThe input parameters for the incident vector I and the surface normal N needs to already be normalized to get the desired results. 
+P bspline_second_derivative(Ps_t, P p0, P p1, P p2) 
+Returns the second derivative on a quadratic B-spline curve 
+
+P bspline(Ps_t, P p0, P p1, P p2, P p3) 
+Returns the position on a cubic B-spline curve 
+
+P bspline_derivative(Ps_t, P p0, P p1, P p2, P p3) 
+Returns the first derivative on a cubic B-spline curve 
+
+P bspline_second_derivative(Ps_t, P p0, P p1, P p2, P p3) 
+Returns the second derivative on a cubic B-spline curve 
+
+P hermite(Ps_t, P p0, P p1, P m0, P m1) 
+Returns the position on a cubic Hermite curve 
+
+P hermite_derivative(Ps_t, P p0, P p1, P m0, P m1) 
+Returns the first derivative on a cubic Hermite curve 
+
+P hermite_second_derivative(Ps_t, P p0, P p1, P m0, P m1) 
+Returns the second derivative on a cubic Hermite curve 
+
+P catmull_rom(Ps_t, P p0, P p1, P p2, P p3) 
+Returns the position on a Catmull-Rom curve 
+
+P catmull_rom_derivative(Ps_t, P p0, P p1, P p2, P p3) 
+Returns the first derivative on a Catmull-Rom curve 
+
+P catmull_rom_second_derivative(Ps_t, P p0, P p1, P p2, P p3) 
+Returns the second derivative on a Catmull-Rom curve
 `
 
 /**

@@ -14,7 +14,9 @@ export default function TableView({ num, title, headers, datasList  }: TableView
   
   return (
     <div style={{ display: 'flex', flexDirection: 'column', width: '100%', justifyContent: 'center', alignItems: 'center' }}>
-      <div><strong>{`Table ${num} - ${title}`}</strong></div>
+      {num && title ? (
+        <div><strong>{`Table ${num} - ${title}`}</strong></div>
+      ) : null}
       <br/>
       <center style={{ maxWidth: '90%' }}>
         <table>
