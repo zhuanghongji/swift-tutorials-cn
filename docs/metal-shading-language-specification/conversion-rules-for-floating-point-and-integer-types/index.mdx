@@ -2,9 +2,9 @@
 
 <OrigninalPDF title="7.6 Conversion Rules for Floating-Point and Integer Types" />
 
-从浮点类型转换为整数时，转换使用朝零舍入模式舍入。使用“舍入为偶数”或“向零舍入”舍入模式进行从浮点或整数类型到浮点类型的转换。
+从浮点类型转换为整数时，转换使用朝零舍入模式舍入。使用 "舍入为偶数" 或 "向零舍入" 舍入模式进行从浮点或整数类型到浮点类型的转换。
 
-从 half 和 bfloat 到 float 的转换是无损的。从 float 到 half 或到 bfloat 的转换使用 round 关系到偶数舍入模式对尾数进行舍入。将浮点数转换为 half 时，为 half 数据类型生成的非规范化数字可能不会刷新为零。
+从 `half` 和 `bfloat` 到 `float` 的转换是无损的。从 `float` 到 `half` 或到 `bfloat` 的转换使用 round 关系到偶数舍入模式对尾数进行舍入。将 `float` 转换为 `half` 时，为 `half` 数据类型生成的非规范化数字可能不会刷新为零。
 
 将浮点类型转换为整数类型时，如果浮点值为 NaN，则生成的整数为 0。
 

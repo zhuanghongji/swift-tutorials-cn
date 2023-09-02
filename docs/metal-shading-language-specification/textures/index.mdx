@@ -52,7 +52,7 @@ T 指定从纹理读取时返回的组件之一的颜色类型或写入纹理时
 ```cpp
 void foo (texture2d<float> imgA [[texture(0)]],
      texture2d<float, access::read> imgB [[texture(1)]], texture2d<float, access::write> imgC [[texture(2)]])
-{…}
+{...}
 ```
 
 （有关 `texture` 属性的描述，请参见第 5.2.1 节。）
@@ -69,7 +69,7 @@ texture2d<float, access::write> imgC [[texture(2)]])
     texture2d<float> x = imgA; // OK
     texture2d<float, access::read> y = imgB; // OK
     texture2d<float, access::write> z; // This is illegal.
-    …
+    ...
 }
 ```
 

@@ -83,13 +83,13 @@ vertex_func2(...)
 ```cpp
 [[patch(quad)]]
 [[vertex]] vertex_output
-my_post_tessellation_vertex(…)
-{…}
+my_post_tessellation_vertex(...)
+{...}
 
 [[patch(quad, 16)]]
 [[vertex]] vertex_output
-my_bezier_vertex(…)
-{…}
+my_bezier_vertex(...)
+{...}
 ```
 
 ## 片段函数
@@ -97,11 +97,13 @@ my_bezier_vertex(…)
 你可以声明 `fragment` 或自 Metal 2.3 起 `[[fragment]]` 属性仅用于图形函数。Metal 为片段流中的每个片段及其关联数据执行片段函数，并生成每个片段的输出。以下示例显示了使用 `fragment` 属性声明片段函数的语法。
 
 ```cpp
-[[fragment]] void
-my_fragment_func(…)
-{…}
-[[fragment]] void
-fragment_func2(…){…}
+[[fragment]] void my_fragment_func(...) {
+    // ...
+}
+
+[[fragment]] void fragment_func2(...) {
+    // ...
+}
 ```
 
 对于图形函数，返回类型标识函数生成的输出是按顶点还是按片段。如果片段函数不生成输出，则返回 `void`。
@@ -109,10 +111,9 @@ fragment_func2(…){…}
 要请求在片段函数执行之前执行片段测试，请将 `[[early_fragment_tests]]` 函数属性与片段函数结合使用，如下例所示。
 
 ```cpp
-[[early_fragment_tests]]
-fragment float4
-my_fragment( … )
-{…}
+[[early_fragment_tests]] fragment float4 my_fragment(...) {
+    // ...
+}
 ```
 
 如果使用 `[[early_fragment_tests]]` 属性声明的片段函数的返回类型包含深度或模板值，则这是一个错误；也就是说，如果此片段函数的返回类型包含使用 `[[depth(depth_attribute)]]` 或 `[[stencil]]` 属性声明的元素。
@@ -124,11 +125,9 @@ my_fragment( … )
 计算函数（也称为 "kernel" ）是在 1、2 或 3 维网格上执行的数据并行函数。以下示例显示了使用 `kernel` 或自 Metal 2.3 `[[kernel]]` 属性声明计算函数的语法。
 
 ```cpp
-kernel
-void my_kernel(…) {…}
+kernel void my_kernel(...) {...}
 
-[[kernel]]
-void my_kernel2(…) {…}
+[[kernel]] void my_kernel2(...) {...}
 ```
 
 使用 `kernel` 或 `[[kernel]]` 属性声明的函数必须返回 `void`。
@@ -138,10 +137,9 @@ void my_kernel2(…) {…}
 下面是使用此属性的内核函数的示例：
 
 ```cpp
-[[max_total_threads_per_threadgroup(x)]]
-kernel void
-my_kernel(…)
-{…}
+[[max_total_threads_per_threadgroup(x)]] kernel void my_kernel(...) {
+    // ...
+}
 ```
 
 如果 `[[max_total_threads_per_threadgroup]]` 值大于 `[MTLDevice maxThreadsPerThreadgroup]` 属性，则计算管道状态创建将失败。
@@ -155,7 +153,9 @@ my_kernel(…)
 以下示例使用 `[[visible]]` 属性。
 
 ```cpp
-[[visible]] float my_visible(device int *data, int data_offset) {…}
+[[visible]] float my_visible(device int *data, int data_offset) {
+    // ...
+}
 ```
 
 ## 可缝合函数
@@ -200,10 +200,10 @@ my_kernel(…)
 
 ```cpp
 [[intersection(triangle, triangle_data, instancing, world_space_data)]]
-bool triangleIntersectionFunction(...) {…}
+bool triangleIntersectionFunction(...) {...}
 
 [[intersection(bounding_box, triangle_data, instancing, world_space_data)]]
-UserResult boundingBoxIntersectionFunction(...) {…}
+UserResult boundingBoxIntersectionFunction(...) {...}
 ```
 
 交集函数 `primitive_type` 和 `intersection_tags` 控制允许的输入和输出属性（参见第 5.2.3.7 节）。

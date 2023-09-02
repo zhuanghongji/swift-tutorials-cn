@@ -46,9 +46,9 @@ Metal 像素数据类型是一种模板化类型，描述像素格式类型及�
 ```cpp
 kernel void
 my_kernel(device rgba8unorm<half4> *p [[buffer(0)]],
-          uint gid [[thread_position_in_grid]], …)
+          uint gid [[thread_position_in_grid]], ...)
 {
-     rgba8unorm<half4> x = p[index]; half4 val = p[gid]; …
+     rgba8unorm<half4> x = p[index]; half4 val = p[gid]; ...
      p[gid] = val;
      p[index] = x;
 }
@@ -63,10 +63,10 @@ struct Foo {
 
 kernel void
 my_kernel(device Foo *p [[buffer(0)]],
-          uint gid [[thread_position_in_grid]], …)
+          uint gid [[thread_position_in_grid]], ...)
 {
      half4 a = p[gid].a;
-     …
+     ...
      p[gid].a = a;
 }
 ```

@@ -5,7 +5,7 @@
 线程地址空间是指每个线程的内存地址空间。在此地址空间中分配的变量对其它线程不可见。在图形或内核函数内部声明的变量在线程地址空间中分配。
 
 ```cpp
-[[kernel]] void my_kernel(…)
+[[kernel]] void my_kernel(...)
 {
     // A float allocated in the per-thread address space float x;
 

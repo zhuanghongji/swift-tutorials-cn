@@ -69,7 +69,7 @@ constexpr size_t size() const;
 kernel void
 my_kernel(const array<texture2d<float>, 10> src [[texture(0)]],
           texture2d<float, access::write> dst [[texture(10)]],
-          …)
+          ...)
 {
     for (int i=0; i<src.size(); i++)
     {
@@ -114,17 +114,17 @@ float4 foo(array_ref<texture2d<float>> src)
 kernel void
 my_kernel_A(const array<texture2d<float>, 10> src [[texture(0)]],
 
- texture2d<float, access::write> dst [[texture(10)]],  …)
+ texture2d<float, access::write> dst [[texture(10)]],  ...)
 {
     float4 clr = foo(src);
-    …
+    ...
 }
 
 kernel void
-my_kernel_B(const array<texture2d<float>, 20> src [[texture(0)]],  texture2d<float, access::write> dst [[texture(10)]],   …)
+my_kernel_B(const array<texture2d<float>, 20> src [[texture(0)]],  texture2d<float, access::write> dst [[texture(10)]],   ...)
 {
     float4 clr = foo(src);
-    …
+    ...
 }
 ```
 
@@ -149,7 +149,7 @@ depth2d<float>    b [[texture(1)]];
 
 [[kernel]] void
 my_kernel(Foo f)
-{…}
+{...}
 ```
 
 你还可以嵌套结构，如以下示例所示：
@@ -167,7 +167,7 @@ struct Bar {
 
 [[kernel]] void
 my_kernel(Bar b)
-{…}
+{...}
 ```
 
 以下是导致编译错误的无效用例的示例：
@@ -175,7 +175,7 @@ my_kernel(Bar b)
 ```cpp
 [[kernel]] void
 my_kernel(device Foo& f) // This is an illegal use.
-{…}
+{...}
 
 struct MyResources {
     texture2d<float>  a [[texture(0)]];
@@ -185,5 +185,5 @@ struct MyResources {
 
 [[kernel]] void
 my_kernel(MyResources r) // This is an illegal use.
-{…}
+{...}
 ```

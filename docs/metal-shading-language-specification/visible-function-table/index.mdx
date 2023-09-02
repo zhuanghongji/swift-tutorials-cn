@@ -21,7 +21,7 @@ visible_function_table<int(float)> functions;
 要从表中获取可见的函数指针，请使用 `[]` 运算符。
 
 ```cpp
-using fnptr = T (*)(…) [[visible]]
+using fnptr = T (*)(...) [[visible]]
 fnptr operator[](uint index) const;
 ```
 

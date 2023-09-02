@@ -19,7 +19,7 @@ struct Foo {
 };
 kernel void
 my_kernel(constant Foo & f [[buffer(0)]])
-{…}
+{...}
 ```
 
 可以使用现有的 `array<T, N>` 模板类型来声明纹理和采样器数组。所有其它合法缓冲区类型的数组也可以使用 C 样式数组语法来声明。

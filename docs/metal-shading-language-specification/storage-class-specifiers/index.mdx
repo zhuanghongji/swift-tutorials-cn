@@ -8,7 +8,7 @@ Metal 支持 `static` 和 `extern` 存储类说明符。Metal 不支持 `thread_
 
 ```cpp
 extern constant float4 noise_table[256];
-static constant float4 color_table[256] = {…};// Here, static is ok.
+static constant float4 color_table[256] = {...};// Here, static is ok.
 extern void my_foo(texture2d<float> img);
 extern void my_bar(device float *a);
 
