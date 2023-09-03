@@ -1,1 +1,749 @@
 # Shaders
+
+<ReferenceSources
+  data={[
+    {
+      name: "How to add Metal shaders to SwiftUI views using layer effects",
+      url: "https://www.hackingwithswift.com/quick-start/swiftui/how-to-add-metal-shaders-to-swiftui-views-using-layer-effects",
+    },
+  ]}
+/>
+
+在 iOS 17 时，SwiftUI 提供了三个 shader（着色器）相关的视图修饰器：
+
+- [colorEffect(\_:isEnabled:)](<https://developer.apple.com/documentation/swiftui/view/coloreffect(_:isenabled:)>)
+- [distortionEffect(\_:maxSampleOffset:isEnabled:)](<https://developer.apple.com/documentation/swiftui/view/distortioneffect(_:maxsampleoffset:isenabled:)>)
+- [layerEffect(\_:maxSampleOffset:isEnabled:)](<https://developer.apple.com/documentation/swiftui/view/layereffect(_:maxsampleoffset:isenabled:)>)
+
+## 基本用法
+
+### colorEffect(\_:isEnabled:)
+
+返回一个新视图，该视图将 shader 应用于 self 作为每个像素颜色的滤镜效果（filter effect）。
+
+```swift
+@available(iOS 17.0, macOS 14.0, tvOS 17.0, *)
+extension View {
+    // ...
+
+    // - shader: 作为滤镜应用于 self 的着色器
+    // - isEnabled: 效果是否启用
+    public func colorEffect(_ shader: Shader, isEnabled: Bool = true) -> some View
+}
+```
+
+对于充当颜色滤镜的着色器函数，它必须具有匹配的函数签名：
+
+```c
+[[ stitchable ]] half4 name(float2 position, half4 color, args...)
+```
+
+其中 `position` 是应用于着色器的像素的用户空间坐标，`color` 是其源颜色，作为目标颜色空间中的预乘（premultiplied）颜色。`args...` 应该与绑定到 shader 的统一参数（uniform arguments）兼容。该函数应返回修改后的颜色值。
+
+:::note
+
+- `[[ stitchable ]]` 是一个 function attributes，它使得该函数可以被 Metal API 访问。
+- `half4` 是一个向量数据类型（vector data type），由 4 个 16 位浮点的 `half` 标量数据类型（scalar data type）组成。
+  - 你可以通过 `.x`、`.y`、`z`、`w` 分别访问这四个组成部分；
+  - 也可以通过 `.r`、`.g`、`b`、`a` 分别访问这四个组成部分。
+- `float2` 是一个向量数据类型（vector data type），由 2 个 32 位浮点的 `float` 标量数据类型（scalar data type）组成。
+  - 你可以通过 `.x`、`.y` 分别访问这两个组成部分。
+
+:::
+
+先来看个示例：
+
+```cpp title="MyShaders.metal"
+#include <metal_stdlib>
+#include <SwiftUI/SwiftUI_Metal.h>
+using namespace metal;
+
+[[ stitchable ]] half4 checkerboard(float2 position,
+                                    half4 currentColor,
+                                    float size,
+                                    half4 newColor
+) {
+    // 通过 uint2 构造函数创建一个 "由 2 个无符号 int 构成的向量数据类型"
+    uint2 posInChecks = uint2(position.x / size, position.y / size);
+    bool isColor = (posInChecks.x ^ posInChecks.y) & 1;
+    return isColor ? newColor * currentColor.a : half4(0.0, 0.0, 0.0, 0.0);
+}
+```
+
+在 `.metal` 源文件中声明一个符合上面提到的函数签名的、名为 `checkerboard` 的函数，它接收的 `args...` 分别为：
+
+- `float size`：棋盘格大小
+- `half4 newColor`：棋盘格颜色
+
+方法体的逻辑解释如下：
+
+1. 首先，该函数将位置 `position` 的 `x` 和 `y` 值分别除以 `size`，得到一个表示当前位置在棋盘上所处格子的整数值 `posInChecks`。
+2. 然后，它使用位运算异或操作 `^` 和与操作 `&` 来判断当前格子是否需要改变颜色。具体来说，如果 `posInChecks.x` 和 `posInChecks.y` 的结果异或后结果为 `1`，那么 `isColor` 的值就为 `true`，否则为 `false`。这实际上是在判断当前格子是否处于棋盘的交替颜色模式。
+3. 最后，根据 `isColor` 的值返回不同的结果。如果 `isColor` 为 `true`，则返回 `newColor` 和 `currentColor.a` 的乘积，这表示在当前格子上覆盖新的颜色；如果 `isColor` 为 `false`，则返回一个全为零的黑色颜色值，表示保留当前格子的原始颜色。
+
+在 SwiftUI 中通过 [ShaderLibrary](https://developer.apple.com/documentation/swiftui/shaderlibrary/) 的 `subscript(dynamicMember _: String) -> ShaderFunction` 动态调用 `checkerboard` 函数：
+
+<ScreenshotBlock src={require('./image_1.png')}>
+
+```swift
+VStack {
+    Image(systemName: "figure.run.circle.fill")
+        .font(.system(size: 200))
+
+    Image(systemName: "figure.run.circle.fill")
+        .font(.system(size: 200))
+        // highlight-start
+        .colorEffect(
+            ShaderLibrary.checkerboard(.float(10), .color(.blue))
+        )
+        // highlight-end
+}
+```
+
+</ScreenshotBlock>
+
+更多 `checkerboard` 的使用示例和截图如下：
+
+<ScreenshotBlock src={require('./image_2.png')}>
+
+```swift
+Image(systemName: "figure.run.circle.fill")
+    .font(.system(size: 200))
+    .colorEffect(
+        ShaderLibrary.checkerboard(.float(10), .color(.green))
+    )
+
+Image(systemName: "figure.run.circle.fill")
+    .font(.system(size: 200))
+    .colorEffect(
+        ShaderLibrary.checkerboard(.float(20), .color(.orange))
+    )
+
+Image(systemName: "shift.fill")
+    .font(.system(size: 200))
+    .colorEffect(
+        ShaderLibrary.checkerboard(.float(30), .color(.purple))
+    )
+```
+
+</ScreenshotBlock>
+
+### distortionEffect(\_:maxSampleOffset:isEnabled:)
+
+返回一个新视图，该视图将 shader 应用于 self 作为每个像素位置的几何扭曲效果。
+
+```swift
+@available(iOS 17.0, macOS 14.0, tvOS 17.0, *)
+extension View {
+  // ...
+
+  // - shader: 用作扭曲效果的着色器
+  // - maxSampleOffset: 对于所有源像素，返回的源像素位置和目标像素位置之间每个轴上的最大距离
+  // - isEnabled: 效果是否启用
+  public func distortionEffect(_ shader: Shader,
+                               maxSampleOffset: CGSize,
+                               isEnabled: Bool = true) -> some View
+}
+```
+
+要使着色器函数充当扭曲效果，它必须具有匹配的函数签名：
+
+```c
+[[ stitchable ]] float2 name(float2 position, args...)
+```
+
+其中 `position` 是应用于着色器的目标像素的用户空间坐标。`args...` 应该与绑定到 `shader` 的统一参数兼容。该函数应返回相应源像素的用户空间坐标。
+
+示例如下：
+
+```cpp title="MyShaders.metal"
+// ...
+
+[[ stitchable ]] float2 simpleWave(float2 position, float time) {
+    float x = sin(time + position.y / 20);
+    float y = sin(time + position.x / 20);
+    return position + float2(x, y) * 5;
+}
+```
+
+<ScreenshotBlock src={require('./image_3.png')}>
+
+```swift
+let startDate = Date()
+
+var body: some View {
+    VStack {
+        Image(systemName: "figure.run.circle.fill")
+              .font(.system(size: 200))
+
+        TimelineView(.animation) { _ in
+            Image(systemName: "figure.run.circle.fill")
+                .font(.system(size: 200))
+                .distortionEffect(
+                    ShaderLibrary.simpleWave(
+                        .float(startDate.timeIntervalSinceNow)
+                    ),
+                    maxSampleOffset: .zero
+                )
+        }
+    }
+}
+```
+
+</ScreenshotBlock>
+
+### layerEffect(\_:maxSampleOffset:isEnabled:)
+
+返回一个新视图，该视图将 shader 应用于 self 作为从 self 创建的栅格图层（raster layer）上的过滤器。
+
+```swift
+@available(iOS 17.0, macOS 14.0, tvOS 17.0, *)
+extension View {
+  // ...
+
+  // - shader: 作为图层效果应用的着色器
+  // - maxSampleOffset: 如果着色器函数从图层的不等于目标位置的位置进行采样，
+  //                    则该值必须指定每个轴上所有源像素的最大采样距离。
+  // - isEnabled: 效果是否启用
+  public func layerEffect(_ shader: Shader,
+                          maxSampleOffset: CGSize,
+                          isEnabled: Bool = true) -> some View
+}
+```
+
+对于充当图层效果的着色器函数，它必须具有匹配的函数签名：
+
+```c
+[[ stitchable ]] half4 name(float2 position, SwiftUI::Layer layer, args...)
+```
+
+其中 `position` 是应用于着色器的目标像素的用户空间坐标，`layer` 是 `self` 光栅化内容的子区域。`args...` 应该与绑定到 `shader` 的统一参数兼容。
+
+`SwiftUI::Layer` 类型在 `<SwiftUI/SwiftUI.h>` 头文件中定义。它导出一个 `sample()` 函数，该函数从源内容中的某个位置返回线性过滤的像素值，作为预乘的 RGBA 像素值：
+
+```c
+namespace SwiftUI {
+  struct Layer {
+    half4 sample(float2 position) const;
+  };
+};
+```
+
+该函数应将颜色映射返回到目标像素，通常是通过在源自 `position` 的位置处对 `layer` 中的一个或多个像素进行采样，然后应用某种变换来生成一种新颜色。
+
+示例如下：
+
+```cpp title="MyShaders.metal"
+// ...
+
+[[ stitchable ]] half4 pixellate(float2 position, SwiftUI::Layer layer, float strength) {
+    float min_strength = max(strength, 0.0001);
+    float coord_x = min_strength * round(position.x / min_strength);
+    float coord_y = min_strength * round(position.y / min_strength);
+    return layer.sample(float2(coord_x, coord_y));
+}
+```
+
+<ScreenshotBlock src={require('./image_4.png')}>
+
+```swift
+VStack {
+    Image(systemName: "figure.run.circle.fill")
+        .font(.system(size: 200))
+
+    Image(systemName: "figure.run.circle.fill")
+        .font(.system(size: 200))
+        .layerEffect(
+            ShaderLibrary.pixellate(.float(5)),
+            maxSampleOffset: .zero
+        )
+
+    Image(systemName: "figure.run.circle.fill")
+        .font(.system(size: 200))
+        .layerEffect(
+            ShaderLibrary.pixellate(.float(10)),
+            maxSampleOffset: .zero
+        )
+}
+```
+
+</ScreenshotBlock>
+
+## 更多示例
+
+### translateX
+
+```cpp title="MyShaders.metal"
+// ...
+
+[[ stitchable ]] float2 translateX(float2 position, float offset) {
+    return float2(position.x - offset, position.y);
+}
+```
+
+<ScreenshotBlock src={require('./image_translateX.png')}>
+
+```swift
+VStack {
+    Image(systemName: "figure.run.circle.fill")
+        .font(.system(size: 200))
+
+    Image(systemName: "figure.run.circle.fill")
+        .font(.system(size: 200))
+        .distortionEffect(
+            ShaderLibrary.translateX(.float(10)),
+            maxSampleOffset: .zero
+        )
+
+    Image(systemName: "figure.run.circle.fill")
+        .font(.system(size: 200))
+        .distortionEffect(
+            ShaderLibrary.translateX(.float(100)),
+            maxSampleOffset: .zero
+        )
+}
+.border(.red)
+```
+
+</ScreenshotBlock>
+
+### translateY
+
+```cpp title="MyShaders.metal"
+// ...
+
+[[ stitchable ]] float2 translateY(float2 position, float offset) {
+    return float2(position.x, position.y - offset);
+}
+```
+
+<ScreenshotBlock src={require('./image_translateY.png')}>
+
+```swift
+VStack {
+    Image(systemName: "figure.run.circle.fill")
+        .font(.system(size: 200))
+
+    Image(systemName: "figure.run.circle.fill")
+        .font(.system(size: 200))
+        .distortionEffect(
+            ShaderLibrary.translateY(.float(10)),
+            maxSampleOffset: .zero
+        )
+
+    Image(systemName: "figure.run.circle.fill")
+        .font(.system(size: 200))
+        .distortionEffect(
+            ShaderLibrary.translateY(.float(-10)),
+            maxSampleOffset: .zero
+        )
+}
+.border(.red)
+```
+
+</ScreenshotBlock>
+
+### invertRGB
+
+```cpp title="MyShaders.metal"
+// ...
+
+[[ stitchable ]] half4 invertRGB(float2 position, half4 currentColor) {
+    float newR = 1.0 - currentColor.r;
+    float newG = 1.0 - currentColor.g;
+    float newB = 1.0 - currentColor.b;
+    return half4(newR, newG, newB, currentColor.a);
+}
+```
+
+<ScreenshotBlock src={require('./image_invertRGB.png')}>
+
+```swift
+VStack {
+    Text("rgb(255, 0, 0)")
+        .foregroundColor(Color(red: 1, green: 0, blue: 0))
+
+    Image(systemName: "figure.run.circle.fill")
+        .font(.system(size: 200))
+        .foregroundStyle(.red)
+
+    Text("rgb(0, 255, 255)")
+        .foregroundColor(Color(red: 0, green: 1, blue: 1))
+
+    Image(systemName: "figure.run.circle.fill")
+        .font(.system(size: 200))
+        .foregroundStyle(.red)
+        .colorEffect(ShaderLibrary.invertRGB())
+}
+```
+
+</ScreenshotBlock>
+
+### invertOpacity
+
+```cpp title="MyShaders.metal"
+// ...
+
+[[ stitchable ]] half4 invertOpacity(float2 position, half4 currentColor) {
+    half4 newColor = half4(currentColor);
+    newColor.a = 1.0 - currentColor.a;
+    return newColor;
+}
+```
+
+<ScreenshotBlock src={require('./image_invertOpacity.png')}>
+
+```swift
+VStack {
+    Image(systemName: "figure.run.circle.fill")
+        .font(.system(size: 200))
+
+    Image(systemName: "figure.run.circle.fill")
+        .font(.system(size: 200))
+        .colorEffect(ShaderLibrary.invertOpacity())
+}
+```
+
+</ScreenshotBlock>
+
+### noise
+
+```cpp title="MyShaders.metal"
+// ...
+
+[[ stitchable ]] half4 noise(float2 position, half4 currentColor, float time) {
+    float value = fract(sin(dot(position + time, float2(12.9898, 78.233))) * 43758.5453);
+    return half4(value, value, value, 1) * currentColor.a;
+}
+```
+
+<ScreenshotBlock src={require('./image_5.png')}>
+
+```swift
+let startDate = Date()
+
+var body: some View {
+    VStack {
+        Image(systemName: "figure.run.circle.fill")
+              .font(.system(size: 200))
+
+        TimelineView(.animation) { context in
+            Image(systemName: "figure.run.circle.fill")
+                .font(.system(size: 200))
+                .colorEffect(
+                    ShaderLibrary.noise(
+                        .float(startDate.timeIntervalSinceNow)
+                    )
+                )
+        }
+    }
+}
+```
+
+</ScreenshotBlock>
+
+### complexWave
+
+```cpp title="MyShaders.metal"
+// ...
+
+[[ stitchable ]] float2 complexWave(float2 position,
+                                    float time,
+                                    float2 size,
+                                    float speed,
+                                    float strength,
+                                    float frequency
+) {
+    float2 normalizedPosition = position / size;
+    float moveAmount = time * speed;
+
+    position.x += sin((normalizedPosition.x + moveAmount) * frequency) * strength;
+    position.y += cos((normalizedPosition.y + moveAmount) * frequency) * strength;
+    return position;
+}
+```
+
+<ScreenshotBlock src={require('./image_6.png')}>
+
+```swift
+let startDate = Date()
+
+var body: some View {
+    VStack {
+        Image(systemName: "figure.run.circle.fill")
+              .font(.system(size: 200))
+
+        TimelineView(.animation) { _ in
+            Image(systemName: "figure.run.circle.fill")
+                .font(.system(size: 200))
+                .distortionEffect(
+                    ShaderLibrary.complexWave(
+                        .float(startDate.timeIntervalSinceNow),
+                        .float2(CGPoint(x: 4, y: 4)), // size
+                        .float(2),                    // speed
+                        .float(2),                    // strength
+                        .float(1)                     // frequency
+                    ),
+                    maxSampleOffset: .zero
+                )
+        }
+    }
+}
+```
+
+</ScreenshotBlock>
+
+### emboss
+
+```cpp title="MyShaders.metal"
+// ...
+
+[[ stitchable ]] half4 emboss(float2 position,
+                              SwiftUI::Layer layer,
+                              float strength
+) {
+    half4 current_color = layer.sample(position);
+    half4 new_color = current_color;
+
+    new_color += layer.sample(position + 1) * strength;
+    new_color -= layer.sample(position - 1) * strength;
+    return half4(new_color);
+}
+```
+
+<ScreenshotBlock src={require('./image_7.png')}>
+
+```swift
+VStack {
+    Image(systemName: "figure.run.circle.fill")
+        .font(.system(size: 200))
+        .foregroundStyle(
+            .linearGradient(colors: [.blue, .black],
+                            startPoint: .top,
+                            endPoint: .bottom))
+
+    Image(systemName: "figure.run.circle.fill")
+        .font(.system(size: 200))
+        .foregroundStyle(
+            .linearGradient(colors: [.blue, .black],
+                            startPoint: .top,
+                            endPoint: .bottom))
+        .layerEffect(
+            ShaderLibrary.emboss(.float(3)),
+            maxSampleOffset: .zero
+        )
+
+    Image(systemName: "figure.run.circle.fill")
+        .font(.system(size: 200))
+        .foregroundStyle(
+            .linearGradient(colors: [.blue, .black],
+                            startPoint: .top,
+                            endPoint: .bottom))
+        .layerEffect(
+            ShaderLibrary.emboss(.float(30)),
+            maxSampleOffset: .zero
+        )
+}
+```
+
+</ScreenshotBlock>
+
+## 避免动态调用
+
+在上面的示例中，我们都是通过 [ShaderLibrary](https://developer.apple.com/documentation/swiftui/shaderlibrary/) 的 `subscript(dynamicMember _: String) -> ShaderFunction` 动态调用方法以创建 [Shader](https://developer.apple.com/documentation/swiftui/shader/) 的：
+
+```swift
+/// A Metal shader library.
+@available(iOS 17.0, macOS 14.0, tvOS 17.0, *)
+@dynamicMemberLookup public struct ShaderLibrary : Equatable, @unchecked Sendable {
+    // ...
+
+    /// Returns a new shader function representing the stitchable MSL
+    /// function called `name` in the default shader library.
+    public static subscript(dynamicMember name: String) -> ShaderFunction { get }
+}
+
+/// A reference to a function in a Metal shader library.
+@available(iOS 17.0, macOS 14.0, tvOS 17.0, *)
+@dynamicCallable public struct ShaderFunction : Equatable, Sendable {
+    // ...
+
+    /// Returns a new shader by applying the provided argument values
+    /// to the referenced function.
+    public func dynamicallyCall(withArguments args: [Shader.Argument]) -> Shader
+}
+
+/// A reference to a function in a Metal shader library, along with its
+/// bound uniform argument values.
+@available(iOS 17.0, macOS 14.0, tvOS 17.0, *)
+public struct Shader : Equatable, Sendable {
+    // ...
+
+    /// A single uniform argument value to a shader function.
+    public struct Argument : Equatable, Sendable {
+        // ...
+
+        /// Returns an argument value representing the MSL value
+        /// `float(x)`.
+        public static func float<T>(_ x: T) -> Shader.Argument where T : BinaryFloatingPoint
+
+        /// Returns an argument value representing the MSL value
+        /// `float2(x, y)`.
+        public static func float2<T>(_ x: T, _ y: T) -> Shader.Argument where T : BinaryFloatingPoint
+
+        /// Returns an argument value representing `color`. When passed
+        /// to a MSL function it will convert to a `half4` value, as a
+        /// premultiplied color in the target color space.
+        public static func color(_ color: Color) -> Shader.Argument
+    }
+}
+```
+
+`dynamicallyCall` 方法的调用是没有显式声明的 "对应基本类型"，编写代码时容易出错。对比，我们可以有两种方式应对：
+
+1. 封装对应的 `Shader` 管理类：
+
+```swift title="MyShadersManager.swift"
+class MyShadersManager
+{
+    /// 创建一个 "棋盘着色器"
+    ///
+    /// - Parameters:
+    ///   - size: 棋盘格大小
+    ///   - color: 棋盘格颜色
+    /// - Returns: 棋盘着色器
+    static func checkerboard(size: Double, color: Color) -> Shader {
+        ShaderLibrary.checkerboard(.float(size), .color(color))
+    }
+
+    // MARK: distortionEffect
+
+    /// 创建一个 "简单波状运动着色器"
+    ///
+    /// - Parameter time: 时间戳
+    /// - Returns: 简单波状运动着色器
+    static func simpleWave(time: Double) -> Shader {
+        ShaderLibrary.simpleWave(.float(time))
+    }
+
+    // MARK: layerEffect
+
+    /// 创建一个 "像素化着色器"
+    ///
+    /// - Parameter strength: 强度
+    /// - Returns: 像素化着色器
+    static func pixellate(strength: Double) -> Shader {
+        ShaderLibrary.pixellate(.float(strength))
+    }
+}
+```
+
+使用示例如下：
+
+<ScreenshotBlock src={require('./image_8.png')}>
+
+```swift
+VStack {
+    Image(systemName: "figure.run.circle.fill")
+        .font(.system(size: 200))
+        .colorEffect(
+            MyShadersManager.checkerboard(size: 10, color: .blue)
+        )
+
+    Image(systemName: "figure.run.circle.fill")
+        .font(.system(size: 200))
+        .distortionEffect(
+            MyShadersManager.simpleWave(time: Date().timeIntervalSinceNow),
+            maxSampleOffset: .zero
+        )
+
+    Image(systemName: "figure.run.circle.fill")
+        .font(.system(size: 200))
+        .layerEffect(MyShadersManager.pixellate(strength: 5),
+                      maxSampleOffset: .zero)
+}
+```
+
+</ScreenshotBlock>
+
+2. 扩展 `View` 示例直接提供对应 `Shader` 的修饰器：
+
+```swift title="View+MyShaders.swift"
+extension View {
+
+    // MARK: colorEffect
+
+    /// 应用 "棋盘着色器"
+    ///
+    /// - Parameters:
+    ///   - size: 棋盘格大小
+    ///   - color: 棋盘格颜色
+    func colorEffectCheckerboard(size: Double,
+                                 color: Color,
+                                 isEnabled: Bool = true) -> some View {
+        colorEffect(ShaderLibrary.checkerboard(.float(size), .color(color)),
+                    isEnabled: isEnabled)
+    }
+
+    // MARK: distortionEffect
+
+    /// 应用 "简单波状运动着色器"
+    ///
+    /// - Parameter time: 时间戳
+    func distortionEffectSimpleWave(time: Double,
+                                    maxSampleOffset: CGSize = .zero,
+                                    isEnabled: Bool = true) -> some View
+    {
+        distortionEffect(ShaderLibrary.simpleWave(.float(time)),
+                         maxSampleOffset: maxSampleOffset,
+                         isEnabled: isEnabled)
+    }
+
+    // MARK: layerEffect
+
+    /// 应用 "像素化着色器"
+    ///
+    /// - Parameter strength: 强度
+    func layerEffectPixellate(strength: Double,
+                   maxSampleOffset: CGSize = .zero,
+                   isEnabled: Bool = true) -> some View
+    {
+        layerEffect(ShaderLibrary.pixellate(.float(strength)),
+                    maxSampleOffset: maxSampleOffset,
+                    isEnabled: isEnabled)
+    }
+}
+```
+
+使用示例如下：
+
+<ScreenshotBlock src={require('./image_9.png')}>
+
+```swift
+@State private var isEnabled = true
+
+var body: some View {
+    VStack {
+        Image(systemName: "figure.run.circle.fill")
+            .font(.system(size: 200))
+            .colorEffectCheckerboard(size: 10,
+                                     color: .blue,
+                                     isEnabled: isEnabled)
+
+        Image(systemName: "figure.run.circle.fill")
+            .font(.system(size: 200))
+            .distortionEffectSimpleWave(time: Date().timeIntervalSinceNow,
+                                        isEnabled: isEnabled)
+
+        Image(systemName: "figure.run.circle.fill")
+            .font(.system(size: 200))
+            .layerEffectPixellate(strength: 5,
+                                  isEnabled: isEnabled)
+
+        Toggle("isEnabled", isOn: $isEnabled)
+            .padding()
+    }
+}
+```
+
+</ScreenshotBlock>

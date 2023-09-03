@@ -160,6 +160,12 @@ const swiftuiSidebar = [
       },
       {
         type: "category",
+        label: "视图修饰器",
+        collapsed: false,
+        items: ["swiftui/view-modifiers/shaders/index"],
+      },
+      {
+        type: "category",
         label: "事件处理",
         collapsed: false,
         items: [
