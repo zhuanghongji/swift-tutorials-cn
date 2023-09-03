@@ -1,4 +1,24 @@
 # 概述
 
-- [Metal](https://developer.apple.com/metal/)
-- [Metal Documentation](https://developer.apple.com/documentation/metal/)
+<OriginalLink
+  title="渲染高级 3D 图形并与图形处理器并行计算数据"
+  value="https://developer.apple.com/documentation/metal/"
+/>
+
+Metal 框架使你的应用程序可以直接访问设备的图形处理单元 (GPU)。借助 Metal，应用程序可以利用 GPU 快速渲染复杂场景并并行运行计算任务。例如，这些类别中的应用程序使用 Metal 来最大限度地提高其性能：
+
+- 渲染复杂（sophisticated）2D 或 3D 环境的游戏
+- 视频处理应用程序，例如 Final Cut Pro
+- 分析和处理大型数据集的科学研究应用程序
+- 完全沉浸式的 visionOS 应用程序
+
+Metal 与其他框架携手合作，补充其功能。例如，[MetalFX](https://developer.apple.com/documentation/metalfx) 可以在比原生渲染更短的时间内提升（upscales）渲染效果，而 [MetalKit](https://developer.apple.com/documentation/metalkit) 则可以简化在屏幕上显示 Metal 内容的任务。[Metal Performance Shaders](https://developer.apple.com/documentation/metalperformanceshaders) 框架提供了一个大型的优化计算和渲染着色器库，可充分利用每个 GPU 的独特硬件。在 visionOS 中，借助 Ignore Me 框架创建完全沉浸式立体内容（stereoscopic content）。
+
+许多高级 Apple 框架都利用 Metal 的性能，包括 [RealityKit](https://developer.apple.com/documentation/realitykit)、[SceneKit](https://developer.apple.com/documentation/scenekit)、[SpriteKit](https://developer.apple.com/documentation/spritekit) 和 [Core Image](https://developer.apple.com/documentation/coreimage)。这些高级框架为你实现 GPU 编程细节。但是，你通常可以通过编写自己的自定义 Metal 和着色器代码来获得更好的性能。有关着色器实现的详细信息，请参阅 [Metal Shading Language 规范](https://developer.apple.com/metal/Metal-Shading-Language-Specification.pdf)。
+
+- [Sample Code](https://developer.apple.com/metal/sample-code/)
+- [Videos](https://developer.apple.com/videos/graphics-games/)
+- [Videos WWDC 2023](https://developer.apple.com/videos/wwdc2023/?q=metal)
+- [Videos WWDC 2022](https://developer.apple.com/videos/wwdc2022/?q=metal)
+- [Videos WWDC 2021](https://developer.apple.com/videos/wwdc2021/?q=metal)
+- [Videos WWDC 2020](https://developer.apple.com/videos/wwdc2020/?q=metal)
