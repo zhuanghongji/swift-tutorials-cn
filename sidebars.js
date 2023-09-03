@@ -153,9 +153,9 @@ const swiftuiSidebar = [
         label: "视图布局",
         collapsed: false,
         items: [
-          "swiftui/viewlayout/hstack/index",
-          "swiftui/viewlayout/vstack/index",
-          "swiftui/viewlayout/grid/index",
+          "swiftui/view-layout/hstack/index",
+          "swiftui/view-layout/vstack/index",
+          "swiftui/view-layout/grid/index",
         ],
       },
       {
