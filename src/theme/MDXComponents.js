@@ -16,6 +16,7 @@ import TableView from "@site/src/components/TableView";
 import TableViewDataGenerator from "@site/src/components/TableViewDataGenerator";
 import TableWrapper from "@site/src/components/TableWrapper";
 import ToContinueBookmark from "@site/src/components/ToContinueBookmark";
+import Todo from "@site/src/components/Todo";
 import Wisdom from "@site/src/components/Wisdom";
 
 export default {
@@ -37,5 +38,6 @@ export default {
   TableViewDataGenerator,
   TableWrapper,
   ToContinueBookmark,
+  Todo,
   Wisdom,
 };

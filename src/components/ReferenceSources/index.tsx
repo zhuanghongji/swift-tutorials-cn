@@ -20,7 +20,7 @@ export default function ReferenceSources({ data }: ReferenceSourcesProps) {
         borderRadius: '0.5rem',
         backgroundColor: '#333333', 
        }}>
-        {`参考资料：`}
+        {`参考内容：`}
         <br/>
         <ul>
         {

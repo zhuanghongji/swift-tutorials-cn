@@ -59,6 +59,20 @@
     "body": ["<ScreenshotBlock src={require('./$1.png')}>$0</ScreenshotBlock>"],
     "description": "Create ScreenshotBlock"
   },
+  "Create ScreenshotBlock With Swift": {
+    "scope": "md,mdx",
+    "prefix": "screenshotblockwithswift",
+    "body": [
+      "<ScreenshotBlock src={require('./$1.png')}>",
+      "",
+      "```swift",
+      "$2",
+      "```",
+      "",
+      "</ScreenshotBlock>"
+    ],
+    "description": "Create ScreenshotBlock"
+  },
   "Create Admonitions Note": {
     "scope": "md,mdx",
     "prefix": ":::note",

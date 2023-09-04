@@ -179,7 +179,10 @@ const swiftuiSidebar = [
         type: "category",
         label: "其它",
         collapsed: false,
-        items: ["swiftui/rest/imagerenderer/index"],
+        items: [
+          "swiftui/rest/measuring-a-view/index",
+          "swiftui/rest/imagerenderer/index",
+        ],
       },
     ],
   },

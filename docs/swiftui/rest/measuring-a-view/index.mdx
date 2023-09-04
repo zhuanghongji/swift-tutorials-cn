@@ -1,0 +1,439 @@
+# 测量视图
+
+<ReferenceSources
+  data={[
+    {
+      name: "How to use Geometry Reader in SwiftUI",
+      url: "https://www.swiftanytime.com/blog/geometry-reader-in-swiftui",
+    },
+    {
+      name: "Understanding frames and coordinates inside GeometryReader",
+      url: "https://www.hackingwithswift.com/books/ios-swiftui/understanding-frames-and-coordinates-inside-geometryreader",
+    },
+  ]}
+/>
+
+## 概述
+
+或许你已经知道，在需要 "根据屏幕尺寸给视图设置特定尺寸" 场景下，我们可以通过 `UIScreen.main.bounds` 来获取屏幕宽高，比如：
+
+<ScreenshotBlock src={require('./image_1.png')}>
+
+```swift
+VStack {
+    Rectangle()
+        .foregroundStyle(.red)
+        .frame(width: UIScreen.main.bounds.width / 2,
+               height: 100)
+    Rectangle()
+        .foregroundStyle(.green)
+        .frame(width: 100,
+               height: UIScreen.main.bounds.height / 2)
+}
+```
+
+</ScreenshotBlock>
+
+但如果是需要 "根据父视图来给视图设置特定尺寸" 场景下，该怎么办？比如：
+
+```swift
+VStack {
+    Rectangle()
+        .foregroundStyle(.red)
+        // 如何设置其宽度和高度都是其容器视图 VStack 的一半？
+        // .frame(width: ..., height: ...)
+}
+.frame(width: 320, height: 640)
+```
+
+基于该场景，SwiftUI 给我们提供了：
+
+- [GeometryReader](https://developer.apple.com/documentation/swiftui/geometryreader)：一个容器视图，将其内容定义为其自身大小和坐标空间的函数。
+- [GeometryProxy](https://developer.apple.com/documentation/swiftui/geometryproxy)：用于访问容器视图的大小和坐标空间（用于锚点分辨率）的代理。
+- [CoordinateSpace](https://developer.apple.com/documentation/swiftui/coordinatespace)：由 [CoordinateSpaceProtocol](https://developer.apple.com/documentation/swiftui/coordinatespaceprotocol) 创建的解析（resolved）坐标空间。
+
+### GeometryReader
+
+```swift
+@available(iOS 13.0, macOS 10.15, tvOS 13.0, watchOS 6.0, *)
+@frozen public struct GeometryReader<Content> : View where Content : View {
+
+    public var content: (GeometryProxy) -> Content
+
+    @inlinable public init(@ViewBuilder content: @escaping (GeometryProxy) -> Content)
+
+    /// The type of view representing the body of this view.
+    ///
+    /// When you create a custom view, Swift infers this type from your
+    /// implementation of the required ``View/body-swift.property`` property.
+    public typealias Body = Never
+}
+```
+
+该视图向其父布局返回灵活的首选尺寸（preferred size）。
+
+### GeometryProxy
+
+```swift
+@available(iOS 13.0, macOS 10.15, tvOS 13.0, watchOS 6.0, *)
+public struct GeometryProxy {
+
+    // 容器视图的大小
+    public var size: CGSize { get }
+
+    // 将 anchor 的值解析为容器视图
+    public subscript<T>(anchor: Anchor<T>) -> T { get }
+
+    // 容器视图的安全区域 Insets
+    public var safeAreaInsets: EdgeInsets { get }
+
+    // 返回容器视图的边界矩形，转换为定义的坐标空间（Deprecated）
+    public func frame(in coordinateSpace: CoordinateSpace) -> CGRect
+}
+
+@available(iOS 17.0, macOS 14.0, tvOS 17.0, watchOS 10.0, *)
+extension GeometryProxy {
+
+    // 返回给定坐标空间的边界矩形，转换为局部坐标空间
+    public func bounds(of coordinateSpace: NamedCoordinateSpace) -> CGRect?
+
+    // 返回容器视图的边界矩形，转换为定义的坐标空间
+    public func frame(in coordinateSpace: some CoordinateSpaceProtocol) -> CGRect
+}
+```
+
+### CoordinateSpace
+
+```swift
+@available(iOS 13.0, macOS 10.15, tvOS 13.0, watchOS 6.0, *)
+public enum CoordinateSpace {
+
+    // 视图层次结构根部的全局坐标空间
+    case global
+
+    // 当前视图的局部坐标空间
+    case local
+
+    // 对视图局部坐标空间的命名引用
+    case named(AnyHashable)
+}
+```
+
+## 基本用法
+
+### GeometryProxy.size
+
+Q：如何设置其宽度和高度都是其容器视图 `VStack` 的一半？
+
+A：通过 `GeometryReader` 闭包参数 `GeometryProxy` 的 `size` 属性即可获取其容器视图的尺寸。
+
+示例如下：
+
+<ScreenshotBlock src={require('./image_2.png')}>
+
+```swift
+VStack {
+    GeometryReader { geometry in
+        Rectangle()
+            .foregroundStyle(.blue)
+            // highlight-start
+            .frame(width: geometry.size.width / 2,
+                    height: geometry.size.height / 2)
+            // highlight-end
+    }
+    .background(.gray.opacity(0.2))
+}
+.frame(width: 320, height: 640)
+.border(.red)
+```
+
+</ScreenshotBlock>
+
+从右上图：
+
+- 灰色区域可以看出，`GeometryReader` 本身的尺寸是等于其外层视图 `VStack` 的尺寸的。
+- 蓝色区域可以看出，`Rectangle` 在其外层视图 `GeometryReader` 内是居左上角的（非居中）。
+
+### GeometryProxy.safeAreaInsets
+
+<ScreenshotBlock src={require('./image_3.png')}>
+
+```swift
+  VStack {
+      GeometryReader { geometry in
+          VStack(alignment: .leading) {
+              Text("top = \(geometry.safeAreaInsets.top)")
+              Text("leading = \(geometry.safeAreaInsets.leading)")
+              Text("trailing = \(geometry.safeAreaInsets.trailing)")
+              Text("bottom = \(geometry.safeAreaInsets.bottom)")
+          }
+          .font(.title)
+          .padding()
+      }
+      .background(.gray.opacity(0.2))
+  }
+  .frame(width: 320, height: 640)
+  .border(.red)
+```
+
+</ScreenshotBlock>
+
+如上右图，红色边框的 `VStack` 并没有在 "安全区域" 内，所以渠道到的 `safeAreaInsets` 的 `top`、`leading`、`trailing` 和 `bottom` 都是 `0`。
+
+在下面代码中，我们尝试将红色边框的 `VStack` 放置在屏幕左上角：
+
+<ScreenshotBlock src={require('./image_4.png')}>
+
+```swift
+ZStack(alignment: .topLeading) {
+    Color.clear.ignoresSafeArea()
+    VStack {
+        GeometryReader { geometry in
+            VStack(alignment: .leading) {
+                Text("top = \(geometry.safeAreaInsets.top)")
+                Text("leading = \(geometry.safeAreaInsets.leading)")
+                Text("trailing = \(geometry.safeAreaInsets.trailing)")
+                Text("bottom = \(geometry.safeAreaInsets.bottom)")
+            }
+            .font(.title)
+            .padding()
+        }
+        .background(.gray.opacity(0.2))
+    }
+    .frame(width: 320, height: 640)
+    .border(.red)
+}
+.background {
+    // 该蓝色边框指示了原有的位置
+    VStack {}
+        .frame(width: 320, height: 640)
+        .border(.blue)
+}
+```
+
+</ScreenshotBlock>
+
+可以看出，此时读取到的 `top` 值就是安全区域的 "上边距" 的距离，其余的 `leading`、`trailing` 和 `bottom` 未占据到安全区域，所以值还是 `0`。
+
+在下面的例子中，我们移除了 `VStack` 的 `frame` 设置逻辑：
+
+<ScreenshotBlock src={require('./image_5.png')}>
+
+```swift
+ZStack(alignment: .topLeading) {
+    Color.clear.ignoresSafeArea()
+    VStack {
+        GeometryReader { geometry in
+            VStack(alignment: .leading) {
+                Text("top = \(geometry.safeAreaInsets.top)")
+                Text("leading = \(geometry.safeAreaInsets.leading)")
+                Text("trailing = \(geometry.safeAreaInsets.trailing)")
+                Text("bottom = \(geometry.safeAreaInsets.bottom)")
+            }
+            .font(.title)
+            .padding()
+        }
+        .background(.gray.opacity(0.2))
+    }
+    // highlight-next-line
+    // .frame(width: 320, height: 640)
+    .border(.red)
+}
+```
+
+</ScreenshotBlock>
+
+旋转手机后：
+
+<Screenshot src={require("./image_6.png")} size={375} />
+
+<Screenshot src={require("./image_7.png")} size={375} />
+
+### GeometryProxy.bounds
+
+示例如下：
+
+<ScreenshotBlock src={require('./image_8.png')}>
+
+```swift
+VStack {
+    VStack {
+        GeometryReader { geometry in
+            let innerBounds = geometry.bounds(of: .named("inner"))
+            let outterBounds = geometry.bounds(of: .named("outter"))
+            VStack(alignment: .leading) {
+                Text("inner.width = \(innerBounds?.width.description ?? "--")")
+                Text("inner.height = \(innerBounds?.height.description ?? "--")")
+                Text("outer.width = \(outterBounds?.width.description ?? "--")")
+                Text("outer.height = \(outterBounds?.height.description ?? "--")")
+            }
+            .font(.title)
+            .padding()
+        }
+        .background(.gray.opacity(0.2))
+    }
+    .frame(width: 320, height: 640)
+    .border(.red)
+    .coordinateSpace(name: "inner")
+}
+.frame(width: 350, height: 660)
+.border(.blue)
+.coordinateSpace(name: "outter")
+```
+
+</ScreenshotBlock>
+
+:::note
+
+[coordinateSpace(name:)](<https://developer.apple.com/documentation/familycontrols/familyactivitypicker/coordinatespace(name:)>)：为视图的坐标空间分配一个名称，以便其他代码可以对相对于命名空间的维度（如点和大小）进行操作。
+
+:::
+
+### GeometryProxy.frame
+
+示例如下：
+
+<ScreenshotBlock src={require('./image_9.png')}>
+
+```swift
+VStack(spacing: 0) {
+    Rectangle()
+        .fill(.red)
+        .frame(width: 100, height: 100)
+    HStack(spacing: 0) {
+        Rectangle()
+            .fill(.orange)
+            .frame(width: 50, height: 50)
+        VStack {
+            GeometryReader { geometry in
+                let global = geometry.frame(in: .global)
+                let local = geometry.frame(in: .local)
+                VStack(alignment: .leading) {
+                    Group {
+                        Text("global:")
+                        Text("- x = \(global.origin.x)")
+                        Text("- y = \(global.origin.y)")
+                        Text("- midX = \(global.midX)")
+                        Text("- midY = \(global.midY)")
+                        Text("- width = \(global.width)")
+                        Text("- height = \(global.height)")
+
+                    }
+                    Divider()
+                    Group {
+                        Text("local:")
+                        Text("- x = \(local.origin.x)")
+                        Text("- y = \(local.origin.y)")
+                        Text("- midX = \(local.midX)")
+                        Text("- midY = \(local.midY)")
+                        Text("- width = \(local.width)")
+                        Text("- height = \(local.height)")
+                    }
+                }
+                .font(.title2)
+                .padding()
+            }
+        }
+        .background(.green)
+        Rectangle()
+            .fill(.purple)
+            .frame(width: 60, height: 60)
+    }
+    Rectangle()
+        .fill(.blue)
+        .frame(width: 120, height: 120)
+}
+```
+
+</ScreenshotBlock>
+
+如上右图，当你通过 `.global` 以整个手机屏幕作为坐标空间获取 `frame` 时，即将屏幕左上角视为坐标空间原点（向右 x 增大，向下 y 增大），读取 `GeometryReader` 本身的 `CGRect` ：
+
+- `origin.x = 50`：`GeometryReader` 距离屏幕左边缘的距离刚好是 "黄色块" 宽度 `50`。
+- `origin.y = 159`：是 "上安全区域" 边距 `59` 加上 "红色块" 高度 `100`。
+
+当你通过 `.local` 以容器视图作为坐标空间获取 `frame` 时，即将 "绿色块" 左上角视为坐标空间原点（向右 x 增大，向下 y 增大），读取 `GeometryReader` 本身的 `CGSize` ：
+
+- `origin.x = 0`：`GeometryReader` 距离 "绿色块" 左边缘没有距离，故值为 `0`。
+- `origin.y = 0`：距离 "绿色块" 上边缘没有距离，故值为 `0`。
+
+不管你以哪种方式读取 `frame`，即不管是以 "手机屏幕" 还是 "绿色块" 作为坐标空间，它的宽度和高度都是固有不变的，所以两种方式下都是：
+
+- `width = 283`
+- `height = 539`
+
+因为 `origin` 不同，而 `size`（`width` 和 `height`） 相同，得到的 `midX` 和 `midY` 自然也就不同了。
+
+枚举 `CoordinateSpace` 除了 `.global` 和 `.local` 两个枚举值之外，还有一个 `.name(_:)` 。示例如下：
+
+<ScreenshotBlock src={require('./image_10.png')}>
+
+```swift
+VStack(spacing: 0) {
+    Rectangle()
+        .fill(.red)
+        .frame(width: 100, height: 100)
+    HStack(spacing: 0) {
+        Rectangle()
+            .fill(.orange)
+            .frame(width: 50, height: 50)
+        // highlight-next-line
+        HStack {
+            VStack {
+                GeometryReader { geometry in
+                    let global = geometry.frame(in: .global)
+                    // highlight-next-line
+                    let custom = geometry.frame(in: .named("Black"))
+                    VStack(alignment: .leading) {
+                        Group {
+                            Text("global:")
+                            Text("- x = \(global.origin.x)")
+                            Text("- y = \(global.origin.y)")
+                            Text("- midX = \(global.midX)")
+                            Text("- midY = \(global.midY)")
+                            Text("- width = \(global.width)")
+                            Text("- height = \(global.height)")
+
+                        }
+                        Divider()
+                        Group {
+                            // highlight-start
+                            Text("custom:")
+                            Text("- x = \(custom.origin.x)")
+                            Text("- y = \(custom.origin.y)")
+                            Text("- midX = \(custom.midX)")
+                            Text("- midY = \(custom.midY)")
+                            Text("- width = \(custom.width)")
+                            Text("- height = \(custom.height)")
+                            // highlight-end
+                        }
+                    }
+                    .font(.title2)
+                    .padding()
+                }
+            }
+            .background(.green)
+            // highlight-next-line
+            .padding(10)
+        }
+        // highlight-start
+        .border(.black)
+        .coordinateSpace(name: "Black")
+        // highlight-end
+        Rectangle()
+            .fill(.purple)
+            .frame(width: 60, height: 60)
+    }
+    Rectangle()
+        .fill(.blue)
+        .frame(width: 120, height: 120)
+}
+```
+
+</ScreenshotBlock>
+
+在上面代码中，`HStack` 指定了其坐标空间（"黑色边框" 左上角为原点）名字为 `Black`，然后 `geometry` 通过 `in: .named("Black")` 读取了在该坐标空间下的 `frame` 值 `custom`（类型也是 `CGRect`）。`custom` 的 `x`、`y`、`midX`、`midY`、`width` 和 `height` 也如上图所示，你可以对比 `.local` 对应值的换算关系，以加深对 "坐标空间" 的理解。
+
+## 进阶用法
+
+<Todo desc="补充使用 GeometryReader 读取 ScrollView 滚动距离示例" />
