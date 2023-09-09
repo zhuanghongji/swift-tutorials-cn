@@ -1,0 +1,265 @@
+# 添加 UIKit 视图到 SwiftUI 视图层级中
+
+<ReferenceSources
+  data={[
+    {
+      name: "How to wrap a custom UIView for SwiftUI",
+      url: "https://www.hackingwithswift.com/quick-start/swiftui/how-to-wrap-a-custom-uiview-for-swiftui",
+    },
+  ]}
+/>
+
+## 概述
+
+### UIViewRepresentable
+
+UIKit 视图的包装器，用于将该视图集成到 SwiftUI 视图层次结构中。
+
+```swift
+@available(iOS 13.0, tvOS 13.0, *)
+public protocol UIViewRepresentable : View where Self.Body == Never {
+
+    // 要呈现（present）的视图类型
+    associatedtype UIViewType : UIView
+
+    // 创建视图对象并配置其初始状态
+    //
+    // 你必须实现此方法并使用它来创建视图对象。使用应用程序的当前数据和 context 参数的内容配置视图。
+    // 系统仅在第一次创建视图时调用此方法一次。对于所有后续更新，系统都会调用 updateUIView(_:context:) 方法。
+    @MainActor func makeUIView(context: Self.Context) -> Self.UIViewType
+
+    // 使用 SwiftUI 中的新信息更新指定视图的状态
+    //
+    // 当应用程序的状态发生变化时，SwiftUI 会更新受这些更改影响的界面部分（portions）。
+    // SwiftUI 会针对影响相应 UIKit 视图的任何更改调用此方法。
+    // 使用此方法可以更新视图的配置，以匹配 context 参数中提供的新状态信息。
+    //
+    // - uiView: 你的自定义视图对象
+    // - context: 包含有关系统当前状态的信息的上下文结构体
+    @MainActor func updateUIView(_ uiView: Self.UIViewType, context: Self.Context)
+
+    // 清理呈现的 UIKit 视图（和协调器）以预期它们被删除
+    //
+    // 使用此方法可以执行与自定义视图相关的其他清理工作。
+    // 例如，你可以使用此方法来删除观察者或更新 SwiftUI 界面的其他部分。
+    @MainActor static func dismantleUIView(_ uiView: Self.UIViewType,
+                                          coordinator: Self.Coordinator)
+
+    // 与视图协调的类型
+    associatedtype Coordinator = Void
+
+    // 创建自定义实例，用于将视图中的更改传达给 SwiftUI 界面的其它部分
+    @MainActor func makeCoordinator() -> Self.Coordinator
+
+    // 给定建议的大小（proposed size），返回组合视图的首选大小（preferred size）
+    //
+    // 在同一布局过程中，可以使用不同的建议大小多次调用此方法。
+    // SwiftUI 视图选择自己的大小，因此从此函数返回的值之一将始终用作组合视图的实际大小。
+    //
+    // - proposal: 建议的视图大小
+    @available(iOS 16.0, tvOS 16.0, *)
+    @MainActor func sizeThatFits(_ proposal: ProposedViewSize,
+                                 uiView: Self.UIViewType,
+                                 context: Self.Context) -> CGSize?
+
+    typealias Context = UIViewRepresentableContext<Self>
+
+    @available(iOS 17.0, tvOS 17.0, *)
+    typealias LayoutOptions
+}
+```
+
+使用 [UIViewRepresentable](https://developer.apple.com/documentation/swiftui/uiviewrepresentable) 实例在 SwiftUI 界面中创建和管理 [UIView](https://developer.apple.com/documentation/uikit/uiview) 对象。在你的应用程序的自定义实例之一中采用此协议，并使用其方法来创建、更新和拆除你的视图。创建和更新过程与 SwiftUI 视图的行为并行，你可以使用它们通过应用程序的当前状态信息配置视图。使用拆卸过程（teardown process）从 SwiftUI 中彻底删除视图。例如，你可以使用拆卸过程来通知其他对象视图正在消失。
+
+要将视图添加到 SwiftUI 界面中，请创建 [UIViewRepresentable](https://developer.apple.com/documentation/swiftui/uiviewrepresentable) 实例并将其添加到 SwiftUI 界面中。系统在适当的时间调用可呈现实例的方法来创建和更新视图。以下示例显示了在视图层次结构中包含自定义 `MyRepresentedCustomView` 结构。
+
+```swift
+struct ContentView: View {
+   var body: some View {
+      VStack {
+         Text("Global Sales")
+         MyRepresentedCustomView()
+      }
+   }
+}
+```
+
+系统不会自动将视图中发生的更改传达给 SwiftUI 界面的其他部分。当你希望视图与其他 SwiftUI 视图协调时，你必须提供一个 Coordinator 实例来促进这些交互。例如，你使用协调器转发目标操作并将消息从你的视图委托到任何 SwiftUI 视图。
+
+### UIViewRepresentableContext
+
+有关用于创建和更新 `UIKit` 视图的系统状态的上下文信息。
+
+```swift
+@available(iOS 13.0, tvOS 13.0, *)
+@MainActor public struct UIViewRepresentableContext<Representable> where Representable : UIViewRepresentable {
+
+    // 视图的关联协调器
+    @MainActor public let coordinator: Representable.Coordinator
+
+    // 当前事务
+    @MainActor public var transaction: Transaction { get }
+
+    // 当前的环境
+    @MainActor public var environment: EnvironmentValues { get }
+}
+```
+
+[UIViewRepresentableContext](https://developer.apple.com/documentation/swiftui/uiviewrepresentablecontext) 结构体包含有关系统当前状态的详细信息。创建和更新视图时，系统会创建这些结构之一并将其传递给自定义 [UIViewRepresentable](https://developer.apple.com/documentation/swiftui/uiviewrepresentable) 实例的适当方法。使用此结构中体的信息来配置你的视图。例如，使用提供的环境值来配置视图的外观。不要自己创建这个结构体。
+
+## 基本用法
+
+### 桥接 UITextView
+
+在下面的示例中，以最简单的姿势桥接了一个 [UITextView](https://developer.apple.com/documentation/uikit/uitextview)：
+
+```swift
+struct MyRepresentedTextView: UIViewRepresentable {
+    typealias UIViewType = UITextView
+
+    @Binding var text: NSMutableAttributedString
+
+    func makeUIView(context: Context) -> UITextView {
+        UITextView()
+    }
+
+    func updateUIView(_ uiView: UITextView, context: Context) {
+        uiView.attributedText = text
+    }
+}
+```
+
+<ScreenshotBlock src={require('./image_1.png')}>
+
+```swift
+@State private var text = NSMutableAttributedString(string: "")
+
+var body: some View {
+    VStack {
+        MyRepresentedTextView(text: $text)
+            .frame(width: 300, height: 200)
+            .border(.blue)
+    }
+}
+```
+
+</ScreenshotBlock>
+
+如上图，我们已经可以在 SwiftUI 中使用 UIKit 的 [UITextView](https://developer.apple.com/documentation/uikit/uitextview) 了。但是，有几个点要注意：
+
+- 当输入内容时，状态 `text` 是没有发生变化的（上述 `MyRepresentedTextView` 代码中并没有修改 `text`）。
+- 状态 `text` 的类型为 [NSMutableAttributedString](https://developer.apple.com/documentation/foundation/nsmutableattributedstring)，跟 SwiftUI 自带 [TextEditor](https://developer.apple.com/documentation/swiftui/texteditor) 的 `.init(text:)` 的方式有点出入。
+- 使用上述 `MyRepresentedTextView` 时，使用者无法得知用户 "开始编辑" 和 "结束编辑"。
+
+### 完善 MyRepresentedTextView
+
+基于上面几点问题，我们做进一步完善：
+
+```swift
+struct MyRepresentedTextView: UIViewRepresentable {
+    typealias UIViewType = UITextView
+
+    @Binding var text: String
+
+    let proxy = Proxy()
+
+    func makeUIView(context: Context) -> UITextView {
+        let uiView = UITextView()
+        uiView.delegate = context.coordinator
+        return uiView
+    }
+
+    func updateUIView(_ uiView: UITextView, context: Context) {
+        uiView.attributedText = NSAttributedString(string: text)
+    }
+}
+
+extension MyRepresentedTextView {
+    class Proxy {
+        var onBeginEditing: (() -> Void)?
+        var onEndEditing: (() -> Void)?
+    }
+
+    // MARK: Modifiers
+
+    func onBeginEditing(action: @escaping () -> Void) -> MyRepresentedTextView {
+        proxy.onBeginEditing = action
+        return self
+    }
+
+    func onEndEditing(action: @escaping () -> Void) -> MyRepresentedTextView {
+        proxy.onEndEditing = action
+        return self
+    }
+}
+
+extension MyRepresentedTextView {
+    class Coordinator: NSObject, UITextViewDelegate {
+        var uiView: MyRepresentedTextView
+
+        init(_ uiView: MyRepresentedTextView) {
+            self.uiView = uiView
+        }
+
+        // MARK: Delegates
+
+        func textViewDidBeginEditing(_ textField: UITextView) {
+            print("textViewDidBeginEditing")
+            uiView.proxy.onBeginEditing?()
+        }
+
+        func textViewDidEndEditing(_ textField: UITextView) {
+            print("textViewDidEndEditing")
+            uiView.proxy.onEndEditing?()
+        }
+
+        func textViewDidChange(_ textView: UITextView) {
+            print("textViewDidChange: text = \(textView.text!)")
+            uiView.text = textView.text
+        }
+    }
+
+    func makeCoordinator() -> Coordinator {
+        Coordinator(self)
+    }
+}
+```
+
+<ScreenshotBlock src={require('./image_2.png')}>
+
+```swift
+@State private var text = ""
+
+var body: some View {
+    ScrollView {
+        MyRepresentedTextView(text: $text)
+            .onBeginEditing {
+                print("onBeginEditing")
+            }
+            .onEndEditing {
+                print("onEndEditing")
+            }
+            .frame(width: 300, height: 200)
+            .border(.blue)
+        Text(text.isEmpty ? "--" : text)
+            .font(.title)
+            .foregroundStyle(.blue)
+    }
+    .scrollDismissesKeyboard(.interactively)
+}
+
+// 点击 MyRepresentedTextView，获得焦点时：
+// Prints "textViewDidBeginEditing"
+// Prints "onBeginEditing"
+
+// 输入内容时：
+// Prints "textViewDidChange: text = A"
+// Prints "textViewDidChange: text = As"
+// Prints "textViewDidChange: text = Asd"
+
+// 快速向下滑动 ScrollView，失去焦点时：
+// Prints "textViewDidEndEditing"
+// Prints "onEndEditing"
+```
+
+</ScreenshotBlock>

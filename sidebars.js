@@ -180,8 +180,9 @@ const swiftuiSidebar = [
         label: "其它",
         collapsed: false,
         items: [
-          "swiftui/rest/measuring-a-view/index",
           "swiftui/rest/imagerenderer/index",
+          "swiftui/rest/measuring-a-view/index",
+          "swiftui/rest/adding-uikit-views-to-swiftui-view-hierarchies/index",
         ],
       },
     ],

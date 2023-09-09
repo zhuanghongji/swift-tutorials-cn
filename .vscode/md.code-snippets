@@ -204,5 +204,20 @@
       "</TableWrapper>"
     ],
     "description": "Create MD Table"
+  },
+  "Create MD ReferenceSources": {
+    "scope": "md,mdx",
+    "prefix": "mdreferencesources",
+    "body": [
+      "<ReferenceSources",
+      "  data={[",
+      "    {",
+      "      name: \"$1\",",
+      "      url: \"$2\",",
+      "    }",
+      "  ]}",
+      "/>"
+    ],
+    "description": "Create MD ReferenceSources"
   }
 }
