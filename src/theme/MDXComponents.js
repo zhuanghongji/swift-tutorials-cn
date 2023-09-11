@@ -1,6 +1,5 @@
 import React from "react";
 import MDXComponents from "@theme-original/MDXComponents";
-import DocCaution from "@site/src/components/DocCaution";
 import OriginalLink from "@site/src/components/OriginalLink";
 import OrigninalPDF from "@site/src/components/OrigninalPDF";
 import ReferenceSources from "@site/src/components/ReferenceSources";
@@ -15,6 +14,7 @@ import ScreenshotTableList from "@site/src/components/ScreenshotTableList";
 import TableView from "@site/src/components/TableView";
 import TableViewDataGenerator from "@site/src/components/TableViewDataGenerator";
 import TableWrapper from "@site/src/components/TableWrapper";
+import ToBePolishedAfterTranslation from "@site/src/components/ToBePolishedAfterTranslation";
 import ToContinueBookmark from "@site/src/components/ToContinueBookmark";
 import Todo from "@site/src/components/Todo";
 import Wisdom from "@site/src/components/Wisdom";
@@ -22,7 +22,6 @@ import Wisdom from "@site/src/components/Wisdom";
 export default {
   // Re-use the default mapping
   ...MDXComponents,
-  DocCaution,
   OriginalLink,
   OrigninalPDF,
   ReferenceSources,
@@ -37,6 +36,7 @@ export default {
   TableView,
   TableViewDataGenerator,
   TableWrapper,
+  ToBePolishedAfterTranslation,
   ToContinueBookmark,
   Todo,
   Wisdom,
