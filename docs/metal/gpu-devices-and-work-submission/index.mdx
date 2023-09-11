@@ -1,0 +1,1264 @@
+# GPU 设备和工作提交
+
+<OriginalLink
+  title="查找任何可用的 GPU，使用命令缓冲区向其提交工作，暂停工作，并在多个 GPU 之间进行协调"
+  value="https://developer.apple.com/documentation/metal/gpu_devices_and_work_submission"
+/>
+
+## 概述
+
+除了 [MTLCreateSystemDefaultDevice()](https://developer.apple.com/documentation/metal/1433401-mtlcreatesystemdefaultdevice) 返回的默认实例之外，你还可以使用任何可用 GPU 的 [MTLDevice](https://developer.apple.com/documentation/metal/mtldevice) 实例。对于每个设备（device）实例，获取其 [MTLCommandQueue](https://developer.apple.com/documentation/metal/mtlcommandqueue) 实例，并创建一个或多个 [MTLCommandBuffer](https://developer.apple.com/documentation/metal/mtlcommandbuffer) 实例以将工作发送到 GPU。
+
+当系统挂起（suspends）你的应用程序时，使用命令队列（command queue）来完成已经在进行的命令缓冲区（command buffers）。有关更多信息，请参阅 [准备 Metal 应用程序以在后台运行](https://developer.apple.com/documentation/metal/gpu_devices_and_work_submission/preparing_your_metal_app_to_run_in_the_background)。
+
+## 获取默认 GPU
+
+选择运行 Metal 代码的系统默认 GPU 设备。
+
+### 概述
+
+要使用 Metal 框架，首先要获取 GPU 设备。你的应用程序需要与 Metal 交互的所有对象都来自你在运行时获取的 [MTLDevice](https://developer.apple.com/documentation/metal/mtldevice)。某些设备（例如使用 iOS 和 tvOS 的设备）具有单个 GPU，你可以通过调用 [MTLCreateSystemDefaultDevice()](https://developer.apple.com/documentation/metal/1433401-mtlcreatesystemdefaultdevice) 来访问该 GPU。
+
+```swift
+guard let device = MTLCreateSystemDefaultDevice() else {
+    fatalError( "Failed to get the system's default Metal device." )
+}
+```
+
+在具有多个 GPU 的 macOS 设备（例如 MacBook Pro）上，系统默认为独立（discrete） GPU。
+
+## 检测 GPU 功能和 Metal 软件版本
+
+使用设备对象的属性来确定如何在 Metal 中执行任务。
+
+### 概述
+
+GPU 不支持单一的通用功能集。相反，不同的 GPU 支持不同的功能。更新、更强大的 GPU 支持更高级的功能，让你可以执行更复杂的任务，或者使用 GPU 可以更有效地处理的不同技术执行相同的任务。
+
+- 创建多个渲染或计算路径，并让你的应用程序动态地为每个 GPU 选择最佳选项。
+- 将某些功能限制为特定 GPU 或实现不同级别的功能。例如，在游戏中，你可能会删除旧 GPU 上的阴影或降低阴影的复杂性。
+- 限制你的应用程序，使其仅在某些 GPU 可用时运行；但是，你应该只在极端情况下使用此选项。
+
+系统上运行的 Metal 版本和你的目标 GPU 决定了哪些功能可用。 MTLDevice 对象提供有关特定 GPU 的软件和硬件功能的信息。要查看每个系列中可用功能的摘要，请参阅金属功能集表：
+
+- [Metal feature set tables (PDF)](https://developer.apple.com/metal/Metal-Feature-Set-Tables.pdf)
+- [Metal feature set tables (Numbers)](https://developer.apple.com/metal/metal-feature-set-tables.zip)
+
+新版本的 Metal 同时向设备对象添加了多种功能。你应该围绕常见功能的集合来设计你的应用程序。例如，在 iOS 上，你可能会设计两种主要渲染路径：一种用于当前和未来的 GPU，一种用于早期的 GPU。
+
+### 确定 GPU 功能支持
+
+Metal 将 GPU 分为四个主要系列（families）：
+
+- 使用 Common 系列创建针对多个平台上的一系列 GPU 的应用程序。
+- 使用 Apple 系列创建针对 Apple GPU 的应用程序。
+- 使用 Mac 系列创建针对 macOS 系统上的 GPU 的应用程序。
+- 构建在 macOS 上运行的 iPadOS 应用程序时，请使用 Mac Catalyst 系列。
+
+代码定义如下：
+
+```swift
+@available(iOS, introduced: 8.0, deprecated: 16.0, message: "Use MTLGPUFamily instead")
+public enum MTLFeatureSet : UInt, @unchecked Sendable {
+
+    @available(iOS 8.0, *)
+    case iOS_GPUFamily1_v1 = 0
+
+    @available(iOS 8.0, *)
+    case iOS_GPUFamily2_v1 = 1
+
+    @available(iOS 9.0, *)
+    case iOS_GPUFamily1_v2 = 2
+
+    @available(iOS 9.0, *)
+    case iOS_GPUFamily2_v2 = 3
+
+    @available(iOS 9.0, *)
+    case iOS_GPUFamily3_v1 = 4
+
+    @available(iOS 10.0, *)
+    case iOS_GPUFamily1_v3 = 5
+
+    @available(iOS 10.0, *)
+    case iOS_GPUFamily2_v3 = 6
+
+    @available(iOS 10.0, *)
+    case iOS_GPUFamily3_v2 = 7
+
+    @available(iOS 11.0, *)
+    case iOS_GPUFamily1_v4 = 8
+
+    @available(iOS 11.0, *)
+    case iOS_GPUFamily2_v4 = 9
+
+    @available(iOS 11.0, *)
+    case iOS_GPUFamily3_v3 = 10
+
+    @available(iOS 11.0, *)
+    case iOS_GPUFamily4_v1 = 11
+
+    @available(iOS 12.0, *)
+    case iOS_GPUFamily1_v5 = 12
+
+    @available(iOS 12.0, *)
+    case iOS_GPUFamily2_v5 = 13
+
+    @available(iOS 12.0, *)
+    case iOS_GPUFamily3_v4 = 14
+
+    @available(iOS 12.0, *)
+    case iOS_GPUFamily4_v2 = 15
+
+    @available(iOS 12.0, *)
+    case iOS_GPUFamily5_v1 = 16
+}
+```
+
+一个 GPU 可以是多个系列的成员；在大多数情况下，GPU 支持通用系列之一，然后支持特定于构建目标的一个或多个系列。
+
+最新的 GPU 具有更高的版本号并支持更大的功能集。较高的 GPU 版本始终是同一 GPU 系列中早期版本的超集。有关各个系列和版本号的详细信息，请参阅 MTLGPUFamily 。
+
+下面的代码显示了如何测试 GPU 是否支持特定 GPU 系列：
+
+```swift
+if #available(macOS 10.15, *) {
+    if self.device.supportsFamily(.familyMac2) {
+        // Enable features that require Mac family 2.
+    }
+} else {
+    // Fallback on earlier OS versions.
+}
+```
+
+### 确定 Metal 版本的可用性
+
+每个新的 Metal 版本都会为支持的 GPU 增加新功能。除了检查 GPU 是否具有正确的系列之外，还要确保你的应用程序需要的功能也存在。使用 available 语句来查询框架是否支持你需要的功能，如下代码所示。
+
+```swift
+if #available(macOS 10.15, iOS 13, tvOS 13, *) {
+     // Enable newer features.
+} else {
+    // Fallback on earlier OS versions.
+}
+```
+
+### 查找 GPU 系列的变体
+
+同一系列中的 GPU 可能存在细微差别。某些功能在整个系列中并未得到统一支持。使用设备对象通过特定于每个功能的 API 来测试这些功能是否存在。
+
+例如，Metal 的参数缓冲区功能有两层支持；第二层明显好于第一层。下面的代码显示了如何测试第 2 层支持：
+
+```swift
+if self.device.argumentBuffersSupport == .tier2 {
+    // Enable tier 2 argument buffer support in renderer.
+}
+```
+
+### 发现早期操作系统中的功能可用性
+
+如果 GPU 系列 API 不可用，请使用功能集测试功能。功能集结合了 Metal GPU 系列编号和软件版本号。例如，要测试支持 Apple 系列 4 GPU 的 Metal 的第一个版本，请使用 [MTLFeatureSet.iOS_GPUFamily4_v1](https://developer.apple.com/documentation/metal/mtlfeatureset/ios_gpufamily4_v1) ，如下所示：
+
+```swift
+if self.device.supportsFeatureSet(.iOS_GPUFamily4_v1) {
+    // Enable family 4 rendering path.
+}
+```
+
+Metal 在新版本的 Apple 操作系统中添加了新的功能集枚举，以支持新的软件功能和 GPU 系列，因此有许多不同的枚举值代表不同的功能集合。如果 GPU 支持某个功能集，则它支持同一系列早期成员提供的所有功能以及早期软件版本中的所有功能。例如，[MTLFeatureSet.iOS_GPUFamily4_v2](https://developer.apple.com/documentation/metal/mtlfeatureset/ios_gpufamily4_v2) 是系列 4 的版本 2，因此它支持与版本 1 相同的功能，以及系列 1、2 和 3 支持的所有功能。你不需要测试这些功能分别设置。按从最新到最旧的顺序测试功能集，直到成功找到你的应用程序和 GPU 都支持的功能集。
+
+## MTLCreateSystemDefaultDevice()
+
+返回 Metal 选择作为默认值的设备实例。
+
+```swift
+@available(iOS 8.0, *)
+public func MTLCreateSystemDefaultDevice() -> MTLDevice?
+```
+
+在 macOS 中，为了让系统提供默认的 Metal 设备对象，你必须链接到 [Core Graphics](https://developer.apple.com/documentation/coregraphics) 框架。如果你正在编写默认情况下不使用图形的应用程序（例如命令行工具），你通常需要明确执行此操作。
+
+## MTLDevice
+
+GPU 的主要 Metal 接口，应用程序使用它来绘制图形并并行运行计算。
+
+```swift
+@available(iOS 8.0, *)
+public protocol MTLDevice : NSObjectProtocol {
+  // ...
+
+  var name: String { get }
+}
+```
+
+### 概述
+
+你可以通过调用 [MTLCreateSystemDefaultDevice()](https://developer.apple.com/documentation/metal/1433401-mtlcreatesystemdefaultdevice) 在运行时获取默认的 [MTLDevice](https://developer.apple.com/documentation/metal/mtldevice)（请参阅 [获取默认 GPU](https://developer.apple.com/documentation/metal/gpu_devices_and_work_submission/getting_the_default_gpu)）。每个 Metal 设备实例代表一个 GPU，并且是应用程序与其交互的主要起点。使用 Metal 设备实例，你可以检查 GPU 的特性和功能（请参阅 [设备检查](https://developer.apple.com/documentation/metal/mtldevice/device_inspection)）并使用其工厂方法创建辅助类型实例。
+
+- 缓冲区、纹理和其他资源在 GPU 和 CPU 之间存储、同步和传递数据（请参阅 [资源基础知识](https://developer.apple.com/documentation/metal/resource_fundamentals)）。
+- 输入/输出命令队列有效地从文件系统加载资源（请参阅 [资源加载](https://developer.apple.com/documentation/metal/resource_loading)）。
+- 命令队列创建命令编码器并为 GPU 安排工作，包括渲染和计算命令（请参阅 [渲染通道](https://developer.apple.com/documentation/metal/render_passes) 和 [计算通道](https://developer.apple.com/documentation/metal/compute_passes)）。
+- 管道状态存储渲染或计算管道配置（创建成本可能很高），以便你可以重复使用它们，甚至可能多次。
+
+如果你的应用程序使用多个 GPU（请参阅 [多 GPU 系统](https://developer.apple.com/documentation/metal/gpu_devices_and_work_submission/multi-gpu_systems)），请确保这些类型的实例仅与同一设备上的其他实例交互。例如，你的应用程序只能将纹理传递到来自同一 Metal 设备的命令编码器，而不能传递到其他设备。
+
+### 设备检查
+
+找到并识别 GPU 及其支持的功能，并对其计数器进行采样。
+
+#### 检查 GPU 设备的功能支持
+
+```swift
+public protocol MTLDevice : NSObjectProtocol {
+    // ...
+
+    // 返回一个布尔值，指示 GPU 设备是否支持特定 GPU 系列的功能集。
+    @available(iOS 13.0, *)
+    func supportsFamily(_ gpuFamily: MTLGPUFamily) -> Bool
+}
+```
+
+```swift
+@available(iOS 13.0, *)
+public enum MTLGPUFamily : Int, @unchecked Sendable {
+
+    case apple1 = 1001
+
+    case apple2 = 1002
+
+    case apple3 = 1003
+
+    case apple4 = 1004
+
+    case apple5 = 1005
+
+    case apple6 = 1006
+
+    case apple7 = 1007
+
+    case apple8 = 1008
+
+    @available(iOS, introduced: 13.0, deprecated: 16.0, renamed: "MTLGPUFamily.mac2")
+    case mac1 = 2001
+
+    case mac2 = 2002
+
+    case common1 = 3001
+
+    case common2 = 3002
+
+    case common3 = 3003
+
+    @available(iOS, introduced: 13.0, deprecated: 16.0, renamed: "MTLGPUFamily.mac2")
+    case macCatalyst1 = 4001
+
+    @available(iOS, introduced: 13.0, deprecated: 16.0, renamed: "MTLGPUFamily.mac2")
+    case macCatalyst2 = 4002
+
+    @available(iOS 16.0, *)
+    case metal3 = 5001
+}
+```
+
+#### 检查计算支持
+
+```swift
+public protocol MTLDevice : NSObjectProtocol {
+    // ...
+
+    // 计算内核可用的最大线程组内存（以字节为单位）
+    @available(iOS 11.0, *)
+    var maxThreadgroupMemoryLength: Int { get }
+
+    // 线程组每个维度上的最大线程数
+    @available(iOS 9.0, *)
+    var maxThreadsPerThreadgroup: MTLSize { get }
+}
+```
+
+#### 检查渲染支持
+
+```swift
+public protocol MTLDevice : NSObjectProtocol {
+    // ...
+
+    // 一个布尔值，指示 GPU 设备是否支持光线追踪
+    @available(iOS 14.0, *)
+    var supportsRaytracing: Bool { get }
+
+    // 一个布尔值，指示 GPU 设备是否支持光线追踪的运动模糊
+    @available(iOS 14.0, *)
+    var supportsPrimitiveMotionBlur: Bool { get }
+
+    // 一个布尔值，指示是否可以从顶点着色器或片段着色器调用光线跟踪函数
+    @available(iOS 15.0, *)
+    var supportsRaytracingFromRender: Bool { get }
+}
+```
+
+#### 检查纹理和采样器支持
+
+```swift
+public protocol MTLDevice : NSObjectProtocol {
+    // ...
+
+    // 一个布尔值，指示 GPU 是否可以过滤 32 位浮点格式的纹理
+    @available(iOS 14.0, *)
+    var supports32BitFloatFiltering: Bool { get }
+
+    // 一个布尔值，指示是否可以使用采用 BC 压缩的纹理
+    @available(iOS 16.4, *)
+    var supportsBCTextureCompression: Bool { get }
+
+    // 一个布尔值，指示是否可以从着色器内查询纹理细节级别
+    @available(iOS 14.0, *)
+    var supportsQueryTextureLOD: Bool { get }
+}
+```
+
+#### 检查函数指针支持
+
+```swift
+public protocol MTLDevice : NSObjectProtocol {
+    // ...
+
+    // 一个布尔值，指示 GPU 设备是否支持计算内核函数的指针
+    @available(iOS 14.0, *)
+    var supportsFunctionPointers: Bool { get }
+
+    // 一个布尔值，指示 GPU 设备是否支持指向渲染函数的指针
+    @available(iOS 15.0, *)
+    var supportsFunctionPointersFromRender: Bool { get }
+}
+```
+
+#### 检查 GPU 设备的内存
+
+```swift
+public protocol MTLDevice : NSObjectProtocol {
+    // ...
+
+    // GPU 设备用于其所有资源的内存总量（以字节为单位）
+    @available(iOS 11.0, *)
+    var currentAllocatedSize: Int { get }
+
+    // 该 GPU 设备在不影响其运行时性能的情况下可以分配多少内存（以字节为单位）的近似值
+    @available(iOS 16.0, *)
+    var recommendedMaxWorkingSetSize: UInt64 { get }
+}
+```
+
+#### 对 GPU 设备的计数器进行采样
+
+```swift
+public protocol MTLDevice : NSObjectProtocol {
+    // ...
+
+    // 设备对象支持的计数器集
+    @available(iOS 14.0, *)
+    var counterSets: [MTLCounterSet]? { get }
+
+    // 返回一个布尔值，指示是否可以读取指定命令边界处的 GPU 计数器
+    @available(iOS 14.0, *)
+    func supportsCounterSampling(_ samplingPoint: MTLCounterSamplingPoint) -> Bool
+}
+```
+
+```swift
+// 可以对 GPU 计数器进行采样的不同时间的选项
+@available(iOS 14.0, *)
+public enum MTLCounterSamplingPoint : UInt, @unchecked Sendable {
+
+    case atStageBoundary = 0
+
+    case atDrawBoundary = 1
+
+    case atDispatchBoundary = 2
+
+    case atTileDispatchBoundary = 3
+
+    case atBlitBoundary = 4
+}
+```
+
+### 工作提交
+
+创建将工作提交到 GPU 或将资源加载到 GPU 资源中的队列，以及将常用命令分组在一起的间接命令缓冲区。
+
+#### 创建命令队列
+
+```swift
+public protocol MTLDevice : NSObjectProtocol {
+    // ...
+
+    // 创建一个队列，用于向 GPU 提交渲染和计算命令
+    func makeCommandQueue() -> MTLCommandQueue?
+
+    // 创建一个队列，用于将渲染和计算命令提交到具有固定数量的未完成命令缓冲区的 GPU
+    func makeCommandQueue(maxCommandBufferCount: Int) -> MTLCommandQueue?
+}
+```
+
+#### 创建间接命令缓冲区
+
+间接命令缓冲区 (ICB) 存储可以在应用程序的整个生命周期中重复使用的命令，而不是重复编码相同的命令。
+
+```swift
+public protocol MTLDevice : NSObjectProtocol {
+    // ...
+
+    // 创建间接命令缓冲区实例
+    @available(iOS 12.0, *)
+    func makeIndirectCommandBuffer(descriptor: MTLIndirectCommandBufferDescriptor,
+                                   maxCommandCount maxCount: Int,
+                                   options: MTLResourceOptions = []) -> MTLIndirectCommandBuffer?
+}
+```
+
+### 管道状态创建
+
+为渲染和计算通道、采样器、深度和模板状态以及间接命令缓冲区创建管道状态。
+
+#### 概述
+
+使用这些方法为渲染或计算通道创建各种状态类型的实例（分别参见 [渲染通道](https://developer.apple.com/documentation/metal/render_passes) 和 [计算通道](https://developer.apple.com/documentation/metal/compute_passes)）。
+
+你可以为单个渲染通道编码器 ( [MTLRenderCommandEncoder](https://developer.apple.com/documentation/metal/mtlrenderpipelinestate) ) 创建多个 [MTLRenderPipelineState](https://developer.apple.com/documentation/metal/mtlrendercommandencoder) 实例，每个实例适用于不同类型的渲染命令。例如，单个渲染通道可以渲染具有顶点的基元，然后渲染网格，最后使用图块着色器命令完成，每个渲染通道都具有不同的管道。要创建这些管道，请配置：
+
+- [MTLRenderPipelineDescriptor](https://developer.apple.com/documentation/metal/mtlrenderpipelinedescriptor)
+- [MTLMeshRenderPipelineDescriptor](https://developer.apple.com/documentation/metal/mtlmeshrenderpipelinedescriptor)
+- [MTLTileRenderPipelineDescriptor](https://developer.apple.com/documentation/metal/mtltilerenderpipelinedescriptor)
+
+的实例。然后将这些描述符分别传递给
+
+- [makeRenderPipelineState(descriptor:completionHandler:)](https://developer.apple.com/documentation/metal/mtldevice/1433363-makerenderpipelinestate)
+- [makeRenderPipelineState(descriptor:options:completionHandler:)](https://developer.apple.com/documentation/metal/mtldevice/3929884-makerenderpipelinestate)
+- [makeRenderPipelineState(tileDescriptor:options:completionHandler:)](https://developer.apple.com/documentation/metal/mtldevice/2866129-makerenderpipelinestate)
+
+方法（或对应方法）。
+
+:::caution
+
+仅在需要时创建反射（请参阅 [MTLRenderPipelineReflection](https://developer.apple.com/documentation/metal/mtlrenderpipelinereflection) ）实例，因为每个反射实例都可能需要大量内存。
+
+:::
+
+#### 使用顶点着色器创建渲染管线状态
+
+```swift
+public protocol MTLDevice : NSObjectProtocol {
+    // ...
+
+    // 同步创建渲染管道状态
+    func makeRenderPipelineState(descriptor: MTLRenderPipelineDescriptor)
+            throws -> MTLRenderPipelineState
+
+    // 异步创建渲染管道状态
+    func makeRenderPipelineState(descriptor: MTLRenderPipelineDescriptor,
+                                 completionHandler: @escaping MTLNewRenderPipelineStateCompletionHandler)
+
+    // 同步创建渲染管线状态和反射信息
+    func makeRenderPipelineState(descriptor: MTLRenderPipelineDescriptor,
+                                 options: MTLPipelineOption)
+            async throws -> (MTLRenderPipelineState, MTLRenderPipelineReflection?)
+
+    // 异步创建渲染管道状态和反射信息
+    func makeRenderPipelineState(descriptor: MTLRenderPipelineDescriptor,
+                                 options: MTLPipelineOption,
+                                 completionHandler: @escaping MTLNewRenderPipelineStateWithReflectionCompletionHandler)
+}
+```
+
+```swift
+@available(iOS 8.0, *)
+open class MTLRenderPipelineDescriptor : NSObject, NSCopying {
+    // ...
+
+    // 标识渲染管道描述符的字符串
+    open var label: String?
+
+    // 管道调用处理顶点的顶点函数
+    open var vertexFunction: MTLFunction?
+
+    // 管道调用来处理片段的片段函数
+    open var fragmentFunction: MTLFunction?
+
+    // 属性参数表中顶点数据的组织
+    @NSCopying open var vertexDescriptor: MTLVertexDescriptor?
+}
+```
+
+```swift
+// 表示渲染通道的图形管道配置的接口，该通道应用于你编码的绘制命令
+@available(iOS 8.0, *)
+public protocol MTLRenderPipelineState : NSObjectProtocol {
+    // ...
+
+    var label: String? { get }
+
+    var device: MTLDevice { get }
+}
+
+// 在完成创建渲染管道时调用的方法的 "完成处理程序签名"
+public typealias MTLNewRenderPipelineStateCompletionHandler = (MTLRenderPipelineState?, Error?) -> Void
+
+// 确定 Metal 如何准备管道的选项
+@available(iOS 8.0, *)
+public struct MTLPipelineOption : OptionSet, @unchecked Sendable {
+
+    public init(rawValue: UInt)
+
+    // 请求缓冲区、纹理和线程组内存的参数信息的选项
+    public static var argumentInfo: MTLPipelineOption { get }
+
+    // 请求缓冲区参数的详细缓冲区类型信息的选项
+    public static var bufferTypeInfo: MTLPipelineOption { get }
+
+    // 指定仅当编译的着色器存在于二进制存档中时 Metal 才应创建管道状态对象的选项
+    @available(iOS 14.0, *)
+    public static var failOnBinaryArchiveMiss: MTLPipelineOption { get }
+}
+```
+
+#### 使用网格着色器创建渲染管线状态
+
+```swift
+public protocol MTLDevice : NSObjectProtocol {
+    // ...
+
+    // 在元组中同步创建网格渲染管道状态和反射信息
+    @available(iOS 16.0, *)
+    func makeRenderPipelineState(descriptor: MTLMeshRenderPipelineDescriptor,
+                                 options: MTLPipelineOption)
+            async throws -> (MTLRenderPipelineState, MTLRenderPipelineReflection?)
+
+    // 异步创建网格渲染管道状态和反射信息
+    @available(iOS 16.0, *)
+    func makeRenderPipelineState(descriptor: MTLMeshRenderPipelineDescriptor,
+                                 options: MTLPipelineOption,
+                                 completionHandler: @escaping MTLNewRenderPipelineStateWithReflectionCompletionHandler)
+}
+```
+
+```swift
+@available(iOS 16.0, *)
+open class MTLMeshRenderPipelineDescriptor : NSObject, NSCopying {
+    // ...
+
+    open var label: String?
+
+    open var objectFunction: MTLFunction?
+
+    open var meshFunction: MTLFunction?
+
+    open var fragmentFunction: MTLFunction?
+}
+```
+
+#### 创建图块渲染管线状态
+
+```swift
+public protocol MTLDevice : NSObjectProtocol {
+    // ...
+
+    // 在元组中同步创建图块着色器的渲染管道状态和反射信息
+    @available(iOS 11.0, *)
+    func makeRenderPipelineState(tileDescriptor descriptor: MTLTileRenderPipelineDescriptor,
+                                 options: MTLPipelineOption)
+            async throws -> (MTLRenderPipelineState, MTLRenderPipelineReflection?)
+
+    // 异步创建图块着色器的渲染管道状态和反射信息
+    @available(iOS 11.0, *)
+    func makeRenderPipelineState(tileDescriptor descriptor: MTLTileRenderPipelineDescriptor,
+                                 options: MTLPipelineOption,
+                                 completionHandler: @escaping MTLNewRenderPipelineStateWithReflectionCompletionHandler)
+}
+```
+
+```swift
+// 为图块着色配置新渲染管道状态对象的对象
+@available(iOS 11.0, *)
+open class MTLTileRenderPipelineDescriptor : NSObject, NSCopying {
+    // ...
+
+    // 标识图块管道描述符的字符串
+    open var label: String?
+
+    // 管道调用的计算内核或片段函数
+    open var tileFunction: MTLFunction
+
+    // 包含渲染管道图块函数的缓冲区可变性选项的数组
+    @available(iOS 11.0, *)
+    open var tileBuffers: MTLPipelineBufferDescriptorArray { get }
+}
+```
+
+#### 创建计算管道状态
+
+```swift
+public protocol MTLDevice : NSObjectProtocol {
+    // ...
+
+    // 同步创建计算管道状态和反射信息
+    @available(iOS 9.0, *)
+    func makeComputePipelineState(descriptor: MTLComputePipelineDescriptor,
+                                  options: MTLPipelineOption,
+                                  reflection: AutoreleasingUnsafeMutablePointer<MTLAutoreleasedComputePipelineReflection?>?
+    ) throws -> MTLComputePipelineState
+
+
+    // 异步创建计算管道状态和反射信息
+    @available(iOS 9.0, *)
+    func makeComputePipelineState(descriptor: MTLComputePipelineDescriptor,
+                                  options: MTLPipelineOption,
+                                  completionHandler: @escaping MTLNewComputePipelineStateWithReflectionCompletionHandler)
+
+    // 使用函数实例同步创建新的计算管道状态
+    func makeComputePipelineState(function computeFunction: MTLFunction) throws -> MTLComputePipelineState
+
+    // 使用函数实例异步创建新的计算管道状态
+    func makeComputePipelineState(function computeFunction: MTLFunction,
+                                  completionHandler: @escaping MTLNewComputePipelineStateCompletionHandler)
+}
+```
+
+#### 创建深度和模板状态
+
+```swift
+public protocol MTLDevice : NSObjectProtocol {
+    // ...
+
+    // 创建深度模板（depth-stencil）状态实例
+    func makeDepthStencilState(descriptor: MTLDepthStencilDescriptor) -> MTLDepthStencilState?
+}
+```
+
+### 资源创造
+
+使用输入/输出队列加载资源并创建各种资源实例，例如缓冲区、纹理、加速结构和内存堆。
+
+#### 使用资源堆
+
+```swift
+public protocol MTLDevice : NSObjectProtocol {
+    // ...
+
+    // 创建一个新的 GPU 堆实例
+    @available(iOS 10.0, *)
+    func makeHeap(descriptor: MTLHeapDescriptor) -> MTLHeap?
+
+    // 如果从堆创建缓冲区，则返回缓冲区的大小和对齐方式（以字节为单位）
+    @available(iOS 10.0, *)
+    func heapBufferSizeAndAlign(length: Int, options: MTLResourceOptions = []) -> MTLSizeAndAlign
+
+    // 如果从堆创建纹理，则返回纹理的大小和对齐方式（以字节为单位）
+    @available(iOS 10.0, *)
+    func heapTextureSizeAndAlign(descriptor desc: MTLTextureDescriptor) -> MTLSizeAndAlign
+}
+```
+
+```swift
+// 资源的大小和对齐方式（以字节为单位）
+public struct MTLSizeAndAlign {
+
+    public init()
+
+    public init(size: Int, align: Int)
+
+    // 资源的大小（以字节为单位）
+    public var size: Int
+
+    // 资源的对齐方式（以字节为单位）
+    public var align: Int
+}
+```
+
+#### 创建缓冲区
+
+```swift
+public protocol MTLDevice : NSObjectProtocol {
+    // ...
+
+    // GPU 设备可以分配给缓冲区实例的最大内存量（以字节为单位）
+    @available(iOS 12.0, *)
+    var maxBufferLength: Int { get }
+
+    // 创建一个缓冲区，该方法将其清除为零值
+    func makeBuffer(length: Int, options: MTLResourceOptions = []) -> MTLBuffer?
+
+    // 分配给定长度的新缓冲区，并通过将现有数据复制到其中来初始化其内容
+    func makeBuffer(bytes pointer: UnsafeRawPointer,
+                    length: Int,
+                    options: MTLResourceOptions = []) -> MTLBuffer?
+}
+```
+
+#### 创建纹理
+
+```swift
+public protocol MTLDevice : NSObjectProtocol {
+    // ...
+
+    // 创建一个新的纹理实例
+    func makeTexture(descriptor: MTLTextureDescriptor) -> MTLTexture?
+
+    // 创建一个使用 I/O 表面来存储其底层数据的纹理实例
+    @available(iOS 11.0, *)
+    func makeTexture(descriptor: MTLTextureDescriptor, iosurface: IOSurfaceRef, plane: Int) -> MTLTexture?
+}
+```
+
+#### 创建采样器
+
+```swift
+public protocol MTLDevice : NSObjectProtocol {
+    // ...
+
+    // 返回一个布尔值，指示 GPU 是否可以使用特定数量的采样点对纹理进行采样
+    @available(iOS 9.0, *)
+    func supportsTextureSampleCount(_ sampleCount: Int) -> Bool
+
+    // 创建采样器状态实例
+    func makeSamplerState(descriptor: MTLSamplerDescriptor) -> MTLSamplerState?
+}
+
+@available(macOS 10.11, iOS 8.0, tvOS 8.0, *)
+extension MTLDevice {
+    // ...
+
+    // 根据样本数量返回默认样本位置
+    @available(macOS 10.13, iOS 11.0, tvOS 11.0, *)
+    public func getDefaultSamplePositions(sampleCount: Int) -> [MTLSamplePosition]
+}
+```
+
+#### 使用稀疏纹理
+
+```swift
+public protocol MTLDevice : NSObjectProtocol {
+    // ...
+
+    // 返回具有特定稀疏页面大小的纹理的稀疏图块的尺寸
+    @available(iOS 16.0, *)
+    func sparseTileSize(textureType: MTLTextureType,
+                        pixelFormat: MTLPixelFormat,
+                        sampleCount: Int,
+                        sparsePageSize: MTLSparsePageSize) -> MTLSize
+
+    // 返回纹理的稀疏图块的尺寸
+    @available(iOS 13.0, *)
+    func sparseTileSize(with textureType: MTLTextureType,
+                        pixelFormat: MTLPixelFormat,
+                        sampleCount: Int) -> MTLSize
+}
+```
+
+```swift
+// 每个图像的维度，包括多个图像是否排列成数组或立方体
+public enum MTLTextureType : UInt, @unchecked Sendable {
+    // ...
+
+    // 一维纹理图像
+    case type1D = 0
+
+    // 一维纹理图像的数组
+    case type1DArray = 1
+
+    // 二维纹理图像
+    case type2D = 2
+
+    // 二维纹理图像的数组
+    case type2DArray = 3
+}
+
+// 描述纹理中各个像素的组织和特征的数据格式
+public enum MTLPixelFormat : UInt, @unchecked Sendable {
+    // ...
+
+    // MTLRenderPipelineState 像素格式的默认值。你无法使用该值创建纹理
+    case invalid = 0
+
+    // 具有一个 8 位标准化无符号整数分量的普通格式
+    case a8Unorm = 1
+
+    // 具有一个 8 位标准化无符号整数分量的普通格式
+    case r8Unorm = 10
+
+    // 具有一个 16 位标准化无符号整数分量的普通格式
+    case r16Unorm = 20
+}
+
+// 稀疏纹理的页面大小选项（以千字节为单位）
+@available(iOS 16.0, *)
+public enum MTLSparsePageSize : Int, @unchecked Sendable {
+
+    // 表示稀疏纹理的页面大小为 16 KB
+    case size16 = 101
+
+    // 表示稀疏纹理的页面大小为 64 KB
+    case size64 = 102
+
+    // 表示稀疏纹理的页面大小为 256 KB
+    case size256 = 103
+}
+```
+
+#### 为光线追踪创建加速结构
+
+```swift
+public protocol MTLDevice : NSObjectProtocol {
+    // ...
+
+    // 创建具有特定大小的新加速结构
+    @available(iOS 14.0, *)
+    func makeAccelerationStructure(size: Int) -> MTLAccelerationStructure?
+
+    // 从描述符创建新的光线追踪加速结构
+    @available(iOS 14.0, *)
+    func makeAccelerationStructure(descriptor: MTLAccelerationStructureDescriptor) -> MTLAccelerationStructure?
+
+    // 返回 GPU 设备构建、改装和存储加速结构所需的缓冲区大小
+    @available(iOS 14.0, *)
+    func accelerationStructureSizes(descriptor: MTLAccelerationStructureDescriptor) -> MTLAccelerationStructureSizes
+}
+```
+
+```swift
+// 光线追踪加速结构的预期尺寸
+public struct MTLAccelerationStructureSizes {
+
+    public init()
+
+    public init(accelerationStructureSize: Int, buildScratchBufferSize: Int, refitScratchBufferSize: Int)
+
+    public var accelerationStructureSize: Int
+
+    public var buildScratchBufferSize: Int
+
+    public var refitScratchBufferSize: Int
+}
+```
+
+#### 创建参数缓冲区编码器
+
+```swift
+public protocol MTLDevice : NSObjectProtocol {
+    // ...
+
+    // 返回 GPU 设备对参数缓冲区的支持层
+    @available(iOS 11.0, *)
+    var argumentBuffersSupport: MTLArgumentBuffersTier { get }
+
+    // 每个应用程序的唯一参数缓冲区采样器的最大数量
+    @available(iOS 12.0, *)
+    var maxArgumentBufferSamplerCount: Int { get }
+
+    // 为参数数组创建一个新的参数编码器
+    @available(iOS 11.0, *)
+    func makeArgumentEncoder(arguments: [MTLArgumentDescriptor]) -> MTLArgumentEncoder?
+
+    // 为缓冲区绑定创建一个新的参数编码器
+    @available(iOS 16.0, *)
+    func makeArgumentEncoder(bufferBinding: MTLBufferBinding) -> MTLArgumentEncoder
+}
+```
+
+#### 创建栅栏和事件
+
+```swift
+public protocol MTLDevice : NSObjectProtocol {
+    // ...
+
+    // 创建一个新的内存栅栏实例
+    @available(iOS 10.0, *)
+    func makeFence() -> MTLFence?
+
+    // 创建一个新的事件实例，可用于同步同一 GPU 设备内的命令和资源
+    @available(iOS 12.0, *)
+    func makeEvent() -> MTLEvent?
+
+    // 创建一个新的共享事件实例，可用于跨不同 GPU 设备同步命令和资源
+    @available(iOS 12.0, *)
+    func makeSharedEvent() -> MTLSharedEvent?
+
+    // 从句柄重新创建共享事件
+    @available(iOS 12.0, *)
+    func makeSharedEvent(handle sharedEventHandle: MTLSharedEventHandle) -> MTLSharedEvent?
+}
+```
+
+#### 创建光栅化率图
+
+```swift
+public protocol MTLDevice : NSObjectProtocol {
+    // ...
+
+    // 返回一个布尔值，指示 GPU 是否可以创建具有特定层数的光栅化速率图
+    @available(iOS 13.0, *)
+    func supportsRasterizationRateMap(layerCount: Int) -> Bool
+
+    // 创建光栅化速率图实例
+    @available(iOS 13.0, *)
+    func makeRasterizationRateMap(descriptor: MTLRasterizationRateMapDescriptor) -> MTLRasterizationRateMap?
+}
+```
+
+### 着色器库和档案创建
+
+创建静态和动态着色器库以及二进制着色器档案。
+
+#### 创建着色器库
+
+```swift
+public protocol MTLDevice : NSObjectProtocol {
+    // ...
+
+    // 创建一个 Metal 库实例，其中包含应用程序默认 Metal 库中的函数
+    func makeDefaultLibrary() -> MTLLibrary?
+
+    // 创建一个 Metal 库实例，其中包含捆绑包的默认 Metal 库中的函数
+    @available(iOS 10.0, *)
+    func makeDefaultLibrary(bundle: Bundle) throws -> MTLLibrary
+
+    // 创建一个 Metal 库实例，其中包含位于 URL 的 Metal 库文件中的函数
+    @available(iOS 11.0, *)
+    func makeLibrary(URL url: URL) throws -> MTLLibrary
+
+    // 通过编译源字符串中的函数来同步创建 Metal 库实例
+    func makeLibrary(source: String, options: MTLCompileOptions?) throws -> MTLLibrary
+
+    // 通过编译源字符串中的函数来异步创建 Metal 库实例
+    func makeLibrary(source: String,
+                     options: MTLCompileOptions?,
+                     completionHandler: @escaping MTLNewLibraryCompletionHandler)
+}
+```
+
+#### 创建动态着色器库
+
+```swift
+public protocol MTLDevice : NSObjectProtocol {
+    // ...
+
+    // 一个布尔值，指示 GPU 设备是否可以在计算管道中创建和使用动态库
+    @available(iOS 14.0, *)
+    var supportsDynamicLibraries: Bool { get }
+
+    // 一个布尔值，指示 GPU 设备是否可以在渲染管道中创建和使用动态库
+    @available(iOS 15.0, *)
+    var supportsRenderDynamicLibraries: Bool { get }
+
+    // 从 Metal 库实例创建 Metal 动态库实例
+    @available(iOS 14.0, *)
+    func makeDynamicLibrary(library: MTLLibrary) throws -> MTLDynamicLibrary
+
+    // 创建一个 Metal 动态库实例，其中包含位于 URL 的 Metal 库文件中的函数
+    @available(iOS 14.0, *)
+    func makeDynamicLibrary(url: URL) throws -> MTLDynamicLibrary
+}
+```
+
+#### 创建二进制着色器档案
+
+```swift
+public protocol MTLDevice : NSObjectProtocol {
+    // ...
+
+    // 创建 Metal 二进制存档实例
+    @available(iOS 14.0, *)
+    func makeBinaryArchive(descriptor: MTLBinaryArchiveDescriptor) throws -> MTLBinaryArchive
+}
+```
+
+## 多 GPU 系统
+
+找到并使用内部和外部 GPU 及其显示器、视频内存和性能权衡。
+
+### 概述
+
+你的应用程序可以将工作提交到支持多个 GPU 的系统的任何或所有 GPU。例如，每台 Mac 笔记本电脑（例如 MacBook Pro）都有一个内部 GPU，但有些笔记本电脑有两个。
+
+<Figure src={require("./image_1.png")} size={520} />
+
+Mac 可能具有与外部 GPU 及其显示器的 Thunderbolt 连接。
+
+<Figure src={require("./image_2.png")} size={640} />
+
+有些系统可能具有更复杂的内部和多个外部 GPU 和显示器的排列。
+
+<Figure src={require("./image_3.png")} />
+
+有关具有 GPU 和显示器的 Mac 配置的更多信息，请参阅评估 [基于 Intel 的 Mac 上的多 GPU 和多显示器设置](https://developer.apple.com/documentation/metal/gpu_devices_and_work_submission/multi-gpu_systems/assessing_multi-gpu_and_multi-display_setups_on_an_intel-based_mac)。
+
+首先找到系统中的所有 GPU 并确定其类型（请参阅 [在基于 Intel 的 Mac 上查找多个 GPU](https://developer.apple.com/documentation/metal/gpu_devices_and_work_submission/multi-gpu_systems/finding_multiple_gpus_on_an_intel-based_mac)）。或者，你可以找到驱动显示器的特定 GPU（请参阅 [获取驱动视图显示器的 GPU](https://developer.apple.com/documentation/metal/gpu_devices_and_work_submission/multi-gpu_systems/getting_the_gpu_that_drives_a_view_s_display)）。
+
+选择 GPU 时，请考虑其内存带宽及其内存资源的存储模式选项（请参阅 [调整 GPU 内存带宽权衡](https://developer.apple.com/documentation/metal/gpu_devices_and_work_submission/multi-gpu_systems/adjusting_for_gpu_memory_bandwidth_tradeoffs)）。
+
+有关如何在图形渲染或计算处理工作流程中使用外部 GPU 的示例，请参阅以下内容：
+
+- [选择用于图形渲染的设备对象](https://developer.apple.com/documentation/metal/metal_sample_code_library/selecting_device_objects_for_graphics_rendering)
+- [选择用于计算处理的设备对象](https://developer.apple.com/documentation/metal/metal_sample_code_library/selecting_device_objects_for_compute_processing)
+
+有关外部 GPU 配置的更多信息，请参阅在 Mac 上使用外部图形处理器。
+
+:::note
+
+系统可能随时获得或失去外部 GPU（请参阅 [处理外部 GPU 添加和删除](https://developer.apple.com/documentation/metal/gpu_devices_and_work_submission/multi-gpu_systems/handling_external_gpu_additions_and_removals)）。
+
+:::
+
+## 设置命令结构
+
+了解 Metal 如何在 GPU 上执行命令。
+
+### 概述
+
+在 Metal 中，你向 GPU 发送命令，以便它可以代表你执行工作。命令执行应用程序所需的绘图、并行计算和资源管理工作。
+
+Metal 应用程序和设备上的 GPU 之间的关系是客户端/服务器模型，其中你的应用程序是客户端，GPU 是服务器。你可以通过向 GPU 发送命令来发出请求，这些命令封装在命令缓冲区中，然后添加到命令队列中。处理完命令后，GPU 会通知你的应用程序何时准备好进行更多工作。
+
+<Figure src={require("./image_4.png")} size={320} />
+
+将命令放入命令缓冲区、然后排队和提交命令缓冲区的顺序会影响 Metal 执行命令的感知顺序。
+
+以下各节说明如何设置命令结构以产生所需的结果。有些对象你创建一次并在整个应用程序中使用，而其他对象则专门为执行一组命令而创建。
+
+### 在初始化期间创建昂贵的共享对象
+
+创建在初始化期间分配成本昂贵的对象，而不是在时间关键的代码路径中。你可以在代码中共享的对象包括命令队列、管道、缓冲区和纹理。初始化这些对象后，它们可以快速重用。
+
+#### 创建命令队列
+
+要创建命令队列，请调用设备的 [makeCommandQueue()](https://developer.apple.com/documentation/metal/mtldevice/1433388-makecommandqueue) 函数。
+
+```swift
+let commandQueue = device.makeCommandQueue()
+```
+
+然后在整个应用程序中使用相同的命令队列来保存命令缓冲区。下图说明了包含命令缓冲区的命令队列：
+
+<Figure src={require("./image_5.png")} size={360} />
+
+#### 制作一个或多个管道对象
+
+管道对象告诉 Metal 如何处理你的命令。管道对象封装了你用 Metal 着色语言编写的函数。要在 Metal 工作流程中使用管道，请按照以下步骤操作：
+
+1. 编写处理数据的 Metal 着色器函数。
+2. 创建一个包含着色器的管道对象。
+3. 设置渲染或计算管道的状态。
+4. 进行绘制或计算调用。
+
+Metal 不会立即执行你的绘制或计算调用。相反，你可以使用编码器对象插入命令，将这些调用封装到命令缓冲区中。提交命令缓冲区后，Metal 将其发送到 GPU 并使用活动管道对象来处理命令。
+
+下图说明了 GPU 上的活动管道，其中包含处理命令的自定义着色器代码：
+
+<Figure src={require("./image_6.png")} size={480} />
+
+#### 向 GPU 发出命令
+
+要在 GPU 上执行命令，请遵循以下过程：
+
+1. 从命令队列创建命令缓冲区。
+2. 使用命令缓冲区创建命令编码器。
+3. 使用命令编码器将命令添加到命令缓冲区。
+4. 通过设置完成处理程序，在 GPU 调度和执行命令时获取回调。
+5. 提交命令缓冲区。
+
+如果你将动画作为渲染循环的一部分执行，请对动画的每一帧执行此操作。你还可以按照此流程执行一次性图像处理或机器学习任务。
+
+#### 创建命令缓冲区
+
+通过在命令队列上调用 [makeCommandBuffer()](https://developer.apple.com/documentation/metal/mtlcommandqueue/1508686-makecommandbuffer) 创建命令缓冲区。
+
+```swift
+guard let commandBuffer = commandQueue.makeCommandBuffer() else {
+    return
+}
+```
+
+对于单线程应用程序，创建包含命令的单个命令缓冲区。下图说明了命令缓冲区与其包含的命令的关系：
+
+<Figure src={require("./image_7.png")} size={360} />
+
+#### 将命令添加到命令缓冲区
+
+当你在编码器对象上调用特定于任务的函数（例如绘图或计算操作）时，编码器会将与这些调用相对应的命令放置在命令缓冲区中。编码器将命令插入命令缓冲区，包括 GPU 在运行时处理任务所需的所有内容。
+
+下图说明了当应用程序进行绘制调用时，命令编码器将命令插入命令缓冲区：
+
+<Figure src={require("./image_8.png")} size={640} />
+
+你可以根据你的任务使用 `MTLCommandEncoder` 的具体子类对实际命令进行编码。例如，使用 [MTLRenderCommandEncoder](https://developer.apple.com/documentation/metal/mtlrendercommandencoder) 发出渲染命令，使用 [MTLComputeCommandEncoder](https://developer.apple.com/documentation/metal/mtlcomputecommandencoder) 发出并行计算命令。有关子类的完整列表，请参阅 [MTLCommandEncoder](https://developer.apple.com/documentation/metal/mtlcommandencoder)。
+
+有关完整的渲染示例，请参阅 [使用渲染管道渲染基元](https://developer.apple.com/documentation/metal/using_a_render_pipeline_to_render_primitives)。有关完整的并行处理示例，请参阅 [在计算函数中处理纹理](https://developer.apple.com/documentation/metal/compute_passes/processing_a_texture_in_a_compute_function)。
+
+#### 提交命令缓冲区
+
+要提交命令以在 GPU 上运行，请将命令缓冲区提交到 GPU。
+
+```swift
+commandBuffer.commit()
+```
+
+提交命令缓冲区不会立即运行其命令。相反，Metal 会安排缓冲区的命令仅在你提交队列中等待的先前命令缓冲区后运行。如果你没有显式地将命令缓冲区排入队列，Metal 会在你提交缓冲区时为你执行此操作。
+
+提交缓冲区后你无法重用它，但你可以在 Metal 调度并完成命令时收到通知，或者你可以查询缓冲区的 [status](https://developer.apple.com/documentation/metal/mtlcommandbuffer/1443048-status)。要在此过程中接收回调，请使用 `MTLCommandBuffer` [addScheduledHandler(\_:)](https://developer.apple.com/documentation/metal/mtlcommandbuffer/1442991-addscheduledhandler) 和 [addCompletedHandler(\_:)](https://developer.apple.com/documentation/metal/mtlcommandbuffer/1442997-addcompletedhandler) 方法。
+
+Metal 执行命令的感知顺序尽可能与你订购命令的方式相同。尽管 Metal 可能会在处理某些命令之前对其进行重新排序，但这通常仅在性能提升且没有其他明显影响时才会发生。
+
+## MTLCommandQueue
+
+用于创建、提交命令缓冲区并将其调度到特定 GPU 设备以在这些缓冲区中运行命令的实例。
+
+### 概述
+
+命令队列维护命令缓冲区的有序列表。你可以使用命令队列来：
+
+- 创建命令缓冲区，用创建队列的 GPU 设备的命令填充该缓冲区
+- 提交命令缓冲区以在该 GPU 上运行
+
+通过调用 [makeCommandQueue()](https://developer.apple.com/documentation/metal/mtldevice/1433388-makecommandqueue) 或 [makeCommandQueue(maxCommandBufferCount:)](https://developer.apple.com/documentation/metal/mtldevice/1433433-makecommandqueue) 方法从 [MTLDevice](https://developer.apple.com/documentation/metal/mtldevice) 实例创建命令队列。通常，你会在应用程序启动时创建一个或多个命令队列，然后在应用程序的整个生命周期中保留它们。
+
+对于你创建的每个 `MTLCommandQueue` 实例，你可以通过调用其 [makeCommandBuffer()](https://developer.apple.com/documentation/metal/mtlcommandqueue/1508686-makecommandbuffer) 或 [makeCommandBufferWithUnretainedReferences()](https://developer.apple.com/documentation/metal/mtlcommandqueue/1508684-makecommandbufferwithunretainedr) 方法为该队列创建 [MTLCommandBuffer](https://developer.apple.com/documentation/metal/mtlcommandbuffer) 实例。
+
+:::note
+
+每个命令队列都是线程安全的，允许你同时在多个命令缓冲区中编码命令。
+
+:::
+
+有关命令缓冲区和对其编码 GPU 命令的更多信息（例如并行渲染图像和计算数据），请参阅 [设置命令结构](https://developer.apple.com/documentation/metal/gpu_devices_and_work_submission/setting_up_a_command_structure)。
+
+### 创建命令缓冲区
+
+```swift
+public protocol MTLCommandQueue : NSObjectProtocol {
+    // ...
+
+    // 从命令队列返回命令缓冲区，该缓冲区维护对资源的强引用
+    func makeCommandBuffer() -> MTLCommandBuffer?
+
+    // 从使用描述符配置的命令队列中返回命令缓冲区
+    @available(iOS 14.0, *)
+    func makeCommandBuffer(descriptor: MTLCommandBufferDescriptor) -> MTLCommandBuffer?
+
+    // 从命令队列返回命令缓冲区，该缓冲区不维护对资源的强引用
+    func makeCommandBufferWithUnretainedReferences() -> MTLCommandBuffer?
+}
+```
+
+## MTLCommandBufferDescriptor
+
+自定义新命令缓冲区行为的配置。
+
+```swift
+@available(iOS 14.0, *)
+open class MTLCommandBufferDescriptor : NSObject, NSCopying {
+
+    // 一个布尔值，指示描述符创建的命令缓冲区是否维护对其使用的资源的强引用
+    open var retainedReferences: Bool
+
+    // 报告配置，指示 GPU 驱动程序在命令缓冲区的错误属性中存储哪些信息
+    open var errorOptions: MTLCommandBufferErrorOption
+}
+```
+
+### 概述
+
+通过创建 `MTLCommandBufferDescriptor` 实例并将其传递给 [MTLCommandQueue](https://developer.apple.com/documentation/metal/mtlcommandqueue) 实例的 [makeCommandBuffer(descriptor:)](https://developer.apple.com/documentation/metal/mtlcommandqueue/3553957-makecommandbuffer) 方法，创建具有自定义配置的命令缓冲区。你可以使用 [retainedReferences](https://developer.apple.com/documentation/metal/mtlcommandbufferdescriptor/3553942-retainedreferences) 属性配置命令缓冲区是否保留对其命令引用的资源的引用。命令缓冲区可以通过将其 [errorOptions](https://developer.apple.com/documentation/metal/mtlcommandbufferdescriptor/3553941-erroroptions) 属性设置为 [encoderExecutionStatus](https://developer.apple.com/documentation/metal/mtlcommandbuffererroroption/3553949-encoderexecutionstatus) 来保存额外的错误信息，这在开发过程中很有用。
+
+## MTLCommandBuffer
+
+一个容器，用于存储你编码到其中的一系列 GPU 命令。
+
+### 概述
+
+命令缓冲区通过存储编码到其中的命令以及这些命令所需的任何资源来代表 GPU 的工作块。你主要使用命令缓冲区来：
+
+- 创建命令编码器并调用其方法将命令添加到缓冲区
+- 甚至在将任何命令编码到命令缓冲区之前，也可以通过将命令缓冲区排入队列来在命令队列中为命令缓冲区保留一个位置
+- 将命令缓冲区的内容提交或提交到命令队列，命令队列创建它以在队列代表的 GPU 设备上运行
+
+通过调用 [makeCommandBuffer()](https://developer.apple.com/documentation/metal/mtlcommandqueue/1508686-makecommandbuffer) 方法从 [MTLCommandQueue](https://developer.apple.com/documentation/metal/mtlcommandqueue) 实例创建命令编码器。通常，你会在应用程序启动时创建一个或多个命令队列，然后在应用程序的整个生命周期中保留它们。
+
+要将命令添加到 MTLCommandBuffer 实例，请从其工厂方法之一创建一个编码器，包括：
+
+- 通过调用 [makeRenderCommandEncoder(descriptor:)](https://developer.apple.com/documentation/metal/mtlcommandbuffer/1442999-makerendercommandencoder) 的 [MTLRenderCommandEncoder](https://developer.apple.com/documentation/metal/mtlrendercommandencoder) 实例
+- 通过调用 [makeComputeCommandEncoder(dispatchType:)](https://developer.apple.com/documentation/metal/mtlcommandbuffer/2966541-makecomputecommandencoder) 的 [MTLComputeCommandEncoder](https://developer.apple.com/documentation/metal/mtlcomputecommandencoder) 实例
+- 通过调用 [makeBlitCommandEncoder()](https://developer.apple.com/documentation/metal/mtlcommandbuffer/1443001-makeblitcommandencoder) 或 [makeBlitCommandEncoder(descriptor:)](https://developer.apple.com/documentation/metal/mtlcommandbuffer/3564431-makeblitcommandencoder) 的 [MTLBlitCommandEncoder](https://developer.apple.com/documentation/metal/mtlblitcommandencoder) 实例
+- 通过调用 [makeParallelRenderCommandEncoder(descriptor:)](https://developer.apple.com/documentation/metal/mtlcommandbuffer/1443009-makeparallelrendercommandencoder) 的 [MTLParallelRenderCommandEncoder](https://developer.apple.com/documentation/metal/mtlparallelrendercommandencoder) 实例
+
+:::note
+
+所有编码器都从 [MTLCommandEncoder](https://developer.apple.com/documentation/metal/mtlcommandencoder) 继承附加方法。
+
+:::
+
+你一次只能使用一个编码器将命令添加到命令缓冲区。要开始使用不同的命令编码器，请首先通过调用当前编码器的 [endEncoding()](https://developer.apple.com/documentation/metal/mtlcommandencoder/1458038-endencoding) 方法来表明你已完成当前编码器的操作。然后从命令缓冲区创建另一个命令编码器，并继续使用新编码器将命令添加到缓冲区。
+
+重复此过程，直到完成将命令编码到命令缓冲区并准备好在 GPU 上运行缓冲区的内容。然后通过调用命令缓冲区的 [commit()](https://developer.apple.com/documentation/metal/mtlcommandbuffer/1443003-commit) 方法将命令缓冲区提交到用于创建它的命令队列。应用提交命令缓冲区后，你可以检查其 [status](https://developer.apple.com/documentation/metal/mtlcommandbuffer/1443048-status) 属性或通过调用其 [waitUntilScheduled()](https://developer.apple.com/documentation/metal/mtlcommandbuffer/1443036-waituntilscheduled) 或 [waitUntilCompleted()](https://developer.apple.com/documentation/metal/mtlcommandbuffer/1443039-waituntilcompleted) 方法来阻止线程。
+
+你还可以选择通过调用命令缓冲区的 [enqueue()](https://developer.apple.com/documentation/metal/mtlcommandbuffer/1443019-enqueue) 方法在其命令队列中为命令缓冲区保留一个位置。在将缓冲区提交到队列之前，你可以随时调用此方法一次。如果你没有将命令缓冲区排入队列，那么当你提交命令缓冲区时，它会隐式地将其自身排入队列。每个命令队列都确保将其命令缓冲区排入队列的顺序与队列安排它们在 GPU 上运行的顺序相同。
+
+:::note
+
+首先按顺序调用 [enqueue()](https://developer.apple.com/documentation/metal/mtlcommandbuffer/1443019-enqueue) 方法，为并行编码的多个命令缓冲区建立执行顺序。
+
+:::
+
+例如，多线程应用程序可以通过以下方式设置一系列相关子任务的 GPU 执行顺序：
+
+1. 为每个子任务创建命令缓冲区
+2. 在单个线程上以正确的顺序对命令缓冲区进行排队
+3. 将命令编码到单独线程上的每个缓冲区，然后提交
+
+## MTLCommandEncoder
+
+将 GPU 命令写入命令 ​​ 缓冲区的编码器。
+
+### 概述
+
+不要自己实现该协议；相反，你可以调用 [MTLCommandBuffer](https://developer.apple.com/documentation/metal/mtlcommandbuffer) 对象上的方法来创建命令编码器。命令编码器对象是轻量级对象，每次需要向 GPU 发送命令时都会重新创建它们。
+
+有许多不同类型的命令编码器，每种都提供可以编码到缓冲区中的不同命令集。命令编码器实现 MTLCommandEncoder 协议和特定于所创建的编码器类型的附加协议。表 1 列出了命令编码器及其实现的协议。
+
+<TableWrapper num="1" title="命令编码器协议">
+
+| Protocol                                                                                                           | Task                         |
+| ------------------------------------------------------------------------------------------------------------------ | ---------------------------- |
+| [MTLRenderCommandEncoder](https://developer.apple.com/documentation/metal/mtlrendercommandencoder)                 | 图形渲染                     |
+| [MTLComputeCommandEncoder](https://developer.apple.com/documentation/metal/mtlcomputecommandencoder)               | 计算                         |
+| [MTLBlitCommandEncoder](https://developer.apple.com/documentation/metal/mtlblitcommandencoder)                     | 内存管理                     |
+| [MTLParallelRenderCommandEncoder](https://developer.apple.com/documentation/metal/mtlparallelrendercommandencoder) | 并行编码的多个图形渲染任务。 |
+
+</TableWrapper>
+
+当命令编码器处于活动状态时，它具有将命令附加到其命令缓冲区的专有权利。完成命令编码后，调用 [endEncoding()](https://developer.apple.com/documentation/metal/mtlcommandencoder/1458038-endencoding) 方法完成命令编码。要将更多命令写入同一命令缓冲区，请创建一个新的命令编码器。
+
+你可以调用 [insertDebugSignpost(\_:)](https://developer.apple.com/documentation/metal/mtlcommandencoder/1458034-insertdebugsignpost)、[pushDebugGroup(\_:)](https://developer.apple.com/documentation/metal/mtlcommandencoder/1458041-pushdebuggroup) 和 [popDebugGroup()](https://developer.apple.com/documentation/metal/mtlcommandencoder/1458040-popdebuggroup) 方法将调试字符串放入命令缓冲区，并推送或弹出用于标识编码组的字符串标签。命令。这些方法不会改变应用程序的渲染或计算行为； Xcode 调试器使用它们以一种可以深入了解应用程序工作方式的格式来组织应用程序的渲染命令。
+
+## 准备你的 Metal 应用程序以在后台运行
+
+通过暂停未来的 GPU 使用并确保安排之前的工作，让你的应用做好进入后台的准备。
+
+### 概述
+
+iOS 和 tvOS 限制后台应用程序对 GPU 的访问，以保证前台应用程序的性能。如果 Metal 命令队列在应用程序移入后台后尝试调度命令缓冲区，系统会阻止这些命令执行。当 UIKit 通知你你的应用程序正在暂停或移至后台时，你的应用程序必须限制其对 Metal 的使用。
+
+有关 UIKit 应用程序生命周期的更多信息，请参阅 [准备 UI 以在后台运行](https://developer.apple.com/documentation/uikit/app_and_environment/scenes/preparing_your_ui_to_run_in_the_background)。
+
+### 禁用提交新命令缓冲区的代码
+
+当你的应用程序停用时，请停止向 Metal 发送工作。仅在你的应用程序重新激活后才启用该代码。
+
+系统通知你的应用程序即将停用后，你有一段时间系统会限制你的应用程序使用 Metal。如果这项工作对于准备应用程序处于后台状态至关重要，你可以安排其他命令。同样，如果你的应用程序已经在编码命令中，则你的应用程序通常可以在禁用进一步的工作之前完成当前任务。例如，如果你的应用将动画帧渲染到屏幕上，并且你在为新帧编码命令时收到通知，则可以在禁用渲染代码之前完成该帧的编码。
+
+### 确保所有先前的工作都已安排执行
+
+当 UIKit 调用应用程序委托的 [applicationDidEnterBackground(\_:)](https://developer.apple.com/documentation/uikit/uiapplicationdelegate/1622997-applicationdidenterbackground) 方法时，请确保 Metal 已安排你在应用程序将控制权返回给系统之前已提交的所有命令缓冲区。在每个命令队列上，如果你排队的最后一个命令缓冲区尚未调度或完成，请调用 [waitUntilScheduled()](https://developer.apple.com/documentation/metal/mtlcommandbuffer/1443036-waituntilscheduled) 强制对其进行调度。
+
+如果你正在编码新的命令缓冲区，则可以合并这些步骤。完成编码命令以渲染帧并提交命令缓冲区，然后调用 [waitUntilScheduled()](https://developer.apple.com/documentation/metal/mtlcommandbuffer/1443036-waituntilscheduled)。
+
+当你的应用程序进入后台后，如果 Metal 从你的应用程序中看到新的命令缓冲区，它会返回错误，而不是调度命令缓冲区。要测试此错误，请通过调用 [addCompletedHandler(\_:)](https://developer.apple.com/documentation/metal/mtlcommandbuffer/1442997-addcompletedhandler) 方法添加完成处理程序。在完成处理程序中，通过检查以下属性来确认命令缓冲区处于错误状态：
+
+- [status](https://developer.apple.com/documentation/metal/mtlcommandbuffer/1443048-status) 属性等于 [MTLCommandBufferStatus.error](https://developer.apple.com/documentation/metal/mtlcommandbufferstatus/error)
+- [error](https://developer.apple.com/documentation/metal/mtlcommandbuffer/1443040-error) 属性等于 [MTLCommandBufferError.Code.notPermitted](https://developer.apple.com/documentation/metal/mtlcommandbuffererror/code/notpermitted)

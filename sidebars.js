@@ -245,7 +245,20 @@ const metalSidebar = [
     type: "category",
     label: "Metal",
     collapsible: false,
-    items: ["metal/overview/index", "metal/gpu-devices/index"],
+    items: [
+      {
+        type: "category",
+        label: "Essentials",
+        collapsed: false,
+        items: ["metal/overview/index"],
+      },
+      {
+        type: "category",
+        label: "GPU Devices",
+        collapsed: false,
+        items: ["metal/gpu-devices-and-work-submission/index"],
+      },
+    ],
   },
 ];
 

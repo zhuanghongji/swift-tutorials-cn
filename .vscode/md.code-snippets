@@ -96,7 +96,7 @@
     "prefix": "figures",
     "body": [
       "<Figure",
-      "  src={require('../figures/$1.jpg')}",
+      "  src={require('./$1.png')}",
       "  num=\"$2\"",
       "  desc=\"$3\"",
       "/>"
