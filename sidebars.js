@@ -254,6 +254,12 @@ const metalSidebar = [
       },
       {
         type: "category",
+        label: "Samples",
+        collapsed: false,
+        items: ["metal/samples/draw-an-triangle/index"],
+      },
+      {
+        type: "category",
         label: "GPU Devices",
         collapsed: false,
         items: ["metal/gpu-devices-and-work-submission/index"],

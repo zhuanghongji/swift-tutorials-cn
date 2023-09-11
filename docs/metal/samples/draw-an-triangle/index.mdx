@@ -1,0 +1,128 @@
+# 绘制一个三角形
+
+<ReferenceSources
+  data={[
+    {
+      name: "How to get started with Metal APIs— with UIView and SwiftUI",
+      url: "https://blog.canopas.com/how-to-get-started-with-metal-apis-with-uiview-and-swiftui-124643d8209e",
+    },
+  ]}
+/>
+
+## 编写 Shading 函数
+
+```cpp title="Shaders.metal"
+#include <metal_stdlib>
+using namespace metal;
+
+vertex float4 vertexShader(constant float3 *vertexArray [[ buffer(0) ]],
+                           uint vid [[ vertex_id ]]) {
+    float3 ver = vertexArray[vid];
+    return float4(ver, 1.0);
+}
+
+fragment float4 fragmentShader() {
+    return float4(1.0, 0.5, 0.5, 1.0);
+}
+```
+
+## 自定义 TriangleView
+
+封装 [MetalKit](https://developer.apple.com/documentation/metalkit) 中 [MTKView](https://developer.apple.com/documentation/metalkit/mtkview) 成 `TriangleView` 以供 SwiftUI 直接使用。
+
+```swift title="TriangleView.swift"
+import MetalKit
+import SwiftUI
+
+struct TriangleView: UIViewRepresentable {
+    typealias UIViewType = MTKView
+
+    func makeUIView(context: Context) -> MTKView {
+        let uiView = MTKView()
+        // 设置 Metal 的系统默认设备
+        // 以便后续在实现了 MTKViewDelegate 协议的 Coordinator 中使用它
+        uiView.device = MTLCreateSystemDefaultDevice()
+
+        // 取消下面的注释代码，可让背景颜色由默认 "黑色" 变为 "绿色"
+        // uiView.clearColor = MTLClearColor(red: 0.0, green: 1.0, blue: 0.0, alpha: 1.0)
+
+        uiView.delegate = context.coordinator
+        return uiView
+    }
+
+    func updateUIView(_ uiView: MTKView, context: Context) {
+        // none
+    }
+}
+
+extension TriangleView {
+    class Coordinator: NSObject, MTKViewDelegate {
+        func mtkView(_ view: MTKView, drawableSizeWillChange size: CGSize) {
+            // none
+        }
+
+        func draw(in view: MTKView) {
+            guard let device = view.device else {
+                return
+            }
+            guard let descriptor = view.currentRenderPassDescriptor else {
+                return
+            }
+            guard let drawable = view.currentDrawable else {
+                return
+            }
+
+            // 构造「渲染管道描述器」，并为其设置 Metal 库函数
+            let metalLibrary = device.makeDefaultLibrary()!
+            let vertexFunction = metalLibrary.makeFunction(name: "vertexShader")
+            let fragmentFunction = metalLibrary.makeFunction(name: "fragmentShader")
+            let pipelineDescriptor = MTLRenderPipelineDescriptor()
+            pipelineDescriptor.vertexFunction = vertexFunction
+            pipelineDescriptor.fragmentFunction = fragmentFunction
+            pipelineDescriptor.colorAttachments[0].pixelFormat = drawable.texture.pixelFormat
+            do {
+                // 通过「渲染管道描述器」创建「渲染管道状态」，从而创建「渲染命令编码器」
+                let pipelineState = try device.makeRenderPipelineState(descriptor: pipelineDescriptor)
+                let commandQueue = device.makeCommandQueue()!
+                let commandBuffer = commandQueue.makeCommandBuffer()!
+                let renderEncoder = commandBuffer.makeRenderCommandEncoder(descriptor: descriptor)!
+                renderEncoder.setRenderPipelineState(pipelineState)
+
+                // 开始编码
+                let vertexData: [Float] = [+0.0, +0.5, 0.0, 1.0,
+                                           -0.5, -0.5, 0.0, 1.0,
+                                           +0.5, -0.5, 0.0, 1.0]
+                let vertexBuffer = device.makeBuffer(bytes: vertexData,
+                                                     length: vertexData.count * MemoryLayout<Float>.size,
+                                                     options: [])
+                renderEncoder.setVertexBuffer(vertexBuffer, offset: 0, index: 0)
+                renderEncoder.drawPrimitives(type: .triangle, vertexStart: 0, vertexCount: vertexData.count)
+                renderEncoder.endEncoding()
+                // 提交编码
+                commandBuffer.present(drawable)
+                commandBuffer.commit()
+            } catch {
+                print("Error: \(error.localizedDescription)")
+            }
+        }
+    }
+
+    func makeCoordinator() -> Coordinator {
+        Coordinator()
+    }
+}
+```
+
+## 在 SwiftUI 中使用 TriangleView
+
+<ScreenshotBlock src={require('./image_1.png')}>
+
+```swift
+VStack {
+    TriangleView()
+        .frame(width: 200, height: 200)
+    Text("Hello, Triangle")
+}
+```
+
+</ScreenshotBlock>
