@@ -1,0 +1,477 @@
+# 在 GPU 上执行计算
+
+<ToBePolishedAfterTranslation />
+
+<OriginalSource
+  title="Performing Calculations on a GPU"
+  url="https://developer.apple.com/documentation/metal/performing_calculations_on_a_gpu"
+  summary="使用 Metal 查找 GPU 并对其执行计算。"
+/>
+
+## 概述
+
+在此示例中，你将学习所有 Metal 应用程序中使用的基本任务。你将看到如何将用 C 编写的简单函数转换为 Metal 着色语言 (MSL)，以便它可以在 GPU 上运行。你将找到一个 GPU，通过创建管道来准备要在其上运行的 MSL 函数，并创建 GPU 可访问的数据对象。要针对数据执行管道，请创建命令缓冲区，将命令写入其中，然后将缓冲区提交到命令队列。 Metal 将命令发送到 GPU 来执行。
+
+## 编写 GPU 函数来执行计算
+
+为了说明 GPU 编程，此应用程序将两个数组的相应元素相加，并将结果写入第三个数组。清单 1 显示了一个用 C 编写的在 CPU 上执行此计算的函数。它循环索引，每次循环迭代计算一个值。
+
+清单 1：用 C 编写的数组加法
+
+```c
+void add_arrays(const float* inA,
+                const float* inB,
+                float* result,
+                int length)
+{
+    for (int index = 0; index < length; index++) {
+        result[index] = inA[index] + inB[index];
+    }
+}
+```
+
+每个值都是独立计算的，因此可以安全地同时计算这些值。要在 GPU 上执行计算，需要用 Metal Shading Language (MSL) 重写此函数。 MSL 是 C++ 的变体，专为 GPU 编程而设计。在 Metal 中，在 GPU 上运行的代码称为着色器，因为历史上它们首先用于计算 3D 图形中的颜色。清单 2 显示了 MSL 中的着色器，它执行与清单 1 相同的计算。示例项目在 add.metal 文件中定义了此函数。 Xcode 在应用程序目标中构建所有 .metal 文件，并创建一个默认的 Metal 库，将其嵌入到你的应用程序中。稍后你将在本示例中看到如何加载默认库。
+
+清单 2： 用 MSL 编写的数组加法
+
+```cpp
+#include <metal_stdlib>
+using namespace metal;
+
+// This is a Metal Shading Language (MSL) function equivalent to
+// the add_arrays() C function, used to perform the calculation on a GPU.
+kernel void add_arrays(device const float* inA,
+                       device const float* inB,
+                       device float* result,
+                       uint index [[thread_position_in_grid]])
+{
+    // the for-loop is replaced with a collection of threads, each of which
+    // calls this function.
+    result[index] = inA[index] + inB[index];
+}
+```
+
+清单 1 和清单 2 很相似，但 MSL 版本有一些重要的区别。仔细看看清单 2。
+
+首先，该函数添加 kernel 关键字，该关键字声明该函数为：
+
+- 公共 GPU 函数。公共函数是你的应用程序可以看到的唯一函数。公共函数也不能被其他着色器函数调用。
+- 计算函数（也称为计算内核），使用线程网格执行并行计算。
+
+请参阅 [使用渲染管道渲染基元（Using a Render Pipeline to Render Primitives）](https://developer.apple.com/documentation/metal/using_a_render_pipeline_to_render_primitives) 以了解用于声明公共图形函数的其他函数关键字。
+
+`add_arrays` 函数使用 `device` 关键字声明其三个参数，这表示这些指针位于 `device` 地址空间中。 MSL 为内存定义了多个不相交的地址空间。每当你在 MSL 中声明指针时，都必须提供一个关键字来声明其地址空间。使用 `device` 地址空间声明 GPU 可以读取和写入的持久内存。
+
+清单 2 从清单 1 中删除了 `for` 循环，因为该函数现在将由计算网格中的多个线程调用。此示例创建一个与数组维度完全匹配的一维线程网格，以便数组中的每个条目都由不同的线程计算。
+
+为了替换先前由 `for` 循环提供的索引，该函数采用一个新的 index 参数，以及使用 C++ 属性语法指定的另一个 MSL 关键字 `thread_position_in_grid`。该关键字声明 Metal 应该计算每个线程的唯一索引，并在此参数中传递该索引。由于 `add_arrays` 使用一维网格，因此索引被定义为标量整数。即使删除了循环，清单 1 和清单 2 仍使用同一行代码将两个数字相加。如果要将类似的代码从 C 或 C++ 转换为 MSL，请以相同的方式将循环逻辑替换为网格。
+
+## 寻找 GPU
+
+在你的应用中，[MTLDevice](https://developer.apple.com/documentation/metal/mtldevice) 对象是 GPU 的精简抽象；你可以使用它与 GPU 进行通信。 Metal 为每个 GPU 创建一个 MTLDevice 。你可以通过调用 [MTLCreateSystemDefaultDevice()](https://developer.apple.com/documentation/metal/1433401-mtlcreatesystemdefaultdevice) 获取默认设备对象。在 macOS 中，Mac 可以拥有多个 GPU，Metal 选择其中一个 GPU 作为默认值并返回该 GPU 的设备对象。在 macOS 中，Metal 提供了可用于检索所有设备对象的其他 API，但此示例仅使用默认值。
+
+```swift
+let device = MTLCreateSystemDefaultDevice()
+```
+
+## 初始化 Metal 对象
+
+Metal 将其他与 GPU 相关的实体（例如编译的着色器、内存缓冲区和纹理）表示为对象。要创建这些特定于 GPU 的对象，你可以调用 [MTLDevice](https://developer.apple.com/documentation/metal/mtldevice) 上的方法，或者调用 [MTLDevice](https://developer.apple.com/documentation/metal/mtldevice) 创建的对象上的方法。由设备对象直接或间接创建的所有对象只能与该设备对象一起使用。使用多个 GPU 的应用程序将使用多个设备对象，并为每个设备对象创建类似的 Metal 对象层次结构。
+
+示例应用程序使用自定义 `MetalAdder` 类来管理与 GPU 通信所需的对象。类的初始值设定项创建这些对象并将它们存储在其属性中。应用程序创建此类的实例，并传入 Metal 设备对象以用于创建辅助对象。 `MetalAdder` 对象保持对 Metal 对象的强引用，直到它完成执行。
+
+```swift
+let adder = MetalAdder(device: device)
+```
+
+在 Metal 中，昂贵的初始化任务可以运行一次，并且可以廉价地保留和使用结果。你很少需要在性能敏感的代码中运行此类任务。
+
+## 获取 Metal 函数的引用
+
+初始化程序所做的第一件事是加载函数并准备其在 GPU 上运行。当你构建应用程序时，Xcode 会编译 `add_arrays` 函数并将其添加到嵌入应用程序的默认 Metal 库中。你使用 [MTLLibrary](https://developer.apple.com/documentation/metal/mtllibrary) 和 [MTLFunction](https://developer.apple.com/documentation/metal/mtlfunction) 对象来获取有关 Metal 库及其中包含的函数的信息。要获取表示 `add_arrays` 函数的对象，请要求 [MTLDevice](https://developer.apple.com/documentation/metal/mtldevice) 为默认库创建一个 [MTLLibrary](https://developer.apple.com/documentation/metal/mtllibrary) 对象，然后向库请求一个 [MTLFunction](https://developer.apple.com/documentation/metal/mtlfunction) 代表着色器函数的对象。
+
+```swift
+class MetalAdder {
+    // ...
+
+    init(device: MTLDevice) {
+        self.device = device
+
+        // 从 .metal 文件中加载着色函数（shading function）
+        guard let library = device.makeDefaultLibrary() else {
+            fatalError("Failed to find the default library.")
+        }
+        guard let addFunction = library.makeFunction(name: "add_arrays") else {
+            fatalError("Failed to find the adder library.")
+        }
+
+        // ...
+    }
+}
+```
+
+## 准备 Metal 管道
+
+函数对象是 MSL 函数的代理，但它不是可执行代码。你可以通过创建管道将函数转换为可执行代码。管道指定 GPU 为完成特定任务而执行的步骤。在 Metal 中，管道由管道状态对象表示。由于此示例使用计算函数，因此应用程序创建一个 [MTLComputePipelineState](https://developer.apple.com/documentation/metal/mtlcomputepipelinestate) 对象。
+
+```swift
+addPipelineState = try device.makeComputePipelineState(function: addFunction)
+```
+
+计算管道运行单个计算函数，可以选择在运行该函数之前操作输入数据，然后在运行该函数之后操作输出数据。
+
+当你创建管道状态对象时，设备对象会完成针对该特定 GPU 的函数编译。此示例同步创建管道状态对象并将其直接返回给应用程序。由于编译确实需要一段时间，因此请避免在性能敏感的代码中同步创建管道状态对象。
+
+:::note
+
+到目前为止，你在代码中看到的 Metal 返回的所有对象都是作为符合协议的对象返回的。 Metal 使用协议来定义大多数特定于 GPU 的对象，以抽象出底层实现类，这些实现类可能因不同的 GPU 而异。 Metal 使用类定义独立于 GPU 的对象。任何给定 Metal 协议的参考文档都清楚地表明你是否可以在应用程序中实现该协议。
+
+:::
+
+## 创建命令队列
+
+要将工作发送到 GPU，你需要一个命令队列。 Metal 使用命令队列来调度命令。通过向 [MTLDevice](https://developer.apple.com/documentation/metal/mtldevice) 请求一个命令队列来创建一个命令队列。
+
+```swift
+commandQueue = device.makeCommandQueue()
+```
+
+## 创建缓冲区并加载数据
+
+初始化基本 Metal 对象后，加载数据供 GPU 执行。此任务对性能的要求较低，但在应用程序启动初期执行仍然有用。
+
+GPU 可以拥有自己的专用内存，也可以与操作系统共享内存。 Metal 和操作系统内核需要执行额外的工作，以便将数据存储在内存中并使该数据可供 GPU 使用。 Metal 使用资源对象抽象了内存管理。（[MTLResource](https://developer.apple.com/documentation/metal/mtlresource)）。资源是 GPU 在运行命令时可以访问的内存分配。使用 [MTLDevice](https://developer.apple.com/documentation/metal/mtldevice) 为其 GPU 创建资源。
+
+示例应用程序创建三个缓冲区并用随机数据填充前两个缓冲区。第三个缓冲区是 `add_arrays` 将存储其结果的地方。
+
+```swift
+bufferA = device.makeBuffer(length: bufferSize, options: .storageModeShared)
+bufferB = device.makeBuffer(length: bufferSize, options: .storageModeShared)
+bufferResult = device.makeBuffer(length: bufferSize, options: .storageModeShared)
+
+generateRandomFloatData(buffer: bufferA)
+generateRandomFloatData(buffer: bufferB)
+```
+
+此示例中的资源是（[MTLBuffer][https://developer.apple.com/documentation/metal/mtlbuffer]）对象，它们是没有预定义格式的内存分配。 Metal 将每个缓冲区作为不透明的字节集合进行管理。但是，当你在着色器中使用缓冲区时，你可以指定格式。这意味着你的着色器和应用程序需要就来回传递的任何数据的格式达成一致。
+
+当你分配缓冲区时，你提供了一种存储模式来确定其某些性能特征以及 CPU 或 GPU 是否可以访问它。示例应用程序使用共享内存（[storageModeShared](https://developer.apple.com/documentation/metal/mtlresourceoptions/1515613-storagemodeshared)），CPU 和 GPU 都可以访问该内存。
+
+为了用随机数据填充缓冲区，应用程序会获取指向缓 ​​ 冲区内存的指针，并将数据写入 CPU 上的指针。清单 2 中的 add_arrays 函数将其参数声明为浮点数数组，因此你可以提供相同格式的缓冲区：
+
+```swift
+private func generateRandomFloatData(buffer: MTLBuffer?) {
+    guard let buffer else {
+        return
+    }
+    var source: [Float] = []
+    for _ in 0 ..< arrayLength {
+        source.append(Float.random(in: 0 ... 100))
+    }
+    buffer.contents().copyMemory(from: source,
+                                 byteCount: source.count * MemoryLayout<Float>.stride)
+}
+```
+
+## 创建命令缓冲区
+
+要求命令队列创建命令缓冲区。
+
+```swift
+let commandBuffer = commandQueue.makeCommandBuffer()
+```
+
+## 创建命令编码器
+
+要将命令写入命令缓冲区，你可以使用命令编码器来编码你想要编码的特定类型的命令。此示例创建一个计算命令编码器，用于对计算通道进行编码。计算通道包含执行计算管道的命令列表。每个计算命令都会导致 GPU 创建一个线程网格以在 GPU 上执行。
+
+```swift
+let computeEncoder = commandBuffer.makeComputeCommandEncoder()
+```
+
+要对命令进行编码，你需要在编码器上进行一系列方法调用。某些方法设置状态信息，例如管道状态对象 (PSO) 或要传递给管道的参数。进行这些状态更改后，你可以编码命令来执行管道。编码器将所有状态变化和命令参数写入命令缓冲区。
+
+<Figure src={require("./image_1.png")} size={420} />
+
+## 设置管道状态和参数数据
+
+设置你希望命令执行的管道的管道状态对象。然后为管道需要发送到 `add_arrays` 函数的任何参数设置数据。对于此管道，这意味着提供对三个缓冲区的引用。 Metal 按照参数在清单 2 中的函数声明中出现的顺序自动为缓冲区参数分配索引，从 `0` 开始。你使用相同的索引提供参数。
+
+```swift
+encoder.setComputePipelineState(addPipelineState)
+encoder.setBuffer(bufferA, offset: 0, index: 0)
+encoder.setBuffer(bufferB, offset: 0, index: 1)
+encoder.setBuffer(bufferResult, offset: 0, index: 2)
+```
+
+你还可以为每个参数指定一个偏移量。 0 的偏移量意味着该命令将从缓冲区的开头访问数据。但是，你可以使用一个缓冲区来存储多个参数，并为每个参数指定一个偏移量。
+
+你无需为索引参数指定任何数据，因为 add_arrays 函数将其值定义为由 GPU 提供。
+
+## 指定线程数和组织
+
+接下来，决定要创建多少个线程以及如何组织这些线程。 Metal 可以创建 1D、2D 或 3D 网格。 add_arrays 函数使用一维数组，因此示例创建大小为 ( dataSize x 1 x 1) 的一维网格，Metal 从中生成 0 到 dataSize
+
+```swift
+let gridSize = MTLSize(width: arrayLength, height: 1, depth: 1)
+```
+
+## 指定线程组大小
+
+Metal 将网格细分为更小的网格，称为线程组。每个线程组都是单独计算的。 Metal 可以将线程组分派到 GPU 上的不同处理元素，以加快处理速度。你还需要决定为你的命令创建多大的线程组。
+
+```swift
+let threadsNum = min(addPipelineState.maxTotalThreadsPerThreadgroup, arrayLength)
+let threadgroupSize = MTLSize(width: threadsNum, height: 1, depth: 1)
+```
+
+应用程序向管道状态对象询问最大可能的线程组，如果该大小大于数据集的大小，则缩小它。[maxTotalThreadsPerThreadgroup](https://developer.apple.com/documentation/metal/mtlcomputepipelinestate/1414927-maxtotalthreadsperthreadgroup) 属性给出了线程组中允许的最大线程数，该数根据用于创建管道状态对象的函数的复杂性而变化。
+
+## 编码计算命令以执行线程
+
+最后，对命令进行编码以调度线程网格。
+
+```swift
+encoder.dispatchThreads(gridSize, threadsPerThreadgroup: threadgroupSize)
+```
+
+当 GPU 执行此命令时，它会使用你之前设置的状态和命令的参数来调度线程来执行计算。
+
+你可以按照相同的步骤使用编码器将多个计算命令编码到计算通道中，而无需执行任何冗余步骤。例如，你可以设置管道状态对象一次，然后设置参数并对要处理的每个缓冲区集合的命令进行编码。
+
+## 结束计算通道
+
+通过将命令缓冲区提交到队列来运行命令缓冲区中的命令。
+
+```swift
+commandBuffer.commit()
+```
+
+命令队列创建了命令缓冲区，因此提交缓冲区总是将其放置在该队列中。提交命令缓冲区后，Metal 会异步准备要执行的命令，然后安排命令缓冲区在 GPU 上执行。当 GPU 执行完命令缓冲区中的所有命令后，Metal 将命令缓冲区标记为完成。
+
+## 等待计算完成
+
+当 GPU 处理你的命令时，你的应用程序可以执行其他工作。该示例不需要执行任何额外的工作，因此它只是等待命令缓冲区完成。
+
+```swift
+commandBuffer.waitUntilCompleted()
+```
+
+或者，要在 Metal 处理完所有命令时收到通知，请将完成处理程序添加到命令缓冲区（[addCompletedHandler(\_:)](https://developer.apple.com/documentation/metal/mtlcommandbuffer/1442997-addcompletedhandler)），或通过读取命令缓冲区的 [status](https://developer.apple.com/documentation/metal/mtlcommandbuffer/1443048-status) 来检查命令缓冲区的状态财产。
+
+## 从缓冲区读取结果
+
+命令缓冲区完成后，GPU 的计算结果将存储在输出缓冲区中，Metal 会执行任何必要的步骤以确保 CPU 可以看到它们。在真实的应用程序中，你将从缓冲区读取结果并对其执行某些操作，例如在屏幕上显示结果或将其写入文件。由于计算仅用于说明创建 Metal 应用程序的过程，因此示例读取输出缓冲区中存储的值并进行测试，以确保 CPU 和 GPU 计算出相同的结果。
+
+```swift
+private func verifyResults() {
+    guard let a = bufferA?.contents(),
+          let b = bufferB?.contents(),
+          let result = bufferResult?.contents()
+    else {
+        print("Data is not prepared, please call prepareData() first.")
+        return
+    }
+
+    let aPtr = toBufferPointer(a)
+    let bPtr = toBufferPointer(b)
+    let resultPtr = toBufferPointer(result)
+    for index in 0 ..< arrayLength {
+        let aValue = aPtr[index]
+        let bValue = bPtr[index]
+        let resultValue = resultPtr[index]
+        let isEqual = aValue + bValue == resultValue
+        print("\(aValue) + \(bValue) = \(resultValue), index = \(index), isEqual = \(isEqual)")
+    }
+    print("END")
+}
+```
+
+## 完整示例
+
+完整示例代码如下：
+
+```cpp title="Shaders.metal"
+#include <metal_stdlib>
+using namespace metal;
+
+// This is a Metal Shading Language (MSL) function equivalent to
+// the add_arrays() C function, used to perform the calculation on a GPU.
+kernel void add_arrays(device const float* inA,
+                       device const float* inB,
+                       device float* result,
+                       uint index [[thread_position_in_grid]])
+{
+    // the for-loop is replaced with a collection of threads, each of which
+    // calls this function.
+    result[index] = inA[index] + inB[index];
+}
+```
+
+```swift title="MetalAdder.swift"
+import Foundation
+import Metal
+
+/// 一个管理 App 中所有 Metal 相关对象的创建的类
+class MetalAdder {
+    let device: MTLDevice
+
+    /// 从 .metal 着色器文件中的 compute kernel 生成的计算管道状态
+    let addPipelineState: MTLComputePipelineState
+
+    /// 用于传递命令给设备的命令队列
+    var commandQueue: MTLCommandQueue?
+
+    // 存放数据的缓冲区
+    var bufferA: MTLBuffer?
+    var bufferB: MTLBuffer?
+    var bufferResult: MTLBuffer?
+
+    init(device: MTLDevice) {
+        self.device = device
+
+        // 从 .metal 文件中加载着色函数（shading function）
+        guard let library = device.makeDefaultLibrary() else {
+            fatalError("Failed to find the default library.")
+        }
+        guard let addFunction = library.makeFunction(name: "add_arrays") else {
+            fatalError("Failed to find the adder library.")
+        }
+
+        // 创建计算管道对象
+        do {
+            addPipelineState = try device.makeComputePipelineState(function: addFunction)
+        } catch {
+            //  If the Metal API validation is enabled, you can find out more information about what
+            //  went wrong.  (Metal API validation is enabled by default when a debug build is run
+            //  from Xcode)
+            fatalError("Failed to created pipeline state object, error: \(error.localizedDescription)")
+        }
+
+        commandQueue = device.makeCommandQueue()
+    }
+
+    /// 初始化存放初始数据和计算结果的缓冲区对象
+    func prepareData() {
+        bufferA = device.makeBuffer(length: bufferSize, options: .storageModeShared)
+        bufferB = device.makeBuffer(length: bufferSize, options: .storageModeShared)
+        bufferResult = device.makeBuffer(length: bufferSize, options: .storageModeShared)
+
+        generateRandomFloatData(buffer: bufferA)
+        generateRandomFloatData(buffer: bufferB)
+    }
+
+    func sendComputeCommand() {
+        guard let commandQueue else {
+            return
+        }
+
+        guard let commandBuffer = commandQueue.makeCommandBuffer() else {
+            return
+        }
+        guard let computeEncoder = commandBuffer.makeComputeCommandEncoder() else {
+            return
+        }
+
+        // 开始一个计算通道（compute pass）
+        encodeAddCommand(encoder: computeEncoder)
+        // 结束计算通道
+        computeEncoder.endEncoding()
+
+        // 执行命令
+        commandBuffer.commit()
+
+        // 通常情况下，你想在 GPU 运行时在应用程序中做其它工作
+        // 但在本例中，代码只是阻塞，直到计算完成。
+        commandBuffer.waitUntilCompleted()
+
+        verifyResults()
+    }
+}
+
+// 左移一位都相当于乘以 2 的 1 次方
+// let arrayLength: Int = 1 << 24
+let arrayLength: Int = 3
+let bufferSize = arrayLength * MemoryLayout<Float>.stride
+
+extension MetalAdder {
+    private func encodeAddCommand(encoder: MTLComputeCommandEncoder) {
+        // 编码管道状态对象及其参数
+        encoder.setComputePipelineState(addPipelineState)
+        encoder.setBuffer(bufferA, offset: 0, index: 0)
+        encoder.setBuffer(bufferB, offset: 0, index: 1)
+        encoder.setBuffer(bufferResult, offset: 0, index: 2)
+
+        let gridSize = MTLSize(width: arrayLength, height: 1, depth: 1)
+
+        // 计算线程组（threadgroup）的大小
+        let threadsNum = min(addPipelineState.maxTotalThreadsPerThreadgroup, arrayLength)
+        let threadgroupSize = MTLSize(width: threadsNum, height: 1, depth: 1)
+
+        // 编码计算命令
+        encoder.dispatchThreads(gridSize, threadsPerThreadgroup: threadgroupSize)
+    }
+
+    private func generateRandomFloatData(buffer: MTLBuffer?) {
+        guard let buffer else {
+            return
+        }
+        var source: [Float] = []
+        for _ in 0 ..< arrayLength {
+            source.append(Float.random(in: 0 ... 100))
+        }
+        // https://stackoverflow.com/questions/42561558/update-contents-of-mtlbuffer-in-metal
+        buffer.contents().copyMemory(from: source, byteCount: source.count * MemoryLayout<Float>.stride)
+    }
+
+    /// 转换成 UnsafeBufferPointer 以方便通过 index 获取值
+    private func toBufferPointer(_ rawPointer: UnsafeMutableRawPointer) -> UnsafeBufferPointer<Float> {
+        let mutablePointer = rawPointer.bindMemory(to: Float.self, capacity: bufferSize)
+        return UnsafeBufferPointer<Float>(start: mutablePointer, count: bufferSize)
+    }
+
+    private func verifyResults() {
+        guard let a = bufferA?.contents(),
+              let b = bufferB?.contents(),
+              let result = bufferResult?.contents()
+        else {
+            print("Data is not prepared, please call prepareData() first.")
+            return
+        }
+
+        let aPtr = toBufferPointer(a)
+        let bPtr = toBufferPointer(b)
+        let resultPtr = toBufferPointer(result)
+        for index in 0 ..< arrayLength {
+            let aValue = aPtr[index]
+            let bValue = bPtr[index]
+            let resultValue = resultPtr[index]
+            let isEqual = aValue + bValue == resultValue
+            print("\(aValue) + \(bValue) = \(resultValue), index = \(index), isEqual = \(isEqual)")
+        }
+        print("END")
+    }
+}
+```
+
+运行结果如下：
+
+```swift
+VStack {
+    Text("Hello, Metal")
+}
+.onAppear {
+    guard let device = MTLCreateSystemDefaultDevice() else {
+        return
+    }
+    let adder = MetalAdder(device: device)
+    adder.prepareData()
+    adder.sendComputeCommand()
+}
+
+// Prints like:
+// "20.425255 + 37.699097 = 58.12435, index = 0, isEqual = true"
+// "99.76241 + 23.997253 = 123.75967, index = 1, isEqual = true"
+// "7.163972 + 18.716139 = 25.880112, index = 2, isEqual = true"
+// "END"
+```

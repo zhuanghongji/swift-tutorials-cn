@@ -219,5 +219,11 @@
       "/>"
     ],
     "description": "Create MD ReferenceSources"
+  },
+  "Create ToBePolishedAfterTranslation": {
+    "scope": "md,mdx",
+    "prefix": "tobepolishedaftertranslation",
+    "body": ["<ToBePolishedAfterTranslation />"],
+    "description": "Create MD ReferenceSources"
   }
 }
