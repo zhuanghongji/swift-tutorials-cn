@@ -103,11 +103,11 @@
     ],
     "description": "Create Screenshot"
   },
-  "Create OrigninalPDF": {
+  "Create OriginalPDF": {
     "scope": "md,mdx",
     "prefix": "origninalpdf",
-    "body": ["<OrigninalPDF title=\"$1\" />"],
-    "description": "Create OrigninalPDF"
+    "body": ["<OriginalPDF title=\"$1\" />"],
+    "description": "Create OriginalPDF"
   },
   "Create MD Table": {
     "scope": "md,mdx",

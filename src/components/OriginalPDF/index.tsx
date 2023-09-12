@@ -4,7 +4,7 @@ interface OrigninalPDFProps {
   title: string
 }
 
-export default function OrigninalPDF({ title }: OrigninalPDFProps) {
+export default function OriginalPDF({ title }: OrigninalPDFProps) {
   return (
     <>
       <div style={{  
