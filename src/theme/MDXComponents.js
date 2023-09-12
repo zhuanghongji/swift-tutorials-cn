@@ -1,6 +1,5 @@
 import React from "react";
 import MDXComponents from "@theme-original/MDXComponents";
-import OriginalLink from "@site/src/components/OriginalLink";
 import OriginalSource from "@site/src/components/OriginalSource";
 import OrigninalPDF from "@site/src/components/OrigninalPDF";
 import ReferenceSources from "@site/src/components/ReferenceSources";
@@ -23,7 +22,6 @@ import Wisdom from "@site/src/components/Wisdom";
 export default {
   // Re-use the default mapping
   ...MDXComponents,
-  OriginalLink,
   OriginalSource,
   OrigninalPDF,
   ReferenceSources,

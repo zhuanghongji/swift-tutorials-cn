@@ -2,9 +2,10 @@
 
 <ToBePolishedAfterTranslation />
 
-<OriginalLink
-  title="执行异步操作"
-  value="https://docs.swift.org/swift-book/documentation/the-swift-programming-language/concurrency"
+<OriginalSource
+  title="Concurrency"
+  url="https://docs.swift.org/swift-book/documentation/the-swift-programming-language/concurrency"
+  summary="执行异步操作"
 />
 
 Swift 内置支持以结构化方式编写异步和并行代码。异步代码可以暂停并稍后恢复，尽管一次只执行一段程序。挂起和恢复程序中的代码可以让它继续在短期操作（如更新其 UI）上取得进展，同时继续处理长期运行的操作（如通过网络获取数据或解析文件）。并行代码意味着多段代码同时运行——例如，一台具有四核处理器的计算机可以同时运行四段代码，每个内核执行其中一项任务。使用并行和异步代码的程序一次执行多个操作；它暂停等待外部系统的操作，并使以内存安全的方式编写此代码变得更加容易。

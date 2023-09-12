@@ -103,20 +103,6 @@
     ],
     "description": "Create Screenshot"
   },
-
-  "Create OrigninalLink": {
-    "scope": "md,mdx",
-    "prefix": "origninallink",
-    "body": [
-      "<OriginalLink",
-      "  title=\"$1\"",
-      "  value=\"$2\"",
-      "/>",
-      "",
-      "$0"
-    ],
-    "description": "Create OrigninalPDF"
-  },
   "Create OrigninalPDF": {
     "scope": "md,mdx",
     "prefix": "origninalpdf",
@@ -216,6 +202,18 @@
       "      url: \"$2\",",
       "    }",
       "  ]}",
+      "/>"
+    ],
+    "description": "Create MD ReferenceSources"
+  },
+  "Create MD OriginalSource": {
+    "scope": "md,mdx",
+    "prefix": "originalsource",
+    "body": [
+      "<OriginalSource",
+      "  title=\"\"",
+      "  url=\"$1\"",
+      "  summary=\"\"",
       "/>"
     ],
     "description": "Create MD ReferenceSources"

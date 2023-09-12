@@ -4,7 +4,7 @@ import Admonition from '@theme/Admonition';
 interface Props {
   title: string
   url: string
-  summary: string
+  summary?: string
 }
 
 export default function OriginalSource({ title, url, summary }: Props) {
@@ -30,7 +30,7 @@ export default function OriginalSource({ title, url, summary }: Props) {
        }}>
         {/* <p>原文：</p> */}
         <p>原文：<a href={url}>{title}</a></p>
-        <blockquote>{summary}</blockquote>
+        {summary ? <blockquote>{summary}</blockquote> : null}
       </div>
       <br/>
     </>
