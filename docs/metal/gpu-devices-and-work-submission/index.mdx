@@ -42,7 +42,7 @@ GPU 不支持单一的通用功能集。相反，不同的 GPU 支持不同的�
 - 将某些功能限制为特定 GPU 或实现不同级别的功能。例如，在游戏中，你可能会删除旧 GPU 上的阴影或降低阴影的复杂性。
 - 限制你的应用程序，使其仅在某些 GPU 可用时运行；但是，你应该只在极端情况下使用此选项。
 
-系统上运行的 Metal 版本和你的目标 GPU 决定了哪些功能可用。 MTLDevice 对象提供有关特定 GPU 的软件和硬件功能的信息。要查看每个系列中可用功能的摘要，请参阅金属功能集表：
+系统上运行的 Metal 版本和你的目标 GPU 决定了哪些功能可用。MTLDevice 对象提供有关特定 GPU 的软件和硬件功能的信息。要查看每个系列中可用功能的摘要，请参阅 Metal 功能集表：
 
 - [Metal feature set tables (PDF)](https://developer.apple.com/metal/Metal-Feature-Set-Tables.pdf)
 - [Metal feature set tables (Numbers)](https://developer.apple.com/metal/metal-feature-set-tables.zip)
@@ -1216,7 +1216,7 @@ open class MTLCommandBufferDescriptor : NSObject, NSCopying {
 
 ## MTLCommandEncoder
 
-将 GPU 命令写入命令 ​​ 缓冲区的编码器。
+将 GPU 命令写入命令缓冲区的编码器。
 
 ### 概述
 

@@ -254,7 +254,7 @@ print("the volume of fourByFiveByTwo is \(fourByFiveByTwo.volume)")
 类似地，如果你实现一个观察者，它会传递一个包含旧属性值的常量参数。你可以命名参数或使用默认参数名称。如果你在其自己的观察者中为属性分配一个值，则你分配的新值将替换刚刚设置的值。didSetoldValuedidSet
 
 :::note
-在超类初始值设定项被调用之后，当在子类初始值设定项中设置属性时，将调用超类属性的 和观察者。在调用超类初始值设定项之前，类设置自己的属性时不会调用它们。willSetdidSet
+在超类初始化器被调用之后，当在子类初始化器中设置属性时，将调用超类属性的 和观察者。在调用超类初始化器之前，类设置自己的属性时不会调用它们。willSetdidSet
 :::
 
 有关初始化程序委托的更多信息，请参阅值类型的初始化程序委托和类类型的初始化程序委托。
@@ -393,7 +393,7 @@ struct SmallNumber {
 }
 ```
 
-的定义包括三个初始值设定项 — 、和— 下面的示例使用它们来设置包装值和最大值。有关初始化和初始化程序语法的信息，请参阅初始化。SmallNumberinit()init(wrappedValue:)init(wrappedValue:maximum:)
+的定义包括三个初始化器 — 、和— 下面的示例使用它们来设置包装值和最大值。有关初始化和初始化程序语法的信息，请参阅初始化。SmallNumberinit()init(wrappedValue:)init(wrappedValue:maximum:)
 
 当你将一个包装器应用到一个属性并且你没有指定一个初始值时，Swift 使用初始化器 init()来设置包装器。例如：
 

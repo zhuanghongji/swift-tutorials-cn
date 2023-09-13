@@ -14,7 +14,7 @@
 
 ## 概述
 
-字符串是一系列字符，例如 "Swift" ，它们形成一个集合。 在 Swift 中，字符串是 Unicode 正确且与语言环境无关的（Unicode correct and locale insensitive），并且它们被设计为高效的。 `String` 类型与 Objective-C 类 `NSString` 桥接，并提供与处理字符串的 C 函数的互操作性。
+字符串是一系列字符，例如 "Swift" ，它们形成一个集合。在 Swift 中，字符串是 Unicode 正确且与语言环境无关的（Unicode correct and locale insensitive），并且它们被设计为高效的。`String` 类型与 Objective-C 类 `NSString` 桥接，并提供与处理字符串的 C 函数的互操作性。
 
 你可以使用「字符串字面量（string literals）」或「字符串插值（string interpolations）」创建新字符串。「字符串字面量」是用引号引起来的字符序列。
 
@@ -232,7 +232,7 @@ print(cLength)
 
 当你需要知道字符串的长度时，必须首先考虑该长度的用途。你是在测量将在屏幕上显示的字符数，还是在测量特定编码中的字符串所需的存储量？当用不同的视图测量时，一个字符串的长度可能会有很大差异。
 
-例如，像大写字母 `A` 这样的 ASCII 字符在其四个视图中的每个视图中都由单个元素表示。 `A` 的 Unicode 标量值为 `65`，该值足够小，足以容纳 UTF-16 和 UTF-8 中的单个代码单元。
+例如，像大写字母 `A` 这样的 ASCII 字符在其四个视图中的每个视图中都由单个元素表示。`A` 的 Unicode 标量值为 `65`，该值足够小，足以容纳 UTF-16 和 UTF-8 中的单个代码单元。
 
 ```swift
 let capitalA = "A"

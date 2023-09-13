@@ -307,7 +307,7 @@ protocol ProvidesMain {
 
 将此属性应用于扩展与将其应用于该扩展中未明确标记该 objc 属性的每个成员具有相同的效果。
 
-你可以使用该 nonobjc 属性来解决标有该属性的类中桥接方法的循环性 objc，并允许重载标有该属性的类中的方法和初始值设定项 objc。
+你可以使用该 nonobjc 属性来解决标有该属性的类中桥接方法的循环性 objc，并允许重载标有该属性的类中的方法和初始化器 objc。
 
 标有属性的方法 nonobjc 不能覆盖标有 objc 属性的方法。但是，标有该属性的方法 objc 可以覆盖标有该属性的方法 nonobjc。同样，标有该 nonobjc 属性的方法不能满足标有该 objc 属性的方法的协议要求。
 
@@ -336,7 +336,7 @@ NSApplicationMain(CommandLine.argc, CommandLine.unsafeArgv)
 
 ## 对象
 
-将此属性应用于任何可以在 Objective-C 中表示的声明——例如，非嵌套类、协议、非泛型枚举（限制为整数原始值类型）、类的属性和方法（包括 getter 和 setter）、协议和可选协议成员、初始值设定项和下标。该 objc 属性告诉编译器声明可用于 Objective-C 代码。
+将此属性应用于任何可以在 Objective-C 中表示的声明——例如，非嵌套类、协议、非泛型枚举（限制为整数原始值类型）、类的属性和方法（包括 getter 和 setter）、协议和可选协议成员、初始化器和下标。该 objc 属性告诉编译器声明可用于 Objective-C 代码。
 
 将此属性应用于扩展与将其应用于该扩展中未明确标记该 nonobjc 属性的每个成员具有相同的效果。
 
@@ -351,7 +351,7 @@ objc 在以下情况下也会隐式添加该属性：
 
 如果将 objc 属性应用于枚举，则每个枚举案例都会作为枚举名称和案例名称的串联公开给 Objective-C 代码。案例名称的第一个字母大写。venus 例如，在 Swift 枚举中命名的案例 Planet 作为名为 的案例公开给 Objective-C 代码。PlanetVenus
 
-该 objc 属性可选地接受单个属性参数，该参数由一个标识符组成。标识符指定要向 Objective-C 公开该属性所 objc 适用的实体的名称。你可以使用此参数来命名类、枚举、枚举案例、协议、方法、getter、setter 和初始值设定项。如果你为类、协议或枚举指定 Objective-C 名称，请在名称中包含三个字母的前缀，如使用 Objective-C 编程中的约定中所述。下面的示例公开了 Objective-C 代码的属性的 getter ，而不仅仅是属性本身的名称。enabledExampleClassisEnabled
+该 objc 属性可选地接受单个属性参数，该参数由一个标识符组成。标识符指定要向 Objective-C 公开该属性所 objc 适用的实体的名称。你可以使用此参数来命名类、枚举、枚举案例、协议、方法、getter、setter 和初始化器。如果你为类、协议或枚举指定 Objective-C 名称，请在名称中包含三个字母的前缀，如使用 Objective-C 编程中的约定中所述。下面的示例公开了 Objective-C 代码的属性的 getter ，而不仅仅是属性本身的名称。enabledExampleClassisEnabled
 
 ```swift
 class ExampleClass: NSObject {
@@ -383,7 +383,7 @@ class ExampleClass: NSObject {
 
 具有属性包装器的属性可以包含和块，但不能覆盖编译器合成的或块。willSetdidSetgetset
 
-Swift 为属性包装器的初始化提供了两种形式的语法糖。你可以在包装值的定义中使用赋值语法，将赋值右侧的表达式作为参数传递给属性包装器的初始值设定项的参数。你还可以在将属性应用于属性时向属性提供参数，这些参数将传递给属性包装器的初始化程序。例如，在下面的代码中，调用定义的每个初始化器。wrappedValueSomeStructSomeWrapper
+Swift 为属性包装器的初始化提供了两种形式的语法糖。你可以在包装值的定义中使用赋值语法，将赋值右侧的表达式作为参数传递给属性包装器的初始化器的参数。你还可以在将属性应用于属性时向属性提供参数，这些参数将传递给属性包装器的初始化程序。例如，在下面的代码中，调用定义的每个初始化器。wrappedValueSomeStructSomeWrapper
 
 ```swift
 @propertyWrapper

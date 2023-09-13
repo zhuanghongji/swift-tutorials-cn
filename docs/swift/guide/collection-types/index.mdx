@@ -50,7 +50,7 @@ print("someInts is of type [Int] with \(someInts.count) items.")
 // Prints "someInts is of type [Int] with 0 items."
 ```
 
-请注意，变量的类型是从初始值设定项的类型推断出来的。someInts[Int]
+请注意，变量的类型是从初始化器的类型推断出来的。someInts[Int]
 
 或者，如果上下文已经提供了类型信息，例如函数参数或已经键入的变量或常量，则可以创建一个带有空数组文字的空数组，写为（一对空的方括号）`[]`：
 
@@ -63,7 +63,7 @@ someInts = []
 
 ## 创建具有默认值的数组
 
-Swift 的 Array 类型还提供了一个初始化器，用于创建一个特定大小的数组，并将其所有值设置为相同的默认值。你向此初始值设定项传递适当类型的默认值（称为 repeating）：以及该值在新数组中重复的次数（称为 count）：
+Swift 的 Array 类型还提供了一个初始化器，用于创建一个特定大小的数组，并将其所有值设置为相同的默认值。你向此初始化器传递适当类型的默认值（称为 repeating）：以及该值在新数组中重复的次数（称为 count）：
 
 ```swift
 var threeDoubles = Array(repeating: 0.0, count: 3)
@@ -284,7 +284,7 @@ print("letters is of type Set<Character> with \(letters.count) items.")
 ```
 
 :::note
-从初始值设定项的类型 letters 推断变量的类型为 , 。`Set<Character>`
+从初始化器的类型 letters 推断变量的类型为 , 。`Set<Character>`
 :::
 
 或者，如果上下文已经提供了类型信息，例如函数参数或已经类型化的变量或常量，你可以使用空数组文字创建一个空集：

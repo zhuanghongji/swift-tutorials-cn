@@ -71,7 +71,7 @@ Rank 还定义了一个计算属性 ，values 它返回 Values 结构的一个�
 
 结构本身有两个属性——和。它还定义了一个名为 的计算属性，它使用存储在和中的值来构建对卡片名称和值的描述。该属性使用可选绑定来检查是否有第二个值要显示，如果有，则为第二个值插入额外的描述详细信息。BlackjackCardranksuitdescriptionranksuitdescription
 
-因为是一个没有自定义初始值设定项的结构，所以它有一个隐式成员初始值设定项，如结构类型的成员初始值设定项中所述。你可以使用此初始化程序来初始化一个名为的新常量：BlackjackCardtheAceOfSpades
+因为是一个没有自定义初始化器的结构，所以它有一个隐式成员初始化器，如结构类型的成员初始化器中所述。你可以使用此初始化程序来初始化一个名为的新常量：BlackjackCardtheAceOfSpades
 
 ```swift
 let theAceOfSpades = BlackjackCard(rank: .ace, suit: .spades)

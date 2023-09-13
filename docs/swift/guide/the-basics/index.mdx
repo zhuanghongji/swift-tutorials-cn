@@ -341,7 +341,7 @@ let twoThousandAndOne = twoThousand + UInt16(one)
 
 因为加法的两边现在都是 类型 UInt16，所以加法是允许的。输出常量 ( ) 被推断为 类型，因为它是两个值的总和。twoThousandAndOneUInt16UInt16
 
-SomeType(ofInitialValue)是调用 Swift 类型的初始值设定项并传入初始值的默认方式。在幕后，UInt16 有一个接受 UInt8 值的初始化器，所以这个初始化器用于 UInt16 从现有的 UInt8. 但是，你不能在此处传入任何类型——它必须是提供初始值设定项的类型 UInt16。扩展现有类型以提供接受新类型（包括你自己的类型定义）的初始值设定项包含在 Extensions 中。
+SomeType(ofInitialValue)是调用 Swift 类型的初始化器并传入初始值的默认方式。在幕后，UInt16 有一个接受 UInt8 值的初始化器，所以这个初始化器用于 UInt16 从现有的 UInt8. 但是，你不能在此处传入任何类型——它必须是提供初始化器的类型 UInt16。扩展现有类型以提供接受新类型（包括你自己的类型定义）的初始化器包含在 Extensions 中。
 
 ## 整数和浮点数转换
 

@@ -247,7 +247,7 @@ struct MySubView: View {
 
 ### 使用外部数据初始化状态对象
 
-当状态对象的初始状态取决于来自其容器外部的数据时，你可以从其容器的初始值设定项内显式调用该对象的初始值设定项。例如，假设上一个示例中的数据模型在初始化期间采用 name 输入，并且你希望使用来自视图外部的该名称的值。你可以通过在为视图创建的显式初始化程序内调用状态对象的初始化程序来完成此操作：
+当状态对象的初始状态取决于来自其容器外部的数据时，你可以从其容器的初始化器内显式调用该对象的初始化器。例如，假设上一个示例中的数据模型在初始化期间采用 name 输入，并且你希望使用来自视图外部的该名称的值。你可以通过在为视图创建的显式初始化程序内调用状态对象的初始化程序来完成此操作：
 
 ```swift
 struct MyInitializableView: View {
@@ -268,9 +268,9 @@ struct MyInitializableView: View {
 }
 ```
 
-执行此操作时请务必小心。 SwiftUI 仅在你第一次在给定视图中调用其初始值设定项时初始化状态对象。这确保了即使视图的输入发生变化，对象也能提供稳定的存储。但是，如果显式初始化状态对象，可能会导致意外行为或不需要的副作用。
+执行此操作时请务必小心。SwiftUI 仅在你第一次在给定视图中调用其初始化器时初始化状态对象。这确保了即使视图的输入发生变化，对象也能提供稳定的存储。但是，如果显式初始化状态对象，可能会导致意外行为或不需要的副作用。
 
-在上面的示例中，如果 MyInitializableView 的 name 输入发生更改，SwiftUI 将使用新值重新运行视图的初始值设定项。但是，SwiftUI 仅在你第一次调用状态对象的初始值设定项时运行你提供给状态对象的初始值设定项的自动闭包，因此模型存储的 name 值不会更改。
+在上面的示例中，如果 MyInitializableView 的 name 输入发生更改，SwiftUI 将使用新值重新运行视图的初始化器。但是，SwiftUI 仅在你第一次调用状态对象的初始化器时运行你提供给状态对象的初始化器的自动闭包，因此模型存储的 name 值不会更改。
 
 当对象所依赖的外部数据对于对象容器的给定实例没有更改时，显式状态对象初始化效果很好。例如，你可以创建两个具有不同常量名称的视图：
 
@@ -407,7 +407,7 @@ struct MySubView: View {
 
 :::note
 
-不要用 `@ObservedObject` 包装符合 [Observable](https://developer.apple.com/documentation/Observation/Observable) 协议的对象。 SwiftUI 自动跟踪主体中使用的 Observable 对象的依赖关系，并在数据更改时更新依赖视图。尝试用 `@ObservedObject` 包装 [Observable](https://developer.apple.com/documentation/Observation/Observable) 对象可能会导致编译器错误，因为它要求其包装的对象符合 [ObservableObject](https://developer.apple.com/documentation/Combine/ObservableObject) 协议。
+不要用 `@ObservedObject` 包装符合 [Observable](https://developer.apple.com/documentation/Observation/Observable) 协议的对象。SwiftUI 自动跟踪主体中使用的 Observable 对象的依赖关系，并在数据更改时更新依赖视图。尝试用 `@ObservedObject` 包装 [Observable](https://developer.apple.com/documentation/Observation/Observable) 对象可能会导致编译器错误，因为它要求其包装的对象符合 [ObservableObject](https://developer.apple.com/documentation/Combine/ObservableObject) 协议。
 
 如果视图需要绑定到其主体中 `Observable` 对象的属性，请使用 [Bindable](https://developer.apple.com/documentation/swiftui/bindable) 属性包装器包装该对象；例如， `@Bindable var model: DataModel`。有关更多信息，请参阅 [管理应用程序中的模型数据](https://developer.apple.com/documentation/swiftui/managing-model-data-in-your-app)。
 
