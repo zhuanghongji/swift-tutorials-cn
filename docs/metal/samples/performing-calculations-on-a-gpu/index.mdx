@@ -1,7 +1,5 @@
 # 在 GPU 上执行计算
 
-<ToBePolishedAfterTranslation />
-
 <OriginalSource
   title="Performing Calculations on a GPU"
   url="https://developer.apple.com/documentation/metal/performing_calculations_on_a_gpu"
@@ -10,11 +8,17 @@
 
 ## 概述
 
-在此示例中，你将学习所有 Metal 应用程序中使用的基本任务。你将看到如何将用 C 编写的简单函数转换为 Metal 着色语言 (MSL)，以便它可以在 GPU 上运行。你将找到一个 GPU，通过创建管道来准备要在其上运行的 MSL 函数，并创建 GPU 可访问的数据对象。要针对数据执行管道，请创建命令缓冲区，将命令写入其中，然后将缓冲区提交到命令队列。 Metal 将命令发送到 GPU 来执行。
+在此示例中，你将学习所有 Metal 应用程序中使用的基本任务。你将看到如何将用 C 编写的简单函数转换为 Metal 着色语言（Metal Shading Language / MSL），以便它可以在 GPU 上运行。你将找到一个 GPU，通过创建管道（pipeline）来准备要在其上运行的 MSL 函数，并创建 GPU 可访问的数据对象。要针对数据执行管道，请创建命令缓冲区（command buffer），将命令（commands）写入其中，然后将缓冲区提交到命令队列（command queue）。Metal 将命令发送到 GPU 来执行。
+
+:::note
+
+原文中的代码是用 Object-C 写的，这里用 Swift 进行了重写，并使用了 SwiftUI 进行演示。
+
+:::
 
 ## 编写 GPU 函数来执行计算
 
-为了说明 GPU 编程，此应用程序将两个数组的相应元素相加，并将结果写入第三个数组。清单 1 显示了一个用 C 编写的在 CPU 上执行此计算的函数。它循环索引，每次循环迭代计算一个值。
+为了阐明 GPU 编程，此应用程序将两个数组的相应元素（corresponding elements）相加，并将结果写入第三个数组。清单 1 显示了一个用 C 编写的在 CPU 上执行此计算的函数。它遍历索引 `index`，每次遍历迭代计算一个值。
 
 清单 1：用 C 编写的数组加法
 
@@ -30,16 +34,11 @@ void add_arrays(const float* inA,
 }
 ```
 
-每个值都是独立计算的，因此可以安全地同时计算这些值。要在 GPU 上执行计算，需要用 Metal Shading Language (MSL) 重写此函数。 MSL 是 C++ 的变体，专为 GPU 编程而设计。在 Metal 中，在 GPU 上运行的代码称为着色器，因为历史上它们首先用于计算 3D 图形中的颜色。清单 2 显示了 MSL 中的着色器，它执行与清单 1 相同的计算。示例项目在 add.metal 文件中定义了此函数。 Xcode 在应用程序目标中构建所有 .metal 文件，并创建一个默认的 Metal 库，将其嵌入到你的应用程序中。稍后你将在本示例中看到如何加载默认库。
+每个值都是独立计算的，因此可以安全地同时（concurrently）计算这些值。要在 GPU 上执行计算，需要用 Metal Shading Language（MSL）重写此函数。MSL 是 C++ 的变体（variant），专为 GPU 编程而设计。在 Metal 中，在 GPU 上运行的代码称为 **着色器（shader）**，因为历史上它们首先用于计算 3D 图形中的颜色。清单 2 显示了 MSL 中的着色器，它执行与清单 1 相同的计算。示例项目在 add.metal 文件中定义了此函数。Xcode 在应用程序目标中构建所有 .metal 文件，并创建一个默认的 Metal 库（default Metal library），且将其嵌入到你的应用程序中。稍后，你将在本示例中看到如何加载默认库。
 
 清单 2： 用 MSL 编写的数组加法
 
 ```cpp
-#include <metal_stdlib>
-using namespace metal;
-
-// This is a Metal Shading Language (MSL) function equivalent to
-// the add_arrays() C function, used to perform the calculation on a GPU.
 kernel void add_arrays(device const float* inA,
                        device const float* inB,
                        device float* result,
@@ -53,22 +52,22 @@ kernel void add_arrays(device const float* inA,
 
 清单 1 和清单 2 很相似，但 MSL 版本有一些重要的区别。仔细看看清单 2。
 
-首先，该函数添加 kernel 关键字，该关键字声明该函数为：
+首先，该函数添加 `kernel` 关键字，该关键字声明该函数为：
 
-- 公共 GPU 函数。公共函数是你的应用程序可以看到的唯一函数。公共函数也不能被其他着色器函数调用。
-- 计算函数（也称为计算内核），使用线程网格执行并行计算。
+- 公共（public）GPU 函数。公共函数是你的应用程序可以看到的唯一函数。公共函数也不能被其他着色器函数调用。
+- 计算函数（compute function），也称为计算核心（compute kernel），使用线程网格（a grid of threads）执行并行计算。
 
 请参阅 [使用渲染管道渲染基元（Using a Render Pipeline to Render Primitives）](https://developer.apple.com/documentation/metal/using_a_render_pipeline_to_render_primitives) 以了解用于声明公共图形函数的其他函数关键字。
 
-`add_arrays` 函数使用 `device` 关键字声明其三个参数，这表示这些指针位于 `device` 地址空间中。 MSL 为内存定义了多个不相交的地址空间。每当你在 MSL 中声明指针时，都必须提供一个关键字来声明其地址空间。使用 `device` 地址空间声明 GPU 可以读取和写入的持久内存。
+上述 `add_arrays` 函数使用 `device` 关键字声明其三个参数，这表示这些指针位于设备地址空间（device address space）中。MSL 为内存定义了多个不相交的地址空间。每当你在 MSL 中声明指针时，都必须提供一个关键字来声明其地址空间。使用设备地址空间声明持久内存以便 GPU 可以读取和写入。
 
-清单 2 从清单 1 中删除了 `for` 循环，因为该函数现在将由计算网格中的多个线程调用。此示例创建一个与数组维度完全匹配的一维线程网格，以便数组中的每个条目都由不同的线程计算。
+清单 2 从清单 1 中删除了 `for` 循环，因为该函数现在将由计算网格（compute grid）中的多个线程调用。此示例创建一个与数组维度完全匹配的一维线程网格，以便数组中的每个条目都由不同的线程计算。
 
-为了替换先前由 `for` 循环提供的索引，该函数采用一个新的 index 参数，以及使用 C++ 属性语法指定的另一个 MSL 关键字 `thread_position_in_grid`。该关键字声明 Metal 应该计算每个线程的唯一索引，并在此参数中传递该索引。由于 `add_arrays` 使用一维网格，因此索引被定义为标量整数。即使删除了循环，清单 1 和清单 2 仍使用同一行代码将两个数字相加。如果要将类似的代码从 C 或 C++ 转换为 MSL，请以相同的方式将循环逻辑替换为网格。
+为了替换先前由 `for` 循环提供的索引，该函数接收一个新的 `index` 参数，同时使用 C++ 属性语法指定另一个 MSL 关键字 `thread_position_in_grid`。该关键字声明 Metal 应该计算每个线程的唯一索引，并在此参数中传递该索引。由于 `add_arrays` 使用一维网格，因此索引被定义为标量整数（scalar integer）。即使删除了循环，清单 1 和清单 2 仍使用同一行代码将两个数字相加。如果要将类似的代码从 C 或 C++ 转换为 MSL，请以相同的方式将循环逻辑替换为网格。
 
 ## 寻找 GPU
 
-在你的应用中，[MTLDevice](https://developer.apple.com/documentation/metal/mtldevice) 对象是 GPU 的精简抽象；你可以使用它与 GPU 进行通信。 Metal 为每个 GPU 创建一个 MTLDevice 。你可以通过调用 [MTLCreateSystemDefaultDevice()](https://developer.apple.com/documentation/metal/1433401-mtlcreatesystemdefaultdevice) 获取默认设备对象。在 macOS 中，Mac 可以拥有多个 GPU，Metal 选择其中一个 GPU 作为默认值并返回该 GPU 的设备对象。在 macOS 中，Metal 提供了可用于检索所有设备对象的其他 API，但此示例仅使用默认值。
+在你的应用中，[MTLDevice](https://developer.apple.com/documentation/metal/mtldevice) 对象是 GPU 的精简抽象，你可以使用它与 GPU 进行通信。Metal 为每个 GPU 创建一个 MTLDevice 。你可以通过调用 [MTLCreateSystemDefaultDevice()](https://developer.apple.com/documentation/metal/1433401-mtlcreatesystemdefaultdevice) 获取默认设备对象。在 macOS 中，Mac 可以拥有多个 GPU，Metal 选择其中一个 GPU 作为默认值并返回该 GPU 的设备对象。在 macOS 中，Metal 提供了可用于检索所有设备对象的其他 API，但此示例仅使用默认的。
 
 ```swift
 let device = MTLCreateSystemDefaultDevice()
@@ -76,9 +75,9 @@ let device = MTLCreateSystemDefaultDevice()
 
 ## 初始化 Metal 对象
 
-Metal 将其他与 GPU 相关的实体（例如编译的着色器、内存缓冲区和纹理）表示为对象。要创建这些特定于 GPU 的对象，你可以调用 [MTLDevice](https://developer.apple.com/documentation/metal/mtldevice) 上的方法，或者调用 [MTLDevice](https://developer.apple.com/documentation/metal/mtldevice) 创建的对象上的方法。由设备对象直接或间接创建的所有对象只能与该设备对象一起使用。使用多个 GPU 的应用程序将使用多个设备对象，并为每个设备对象创建类似的 Metal 对象层次结构。
+Metal 将其他与 GPU 相关的实体（entities），比如编译的着色器（compiled shaders）、内存缓冲区（memory buffers）和纹理（textures），表示为对象。要创建这些特定于 GPU 的对象，你可以调用 [MTLDevice](https://developer.apple.com/documentation/metal/mtldevice) 上的方法，或者调用 [MTLDevice](https://developer.apple.com/documentation/metal/mtldevice) 创建的对象上的方法。由设备对象直接或间接创建的所有对象只能与该设备对象一起使用。使用多个 GPU 的应用程序将使用多个设备对象，并为每个设备对象创建类似的 Metal 对象层次结构。
 
-示例应用程序使用自定义 `MetalAdder` 类来管理与 GPU 通信所需的对象。类的初始值设定项创建这些对象并将它们存储在其属性中。应用程序创建此类的实例，并传入 Metal 设备对象以用于创建辅助对象。 `MetalAdder` 对象保持对 Metal 对象的强引用，直到它完成执行。
+示例应用程序使用自定义 `MetalAdder` 类来管理与 GPU 通信所需的对象。类的初始化器创建这些对象并将它们存储在其属性中。应用程序创建此类的实例，并传入 Metal 设备对象以用于创建辅助对象。`MetalAdder` 对象保持对 Metal 对象的强引用，直到它完成执行。
 
 ```swift
 let adder = MetalAdder(device: device)
@@ -88,7 +87,7 @@ let adder = MetalAdder(device: device)
 
 ## 获取 Metal 函数的引用
 
-初始化程序所做的第一件事是加载函数并准备其在 GPU 上运行。当你构建应用程序时，Xcode 会编译 `add_arrays` 函数并将其添加到嵌入应用程序的默认 Metal 库中。你使用 [MTLLibrary](https://developer.apple.com/documentation/metal/mtllibrary) 和 [MTLFunction](https://developer.apple.com/documentation/metal/mtlfunction) 对象来获取有关 Metal 库及其中包含的函数的信息。要获取表示 `add_arrays` 函数的对象，请要求 [MTLDevice](https://developer.apple.com/documentation/metal/mtldevice) 为默认库创建一个 [MTLLibrary](https://developer.apple.com/documentation/metal/mtllibrary) 对象，然后向库请求一个 [MTLFunction](https://developer.apple.com/documentation/metal/mtlfunction) 代表着色器函数的对象。
+初始化程序所做的第一件事是加载函数并准备其在 GPU 上运行。当你构建应用程序时，Xcode 会编译 `add_arrays` 函数并将其添加到嵌入应用程序的默认 Metal 库中。你使用 [MTLLibrary](https://developer.apple.com/documentation/metal/mtllibrary) 和 [MTLFunction](https://developer.apple.com/documentation/metal/mtlfunction) 对象来获取有关 Metal 库及其中包含的函数的信息。要获取表示 `add_arrays` 函数的对象，请要求 [MTLDevice](https://developer.apple.com/documentation/metal/mtldevice) 为默认库创建一个 [MTLLibrary](https://developer.apple.com/documentation/metal/mtllibrary) 对象，然后向库请求一个代表着色器函数的 [MTLFunction](https://developer.apple.com/documentation/metal/mtlfunction) 对象。
 
 ```swift
 class MetalAdder {
@@ -112,7 +111,7 @@ class MetalAdder {
 
 ## 准备 Metal 管道
 
-函数对象是 MSL 函数的代理，但它不是可执行代码。你可以通过创建管道将函数转换为可执行代码。管道指定 GPU 为完成特定任务而执行的步骤。在 Metal 中，管道由管道状态对象表示。由于此示例使用计算函数，因此应用程序创建一个 [MTLComputePipelineState](https://developer.apple.com/documentation/metal/mtlcomputepipelinestate) 对象。
+该函数对象是 MSL 函数的代理，但它不是可执行代码。你可以通过创建 **管道（pipeline）**将函数转换为可执行代码。管道指定 GPU 为完成特定任务而执行的步骤。在 Metal 中，管道由 **管道状态对象（pipeline state object）** 表示。由于此示例使用计算函数，因此应用程序创建一个 [MTLComputePipelineState](https://developer.apple.com/documentation/metal/mtlcomputepipelinestate) 对象。
 
 ```swift
 addPipelineState = try device.makeComputePipelineState(function: addFunction)
@@ -124,13 +123,13 @@ addPipelineState = try device.makeComputePipelineState(function: addFunction)
 
 :::note
 
-到目前为止，你在代码中看到的 Metal 返回的所有对象都是作为符合协议的对象返回的。 Metal 使用协议来定义大多数特定于 GPU 的对象，以抽象出底层实现类，这些实现类可能因不同的 GPU 而异。 Metal 使用类定义独立于 GPU 的对象。任何给定 Metal 协议的参考文档都清楚地表明你是否可以在应用程序中实现该协议。
+到目前为止，你在代码中看到的 Metal 返回的所有对象都是作为符合协议的对象返回的。Metal 使用协议来定义大多数特定于 GPU 的对象，以抽象出底层实现类，这些实现类可能因不同的 GPU 而异。Metal 使用类定义独立于 GPU 的对象。任何给定 Metal 协议的参考文档都清楚地表明你是否可以在应用程序中实现该协议。
 
 :::
 
 ## 创建命令队列
 
-要将工作发送到 GPU，你需要一个命令队列。 Metal 使用命令队列来调度命令。通过向 [MTLDevice](https://developer.apple.com/documentation/metal/mtldevice) 请求一个命令队列来创建一个命令队列。
+要将工作发送到 GPU，你需要一个命令队列（command queue）。Metal 使用命令队列来调度命令。命令队列对象可以通过向 [MTLDevice](https://developer.apple.com/documentation/metal/mtldevice) 请求来进行创建。
 
 ```swift
 commandQueue = device.makeCommandQueue()
@@ -140,9 +139,36 @@ commandQueue = device.makeCommandQueue()
 
 初始化基本 Metal 对象后，加载数据供 GPU 执行。此任务对性能的要求较低，但在应用程序启动初期执行仍然有用。
 
-GPU 可以拥有自己的专用内存，也可以与操作系统共享内存。 Metal 和操作系统内核需要执行额外的工作，以便将数据存储在内存中并使该数据可供 GPU 使用。 Metal 使用资源对象抽象了内存管理。（[MTLResource](https://developer.apple.com/documentation/metal/mtlresource)）。资源是 GPU 在运行命令时可以访问的内存分配。使用 [MTLDevice](https://developer.apple.com/documentation/metal/mtldevice) 为其 GPU 创建资源。
+GPU 可以拥有自己的专用内存，也可以与操作系统共享内存。Metal 和操作系统内核需要执行额外的工作，以便将数据存储在内存中并使该数据可供 GPU 使用。Metal 使用 **资源**（[MTLResource](https://developer.apple.com/documentation/metal/mtlresource)）对象抽象了内存管理。资源是 GPU 在运行命令时可以访问的内存分配。使用 [MTLDevice](https://developer.apple.com/documentation/metal/mtldevice) 为其 GPU 创建资源。
 
-示例应用程序创建三个缓冲区并用随机数据填充前两个缓冲区。第三个缓冲区是 `add_arrays` 将存储其结果的地方。
+```swift
+@available(iOS 8.0, *)
+public protocol MTLResource : NSObjectProtocol {
+  // ...
+
+  @available(iOS 9.0, *)
+  var storageMode: MTLStorageMode { get }
+}
+
+@available(iOS 9.0, *)
+public enum MTLStorageMode : UInt, @unchecked Sendable {
+    case shared = 0
+
+    case `private` = 2
+
+    @available(iOS 10.0, *)
+    case memoryless = 3
+}
+
+@available(iOS 8.0, *)
+public protocol MTLBuffer : MTLResource {
+  // ...
+
+  func contents() -> UnsafeMutableRawPointer
+}
+```
+
+示例应用程序创建三个缓冲区并用随机数据填充前两个缓冲区。第三个缓冲区是 `add_arrays` 计算后存储其结果的地方。
 
 ```swift
 bufferA = device.makeBuffer(length: bufferSize, options: .storageModeShared)
@@ -153,11 +179,11 @@ generateRandomFloatData(buffer: bufferA)
 generateRandomFloatData(buffer: bufferB)
 ```
 
-此示例中的资源是（[MTLBuffer][https://developer.apple.com/documentation/metal/mtlbuffer]）对象，它们是没有预定义格式的内存分配。 Metal 将每个缓冲区作为不透明的字节集合进行管理。但是，当你在着色器中使用缓冲区时，你可以指定格式。这意味着你的着色器和应用程序需要就来回传递的任何数据的格式达成一致。
+此示例中的资源是（[MTLBuffer][https://developer.apple.com/documentation/metal/mtlbuffer]）对象，它们是没有预定义格式的内存分配。Metal 将每个缓冲区作为不透明的字节集合进行管理。但是，当你在着色器中使用缓冲区时，你可以指定格式。这意味着你的着色器和应用程序需要就来回传递的任何数据的格式达成一致。
 
 当你分配缓冲区时，你提供了一种存储模式来确定其某些性能特征以及 CPU 或 GPU 是否可以访问它。示例应用程序使用共享内存（[storageModeShared](https://developer.apple.com/documentation/metal/mtlresourceoptions/1515613-storagemodeshared)），CPU 和 GPU 都可以访问该内存。
 
-为了用随机数据填充缓冲区，应用程序会获取指向缓 ​​ 冲区内存的指针，并将数据写入 CPU 上的指针。清单 2 中的 add_arrays 函数将其参数声明为浮点数数组，因此你可以提供相同格式的缓冲区：
+为了用随机数据填充缓冲区，应用程序会获取指向缓冲区内存的指针，并将数据写入 CPU 上的指针。清单 2 中的 add_arrays 函数将其参数声明为浮点数数组，因此你可以提供相同格式的缓冲区：
 
 ```swift
 private func generateRandomFloatData(buffer: MTLBuffer?) {
@@ -175,7 +201,7 @@ private func generateRandomFloatData(buffer: MTLBuffer?) {
 
 ## 创建命令缓冲区
 
-要求命令队列创建命令缓冲区。
+通过命令队列创建命令缓冲区。
 
 ```swift
 let commandBuffer = commandQueue.makeCommandBuffer()
@@ -183,19 +209,19 @@ let commandBuffer = commandQueue.makeCommandBuffer()
 
 ## 创建命令编码器
 
-要将命令写入命令缓冲区，你可以使用命令编码器来编码你想要编码的特定类型的命令。此示例创建一个计算命令编码器，用于对计算通道进行编码。计算通道包含执行计算管道的命令列表。每个计算命令都会导致 GPU 创建一个线程网格以在 GPU 上执行。
+要将命令写入命令缓冲区，你可以使用 **命令编码器（command encoder）**来编码你想要编码的特定类型的命令。此示例创建一个计算命令编码器，用于对 **计算通道（compute pass）**进行编码。计算通道包含执行计算管道的命令列表。每个计算命令都会导致 GPU 创建一个线程网格以在 GPU 上执行。
 
 ```swift
 let computeEncoder = commandBuffer.makeComputeCommandEncoder()
 ```
 
-要对命令进行编码，你需要在编码器上进行一系列方法调用。某些方法设置状态信息，例如管道状态对象 (PSO) 或要传递给管道的参数。进行这些状态更改后，你可以编码命令来执行管道。编码器将所有状态变化和命令参数写入命令缓冲区。
+要对命令进行编码，你需要在编码器上进行一系列方法调用。某些方法设置状态信息，例如管道状态对象（PSO）或要传递给管道的参数。进行这些状态更改后，你可以编码命令来执行管道。编码器将所有状态变化和命令参数写入命令缓冲区。
 
 <Figure src={require("./image_1.png")} size={420} />
 
 ## 设置管道状态和参数数据
 
-设置你希望命令执行的管道的管道状态对象。然后为管道需要发送到 `add_arrays` 函数的任何参数设置数据。对于此管道，这意味着提供对三个缓冲区的引用。 Metal 按照参数在清单 2 中的函数声明中出现的顺序自动为缓冲区参数分配索引，从 `0` 开始。你使用相同的索引提供参数。
+首先，设置你希望命令执行的管道的管道状态对象。然后，为管道需要发送到 `add_arrays` 函数的任何参数设置数据。对于此管道，这意味着提供对三个缓冲区的引用。Metal 按照参数在清单 2 中的函数声明中出现的顺序自动为缓冲区参数分配索引，从 `0` 开始。你使用相同的索引提供参数。
 
 ```swift
 encoder.setComputePipelineState(addPipelineState)
@@ -204,13 +230,13 @@ encoder.setBuffer(bufferB, offset: 0, index: 1)
 encoder.setBuffer(bufferResult, offset: 0, index: 2)
 ```
 
-你还可以为每个参数指定一个偏移量。 0 的偏移量意味着该命令将从缓冲区的开头访问数据。但是，你可以使用一个缓冲区来存储多个参数，并为每个参数指定一个偏移量。
+你还可以为每个参数指定一个偏移量。`0` 的偏移量意味着该命令将从缓冲区的开头访问数据。比如，你可以使用一个缓冲区来存储多个参数，并为每个参数指定一个偏移量。
 
-你无需为索引参数指定任何数据，因为 add_arrays 函数将其值定义为由 GPU 提供。
+你无需为索引参数指定任何数据，因为 `add_arrays` 函数将其值定义为由 GPU 提供。
 
 ## 指定线程数和组织
 
-接下来，决定要创建多少个线程以及如何组织这些线程。 Metal 可以创建 1D、2D 或 3D 网格。 add_arrays 函数使用一维数组，因此示例创建大小为 ( dataSize x 1 x 1) 的一维网格，Metal 从中生成 0 到 dataSize
+接下来，决定要创建多少个线程以及如何组织这些线程。Metal 可以创建一维、二维或三维网格。`add_arrays` 函数使用一维数组，因此示例创建大小为（`dataSize` x `1` x `1`）的一维网格，Metal 从中生成 `0` 到 `dataSize` 的索引。
 
 ```swift
 let gridSize = MTLSize(width: arrayLength, height: 1, depth: 1)
@@ -218,7 +244,7 @@ let gridSize = MTLSize(width: arrayLength, height: 1, depth: 1)
 
 ## 指定线程组大小
 
-Metal 将网格细分为更小的网格，称为线程组。每个线程组都是单独计算的。 Metal 可以将线程组分派到 GPU 上的不同处理元素，以加快处理速度。你还需要决定为你的命令创建多大的线程组。
+Metal 将网格细分为更小的网格，称为 **线程组（threadgroups）**。每个线程组都是单独计算的。Metal 可以将线程组分派到 GPU 上的不同处理元素（processing elements），以加快处理速度。你还需要决定为你的命令创建多大的线程组。
 
 ```swift
 let threadsNum = min(addPipelineState.maxTotalThreadsPerThreadgroup, arrayLength)
@@ -241,6 +267,14 @@ encoder.dispatchThreads(gridSize, threadsPerThreadgroup: threadgroupSize)
 
 ## 结束计算通道
 
+当你没有更多命令添加到计算通道时，你可以结束编码过程以关闭计算通道。
+
+```swift
+computeEncoder.endEncoding()
+```
+
+## 提交命令缓冲区以执行其命令
+
 通过将命令缓冲区提交到队列来运行命令缓冲区中的命令。
 
 ```swift
@@ -261,7 +295,7 @@ commandBuffer.waitUntilCompleted()
 
 ## 从缓冲区读取结果
 
-命令缓冲区完成后，GPU 的计算结果将存储在输出缓冲区中，Metal 会执行任何必要的步骤以确保 CPU 可以看到它们。在真实的应用程序中，你将从缓冲区读取结果并对其执行某些操作，例如在屏幕上显示结果或将其写入文件。由于计算仅用于说明创建 Metal 应用程序的过程，因此示例读取输出缓冲区中存储的值并进行测试，以确保 CPU 和 GPU 计算出相同的结果。
+在命令缓冲区完成后，GPU 的计算结果将存储在输出缓冲区中，Metal 会执行任何必要的步骤以确保 CPU 可以看到它们。在真实的应用程序中，你将从缓冲区读取结果并对其执行某些操作，例如在屏幕上显示结果或将其写入文件。由于计算仅用于阐明创建 Metal 应用程序的过程，因此示例读取输出缓冲区中存储的值并进行测试，以确保 CPU 和 GPU 计算出相同的结果。
 
 ```swift
 private func verifyResults() {
@@ -291,7 +325,7 @@ private func verifyResults() {
 
 完整示例代码如下：
 
-```cpp title="Shaders.metal"
+```cpp title="add.metal"
 #include <metal_stdlib>
 using namespace metal;
 
