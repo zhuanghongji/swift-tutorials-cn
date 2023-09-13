@@ -30,7 +30,7 @@ export default function OriginalSource({ title, url, summary }: Props) {
        }}>
         {/* <p>原文：</p> */}
         <p>原文：<a href={url}>{title}</a></p>
-        {summary ? <blockquote>{summary}</blockquote> : null}
+        {summary ? <blockquote>{summary.endsWith('。') ? summary : `${summary}。`}</blockquote> : null}
       </div>
       <br/>
     </>
