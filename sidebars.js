@@ -250,7 +250,11 @@ const metalSidebar = [
         type: "category",
         label: "Essentials",
         collapsed: false,
-        items: ["metal/overview/index"],
+        items: [
+          "metal/overview/index",
+          "metal/samples/performing-calculations-on-a-gpu/index",
+          "metal/samples/using-a-render-pipeline-to-render-primitives/index",
+        ],
       },
       {
         type: "category",
@@ -258,6 +262,7 @@ const metalSidebar = [
         collapsed: false,
         items: [
           "metal/samples/performing-calculations-on-a-gpu/index",
+          "metal/samples/using-a-render-pipeline-to-render-primitives/index",
           "metal/samples/draw-an-triangle/index",
         ],
       },

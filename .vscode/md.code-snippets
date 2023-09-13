@@ -94,13 +94,7 @@
   "Create Figures": {
     "scope": "md,mdx",
     "prefix": "figures",
-    "body": [
-      "<Figure",
-      "  src={require('./$1.png')}",
-      "  num=\"$2\"",
-      "  desc=\"$3\"",
-      "/>"
-    ],
+    "body": ["<Figure src={require('./image_$1.png')} size={420} />"],
     "description": "Create Screenshot"
   },
   "Create OriginalPDF": {

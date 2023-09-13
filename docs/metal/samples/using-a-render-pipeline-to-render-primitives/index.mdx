@@ -1,0 +1,269 @@
+# 使用渲染管道渲染基元
+
+<ToBePolishedAfterTranslation />
+
+<OriginalSource
+  title="Using a Render Pipeline to Render Primitives"
+  url="https://developer.apple.com/documentation/metal/using_a_render_pipeline_to_render_primitives"
+  summary="渲染一个简单的 2D 三角形"
+/>
+
+## 概述
+
+此示例向你展示如何配置渲染管道并将其用作渲染通道的一部分，以将简单的 2D 彩色三角形绘制到视图中。该示例为每个顶点提供位置和颜色，渲染管道使用该数据来渲染三角形，在为三角形顶点指定的颜色之间插入颜色值。
+
+<Figure src={require("./image_1.png")} size={320} />
+
+Xcode 项目包含在 macOS、iOS 和 tvOS 上运行示例的方案。
+
+## 了解 Metal 渲染管线
+
+渲染管道处理绘图命令并将数据写入渲染通道的目标。渲染管道有许多阶段，一些阶段使用着色器进行编程，另一些阶段则具有固定或可配置的行为。该示例重点关注管道的三个主要阶段：顶点阶段、光栅化阶段和片段阶段。顶点阶段和片段阶段是可编程的，因此你可以使用 Metal 着色语言（MSL）为它们编写函数。光栅化阶段具有固定的行为。
+
+<Figure src={require("./image_2.png")} size={720} edge="white" />
+
+渲染从绘图命令开始，其中包括顶点数和要渲染的图元类型。例如，以下是此示例中的绘图命令：
+
+```
+// Draw the triangle.
+[renderEncoder drawPrimitives:MTLPrimitiveTypeTriangle
+                  vertexStart:0
+                  vertexCount:3];
+```
+
+顶点阶段提供每个顶点的数据。当处理了足够的顶点后，渲染管道会对图元进行光栅化，确定渲染目标中的哪些像素位于图元的边界内。片段阶段确定要写入这些像素的渲染目标的值。
+
+在此示例的其余部分中，你将了解如何编写顶点和片段函数，如何创建渲染管道状态对象，以及最后如何对使用此管道的绘制命令进行编码。
+
+## 决定自定义渲染管道如何处理数据
+
+顶点函数为单个顶点生成数据，片段函数为单个片段生成数据，但你决定它们如何工作。你可以根据目标配置管道的各个阶段，这意味着你知道希望管道生成什么以及它如何生成这些结果。
+
+决定将哪些数据传递到渲染管道以及将哪些数据传递到管道的后续阶段。通常可以在三个地方执行此操作：
+
+- 管道的输入，由你的应用程序提供并传递到顶点阶段。
+- 顶点阶段的输出，传递到光栅化阶段。
+- 片段阶段的输入，由你的应用程序提供或由光栅化阶段生成。
+
+在此示例中，管道的输入数据是顶点的位置及其颜色。为了演示通常在顶点函数中执行的变换类型，输入坐标在自定义坐标空间中定义，以距视图中心的像素为单位进行测量。这些坐标需要转换为 Metal 的坐标系。
+
+声明一个 AAPLVertex 结构，使用 SIMD 向量类型来保存位置和颜色数据。要共享结构在内存中的布局方式的单个定义，请在公共标头中声明该结构并将其导入 Metal 着色器和应用程序中。
+
+```cpp
+typedef struct
+{
+    vector_float2 position;
+    vector_float4 color;
+} AAPLVertex;
+```
+
+SIMD 类型在 Metal Shading Language 中很常见，你还应该使用 simd 库在应用程序中使用它们。 SIMD 类型包含特定数据类型的多个通道，因此将位置声明为 vector_float2 意味着它包含两个 32 位浮点值（将保存 x 和 y 坐标）。颜色使用 < b1> ，因此它们有四个通道 - 红色、绿色、蓝色和 alpha。
+
+在应用程序中，输入数据使用常量数组指定：
+
+```cpp
+static const AAPLVertex triangleVertices[] =
+{
+    // 2D positions,    RGBA colors
+    { {  250,  -250 }, { 1, 0, 0, 1 } },
+    { { -250,  -250 }, { 0, 1, 0, 1 } },
+    { {    0,   250 }, { 0, 0, 1, 1 } },
+};
+```
+
+顶点阶段生成顶点数据，因此需要提供颜色和变换后的位置。再次使用 SIMD 类型声明一个包含位置和颜色值的 `RasterizerData` 结构。
+
+```cpp
+struct RasterizerData
+{
+    // The [[position]] attribute of this member indicates that this value
+    // is the clip space position of the vertex when this structure is
+    // returned from the vertex function.
+    float4 position [[position]];
+
+    // Since this member does not have a special attribute, the rasterizer
+    // interpolates its value with the values of the other triangle vertices
+    // and then passes the interpolated value to the fragment shader for each
+    // fragment in the triangle.
+    float4 color;
+};
+```
+
+输出位置（下面详细描述）必须定义为 vector_float4 。颜色的声明方式与输入数据结构中的颜色相同。
+
+你需要告诉 Metal 光栅化数据中的哪个字段提供位置数据，因为 Metal 不会对结构中的字段强制执行任何特定的命名约定。使用 `[[position]]` 属性限定符注释 `position` 字段，以声明该字段保存输出位置。
+
+片段函数只是将光栅化阶段的数据传递到后面的阶段，因此不需要任何额外的参数。
+
+## 声明顶点函数
+
+声明顶点函数，包括其输入参数和输出数据。与使用 `kernel` 关键字声明计算函数非常相似，你可以使用 `vertex` 关键字声明顶点函数。
+
+```cpp
+vertex RasterizerData
+vertexShader(uint vertexID [[vertex_id]],
+             constant AAPLVertex *vertices [[buffer(AAPLVertexInputIndexVertices)]],
+             constant vector_uint2 *viewportSizePointer [[buffer(AAPLVertexInputIndexViewportSize)]])
+```
+
+第一个参数 `vertexID` 使用 `[[vertex_id]]` 属性限定符，这是另一个 Metal 关键字。当你执行渲染命令时，GPU 会多次调用顶点函数，为每个顶点生成唯一的值。
+
+第二个参数 `vertices` 是一个包含顶点数据的数组，使用先前定义的 `AAPLVertex` 结构。
+
+为了将位置转换为 Metal 的坐标，该函数需要三角形被绘制到的视口的大小（以像素为单位），因此它存储在 `viewportSizePointer` 参数中。
+
+第二个和第三个参数具有 `[[buffer(n)]]` 属性限定符。默认情况下，Metal 会自动在参数表中为每个参数分配槽位。当你将 `[[buffer(n)]]` 限定符添加到缓冲区参数时，你明确告诉 Metal 要使用哪个槽。显式声明插槽可以更轻松地修改着色器，而无需更改应用程序代码。在共享头文件中声明两个索引的常量。
+
+该函数的输出是一个 `RasterizerData` 结构。
+
+## 编写顶点函数
+
+你的顶点函数必须生成输出结构的两个字段。使用 `vertexID` 参数对 `vertices` 数组进行索引并读取顶点的输入数据。另外，检索视口尺寸。
+
+```cpp
+float2 pixelSpacePosition = vertices[vertexID].position.xy;
+
+// Get the viewport size and cast to float.
+vector_float2 viewportSize = vector_float2(*viewportSizePointer);
+```
+
+顶点函数必须提供剪辑空间坐标中的位置数据，这些坐标是使用四维齐次向量 `(x, y, z, w)` 指定的 3D 点。光栅化阶段获取输出位置并将 `x`、`y` 和 `z` 坐标除以 `w` 以生成标准化的 3D 点设备坐标。标准化设备坐标与视口大小无关。
+
+<Figure src={require("./image_3.png")} size={320} edge="white" />
+
+标准化设备坐标使用左手坐标系并映射到视口中的位置。基元被剪裁到该坐标系中的一个框内，然后进行光栅化。剪切框的左下角位于 `(-1.0 , -1.0)` 的 `(x ,y)` 坐标处，右上角位于 `(1.0 , 1.0)` 处。正 `z` 值指向远离相机的方向（进入屏幕）。`z` 坐标的可见部分位于 `0.0` （近剪裁平面）和 `1.0` （远剪裁平面）。
+
+将输入坐标系转换为标准化设备坐标系。
+
+<Figure src={require("./image_4.png")} size={620} edge="white" />
+
+因为这是一个 2D 应用程序，不需要齐次坐标，所以首先将默认值写入输出坐标，将 `w` 值设置为 `1.0` ，将其他坐标设置为 `0.0`。这意味着坐标已经位于标准化设备坐标空间中，并且顶点函数应在该坐标空间中生成 `(x, y)` 坐标。将输入位置除以视口大小的一半以生成标准化的设备坐标。由于该计算是使用 SIMD 类型执行的，因此可以使用一行代码同时划分两个通道。执行除法并将结果放入输出位置的 `x` 和 `y` 通道中。
+
+```cpp
+out.position = vector_float4(0.0, 0.0, 0.0, 1.0);
+out.position.xy = pixelSpacePosition / (viewportSize / 2.0);
+```
+
+最后，将颜色值复制到 `out.color` 返回值中。
+
+```cpp
+out.color = vertices[vertexID].color;
+```
+
+## 编写一个片段函数
+
+片段是对渲染目标的可能更改。光栅化器确定渲染目标的哪些像素被图元覆盖。仅渲染像素中心位于三角形内部的片段。
+
+<Figure src={require("./image_5.png")} size={420} />
+
+片段函数处理来自光栅器的单个位置的传入信息，并计算每个渲染目标的输出值。这些片段值由管道中的后续阶段处理，最终被写入渲染目标。
+
+:::note
+
+片段被称为可能的更改的原因是因为片段阶段之后的管道阶段可以配置为拒绝某些片段或更改写入渲染目标的内容。在此示例中，片段阶段计算的所有值均按原样写入渲染目标。
+
+:::
+
+此示例中的片段着色器接收与顶点着色器输出中声明的相同参数。使用 `fragment` 关键字声明片段函数。它需要一个参数，与顶点阶段提供的 `RasterizerData` 结构相同。添加 `[[stage_in]]` 属性限定符以指示该参数由光栅化器生成。
+
+```cpp
+fragment float4 fragmentShader(RasterizerData in [[stage_in]])
+```
+
+如果你的片段函数写入多个呈现目标，则它必须声明一个包含每个呈现目标字段的结构。由于此示例只有一个渲染目标，因此你可以直接指定浮点向量作为函数的输出。此输出是要写入渲染目标的颜色。
+
+光栅化阶段计算每个片段参数的值并用它们调用片段函数。光栅化阶段将其颜色参数计算为三角形顶点颜色的混合。片段距离顶点越近，该顶点对最终颜色的贡献就越大。
+
+<Figure src={require("./image_6.png")} size={420} edge="white" />
+
+返回插值颜色作为函数的输出。
+
+```cpp
+return in.color;
+```
+
+## 创建渲染管线状态对象
+
+现在功能已完成，你可以创建使用它们的渲染管道。首先，获取默认库并为每个函数获取一个 [MTLFunction](https://developer.apple.com/documentation/metal/mtlfunction) 对象。
+
+```
+id<MTLLibrary> defaultLibrary = [_device newDefaultLibrary];
+
+id<MTLFunction> vertexFunction = [defaultLibrary newFunctionWithName:@"vertexShader"];
+id<MTLFunction> fragmentFunction = [defaultLibrary newFunctionWithName:@"fragmentShader"];
+```
+
+接下来，创建一个 [MTLRenderPipelineState](https://developer.apple.com/documentation/metal/mtlrenderpipelinestate) 对象。渲染管道有更多阶段需要配置，因此你使用 [MTLRenderPipelineDescriptor](https://developer.apple.com/documentation/metal/mtlrenderpipelinedescriptor) 来配置管道。
+
+```
+MTLRenderPipelineDescriptor *pipelineStateDescriptor = [[MTLRenderPipelineDescriptor alloc] init];
+pipelineStateDescriptor.label = @"Simple Pipeline";
+pipelineStateDescriptor.vertexFunction = vertexFunction;
+pipelineStateDescriptor.fragmentFunction = fragmentFunction;
+pipelineStateDescriptor.colorAttachments[0].pixelFormat = mtkView.colorPixelFormat;
+
+_pipelineState = [_device newRenderPipelineStateWithDescriptor:pipelineStateDescriptor
+                                                         error:&error];
+```
+
+除了指定顶点和片段函数之外，你还可以声明管道将绘制到的所有渲染目标的像素格式。像素格式（[MTLPixelFormat](https://developer.apple.com/documentation/metal/mtlpixelformat)）定义像素数据的内存布局。对于简单格式，此定义包括每个像素的字节数、像素中存储的数据通道数以及这些通道的位布局。由于此示例只有一个渲染目标并且由视图提供，因此将视图的像素格式复制到渲染管道描述符中。你的渲染管道状态必须使用与渲染通道指定的像素格式兼容的像素格式。在此示例中，渲染通道和管道状态对象都使用视图的像素格式，因此它们始终相同。
+
+当 Metal 创建渲染管道状态对象时，管道被配置为将片段函数的输出转换为渲染目标的像素格式。如果要针对不同的像素格式，则需要创建不同的管道状态对象。你可以在针对不同像素格式的多个管道中重复使用相同的着色器。
+
+## 设置视口
+
+现在你已经有了管道的渲染管道状态对象，你将渲染三角形。你可以使用渲染命令编码器来执行此操作。首先，设置视口，以便 Metal 知道要绘制到渲染目标的哪一部分。
+
+```
+// Set the region of the drawable to draw into.
+[renderEncoder setViewport:(MTLViewport){0.0, 0.0, _viewportSize.x, _viewportSize.y, 0.0, 1.0 }];
+```
+
+## 设置渲染管线状态
+
+设置要使用的管道的渲染管道状态。
+
+```
+[renderEncoder setRenderPipelineState:_pipelineState];
+```
+
+## 将参数数据发送到顶点函数
+
+通常，你使用缓冲区（[MTLBuffer](https://developer.apple.com/documentation/metal/mtlbuffer)）将数据传递给着色器。但是，当你只需要向顶点函数传递少量数据时（就像此处的情况一样），请将数据直接复制到命令缓冲区中。
+
+该示例将两个参数的数据复制到命令缓冲区中。顶点数据是从示例中定义的数组复制的。视口数据是从用于设置视口的同一变量复制的。
+
+在此示例中，片段函数仅使用从光栅器接收的数据，因此无需设置参数。
+
+```
+[renderEncoder setVertexBytes:triangleVertices
+                       length:sizeof(triangleVertices)
+                      atIndex:AAPLVertexInputIndexVertices];
+
+[renderEncoder setVertexBytes:&_viewportSize
+                       length:sizeof(_viewportSize)
+                      atIndex:AAPLVertexInputIndexViewportSize];
+```
+
+## 对绘图命令进行编码
+
+指定图元的类型、起始索引和顶点数。渲染三角形时，将使用 vertexID 参数的值 0、1 和 2 调用顶点函数。
+
+```
+// Draw the triangle.
+[renderEncoder drawPrimitives:MTLPrimitiveTypeTriangle
+                  vertexStart:0
+                  vertexCount:3];
+```
+
+与使用 Metal 绘制到屏幕一样，你可以结束编码过程并提交命令缓冲区。但是，你可以使用同一组步骤对更多渲染命令进行编码。最终图像的渲染就像命令是按照指定的顺序处理的一样。 （为了性能，GPU 可以并行处理命令甚至部分命令，只要最终结果看起来是按顺序渲染的。）
+
+## 尝试颜色插值
+
+在此示例中，颜色值在三角形上进行插值。这通常是你想要的，但有时你希望由一个顶点生成一个值，并在整个图元中保持不变。为此，请在顶点函数的输出上指定 flat 属性限定符。现在就试试这个。在示例项目中找到 RasterizerData 的定义，并将 `[[flat]]` 限定符添加到其 color 字段。
+
+```cpp
+float4 color [[flat]];
+```
+
+再次运行示例。渲染管道在整个三角形上均匀地使用来自第一个顶点（称为激发顶点）的颜色值，并忽略来自其他两个顶点的颜色。你可以混合使用平面阴影和插值，只需在顶点函数的输出上添加或省略 `flat` 限定符即可。[Metal 着色语言规范](https://developer.apple.com/metal/Metal-Shading-Language-Specification.pdf) 定义了其他属性限定符，你也可以使用它们来修改光栅化行为。
