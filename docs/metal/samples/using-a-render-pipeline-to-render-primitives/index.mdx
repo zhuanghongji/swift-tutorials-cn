@@ -213,7 +213,7 @@ pipelineState = try device.makeRenderPipelineState(descriptor: pipelineDescripto
 - 像素中存储的数据通道数
 - 这些通道的位布局（bit layout）
 
-由于此示例只有一个渲染目标并且是由视图提供，因此只需将视图的像素格式复制到渲染管道描述符中。你的渲染管道状态必须使用与渲染通道指定的像素格式兼容的像素格式。在此示例中，渲染通道和管道状态对象都使用视图的像素格式，因此它们始终相同。
+由于此示例只有一个渲染目标并且是由视图提供，因此只需将视图的像素格式复制到渲染管道描述器中。你的渲染管道状态必须使用与渲染通道指定的像素格式兼容的像素格式。在此示例中，渲染通道和管道状态对象都使用视图的像素格式，因此它们始终相同。
 
 当 Metal 创建渲染管道状态对象时，管道被配置为将片段函数的输出转换为渲染目标的像素格式。如果要针对不同的像素格式，则需要创建不同的管道状态对象。你可以在针对不同像素格式的多个管道中重复使用相同的着色器。
 
@@ -451,14 +451,14 @@ extension AAPLView {
                 return
             }
 
-            // 配置用于创建管道状态的管道描述符
+            // 配置用于创建管道状态的管道描述器
             let pipelineDescriptor = MTLRenderPipelineDescriptor()
             pipelineDescriptor.label = "Simple Pipeline"
             pipelineDescriptor.vertexFunction = vertexFunction
             pipelineDescriptor.fragmentFunction = fragmentFunction
             pipelineDescriptor.colorAttachments[0].pixelFormat = format
             do {
-                // 如果管道描述符设置不正确，则管道状态创建可能失败
+                // 如果管道描述器设置不正确，则管道状态创建可能失败
                 // 如果启用了 Metal API 验证，则可以查找有关出错原因的详细信息
                 // （在 Xcode 运行调试编译时，默认启用 Metal API 验证）
                 pipelineState = try device.makeRenderPipelineState(descriptor: pipelineDescriptor)

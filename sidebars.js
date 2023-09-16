@@ -253,6 +253,7 @@ const metalSidebar = [
         items: [
           "metal/overview/index",
           "metal/samples/performing-calculations-on-a-gpu/index",
+          "metal/samples/using-metal-to-draw-a-view-s-contents/index",
           "metal/samples/using-a-render-pipeline-to-render-primitives/index",
         ],
       },

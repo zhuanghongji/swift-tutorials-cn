@@ -1,0 +1,210 @@
+# 使用 Metal 绘制视图的内容
+
+<OriginalSource
+  title="Using Metal to Draw a View’s Contents"
+  url="https://developer.apple.com/documentation/metal/using_metal_to_draw_a_view_s_contents"
+  summary="创建一个 MetalKit 视图和一个渲染通道来绘制视图的内容"
+/>
+
+## 概述
+
+在此示例中，你将学习使用 Metal 渲染图形内容的基础知识。你将使用 MetalKit 框架创建一个视图，该视图使用 Metal 绘制视图的内容。然后，你将对渲染通道的命令进行编码，将视图擦除为背景颜色。
+
+:::note
+
+MetalKit 可自动执行窗口系统任务、加载纹理并处理 3D 模型数据。请参阅 [MetalKit](https://developer.apple.com/documentation/metalkit) 了解更多信息。
+
+:::
+
+## 准备要绘制的 MetalKit 视图
+
+MetalKit 提供了一个名为 [MTKView](https://developer.apple.com/documentation/metalkit/mtkview) 的类，它是 [NSView](https://developer.apple.com/documentation/appkit/nsview) （在 macOS 中）或 [UIView](https://developer.apple.com/documentation/uikit/uiview) （在 iOS 和 tvOS 中）的子类。 `MTKView` 处理与 "将 Metal 绘制内容绘制到屏幕上" 相关的许多细节。
+
+`MTKView` 需要引用 Metal 设备（device）对象才能在内部创建资源，因此第一步是将视图的 [device](https://developer.apple.com/documentation/metalkit/mtkview/1536011-device) 属性设置为现有的 [MTLDevice](https://developer.apple.com/documentation/metal/mtldevice) 。
+
+```swift
+// `context.coordinator.device` is created by `MTLCreateSystemDefaultDevice()`
+uiView.device = context.coordinator.device
+```
+
+`MTKView` 上的其他属性允许你控制其行为。要将视图的内容擦除为纯背景色，请设置其 [clearColor](https://developer.apple.com/documentation/metalkit/mtkview/1536036-clearcolor) 属性。你可以使用 [MTLClearColorMake(red:green:blue:alpha:)](https://developer.apple.com/documentation/metal/mtlclearcolor/1515647-init) 函数创建颜色，指定红色、绿色、蓝色和透明度值。
+
+```swift
+uiView.clearColor = MTLClearColor(red: 0.0, green: 0.5, blue: 1.0, alpha: 1.0)
+```
+
+由于你不会在此示例中绘制动画内容，因此请配置视图，使其仅在需要更新内容时绘制，例如当视图更改形状时：
+
+```swift
+uiView.enableSetNeedsDisplay = true
+```
+
+## 委托绘制职责
+
+`MTKView` 依赖你的应用向 Metal 发出命令（ issue commands）来生成可见内容。`MTKView` 使用委托模式来通知你的应用程序何时应该绘制。要接收委托回调，请将视图的 `delegate` 属性设置为符合 [MTKViewDelegate](https://developer.apple.com/documentation/metalkit/mtkviewdelegate) 协议的对象。
+
+```swift
+uiView.delegate = context.coordinator
+```
+
+该委托实现了两个方法：
+
+- 每当内容的大小发生变化时，视图都会调用 [mtkView(\_:drawableSizeWillChange:)](https://developer.apple.com/documentation/metalkit/mtkviewdelegate/1536015-mtkview) 方法。当包含视图的窗口调整大小或设备方向更改（在 iOS 上）时，会发生这种情况。这允许你的应用程序将其渲染的分辨率调整为视图的大小。
+- 每当需要更新视图内容时，视图都会调用 [draw(in:)](https://developer.apple.com/documentation/metalkit/mtkviewdelegate/1535942-draw) 方法。在此方法中，你创建一个命令缓冲区，对命令进行编码，告诉 GPU 要绘制什么以及何时在屏幕上显示它，并将该命令缓冲区排入队列以供 GPU 执行。这有时被称为绘制一帧。你可以将一帧视为生成 "显示在屏幕上的单个图像" 的所有工作。在交互式应用程序（例如游戏）中，你可能每秒绘制许多帧。
+
+在此示例中，名为 `Coordinator` 的类实现委托方法并承担绘制的责任。`AAPLView` 创建此类的实例并将其设置为视图的委托。
+
+## 创建渲染通道描述器
+
+绘制时，GPU 将结果存储到 **纹理（textures）**中，纹理是包含图像数据且可由 GPU 访问的内存块。在此示例中，`MTKView` 创建了绘制到视图中所需的所有纹理。它创建多个纹理，以便在渲染到另一个纹理时可以显示一个纹理的内容。
+
+要进行绘制，你需要创建一个 **渲染通道（render pass）**，它是绘制到一组纹理的一系列渲染命令。当在渲染通道中使用时，纹理也称为 **渲染目标（render targets）**。要创建渲染通道，你需要一个渲染通道描述器，即 [MTLRenderPassDescriptor](https://developer.apple.com/documentation/metal/mtlrenderpassdescriptor) 的实例。在此示例中，你不需要配置自己的渲染通道描述器，而是要求 `MetalKit` 视图为你创建一个。
+
+```swift
+guard let renderPassDescriptor = view.currentRenderPassDescriptor else {
+    return
+}
+```
+
+渲染通道描述器描述渲染目标集，以及如何在渲染通道开始和结束时处理它们。渲染通道还定义了渲染的一些其他方面，这些方面不属于本示例的一部分。视图返回一个渲染通道描述器，其中带有指向视图纹理之一的单一颜色附件（a single color attachment），并根据视图的属性配置渲染通道。默认情况下，这意味着在渲染过程开始时，渲染目标将被擦除为与视图的 `clearColor` 属性相匹配的纯色（solid color），并且在渲染过程结束时，所有更改都会存储回到纹理。
+
+由于视图的渲染通道描述器可能是 `nil`，因此你应该在创建渲染通道之前进行测试以确保渲染通道描述器对象不是 `nil`。
+
+## 创建渲染通道
+
+你可以通过使用 [MTLRenderCommandEncoder](https://developer.apple.com/documentation/metal/mtlrendercommandencoder) 对象将渲染通道编码到命令缓冲区来创建渲染通道。调用命令缓冲区的 [makeRenderCommandEncoder(descriptor:)](https://developer.apple.com/documentation/metal/mtlcommandbuffer/1442999-makerendercommandencoder) 方法并传入渲染通道描述器。
+
+```swift
+let commandEncoder = commandBuffer.makeRenderCommandEncoder(descriptor: renderPassDescriptor)
+```
+
+在此示例中，你没有对任何绘制命令进行编码，因此渲染通道所做的唯一事情就是擦除纹理。调用编码器的 `endEncoding` 方法表明传递完成。
+
+```swift
+commandEncoder.endEncoding()
+```
+
+## 将 Drawable 呈现到屏幕上
+
+绘制纹理不会自动在屏幕上显示新内容。事实上，只有一些纹理可以呈现在屏幕上。在 Metal 中，可以在屏幕上显示的纹理由 drawable 对象管理，并且要显示内容，你需要呈现可绘制对象。
+
+`MTKView` 自动创建 drawable 对象来管理其纹理。读取 [currentDrawable](https://developer.apple.com/documentation/metalkit/mtkview/1535971-currentdrawable) 属性以获取拥有渲染通道目标纹理的可绘制对象。该视图返回一个 [CAMetalDrawable](https://developer.apple.com/documentation/quartzcore/cametaldrawable) 对象，该对象连接到 Core Animation。
+
+```swift
+view.currentDrawable
+```
+
+在命令缓冲区上调用 [present(\_:)](https://developer.apple.com/documentation/metal/mtlcommandbuffer/1443029-present) 方法，传入 `drawable`。
+
+```swift
+commandBuffer.present(view.currentDrawable!)
+```
+
+这个方法告诉 Metal，当命令缓冲区被安排执行时，Metal 应该与 Core Animation 协调以在渲染完成后显示纹理。当 Core Animation 呈现纹理时，它就成为视图的新内容。在此示例中，这意味着擦除的纹理将成为视图的新背景。这一变化与 Core Animation 为屏幕用户界面元素所做的任何其他视觉更新一起发生。
+
+## 提交命令缓冲区
+
+现在你已经发出了该帧的所有命令，请提交命令缓冲区。
+
+```swift
+commandBuffer.commit()
+```
+
+## 完整示例
+
+### AAPLView.swift
+
+```swift
+import MetalKit
+import SwiftUI
+
+// 包装 MTKView 以便在 SwiftUI 中使用
+struct AAPLView: UIViewRepresentable {
+    typealias UIViewType = MTKView
+
+    func makeUIView(context: Context) -> MTKView {
+        let uiView = MTKView()
+        uiView.device = context.coordinator.device
+        uiView.delegate = context.coordinator
+        // 设置背景色为青蓝色
+        uiView.clearColor = MTLClearColor(red: 0.0, green: 0.5, blue: 1.0, alpha: 1.0)
+        uiView.enableSetNeedsDisplay = true
+        return uiView
+    }
+
+    func updateUIView(_ uiView: MTKView, context: Context) {
+        // none
+    }
+}
+
+extension AAPLView {
+    // 执行绘制的协调器
+    class Coordinator: NSObject, MTKViewDelegate {
+
+        let device: MTLDevice
+
+        // 用于传递命令的命令队列
+        private let commandQueue: MTLCommandQueue
+
+        init(device: MTLDevice?) {
+            self.device = device!
+
+            // 创建命令队列
+            self.commandQueue = self.device.makeCommandQueue()!
+        }
+
+        /// Called whenever the drawableSize of the view will change
+        func mtkView(_ view: MTKView, drawableSizeWillChange size: CGSize) {
+            // none
+        }
+
+        /// Called on the delegate when it is asked to render into the view
+        func draw(in view: MTKView) {
+            guard let renderPassDescriptor = view.currentRenderPassDescriptor else {
+                return
+            }
+            guard let commandBuffer = commandQueue.makeCommandBuffer() else {
+                return
+            }
+
+            // 创建命令通道并立即结束编码，使得视图变得 cleared
+            guard let commandEncoder = commandBuffer.makeRenderCommandEncoder(descriptor: renderPassDescriptor) else {
+                return
+            }
+            commandEncoder.endEncoding()
+
+            // 获取将在帧末呈现的 drawable
+            commandBuffer.present(view.currentDrawable!)
+
+            commandBuffer.commit()
+        }
+    }
+
+    func makeCoordinator() -> Coordinator {
+        Coordinator(device: MTLCreateSystemDefaultDevice())
+    }
+}
+```
+
+## ContentView.swift
+
+<ScreenshotBlock src={require('./screenshot_1.png')}>
+
+```swift
+import SwiftUI
+
+struct ContentView: View {
+    var body: some View {
+        // highlight-start
+        AAPLView()
+            .frame(width: 300, height: 300)
+        // highlight-end
+    }
+}
+
+#Preview {
+    ContentView()
+}
+```
+
+</ScreenshotBlock>
