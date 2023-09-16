@@ -260,11 +260,7 @@ const metalSidebar = [
         type: "category",
         label: "Samples",
         collapsed: false,
-        items: [
-          "metal/samples/performing-calculations-on-a-gpu/index",
-          "metal/samples/using-a-render-pipeline-to-render-primitives/index",
-          "metal/samples/draw-an-triangle/index",
-        ],
+        items: ["metal/samples/draw-an-triangle/index"],
       },
       {
         type: "category",

@@ -1,7 +1,5 @@
 # 使用渲染管道渲染基元
 
-<ToBePolishedAfterTranslation />
-
 <OriginalSource
   title="Using a Render Pipeline to Render Primitives"
   url="https://developer.apple.com/documentation/metal/using_a_render_pipeline_to_render_primitives"
@@ -16,38 +14,42 @@
 
 Xcode 项目包含在 macOS、iOS 和 tvOS 上运行示例的方案。
 
-## 了解 Metal 渲染管线
+## 了解 Metal 渲染管道
 
-渲染管道处理绘图命令并将数据写入渲染通道的目标。渲染管道有许多阶段，一些阶段使用着色器进行编程，另一些阶段则具有固定或可配置的行为。该示例重点关注管道的三个主要阶段：顶点阶段、光栅化阶段和片段阶段。顶点阶段和片段阶段是可编程的，因此你可以使用 Metal 着色语言（MSL）为它们编写函数。光栅化阶段具有固定的行为。
+**渲染管道** 处理绘制命令并将数据写入渲染通道的目标。渲染管道有许多阶段，一些阶段使用着色器进行编程，另一些阶段则具有固定或可配置的行为。该示例重点关注管道的三个主要阶段：
+
+- 顶点阶段（the vertex stage）
+- 光栅化阶段（the rasterization stage）
+- 片段阶段（the fragment stage）
+
+顶点阶段和片段阶段是可编程的，因此你可以使用 Metal 着色语言（MSL）为它们编写函数。光栅化阶段具有固定的行为。
 
 <Figure src={require("./image_2.png")} size={720} edge="white" />
 
-渲染从绘图命令开始，其中包括顶点数和要渲染的图元类型。例如，以下是此示例中的绘图命令：
+渲染从绘制命令开始，其中包括顶点数和要渲染的图元类型。例如，以下是此示例中的绘制命令：
 
-```
-// Draw the triangle.
-[renderEncoder drawPrimitives:MTLPrimitiveTypeTriangle
-                  vertexStart:0
-                  vertexCount:3];
+```swift
+// Draw the triangle
+renderEncoder.drawPrimitives(type: .triangle, vertexStart: 0, vertexCount: 3)
 ```
 
-顶点阶段提供每个顶点的数据。当处理了足够的顶点后，渲染管道会对图元进行光栅化，确定渲染目标中的哪些像素位于图元的边界内。片段阶段确定要写入这些像素的渲染目标的值。
+顶点阶段为每个顶点提供数据。当足够多的顶点得到处理后，渲染管道会对图元进行光栅化，确定渲染目标中的哪些像素位于图元的边界内。片段阶段确定要写入这些像素的渲染目标的值。
 
 在此示例的其余部分中，你将了解如何编写顶点和片段函数，如何创建渲染管道状态对象，以及最后如何对使用此管道的绘制命令进行编码。
 
-## 决定自定义渲染管道如何处理数据
+## 自定义渲染管道决定如何处理数据
 
-顶点函数为单个顶点生成数据，片段函数为单个片段生成数据，但你决定它们如何工作。你可以根据目标配置管道的各个阶段，这意味着你知道希望管道生成什么以及它如何生成这些结果。
+顶点函数为单个顶点生成数据，片段函数为单个片段生成数据，但你决定它们如何工作。你可以根据目标配置管道的各个阶段，这意味着你知道你希望管道生成什么以及它如何生成这些结果。
 
-决定将哪些数据传递到渲染管道以及将哪些数据传递到管道的后续阶段。通常可以在三个地方执行此操作：
+决定将哪些数据传递到渲染管道，以及将哪些数据传递到管道的后续阶段。通常可以在三个地方执行这些操作：
 
-- 管道的输入，由你的应用程序提供并传递到顶点阶段。
-- 顶点阶段的输出，传递到光栅化阶段。
-- 片段阶段的输入，由你的应用程序提供或由光栅化阶段生成。
+- 管道的输入：由你的应用程序提供并传递到顶点阶段。
+- 顶点阶段的输出：传递到光栅化阶段。
+- 片段阶段的输入：由你的应用程序提供或由光栅化阶段生成。
 
 在此示例中，管道的输入数据是顶点的位置及其颜色。为了演示通常在顶点函数中执行的变换类型，输入坐标在自定义坐标空间中定义，以距视图中心的像素为单位进行测量。这些坐标需要转换为 Metal 的坐标系。
 
-声明一个 AAPLVertex 结构，使用 SIMD 向量类型来保存位置和颜色数据。要共享结构在内存中的布局方式的单个定义，请在公共标头中声明该结构并将其导入 Metal 着色器和应用程序中。
+声明一个 `AAPLVertex` 结构，使用 SIMD 向量类型来保存位置和颜色数据。要共享结构在内存中的布局方式的单个定义，请在公共头文件中声明该结构并将其导入 Metal 着色器和应用程序中。
 
 ```cpp
 typedef struct
@@ -57,18 +59,21 @@ typedef struct
 } AAPLVertex;
 ```
 
-SIMD 类型在 Metal Shading Language 中很常见，你还应该使用 simd 库在应用程序中使用它们。 SIMD 类型包含特定数据类型的多个通道，因此将位置声明为 vector_float2 意味着它包含两个 32 位浮点值（将保存 x 和 y 坐标）。颜色使用 < b1> ，因此它们有四个通道 - 红色、绿色、蓝色和 alpha。
+> AAPL 是 Apple 公司的股票代码。
+
+SIMD 类型在 Metal Shading Language 中很常见，你还应该使用 simd 库在应用程序中使用它们。SIMD 类型包含特定数据类型的多个通道，因此将 `position` 声明为 `vector_float2` 类型，这意味着它包含两个 32 位浮点值（其将持有 `x` 和 `y` 坐标）。颜色使用 `vector_float4`类型，因此它们有四个通道 - 红色、绿色、蓝色和透明度（alpha）。
 
 在应用程序中，输入数据使用常量数组指定：
 
-```cpp
-static const AAPLVertex triangleVertices[] =
-{
-    // 2D positions,    RGBA colors
-    { {  250,  -250 }, { 1, 0, 0, 1 } },
-    { { -250,  -250 }, { 0, 1, 0, 1 } },
-    { {    0,   250 }, { 0, 0, 1, 1 } },
-};
+```swift
+private let triangleVertices: [AAPLVertex] = [
+        AAPLVertex(position: vector_float2(250, -250),
+                   color: vector_float4(1, 0, 0, 1)),
+        AAPLVertex(position: vector_float2(-250, -250),
+                   color: vector_float4(0, 1, 0, 1)),
+        AAPLVertex(position: vector_float2(0, 250),
+                   color: vector_float4(0, 0, 1, 1)),
+]
 ```
 
 顶点阶段生成顶点数据，因此需要提供颜色和变换后的位置。再次使用 SIMD 类型声明一个包含位置和颜色值的 `RasterizerData` 结构。
@@ -76,22 +81,19 @@ static const AAPLVertex triangleVertices[] =
 ```cpp
 struct RasterizerData
 {
-    // The [[position]] attribute of this member indicates that this value
-    // is the clip space position of the vertex when this structure is
-    // returned from the vertex function.
+    // 此成员的 [[position]] 属性表明，当此结构从顶点函数返回时
+    // 此值是顶点的裁剪空间位置「剪裁空间位置（clip space position）」
     float4 position [[position]];
 
-    // Since this member does not have a special attribute, the rasterizer
-    // interpolates its value with the values of the other triangle vertices
-    // and then passes the interpolated value to the fragment shader for each
-    // fragment in the triangle.
+    // 由于该成员没有特殊属性，「光栅化器（rasterizer）」会用其它三角形顶点的值来插值其值
+    // 然后将插值后的值传递给三角形中每个片段的「片断着色器」。
     float4 color;
 };
 ```
 
-输出位置（下面详细描述）必须定义为 vector_float4 。颜色的声明方式与输入数据结构中的颜色相同。
+输出 `position`（下面详细描述）必须定义为 `vector_float4`。`color` 的声明方式与输入数据结构中的颜色相同。
 
-你需要告诉 Metal 光栅化数据中的哪个字段提供位置数据，因为 Metal 不会对结构中的字段强制执行任何特定的命名约定。使用 `[[position]]` 属性限定符注释 `position` 字段，以声明该字段保存输出位置。
+你需要告诉 Metal 光栅化数据中的哪个字段提供位置数据，因为 Metal 不会对结构中的字段强制执行任何特定的命名约定。使用 `[[position]]` 属性限定符注释（annotate）`position` 字段，以声明该字段保存输出位置。
 
 片段函数只是将光栅化阶段的数据传递到后面的阶段，因此不需要任何额外的参数。
 
@@ -123,11 +125,11 @@ vertexShader(uint vertexID [[vertex_id]],
 ```cpp
 float2 pixelSpacePosition = vertices[vertexID].position.xy;
 
-// Get the viewport size and cast to float.
+// 获取视口大小并转换为浮点数
 vector_float2 viewportSize = vector_float2(*viewportSizePointer);
 ```
 
-顶点函数必须提供剪辑空间坐标中的位置数据，这些坐标是使用四维齐次向量 `(x, y, z, w)` 指定的 3D 点。光栅化阶段获取输出位置并将 `x`、`y` 和 `z` 坐标除以 `w` 以生成标准化的 3D 点设备坐标。标准化设备坐标与视口大小无关。
+顶点函数必须提供 clip-space 坐标中的位置数据，这些坐标是使用四维齐次向量 `(x, y, z, w)` 指定的 3D 点。光栅化阶段获取输出位置并将 `x`、`y` 和 `z` 坐标协同 `w` 以生成 3D 点的 **标准化设备坐标（normalized device coordinates）**。标准化设备坐标与视口大小无关。
 
 <Figure src={require("./image_3.png")} size={320} edge="white" />
 
@@ -137,7 +139,7 @@ vector_float2 viewportSize = vector_float2(*viewportSizePointer);
 
 <Figure src={require("./image_4.png")} size={620} edge="white" />
 
-因为这是一个 2D 应用程序，不需要齐次坐标，所以首先将默认值写入输出坐标，将 `w` 值设置为 `1.0` ，将其他坐标设置为 `0.0`。这意味着坐标已经位于标准化设备坐标空间中，并且顶点函数应在该坐标空间中生成 `(x, y)` 坐标。将输入位置除以视口大小的一半以生成标准化的设备坐标。由于该计算是使用 SIMD 类型执行的，因此可以使用一行代码同时划分两个通道。执行除法并将结果放入输出位置的 `x` 和 `y` 通道中。
+因为这是一个 2D 应用程序，不需要齐次坐标（homogenous coordinates），所以首先将默认值写入输出坐标，将 `w` 值设置为 `1.0` ，将其他坐标设置为 `0.0`。这意味着坐标已经位于标准化设备坐标空间中，并且顶点函数应在该坐标空间中生成 `(x, y)` 坐标。将输入位置除以视口大小的一半以生成标准化的设备坐标。由于该计算是使用 SIMD 类型执行的，因此可以使用一行代码同时划分两个通道。执行除法并将结果放入输出位置的 `x` 和 `y` 通道中。
 
 ```cpp
 out.position = vector_float4(0.0, 0.0, 0.0, 1.0);
@@ -152,7 +154,7 @@ out.color = vertices[vertexID].color;
 
 ## 编写一个片段函数
 
-片段是对渲染目标的可能更改。光栅化器确定渲染目标的哪些像素被图元覆盖。仅渲染像素中心位于三角形内部的片段。
+**片段** 是对渲染目标的可能更改。光栅化器确定渲染目标的哪些像素被图元覆盖。仅渲染像素中心位于三角形内部的片段。
 
 <Figure src={require("./image_5.png")} size={420} />
 
@@ -160,19 +162,19 @@ out.color = vertices[vertexID].color;
 
 :::note
 
-片段被称为可能的更改的原因是因为片段阶段之后的管道阶段可以配置为拒绝某些片段或更改写入渲染目标的内容。在此示例中，片段阶段计算的所有值均按原样写入渲染目标。
+片段被称为 "可能的更改" 的原因：片段阶段之后的管道阶段可以配置为拒绝某些片段，或更改写入渲染目标的内容。在此示例中，片段阶段计算的所有值均按原样写入渲染目标。
 
 :::
 
-此示例中的片段着色器接收与顶点着色器输出中声明的相同参数。使用 `fragment` 关键字声明片段函数。它需要一个参数，与顶点阶段提供的 `RasterizerData` 结构相同。添加 `[[stage_in]]` 属性限定符以指示该参数由光栅化器生成。
+在此示例中，"片段着色器接收的参数" 与 "顶点着色器输出中声明的参数" 相同。使用 `fragment` 关键字声明片段函数。它需要一个参数，与顶点阶段提供的 `RasterizerData` 结构相同。添加 `[[stage_in]]` 属性限定符以指示该参数由光栅化器生成。
 
 ```cpp
 fragment float4 fragmentShader(RasterizerData in [[stage_in]])
 ```
 
-如果你的片段函数写入多个呈现目标，则它必须声明一个包含每个呈现目标字段的结构。由于此示例只有一个渲染目标，因此你可以直接指定浮点向量作为函数的输出。此输出是要写入渲染目标的颜色。
+如果你的片段函数写入多个渲染目标，则它必须声明一个包含每个渲染目标字段的结构。由于此示例只有一个渲染目标，因此你可以直接指定浮点向量作为函数的输出。此输出是要写入渲染目标的颜色。
 
-光栅化阶段计算每个片段参数的值并用它们调用片段函数。光栅化阶段将其颜色参数计算为三角形顶点颜色的混合。片段距离顶点越近，该顶点对最终颜色的贡献就越大。
+光栅化阶段计算每个片段参数的值并用它们调用片段函数。光栅化阶段将其颜色参数计算为三角形顶点颜色的混合（blend）。片段距离顶点越近，该顶点对最终颜色的贡献就越大。
 
 <Figure src={require("./image_6.png")} size={420} edge="white" />
 
@@ -182,31 +184,36 @@ fragment float4 fragmentShader(RasterizerData in [[stage_in]])
 return in.color;
 ```
 
-## 创建渲染管线状态对象
+## 创建渲染管道状态对象
 
-现在功能已完成，你可以创建使用它们的渲染管道。首先，获取默认库并为每个函数获取一个 [MTLFunction](https://developer.apple.com/documentation/metal/mtlfunction) 对象。
+现在函数部分已完成，你可以创建使用它们的渲染管道。首先，获取默认库并为每个函数获取一个 [MTLFunction](https://developer.apple.com/documentation/metal/mtlfunction) 对象。
 
-```
-id<MTLLibrary> defaultLibrary = [_device newDefaultLibrary];
+```swift
+let defaultLibrary = device.makeDefaultLibrary()
 
-id<MTLFunction> vertexFunction = [defaultLibrary newFunctionWithName:@"vertexShader"];
-id<MTLFunction> fragmentFunction = [defaultLibrary newFunctionWithName:@"fragmentShader"];
+let vertexFunction = defaultLibrary.makeFunction(name: "vertexShader")
+let fragmentFunction = defaultLibrary.makeFunction(name: "fragmentShader")
 ```
 
 接下来，创建一个 [MTLRenderPipelineState](https://developer.apple.com/documentation/metal/mtlrenderpipelinestate) 对象。渲染管道有更多阶段需要配置，因此你使用 [MTLRenderPipelineDescriptor](https://developer.apple.com/documentation/metal/mtlrenderpipelinedescriptor) 来配置管道。
 
-```
-MTLRenderPipelineDescriptor *pipelineStateDescriptor = [[MTLRenderPipelineDescriptor alloc] init];
-pipelineStateDescriptor.label = @"Simple Pipeline";
-pipelineStateDescriptor.vertexFunction = vertexFunction;
-pipelineStateDescriptor.fragmentFunction = fragmentFunction;
-pipelineStateDescriptor.colorAttachments[0].pixelFormat = mtkView.colorPixelFormat;
+```swift
+let pipelineDescriptor = MTLRenderPipelineDescriptor()
+pipelineDescriptor.label = "Simple Pipeline"
+pipelineDescriptor.vertexFunction = vertexFunction
+pipelineDescriptor.fragmentFunction = fragmentFunction
+pipelineDescriptor.colorAttachments[0].pixelFormat = format
 
-_pipelineState = [_device newRenderPipelineStateWithDescriptor:pipelineStateDescriptor
-                                                         error:&error];
+pipelineState = try device.makeRenderPipelineState(descriptor: pipelineDescriptor)
 ```
 
-除了指定顶点和片段函数之外，你还可以声明管道将绘制到的所有渲染目标的像素格式。像素格式（[MTLPixelFormat](https://developer.apple.com/documentation/metal/mtlpixelformat)）定义像素数据的内存布局。对于简单格式，此定义包括每个像素的字节数、像素中存储的数据通道数以及这些通道的位布局。由于此示例只有一个渲染目标并且由视图提供，因此将视图的像素格式复制到渲染管道描述符中。你的渲染管道状态必须使用与渲染通道指定的像素格式兼容的像素格式。在此示例中，渲染通道和管道状态对象都使用视图的像素格式，因此它们始终相同。
+除了指定顶点和片段函数之外，你还可以声明管道将绘制到的所有渲染目标的 **像素格式**。像素格式（[MTLPixelFormat](https://developer.apple.com/documentation/metal/mtlpixelformat)）定义像素数据的内存布局（memory layout）。对于简单格式，此定义包括：
+
+- 每个像素的字节数
+- 像素中存储的数据通道数
+- 这些通道的位布局（bit layout）
+
+由于此示例只有一个渲染目标并且是由视图提供，因此只需将视图的像素格式复制到渲染管道描述符中。你的渲染管道状态必须使用与渲染通道指定的像素格式兼容的像素格式。在此示例中，渲染通道和管道状态对象都使用视图的像素格式，因此它们始终相同。
 
 当 Metal 创建渲染管道状态对象时，管道被配置为将片段函数的输出转换为渲染目标的像素格式。如果要针对不同的像素格式，则需要创建不同的管道状态对象。你可以在针对不同像素格式的多个管道中重复使用相同的着色器。
 
@@ -214,56 +221,350 @@ _pipelineState = [_device newRenderPipelineStateWithDescriptor:pipelineStateDesc
 
 现在你已经有了管道的渲染管道状态对象，你将渲染三角形。你可以使用渲染命令编码器来执行此操作。首先，设置视口，以便 Metal 知道要绘制到渲染目标的哪一部分。
 
-```
-// Set the region of the drawable to draw into.
-[renderEncoder setViewport:(MTLViewport){0.0, 0.0, _viewportSize.x, _viewportSize.y, 0.0, 1.0 }];
+```swift
+// 设置要绘制到的 drawable 区域
+renderEncoder.setViewport(MTLViewport(originX: 0.0,
+                                        originY: 0.0,
+                                        width: Double(viewportSize.x),
+                                        height: Double(viewportSize.y),
+                                        znear: 0.0,
+                                        zfar: 1.0))
 ```
 
-## 设置渲染管线状态
+## 设置渲染管道状态
 
 设置要使用的管道的渲染管道状态。
 
-```
-[renderEncoder setRenderPipelineState:_pipelineState];
+```swift
+renderEncoder.setRenderPipelineState(pipelineState)
 ```
 
 ## 将参数数据发送到顶点函数
 
-通常，你使用缓冲区（[MTLBuffer](https://developer.apple.com/documentation/metal/mtlbuffer)）将数据传递给着色器。但是，当你只需要向顶点函数传递少量数据时（就像此处的情况一样），请将数据直接复制到命令缓冲区中。
+通常，你使用缓冲区（[MTLBuffer](https://developer.apple.com/documentation/metal/mtlbuffer)）将数据传递给着色器。但是，当你只需要向顶点函数传递少量数据时（就像此处的情况一样），可将数据直接复制到命令缓冲区中。
 
 该示例将两个参数的数据复制到命令缓冲区中。顶点数据是从示例中定义的数组复制的。视口数据是从用于设置视口的同一变量复制的。
 
-在此示例中，片段函数仅使用从光栅器接收的数据，因此无需设置参数。
+在此示例中，片段函数仅使用从光栅化器接收的数据，因此无需设置参数。
 
+```swift
+renderEncoder.setVertexBytes(triangleVertices,
+                             length: triangleVertices.count * MemoryLayout<AAPLVertex>.stride,
+                             index: Int(AAPLVertexInputIndexVertices.rawValue))
+renderEncoder.setVertexBytes(&viewportSize,
+                             length: triangleVertices.count * MemoryLayout<AAPLVertex>.stride,
+                             index: Int(AAPLVertexInputIndexViewportSize.rawValue))
 ```
-[renderEncoder setVertexBytes:triangleVertices
-                       length:sizeof(triangleVertices)
-                      atIndex:AAPLVertexInputIndexVertices];
 
-[renderEncoder setVertexBytes:&_viewportSize
-                       length:sizeof(_viewportSize)
-                      atIndex:AAPLVertexInputIndexViewportSize];
-```
+## 对绘制命令进行编码
 
-## 对绘图命令进行编码
+指定图元（primitive）的类型、开始的索引和顶点数。渲染三角形时，将使用 `0`、`1` 和 `2` 作为 `vertexID` 参数的值来调用顶点函数。
 
-指定图元的类型、起始索引和顶点数。渲染三角形时，将使用 vertexID 参数的值 0、1 和 2 调用顶点函数。
-
-```
+```swift
 // Draw the triangle.
-[renderEncoder drawPrimitives:MTLPrimitiveTypeTriangle
-                  vertexStart:0
-                  vertexCount:3];
+renderEncoder.drawPrimitives(type: .triangle, vertexStart: 0, vertexCount: 3)
 ```
 
-与使用 Metal 绘制到屏幕一样，你可以结束编码过程并提交命令缓冲区。但是，你可以使用同一组步骤对更多渲染命令进行编码。最终图像的渲染就像命令是按照指定的顺序处理的一样。 （为了性能，GPU 可以并行处理命令甚至部分命令，只要最终结果看起来是按顺序渲染的。）
+与使用 Metal 绘制到屏幕一样，你结束编码过程并提交命令缓冲区。但是，你可以使用同一组步骤对更多渲染命令进行编码。最终图像的渲染就像命令是按照指定的顺序处理的一样。 （为了性能，GPU 可以并行处理命令甚至部分命令，只要最终结果看起来是按顺序渲染的。）
 
 ## 尝试颜色插值
 
-在此示例中，颜色值在三角形上进行插值。这通常是你想要的，但有时你希望由一个顶点生成一个值，并在整个图元中保持不变。为此，请在顶点函数的输出上指定 flat 属性限定符。现在就试试这个。在示例项目中找到 RasterizerData 的定义，并将 `[[flat]]` 限定符添加到其 color 字段。
+在此示例中，颜色值在三角形上进行插值。这通常是你想要的，但有时你希望由一个顶点生成一个值，并在整个图元中保持不变。为此，请在顶点函数的输出上指定 flat 属性限定符。现在就试试这个。在示例项目中找到 `RasterizerData` 的定义，并将 `[[flat]]` 限定符添加到其 `color` 字段。
 
 ```cpp
 float4 color [[flat]];
 ```
 
 再次运行示例。渲染管道在整个三角形上均匀地使用来自第一个顶点（称为激发顶点）的颜色值，并忽略来自其他两个顶点的颜色。你可以混合使用平面阴影和插值，只需在顶点函数的输出上添加或省略 `flat` 限定符即可。[Metal 着色语言规范](https://developer.apple.com/metal/Metal-Shading-Language-Specification.pdf) 定义了其他属性限定符，你也可以使用它们来修改光栅化行为。
+
+效果如下：
+
+<Screenshot src={require("./screenshot_2.png")} size={120} />
+
+## 完整示例
+
+### AAPLShaderTypes.h
+
+```c
+#ifndef AAPLShaderTypes_h
+#define AAPLShaderTypes_h
+
+#include <simd/simd.h>
+
+// 缓冲区索引
+// - 在着色器（shader）和 Swift 代码之间共享
+//   以确保 "Metal API 缓冲区集调用" 能够与 "Metal 着色器缓冲区输入" 相匹配
+typedef enum AAPLVertexInputIndex
+{
+    AAPLVertexInputIndexVertices     = 0,
+    AAPLVertexInputIndexViewportSize = 1,
+} AAPLVertexInputIndex;
+
+// 发送到 "顶点着色器" 的顶点的布局（layout）的结构
+// - 也在着色器（shader）和 Swift 代码之间共享，
+//   以确保 "Swift 代码中的顶点数组的布局" 与 "Metal 顶点着色器预期的" 相匹配
+typedef struct {
+    // 二维位置
+    vector_float2 position;
+    // RGBA 颜色
+    vector_float4 color;
+} AAPLVertex;
+
+#endif /* AAPLShaderTypes_h */
+```
+
+### AAPL-Bridging-Header.h
+
+```c
+#ifndef AAPL_Bridging_Header_h
+#define AAPL_Bridging_Header_h
+
+#import "AAPLShaderTypes.h"
+
+#endif /* AAPL_Bridging_Header_h */
+```
+
+为能够在 Swift 中使用头文件中定义的结构，你需要在建立 "-Bridging-Header.h" 来桥接头文件，并在 Xcode 中进行相关配置：
+
+<Figure src={require("./xcode_1.png")} size={720} />
+
+详见 [Importing Objective-C into Swift](https://developer.apple.com/documentation/swift/importing-objective-c-into-swift) 。
+
+### AAPLShaders.metal
+
+```cpp
+#include <metal_stdlib>
+using namespace metal;
+
+
+// 包含该请求头以实现在 "Metal 着色器代码" 和 "执行 Metal API 命令的 Swift 代码" 进行共享
+#include "AAPLShaderTypes.h"
+
+// "顶点着色器输出" 和 "片段着色器输入" 的结构
+struct RasterizerData
+{
+    // 此成员的 [[position]] 属性表明，当此结构从顶点函数返回时
+    // 此值是顶点的裁剪空间位置「剪裁空间位置（clip space position）」
+    float4 position [[position]];
+
+    // 由于该成员没有特殊属性，「光栅化器（rasterizer）」会用其它三角形顶点的值来插值其值
+    // 然后将插值后的值传递给三角形中每个片段的「片断着色器」。
+    float4 color;
+};
+
+vertex RasterizerData
+vertexShader(uint vertexID [[vertex_id]],
+             constant AAPLVertex *vertices [[buffer(AAPLVertexInputIndexVertices)]],
+             constant vector_uint2 *viewportSizePointer [[buffer(AAPLVertexInputIndexViewportSize)]])
+{
+    RasterizerData out;
+
+    // 在位置数组中索引以获取当前顶点
+    // 位置以像素维度指定（比如，值 100 表示距离原点 100 像素）
+    float2 pixelSpacePosition = vertices[vertexID].position.xy;
+
+    // 获取视口大小并转换为浮点数
+    vector_float2 viewportSize = vector_float2(*viewportSizePointer);
+
+    // 要将「像素空间」中的位置转换为「裁剪空间」中的位置
+    // 请将像素坐标除以视口大小的一半
+    out.position = vector_float4(0.0, 0.0, 0.0, 1.0);
+    out.position.xy = pixelSpacePosition / (viewportSize / 2.0);
+
+    // 将输入颜色直接传给「光栅化器」
+    out.color = vertices[vertexID].color;
+
+    return out;
+}
+
+fragment float4 fragmentShader(RasterizerData in [[stage_in]]) {
+    // 返回插值颜色
+    return in.color;
+}
+```
+
+### AAPLView.swift
+
+```swift
+import MetalKit
+import SwiftUI
+
+// 包装 MTKView 以便在 SwiftUI 中使用
+struct AAPLView: UIViewRepresentable {
+    typealias UIViewType = MTKView
+
+    func makeUIView(context: Context) -> MTKView {
+        let uiView = MTKView()
+        uiView.device = MTLCreateSystemDefaultDevice()
+        uiView.delegate = context.coordinator
+        return uiView
+    }
+
+    func updateUIView(_ uiView: MTKView, context: Context) {
+        // none
+    }
+}
+
+extension AAPLView {
+    // 执行绘制的协调器
+    class Coordinator: NSObject, MTKViewDelegate {
+
+        // 从 .metal 着色器文件中的顶点和片段着色器生成的渲染管线
+        private var pipelineState: MTLRenderPipelineState?
+
+        // 用于传递命令给设备的命令队列
+        private var commandQueue: MTLCommandQueue?
+
+        // 当前视图大小，用作顶点着色器的输入
+        private var viewportSize = vector_uint2(x: 0, y: 0)
+
+        // 顶点数据，颜色数据
+        private let triangleVertices: [AAPLVertex] = [
+            AAPLVertex(position: vector_float2(250, -250),
+                       color: vector_float4(1, 0, 0, 1)),
+            AAPLVertex(position: vector_float2(-250, -250),
+                       color: vector_float4(0, 1, 0, 1)),
+            AAPLVertex(position: vector_float2(0, 250),
+                       color: vector_float4(0, 0, 1, 1)),
+        ]
+
+        private func makePipelineState(device: MTLDevice?, format: MTLPixelFormat) {
+            guard pipelineState == nil else {
+                // pipelineState is already maked
+                return
+            }
+            guard let device else {
+                print("Device is not set to MTKView.")
+                return
+            }
+            // 在项目中加载所有具有 .metal 文件扩展名的着色器文件
+            guard let defaultLibrary = device.makeDefaultLibrary() else {
+                print("Failed to make default library.")
+                return
+            }
+            guard let vertexFunction = defaultLibrary.makeFunction(name: "vertexShader") else {
+                print("Failed to make vertex function.")
+                return
+            }
+            guard let fragmentFunction = defaultLibrary.makeFunction(name: "fragmentShader") else {
+                print("Failed to make fragment function.")
+                return
+            }
+
+            // 配置用于创建管道状态的管道描述符
+            let pipelineDescriptor = MTLRenderPipelineDescriptor()
+            pipelineDescriptor.label = "Simple Pipeline"
+            pipelineDescriptor.vertexFunction = vertexFunction
+            pipelineDescriptor.fragmentFunction = fragmentFunction
+            pipelineDescriptor.colorAttachments[0].pixelFormat = format
+            do {
+                // 如果管道描述符设置不正确，则管道状态创建可能失败
+                // 如果启用了 Metal API 验证，则可以查找有关出错原因的详细信息
+                // （在 Xcode 运行调试编译时，默认启用 Metal API 验证）
+                pipelineState = try device.makeRenderPipelineState(descriptor: pipelineDescriptor)
+            } catch {
+                print("Failed to make pipelineState.")
+            }
+        }
+
+        private func makeCommandQueue(device: MTLDevice?) {
+            guard commandQueue == nil else {
+                return
+            }
+            // 创建命令队列
+            commandQueue = device?.makeCommandQueue()
+        }
+
+        /// Called whenever the drawableSize of the view will change
+        func mtkView(_ view: MTKView, drawableSizeWillChange size: CGSize) {
+            print("mtkView", size.width, size.height)
+            viewportSize.x = uint(size.width)
+            viewportSize.y = uint(size.height)
+        }
+
+        /// Called on the delegate when it is asked to render into the view
+        func draw(in view: MTKView) {
+            // 可通过下面的代码设置视图背景色
+            // view.clearColor = MTLClearColor(red: 0, green: 1.0, blue: 0, alpha: 1.0)
+
+            // 确保管道状态和命令队列已创建
+            makePipelineState(device: view.device, format: view.colorPixelFormat)
+            makeCommandQueue(device: view.device)
+            guard let pipelineState, let commandQueue else {
+                return
+            }
+
+            // 为当前 drawable 的每个渲染过程创建一个新的命令缓冲区
+            guard let commandBuffer = commandQueue.makeCommandBuffer() else {
+                return
+            }
+            commandBuffer.label = "MyCommandBuffer"
+
+            // 获取从视图的 drawable 纹理生成的 renderPassDescriptor
+            // 以通过该 descriptor 创建渲染命令编码器
+            guard let renderPassDescriptor = view.currentRenderPassDescriptor else {
+                return
+            }
+            guard let renderEncoder = commandBuffer.makeRenderCommandEncoder(descriptor: renderPassDescriptor) else {
+                return
+            }
+            renderEncoder.label = "MyRenderEncoder"
+
+            // 设置要绘制的 drawable 区域
+            renderEncoder.setViewport(MTLViewport(originX: 0.0,
+                                                  originY: 0.0,
+                                                  width: Double(viewportSize.x),
+                                                  height: Double(viewportSize.y),
+                                                  znear: 0.0,
+                                                  zfar: 1.0))
+
+            renderEncoder.setRenderPipelineState(pipelineState)
+
+            // 传递参数数据
+            renderEncoder.setVertexBytes(triangleVertices,
+                                         length: triangleVertices.count * MemoryLayout<AAPLVertex>.stride,
+                                         index: Int(AAPLVertexInputIndexVertices.rawValue))
+            renderEncoder.setVertexBytes(&viewportSize,
+                                         length: triangleVertices.count * MemoryLayout<AAPLVertex>.stride,
+                                         index: Int(AAPLVertexInputIndexViewportSize.rawValue))
+
+            // 绘制三角形
+            renderEncoder.drawPrimitives(type: .triangle, vertexStart: 0, vertexCount: 3)
+
+            renderEncoder.endEncoding()
+
+            // 在帧缓冲区（framebuffer）完成时，使用当前 drawable 进行一次呈现（present）
+            commandBuffer.present(view.currentDrawable!)
+            // 在此处完成渲染并将命令缓冲区推送到 GPU
+            commandBuffer.commit()
+        }
+    }
+
+    func makeCoordinator() -> Coordinator {
+        Coordinator()
+    }
+}
+```
+
+### ContentView.swift
+
+<ScreenshotBlock src={require('./screenshot_1.png')}>
+
+```swift
+import SwiftUI
+
+struct ContentView: View {
+    var body: some View {
+        // highlight-start
+        AAPLView()
+            .frame(width: 300, height: 300)
+        // highlight-end
+    }
+}
+
+#Preview {
+    ContentView()
+}
+```
+
+</ScreenshotBlock>

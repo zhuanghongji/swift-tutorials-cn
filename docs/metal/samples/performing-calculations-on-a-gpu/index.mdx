@@ -323,9 +323,9 @@ private func verifyResults() {
 
 ## 完整示例
 
-完整示例代码如下：
+### add.metal
 
-```cpp title="add.metal"
+```cpp
 #include <metal_stdlib>
 using namespace metal;
 
@@ -342,7 +342,9 @@ kernel void add_arrays(device const float* inA,
 }
 ```
 
-```swift title="MetalAdder.swift"
+### MetalAdder.swift
+
+```swift
 import Foundation
 import Metal
 
@@ -488,7 +490,7 @@ extension MetalAdder {
 }
 ```
 
-运行结果如下：
+### 运行结果
 
 ```swift
 VStack {
