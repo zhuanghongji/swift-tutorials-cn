@@ -1,0 +1,98 @@
+# RectangleMark
+
+<ToBePolishedAfterTranslation />
+
+<OriginalSource
+  title="RectangleMark"
+  url="https://developer.apple.com/documentation/charts/rectanglemark"
+  summary="使用矩形表示数据的图表内容"
+/>
+
+## 概述
+
+使用矩形标记将数据字段映射到矩形。你可以使用矩形标记创建热图或注释图表中的矩形区域。
+
+## 创建带有矩形标记的热图
+
+在提供有关机器学习模型有效性的数据时，你通常使用混淆矩阵来组织数据，该矩阵显示模型的预测结果与实际结果。要创建表示机器学习模型的 2D 热图，请使用 `init(x:y:width:height:)` 。下面的示例使用 2D 热图来可视化具有以下布局的基本混淆矩阵：
+
+每个单元格中的记录数 num 由其相应矩形的颜色表示。这是通过将 foregroundStyle(by:) 修饰符应用于矩形标记并向其传递一个由 value(_:_:) 构造的 PlottableValue 来完成的，该 value(_:_:) 接受一个标签和要绘制的值，在此案例 num 。将自动生成从 num 值到颜色的比例，并用于根据该值为矩形着色。
+
+<TableWrapper>
+
+|          | Negative       | Positive       |
+| -------- | -------------- | -------------- |
+| Negative | True Negative  | False Negative |
+| Positive | False Positive | True Positive  |
+
+</TableWrapper>
+
+每个单元格中的记录数 num 由其相应矩形的颜色表示。这是通过将 foregroundStyle(by:) 修饰符应用于矩形标记并向其传递一个由 value(_:_:) 构造的 PlottableValue 来完成的，该 value(_:_:) 接受一个标签和要绘制的值，在此案例 num 。将自动生成从 num 值到颜色的比例，并用于根据该值为矩形着色。
+
+```swift
+struct MatrixEntry {
+    var positive: String
+    var negative: String
+    var num: Double
+}
+
+
+var data: [MatrixEntry] = [
+    MatrixEntry(positive: "+", negative: "+", num: 125),
+    MatrixEntry(positive: "+", negative: "-", num: 10),
+    MatrixEntry(positive: "-", negative: "-", num: 80),
+    MatrixEntry(positive: "-", negative: "+", num: 1)
+]
+
+
+var body: some View {
+    Chart(data) {
+        RectangleMark(
+            x: .value("Positive", $0.positive),
+            y: .value("Negative", $0.negative)
+        )
+        .foregroundStyle(by: .value("Number", $0.num))
+    }
+}
+```
+
+<Figure src={require("./image_1.png")} size={420} />
+
+## 用矩形标记注释矩形区域
+
+你可以通过提供一个或多个矩形的坐标，用矩形标记注释图表中的特定区域。例如，你可以使用共享数据源用矩形标记来注释点标记，如下例所示：
+
+```swift
+struct Coord {
+    var x: Double
+    var y: Double
+}
+
+
+var data: [Coord] = [
+    Coord(x: 5, y: 5),
+    Coord(x: 2.5, y: 2.5),
+    Coord(x: 3, y: 3)
+]
+
+
+var body: some View {
+    Chart(data) {
+        RectangleMark(
+            xStart: .value("Rect Start Width", $0.x - 0.25),
+            xEnd: .value("Rect End Width", $0.x + 0.25),
+            yStart: .value("Rect Start Height", $0.y - 0.25),
+            yEnd: .value("Rect End Height", $0.y + 0.25)
+        )
+        .opacity(0.2)
+
+
+        PointMark(
+            x: .value("X", $0.x),
+            y: .value("Y", $0.y)
+        )
+    }
+}
+```
+
+<Figure src={require("./image_2.png")} size={420} />

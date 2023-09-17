@@ -1,0 +1,50 @@
+# ChartContent
+
+<ToBePolishedAfterTranslation />
+
+<OriginalSource
+  title="ChartContent"
+  url="https://developer.apple.com/documentation/charts/chartcontent"
+  summary="表示你在图表上绘制的内容的类型"
+/>
+
+## 概述
+
+你可以通过将符合 ChartContent 协议的实例添加到图表的 content 闭包来构建 Chart 。以下示例将三个显式 BarMark 实例添加到图表中：
+
+```swift
+Chart {
+    BarMark(
+        x: .value("Shape Type", "Cube"),
+        y: .value("Total Count", 5)
+    )
+    BarMark(
+        x: .value("Shape Type", "Sphere"),
+        y: .value("Total Count", 6)
+    )
+    BarMark(
+        x: .value("Shape Type", "Pyramid"),
+        y: .value("Total Count", 4)
+    )
+}
+```
+
+图表绘制与你指定的实例相对应的标记：
+
+<Figure src={require("./image_1.png")} size={480} />
+
+你可以将任意数量的标记或类型的标记组合在一个图表中，方法是如上例所示单独列出它们，将它们包装在 ForEach 中，或者这些的任意组合。对于某些标记类型，例如 LineMark ，你可以使用标记的 series 初始化参数将标记分组为系列。
+
+## 配置图表内容
+
+ChartContent 协议提供了一组修饰符，可用于配置图表内容的属性。它们的行为类似于 SwiftUI 视图修饰符，只不过它们作用于图表内容而不是视图。任何符合协议的类型都可以使用这些修饰符。例如，你可以将 foregroundStyle(\_:) 修饰符添加到上一示例中表示球体数量的条形图上，使其变为红色：
+
+```swift
+BarMark(
+    x: .value("Shape Type", "Sphere"),
+    y: .value("Total Count", 6)
+)
+.foregroundStyle(.red)
+```
+
+<Figure src={require("./image_2.png")} size={480} />

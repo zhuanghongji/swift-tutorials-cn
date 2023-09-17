@@ -1,0 +1,40 @@
+# Plottable
+
+<ToBePolishedAfterTranslation />
+
+<OriginalSource
+  title="Plottable"
+  url="https://developer.apple.com/documentation/charts/plottable"
+  summary="一种类型，可用作你在图表上绘制的标记的可绘制值的数据"
+/>
+
+## 概述
+
+你可以用 `.value(label, keyPath)` 标记绘制 `Plottable` 数据值：
+
+```swift
+BarMark(
+  x: .value("Category", "A")
+  y: .value("Value", 100)
+)
+.foregroundStyle(by: .value("Series", "Series 1"))
+```
+
+你可以通过使其符合此协议来创建自定义可绘图类型。例如：
+
+```swift
+// Make `SomeValue` conform to `Plottable` and behave like a categorical value in Swift Charts.
+struct SomeValue: Plottable {
+    var primitivePlottable: String { ... }
+    init?(primitivePlottable: String) { ... }
+}
+```
+
+此外，你可以使用 String 作为其原始值并使类型符合 Plottable，从而使枚举用作分类数据值。当类别在图表中（例如，在轴中）显示为文本时，字符串值将用作本地化字符串键。
+
+```swift
+enum Status: String, Plottable {
+    case active = "Active"
+    case inactive = "Inactive"
+}
+```

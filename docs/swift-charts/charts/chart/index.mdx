@@ -1,0 +1,86 @@
+# Chart
+
+<ToBePolishedAfterTranslation />
+
+<OriginalSource
+  title="Chart"
+  url="https://developer.apple.com/documentation/charts/chart"
+  summary="显示图表的 SwiftUI 视图"
+/>
+
+## 概述
+
+要创建图表，请实例化一个带有显示数据属性的标记的 Chart 结构。例如，假设你有一个 ValuePerCategory 结构数组，它定义由 category 和 value 组成的数据点：
+
+```swift
+struct ValuePerCategory {
+    var category: String
+    var value: Double
+}
+
+let data: [ValuePerCategory] = [
+    .init(category: "A", value: 5),
+    .init(category: "B", value: 9),
+    .init(category: "C", value: 7)
+]
+```
+
+你可以在图表内使用 BarMark 将 category 属性表示为图表中的不同条形，将 value 属性表示为每个条形的 y 值：
+
+```swift
+Chart(data, id: \.category) { item in
+    BarMark(
+        x: .value("Category", item.category),
+        y: .value("Value", item.value)
+    )
+}
+```
+
+此图表初始值设定项的行为很像 SwiftUI ForEach ，为 data 数组中的每个值创建一个标记（在本例中为一个条形）：
+
+<Figure src={require("./image_1.png")} size={480} />
+
+## 控制图表内的数据系列
+
+你可以通过向图表提供多个标记系列来组成更复杂的图表。例如，假设你有两家公司的利润数据：
+
+```swift
+struct ProfitOverTime {
+    var date: Date
+    var profit: Double
+}
+
+let departmentAProfit: [ProfitOverTime] = <#Profit array A#>
+let departmentBProfit: [ProfitOverTime] = <#Profit array B#>
+```
+
+下图创建了两个不同系列的 LineMark 实例，它们具有不同的颜色来表示每个公司的数据。实际上，它将 ForEach 构造从图表的初始值设定项移动到图表主体中，使你能够表示多个不同的系列：
+
+```swift
+Chart {
+    ForEach(departmentAProfit, id: \.date) { item in
+        LineMark(
+            x: .value("Date", item.date),
+            y: .value("Profit A", item.profit),
+            series: .value("Company", "A")
+        )
+        .foregroundStyle(.blue)
+    }
+    ForEach(departmentBProfit, id: \.date) { item in
+        LineMark(
+            x: .value("Date", item.date),
+            y: .value("Profit B", item.profit),
+            series: .value("Company", "B")
+        )
+        .foregroundStyle(.green)
+    }
+    RuleMark(
+        y: .value("Threshold", 400)
+    )
+    .foregroundStyle(.red)
+}
+```
+
+你可以通过指定线标记的 series 输入参数来指示线标记属于哪个系列。上面的图表还使用 RuleMark 生成一条水平线段，该线段在图表的宽度上显示恒定阈值：
+
+<Figure src={require("./image_2.png")} size={480} />

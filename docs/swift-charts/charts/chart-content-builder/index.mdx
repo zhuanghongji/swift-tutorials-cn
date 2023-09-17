@@ -1,0 +1,15 @@
+# ChartContentBuilder
+
+<ToBePolishedAfterTranslation />
+
+<OriginalSource
+  title="ChartContentBuilder"
+  url="https://developer.apple.com/documentation/charts/chartcontentbuilder"
+  summary="用于组成图表内容的结果生成器"
+/>
+
+## 概述
+
+此 [Result Builder](https://docs.swift.org/swift-book/LanguageGuide/AdvancedOperators.html#ID630) 将任意数量的 [ChartContent](https://developer.apple.com/documentation/charts/chartcontent) 实例组合成单个复合实例，包括对条件的支持。
+
+你不直接调用结果生成器的方法。相反，Swift 使用它们来组合你在任何具有 `@ChartContentBuilder` 属性的闭包中声明的元素。特别是，当你在 [Chart](https://developer.apple.com/documentation/charts/chart) 初始化程序（如 [init(content:)](<https://developer.apple.com/documentation/charts/chart/init(content:)>) ）中声明 content 时，你会依赖此行为。

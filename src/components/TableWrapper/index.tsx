@@ -15,7 +15,11 @@ export default function TableWrapper({ num, title, children  }: TableWrapperProp
       <center>
         {children}
       </center>
-      <div><strong>{`Table ${num} - ${title}`}</strong></div>
+      {
+        num && title ? (
+          <div><strong>{`Table ${num} - ${title}`}</strong></div>
+        ) : null
+      }
       <br/>
     </div>
   )

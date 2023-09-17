@@ -1,0 +1,88 @@
+# RuleMark
+
+<ToBePolishedAfterTranslation />
+
+<OriginalSource
+  title="RuleMark"
+  url="https://developer.apple.com/documentation/charts/rulemark"
+  summary="使用单个水平或垂直规则表示数据的图表内容"
+/>
+
+## 概述
+
+你可以使用 RuleMark 在图表中绘制水平或垂直规则。
+
+## 显示带有规则标记的范围
+
+要在 y 位置从 xStart 到 xEnd 创建水平线，请使用 init(xStart:xEnd:y:) 或 init(xStart:xEnd:y:) 。要在 x 位置从 yStart 到 yEnd 创建垂直线，请使用 init(x:yStart:yEnd:) 或 init(x:yStart:yEnd:) 。下面的示例使用 Pollen 结构和 init(xStart:xEnd:y:) 来映射从 startDate 的值跨越到 endDate 的值的水平线 b13> 相对于花粉 source 属性的 y 位置的 x 位置：
+
+```swift
+struct Pollen {
+    var source: String
+    var startDate: Date
+    var endDate: Date
+
+
+    init(startMonth: Int, numMonths: Int, source: String) {
+        self.source = source
+        let calendar = Calendar.autoupdatingCurrent
+        self.startDate = calendar.date(from: DateComponents(year: 2020, month: startMonth, day: 1))!
+        self.endDate = calendar.date(byAdding: .month, value: numMonths, to: startDate)!
+    }
+}
+
+
+var data: [Pollen] = [
+    Pollen(startMonth: 1, numMonths: 9, source: "Trees"),
+    Pollen(startMonth: 12, numMonths: 1, source: "Trees"),
+    Pollen(startMonth: 3, numMonths: 8, source: "Grass"),
+    Pollen(startMonth: 4, numMonths: 8, source: "Weeds")
+]
+
+
+var body: some View {
+    Chart(data) {
+        RuleMark(
+            xStart: .value("Start Date", $0.startDate),
+            xEnd: .value("End Date", $0.endDate),
+            y: .value("Pollen Source", $0.source)
+        )
+    }
+}
+```
+
+<Figure src={require("./image_1.png")} size={420} />
+
+## 用规则标记注释图表
+
+你可以使用水平或垂直跨越规则来注释图表。这使得查看者可以轻松地将一定范围内的值与恒定值进行比较。使用 `init(xStart:xEnd:y:)` 初始值设定项表示常量 y 值，或使用 `init(x:yStart:yEnd:)` 表示常量 x 值。要使用线条跨越图表的绘制区域，请省略可选的开始和结束参数并绘制常量值。下面的示例生成一条在 y 位置 9000 处水平跨越图表的线：
+
+```swift
+struct DepartmentProfit {
+    var department: String
+    var profit: Double
+}
+
+
+var data: [DepartmentProfit] = [
+    DepartmentProfit(department: "Production", profit: 15000),
+    DepartmentProfit(department: "Marketing", profit: 8000),
+    DepartmentProfit(department: "Finance", profit: 10000)
+]
+
+
+var body: some View {
+    Chart {
+        ForEach(data) {
+            BarMark(
+                x: .value("Department", $0.department),
+                y: .value("Profit", $0.profit)
+            )
+        }
+        RuleMark(y: .value("Break Even Threshold", 9000))
+            .foregroundStyle(.red)
+    }
+}
+```
+
+<Figure src={require("./image_2.png")} size={420} />

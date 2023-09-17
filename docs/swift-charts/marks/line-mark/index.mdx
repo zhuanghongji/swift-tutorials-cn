@@ -1,0 +1,95 @@
+# LineMark
+
+<ToBePolishedAfterTranslation />
+
+<OriginalSource
+  title="LineMark"
+  url="https://developer.apple.com/documentation/charts/linemark"
+  summary="使用一系列连接的线段表示数据的图表内容"
+/>
+
+## 概述
+
+你可以通过绘制类别或日期属性（通常使用 x 位置）并绘制数字类别（通常使用 y 位置）来创建折线图。下面的示例使用 init(x:y:) 将 date 属性绘制到 x 位置，将 hoursOfSunshine 属性绘制到 y 位置：
+
+```swift
+struct MonthlyHoursOfSunshine {
+    var date: Date
+    var hoursOfSunshine: Double
+
+
+    init(month: Int, hoursOfSunshine: Double) {
+        let calendar = Calendar.autoupdatingCurrent
+        self.date = calendar.date(from: DateComponents(year: 2020, month: month))!
+        self.hoursOfSunshine = hoursOfSunshine
+    }
+}
+
+
+var data: [MonthlyHoursOfSunshine] = [
+    MonthlyHoursOfSunshine(month: 1, hoursOfSunshine: 74),
+    MonthlyHoursOfSunshine(month: 2, hoursOfSunshine: 99),
+    // ...
+    MonthlyHoursOfSunshine(month: 12, hoursOfSunshine: 62)
+]
+
+
+var body: some View {
+    Chart(data) {
+        LineMark(
+            x: .value("Month", $0.date),
+            y: .value("Hours of Sunshine", $0.hoursOfSunshine)
+        )
+    }
+}
+```
+
+<Figure src={require("./image_1.png")} size={480} />
+
+## 绘制多条线
+
+你可以通过在 init(x:y:series:) 中显式指定 series 参数或应用 foregroundStyle(_:) 或 lineStyle(_:) 修饰符在图表中绘制多条线。具有相同 series 值的线标记将始终一起呈现为单线。当 series 未指定时，具有相同值的线条标记将绘制为前景样式，并且线条样式将组合在一起并绘制在自己的线条上。下面的示例为 city 中的每个不同值绘制一条线，并根据它代表的 city 为每条线着色：
+
+```swift
+struct MonthlyHoursOfSunshine {
+    var city: String
+    var date: Date
+    var hoursOfSunshine: Double
+
+
+    init(city: String, month: Int, hoursOfSunshine: Double) {
+        let calendar = Calendar.autoupdatingCurrent
+        self.city = city
+        self.date = calendar.date(from: DateComponents(year: 2020, month: month))!
+        self.hoursOfSunshine = hoursOfSunshine
+    }
+}
+
+
+var data: [MonthlyHoursOfSunshine] = [
+    MonthlyHoursOfSunshine(city: "Seattle", month: 1, hoursOfSunshine: 74),
+    MonthlyHoursOfSunshine(city: "Cupertino", month: 1, hoursOfSunshine: 196),
+    // ...
+    MonthlyHoursOfSunshine(city: "Seattle", month: 12, hoursOfSunshine: 62),
+    MonthlyHoursOfSunshine(city: "Cupertino", month: 12, hoursOfSunshine: 199)
+]
+
+
+var body: some View {
+    Chart(data) {
+        LineMark(
+            x: .value("Month", $0.date),
+            y: .value("Hours of Sunshine", $0.hoursOfSunshine)
+        )
+        .foregroundStyle(by: .value("City", $0.city))
+    }
+}
+```
+
+<Figure src={require("./image_2.png")} size={480} />
+
+:::note
+
+如果系列数大于颜色总数，则颜色会重复。
+
+:::

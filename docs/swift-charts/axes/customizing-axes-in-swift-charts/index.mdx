@@ -1,0 +1,205 @@
+# 自定义 Swift 图表中的轴
+
+<ToBePolishedAfterTranslation />
+
+<OriginalSource
+  title="Customizing axes in Swift Charts"
+  url="https://developer.apple.com/documentation/charts/customizing-axes-in-swift-charts"
+  summary="通过配置轴的外观来提高图表的清晰度"
+/>
+
+## 概述
+
+Swift Charts 会根据你指定的数据自动配置图表中的轴。有时，你可以通过自定义轴配置更清晰地传达数据。例如，你可以：
+
+- 指定轴的范围。
+- 选择轴显示的特定值，例如类别、日期或数字。
+- 设置表示每个值的网格线、刻度线或标签的视觉样式。
+
+本文演示如何使用这些功能创建以下图表来显示一天中的电池电量：
+
+<Figure src={require("./image_1.png")} size={420} />
+
+有关图表及其轴的设计指南，请参阅人机界面指南中的图表部分。
+
+## 从默认轴开始
+
+使用框架默认轴配置生成图表通常可以提供良好的基础。例如，以下代码根据数据点数组创建基本电池图表：
+
+```swift
+struct BatteryData {
+    let date: Date
+    let level: Double
+
+
+    static let data: [BatteryData] = /* Array of BatteryData instances */
+}
+
+
+Chart(BatteryData.data, id: \.date) {
+    BarMark(
+        // Create one bar for every 1800 seconds (30 minutes).
+        x: .value("Time", $0.date ..< $0.date.advanced(by: 1800)),
+        y: .value("Battery Level", $0.level)
+    )
+    .foregroundStyle(.green)
+}
+```
+
+该框架选择对数据敏感的默认轴配置。数据填充可用空间，而不会在任何维度上溢出。两个轴都有标签，指示图表内容代表的值。下图显示了默认的轴配置：
+
+<Figure src={require("./image_2.png")} size={420} />
+
+但是，考虑到电池的最大容量为 100%，并且人们通常每天为手机充电一次，你可以通过配置轴来改进此图表。
+
+## 设置轴的域
+
+电池电量始终处于 0% 到 100% 的范围内。能够直观地将给定值与整个范围进行比较，有助于人们更好地了解当前电池状态与完整电池的比较情况。因此，无论当前数据集中的数据范围如何，将 y 轴的范围固定为完整可能的范围都是有意义的。
+
+使用 chartYScale(domain:type:) 视图修饰符设置 y 轴的范围：
+
+```swift
+.chartYScale(domain: [0, 100])
+```
+
+## 指定轴值
+
+Swift Charts 选择默认数量的网格线和标签来显示在每个轴上。你可以使用 chartYAxis(content:) 修饰符指定不同数量的值，该修饰符在其 content 参数中接受一个或多个 AxisMarks 实例。通过使用 automatic(desiredCount:roundLowerBound:roundUpperBound:) 值初始化轴标记实例来请求特定数量的值。例如，你可以请求轴具有三个值：
+
+```swift
+.chartYAxis {
+    AxisMarks(values: .automatic(desiredCount: 3))
+}
+```
+
+对于电池图表，这会在 0 、 50 和 100 处创建标签：
+
+<Figure src={require("./image_4.png")} size={420} />
+
+:::note
+
+框架使用的实际值数量可能与你请求的值不同。例如，如果你在上例中请求四个值，框架将使用五个值来避免显示小数标签。
+
+:::
+
+或者，你可以使用值数组来指示要在轴上标记的精确值：
+
+```swift
+.chartYAxis {
+    AxisMarks(values: [0, 50, 100])
+}
+```
+
+## 设置值的格式
+
+你可以通过正确设置图表的轴值格式来增加图表的清晰度。电池图表中 y 轴上的值表示百分比，因此你可以将 format 参数传递给轴标记初始值设定项以应用适当的格式：
+
+```swift
+.chartYAxis {
+    AxisMarks(
+        format: Decimal.FormatStyle.Percent.percent.scale(1),
+        values: [0, 50, 100]
+    )
+}
+```
+
+## 撰写轴标记
+
+要添加更复杂的样式，请在修饰符的 content 闭包内编写轴标记。例如，要添加更多水平网格线而不添加更多标签，请使用两个单独的 AxisMarks 实例分别渲染网格线和标签：
+
+```swift
+.chartYAxis {
+    AxisMarks(
+        values: [0, 50, 100]
+    ) {
+        AxisValueLabel(format: Decimal.FormatStyle.Percent.percent.scale(1))
+    }
+
+    AxisMarks(
+        values: [0, 25, 50, 75, 100]
+    ) {
+        AxisGridLine()
+    }
+}
+```
+
+上述代码中的 AxisMarks 初始值设定项均采用一个 content 参数，该参数是一个轴构建器，指示标记适用于哪些元素。使用构建器组合 AxisGridLine 、 AxisTick 和 AxisValueLabel 元素。上面的示例在 0 、 25 、 50 、 75 和 100 处渲染网格线，但将仅在 0 、 50 和 100 处添加标签：
+
+<Figure src={require("./image_6.png")} size={420} />
+
+对于其他自定义，请应用 AxisMark 提供的样式方法。例如，你可以通过将 font(\_:) 方法应用于 AxisValueLabel 实例来调整值标签的字体。
+
+## 有条件地设置标签格式
+
+对于指定的数据，电池图表沿 x 轴标记每六小时一次，并且默认情况下包括每小时的 AM 或 PM 指示器。你可以通过每三小时添加一个标记并仅在 AM 或 PM 指示器发生变化时显示该指示器来使图表更具可读性。
+
+使用 chartXAxis(content:) 视图修饰符来配置 x 轴，就像使用 chartYAxis(content:) 修饰符配置 y 轴一样。以下代码将 stride(by:count:roundLowerBound:roundUpperBound:calendar:) 值传递给 AxisMarks 实例来控制标记的频率，并使用条件格式仅在中午和午夜显示 AM 或 PM：
+
+```swift
+.chartXAxis {
+    AxisMarks(values: .stride(by: .hour, count: 3)) { value in
+        if let date = value.as(Date.self) {
+            let hour = Calendar.current.component(.hour, from: date)
+            switch hour {
+            case 0, 12:
+                AxisValueLabel(format: .dateTime.hour())
+            default:
+                AxisValueLabel(format: .dateTime.hour(.defaultDigits(amPM: .omitted)))
+        }
+
+        AxisGridLine()
+        AxisTick()
+      }
+    }
+}
+```
+
+<Figure src={require("./image_7.png")} size={420} />
+
+## 设置网格线和刻度线的样式
+
+你可以通过在第一个值标签下方显示日期以及日期发生变化的后续标签，为阅读此图表的人员提供更多上下文。在 AxisValueLabel 构建器中创建一堆文本视图，并使用值的索引与小时相结合来有条件地显示日期：
+
+```swift
+.chartXAxis {
+    AxisMarks(values: .stride(by: .hour, count: 3)) { value in
+        if let date = value.as(Date.self) {
+            let hour = Calendar.current.component(.hour, from: date)
+            AxisValueLabel {
+                VStack(alignment: .leading) {
+                    switch hour {
+                    case 0, 12:
+                        Text(date, format: .dateTime.hour())
+                    default:
+                        Text(date, format: .dateTime.hour(.defaultDigits(amPM: .omitted)))
+                    }
+                    if value.index == 0 || hour == 0 {
+                        Text(date, format: .dateTime.month().day())
+                    }
+                }
+            }
+
+
+            if hour == 0 {
+                AxisGridLine(stroke: StrokeStyle(lineWidth: 0.5))
+                AxisTick(stroke: StrokeStyle(lineWidth: 0.5))
+            } else {
+                AxisGridLine()
+                AxisTick()
+            }
+        }
+    }
+}
+```
+
+:::note
+
+要使条件 (`hour==0`) 生效，请确保你的数据从可被步幅整除的小时开始。对于上面步幅为 3 的示例，数据可以从 3 、 6 、 9 或 12 开始，上午或下午。
+
+:::
+
+上面的代码还通过使用实心网格线并在午夜打勾来帮助澄清日期边界，包括图表的开头和结尾：
+
+<Figure src={require("./image_8.png")} size={420} />
+
+将此图表与本文开头使用默认轴配置的图表进行比较。

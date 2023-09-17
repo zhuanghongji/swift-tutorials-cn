@@ -1,0 +1,188 @@
+# 使用 Swift Charts 创建图表
+
+<ToBePolishedAfterTranslation />
+
+<OriginalSource
+  title="Creating a chart using Swift Charts"
+  url="https://developer.apple.com/documentation/charts/creating-a-chart-using-swift-charts"
+  summary="通过在 SwiftUI 中组合图表构建块来制作图表"
+/>
+
+## 概述
+
+通过关注你想要沟通的内容以及你正在沟通的对象，帮助人们理解复杂的数据。例如，假设你有一组彩色玩具形状：
+
+<Figure src={require("./image_1.png")} size={620} />
+
+你可以针对这些数据提出你想要回答的问题，例如哪种玩具形状出现最多，或者有多少玩具是绿色的？表示数据的一种方法是将其收集到表格中。表格将数据组织成列和行，以便可以轻松检查。例如，你可以记录每种颜色有多少个形状：
+
+<TableWrapper>
+
+|        | Cube | Sphere | Pyramid | Total |
+| ------ | :--: | :----: | :-----: | :---: |
+| Pink   |  1   |   2    |    0    |   3   |
+| Yellow |  1   |   1    |    2    |   4   |
+| Purple |  1   |   1    |    1    |   3   |
+| Green  |  2   |   0    |    1    |   3   |
+| Total  |  5   |   4    |    4    |  13   |
+
+</TableWrapper>
+
+然而，在许多情况下，更有效的数据表示是图表。图表可以让你一次性传达大量信息。你创建的图表类型以及配置图表的方式取决于你想要显示的内容。要使用 Swift Charts 创建图表，请定义数据并使用标记和数据属性初始化 Chart 视图。然后使用修改器自定义图表的不同组件，例如图例、轴和比例。
+
+## 定义数据源
+
+将图表视为问题的答案。假设你想知道哪种玩具形状出现最多。首先想象一下每种形状有多少个。要使用图表显示此信息，请创建一个 ToyShape 结构来表示你想要可视化的信息：
+
+```swift
+struct ToyShape: Identifiable {
+    var type: String
+    var count: Double
+    var id = UUID()
+}
+```
+
+然后，初始化 ToyShape 结构数组来保存表中的数据：
+
+```swift
+var data: [ToyShape] = [
+    .init(type: "Cube", count: 5),
+    .init(type: "Sphere", count: 4),
+    .init(type: "Pyramid", count: 4)
+]
+```
+
+在真实的应用程序中，你可以从网络连接下载此数据，或从文件加载它。
+
+## 初始化图表视图并创建标记
+
+创建一个 Chart 视图，用作要绘制的数据系列的容器：
+
+```swift
+import SwiftUI
+import Charts
+
+
+struct BarChart: View {
+    var body: some View {
+        Chart {
+            // Add marks here.
+        }
+    }
+}
+```
+
+在图表内，指定表示数据的图形标记。你可以使用各种标记填充它，例如 BarMark 、 PointMark 或 LineMark 来绘制数据。你选择的标记类型取决于你想要如何可视化数据。例如，你可以使用 LineMark 创建折线图，或使用 PointMark 生成散点图。在这种情况下，创建条形图是传达每种玩具形状的数量的好方法，因此你使用 BarMark ：
+
+```swift
+Chart {
+    BarMark(
+        x: .value("Shape Type", data[0].type),
+        y: .value("Total Count", data[0].count)
+    )
+    BarMark(
+         x: .value("Shape Type", data[1].type),
+         y: .value("Total Count", data[1].count)
+    )
+    BarMark(
+         x: .value("Shape Type", data[2].type),
+         y: .value("Total Count", data[2].count)
+    )
+}
+```
+
+生成的图表清楚地表明立方体玩具形状出现最多：
+
+<Figure src={require("./image_2.png")} size={520} />
+
+比例决定每个 BarMark 的位置、高度和颜色。当你在 y 维度上绘制数据时，框架会自动生成 y 轴的轴标签以映射数据值。调整 y 维度的比例以匹配形状组的总计范围。
+
+上面的代码单独列出了每个 BarMark 。但是，对于常规、重复的数据，你可以使用 ForEach 结构来更简洁地表示同一图表：
+
+```swift
+Chart {
+    ForEach(data) { shape in
+        BarMark(
+            x: .value("Shape Type", shape.type),
+            y: .value("Total Count", shape.count)
+        )
+    }
+}
+```
+
+## 探索其他数据属性
+
+上面的条形图显示了每种类型的玩具形状有多少，但前面的表格也按颜色区分了每种玩具形状。堆叠条形图不仅可以直观地显示每种玩具形状类型的数量，还可以直观地显示形状之间的颜色分布。在绘制这些新信息之前，你需要在数据结构中表示颜色：
+
+```swift
+struct ToyShape: Identifiable {
+    var color: String
+    var type: String
+    var count: Double
+    var id = UUID()
+}
+```
+
+然后更新初始化数据以包含颜色信息：
+
+```swift
+var stackedBarData: [ToyShape] = [
+    .init(color: "Green", type: "Cube", count: 2),
+    .init(color: "Green", type: "Sphere", count: 0),
+    .init(color: "Green", type: "Pyramid", count: 1),
+    .init(color: "Purple", type: "Cube", count: 1),
+    .init(color: "Purple", type: "Sphere", count: 1),
+    .init(color: "Purple", type: "Pyramid", count: 1),
+    .init(color: "Pink", type: "Cube", count: 1),
+    .init(color: "Pink", type: "Sphere", count: 2),
+    .init(color: "Pink", type: "Pyramid", count: 0),
+    .init(color: "Yellow", type: "Cube", count: 1),
+    .init(color: "Yellow", type: "Sphere", count: 1),
+    .init(color: "Yellow", type: "Pyramid", count: 2)
+]
+```
+
+要表示此附加信息维度，请将 foregroundStyle(by:) 方法添加到 BarMark 中，并将数据的颜色属性指示为可绘图值：
+
+```swift
+Chart {
+    ForEach(stackedBarData) { shape in
+        BarMark(
+            x: .value("Shape Type", shape.type),
+            y: .value("Total Count", shape.count)
+        )
+        .foregroundStyle(by: .value("Shape Color", shape.color))
+    }
+}
+```
+
+现在，图表将条形图分成不同的部分，代表每个形状的颜色数量：
+
+<Figure src={require("./image_3.png")} size={520} />
+
+堆叠条形图选择颜色来表示新数据，并添加图例来指示哪种颜色代表哪种数据。
+
+## 定制你的图表
+
+对于许多图表，默认配置效果很好。但是，在这种情况下，框架分配给每个标记的颜色与它们代表的形状颜色不匹配。你可以通过添加 `Chart/chartForegroundStyleScale(_:)` 图表修饰符自定义图表以覆盖默认色阶：
+
+```swift
+Chart {
+    ForEach(stackedBarData) { shape in
+        BarMark(
+            x: .value("Shape Type", shape.type),
+            y: .value("Total Count", shape.count)
+        )
+        .foregroundStyle(by: .value("Shape Color", shape.count))
+    }
+}
+.chartForegroundStyleScale([
+    "Green": .green, "Purple": .purple, "Pink": .pink, "Yellow": .yellow
+])
+```
+
+现在颜色的名称与图表中使用的颜色相匹配，使图表更易于理解：
+
+<Figure src={require("./image_4.png")} size={520} />
+
+该图表清楚地表明了形状计数和颜色之间的关系。你可以通过许多其他方式自定义图表。例如，你可以设置条形宽度、选择不同的图例符号以及控制轴。

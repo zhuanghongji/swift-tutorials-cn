@@ -1,0 +1,87 @@
+# PointMark
+
+<ToBePolishedAfterTranslation />
+
+<OriginalSource
+  title="PointMark"
+  url="https://developer.apple.com/documentation/charts/pointmark"
+  summary="使用点表示数据的图表内容"
+/>
+
+## 概述
+
+你可以使用 PointMark 图表内容创建不同类型的点图。你可以使用点标记构建的一种常见图表是散点图，它显示两个数值数据属性之间的关系。要构建散点图，请使用 `init(x:y:)`。为 `x` 和 `y` 参数提供一个带有字符串的 `.value`，用作数据的标签以及要绘制的数据元素。以下示例分别用 `x` 和 `y` 绘制 `wingLength` 和 `wingHeight` 属性：
+
+```swift
+struct Insect {
+    let name: String
+    let family: String
+    let wingLength: Double
+    let wingWidth: Double
+    let weight: Double
+}
+
+
+var data: [Insect] = [
+    Insect(name: "Hepialidae", family: "Lepidoptera", wingLength: 61, wingWidth: 52, weight: 22),
+    Insect(name: "Danaidae", family: "Lepidoptera", wingLength: 60, wingWidth: 48, weight: 24),
+    Insect(name: "Riodinidae", family: "Lepidoptera", wingLength: 53, wingWidth: 43, weight: 18),
+    // ...
+]
+
+
+var body: some View {
+    Chart(data) {
+        PointMark(
+            x: .value("Wing Length", $0.wingLength),
+            y: .value("Wing Width", $0.wingWidth)
+        )
+    }
+}
+```
+
+<Figure src={require("./image_1.png")} size={420} />
+
+## 添加附加数据字段
+
+Swift Charts 为点标记提供了三个附加修饰符，每个修饰符都允许你将附加属性绘制到唯一的视觉通道。
+
+<TableWrapper >
+
+| Modifier                                                                                                     | Visual Channel         |
+| ------------------------------------------------------------------------------------------------------------ | ---------------------- |
+| [foregroundStyle(by:)](<https://developer.apple.com/documentation/charts/chartcontent/foregroundstyle(by:)>) | 用颜色绘制附加属性     |
+| [symbol(by:)](<https://developer.apple.com/documentation/charts/chartcontent/symbol(by:)>)                   | 用符号绘制附加属性     |
+| [symbolSize(by:)](<https://developer.apple.com/documentation/charts/chartcontent/symbolsize(by:)>)           | 绘制具有大小的附加属性 |
+
+</TableWrapper>
+
+例如，要将上例 Insect 结构中的 family 属性绘制为颜色，请添加 [foregroundStyle(by:)](<https://developer.apple.com/documentation/charts/chartcontent/foregroundstyle(by:)>) 修饰符：
+
+```swift
+Chart(data) {
+    PointMark(
+        x: .value("Wing Length", $0.wingLength),
+        y: .value("Wing Width", $0.wingWidth)
+    )
+    .foregroundStyle(by: .value("Family", $0.family))
+}
+```
+
+<Figure src={require("./image_2.png")} size={420} />
+
+前景样式修改器自动生成一个色标，为每个标记提供反映其值属性的颜色。要了解如何修改默认色标，请参阅 ScaleModifiers 。该修改器还提供默认图例。要了解如何修改或禁用图例，请参阅 ChartLegend 。
+
+或者，你可以通过使用 [symbol(by:)](<https://developer.apple.com/documentation/charts/chartcontent/symbol(by:)>) 修饰符绘制 `family` 属性来区分具有不同符号的族：
+
+```swift
+Chart(data) {
+    PointMark(
+        x: .value("Wing Length", $0.wingLength),
+        y: .value("Wing Length", $0.wingWidth)
+    )
+    .symbol(by: .value("Family", $0.family))
+}
+```
+
+<Figure src={require("./image_3.png")} size={420} />
