@@ -198,7 +198,7 @@ const swiftchartsSidebar = [
     items: [
       {
         type: "category",
-        label: "概要",
+        label: "Essentials",
         collapsed: false,
         items: ["swift-charts/essentials/about/index"],
       },
