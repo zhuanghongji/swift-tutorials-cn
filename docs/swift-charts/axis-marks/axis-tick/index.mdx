@@ -8,4 +8,62 @@
   summary="图表在轴上绘制的标记，用于指示沿该轴的参考点"
 />
 
-## 概述
+```swift
+@available(iOS 16.0, macOS 13.0, tvOS 16.0, watchOS 9.0, *)
+public struct AxisTick : AxisMark {
+      // ...
+}
+```
+
+## 结构体
+
+### Length
+
+```swift
+// 描述刻度的长度
+public struct Length : CustomStringConvertible {
+
+    // 自动确定刻度长度
+    public static var automatic: AxisTick.Length { get }
+
+    // 描述延伸至其关联标签的刻度
+    public static var label: AxisTick.Length { get }
+
+    // 描述延伸到轴上最长标签的刻度
+    public static var longestLabel: AxisTick.Length { get }
+
+    // 描述一个延伸到其关联标签的刻度，具有给定的附加长度
+    //
+    // - extendPastBy: 添加到关联标签后面的附加长度
+    public static func label(extendPastBy: CGFloat = 0) -> AxisTick.Length
+
+    // 描述延伸到轴上最长标签的刻度，具有给定的附加长度
+    //
+    // - extendPastBy: 添加到关联标签后面的附加长度
+    public static func longestLabel(extendPastBy: CGFloat = 0) -> AxisTick.Length
+}
+```
+
+### 初始化器
+
+### init(centered:length:stroke:)
+
+```swift
+// 使用给定属性创建轴刻度
+//
+// - centered: 是否使网格线在两个轴值之间居中
+// - length: 刻度线的长度
+// - stroke: 笔画的风格
+public init(centered: Bool? = nil, length: CGFloat, stroke: StrokeStyle? = nil)
+```
+
+### init(centered:length:stroke:)
+
+```swift
+// 使用给定属性创建轴刻度
+//
+// - centered: 是否使网格线在两个轴值之间居中
+// - length: 刻度线的长度
+// - stroke: 笔画的风格
+public init(centered: Bool? = nil, length: AxisTick.Length = .automatic, stroke: StrokeStyle? = nil)
+```

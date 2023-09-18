@@ -8,4 +8,67 @@
   summary="构造轴内容的结果生成器"
 />
 
-## 概述
+```swift
+@available(iOS 16.0, macOS 13.0, tvOS 16.0, watchOS 9.0, *)
+@resultBuilder public struct AxisContentBuilder {
+    // ...
+}
+```
+
+## 类型方法
+
+### buildBlock()
+
+```swift
+public static func buildBlock() -> some AxisContent
+```
+
+### buildEither(first:)
+
+```swift
+// 为多语句闭包中的 "if-else" 语句提供支持，为 "then" 分支生成条件内容
+public static func buildEither<T1, T2>(first: T1)
+        -> BuilderConditional<T1, T2> where T1 : AxisContent, T2 : AxisContent
+```
+
+### buildEither(second:)
+
+```swift
+// 为多语句闭包中的 "if-else" 语句提供支持，为 "else" 分支生成条件内容
+public static func buildEither<T1, T2>(second: T2)
+        -> BuilderConditional<T1, T2> where T1 : AxisContent, T2 : AxisContent
+```
+
+### buildExpression(\_:)
+
+```swift
+public static func buildExpression<Content>(_ content: Content) -> Content where Content : AxisContent
+```
+
+### buildIf(\_:)
+
+```swift
+// 为多语句闭包中的 "if" 语句提供支持，生成仅当条件计算为 true 时才可见的可选轴内容
+public static func buildIf<T>(_ content: T?) -> T? where T : AxisContent
+```
+
+### buildLimitedAvailability(\_:)
+
+```swift
+// 为多语句闭包中带有 #available() 子句的 "if" 语句提供支持，为 "then" 分支（即有条件可用的分支）生成条件内容
+public static func buildLimitedAvailability<Content>(_ content: Content)
+        -> some AxisContent where Content : AxisContent
+```
+
+### buildPartialBlock(accumulated:next:)
+
+```swift
+public static func buildPartialBlock(accumulated: some AxisContent,
+                                     next: some AxisContent) -> some AxisContent
+```
+
+### buildPartialBlock(first:)
+
+```swift
+public static func buildPartialBlock<T>(first content: T) -> T where T : AxisContent
+```

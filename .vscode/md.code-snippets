@@ -218,4 +218,26 @@
     "body": ["<ToBePolishedAfterTranslation />"],
     "description": "Create MD ReferenceSources"
   }
+  "Topics Item": {
+    "scope": "md,mdx",
+    "prefix": "topicsitem",
+    "body": [
+      "### $1",
+      "",
+      "```swift",
+      "$2",
+      "```",
+      "",
+      "",
+    ],
+    "description": "Topics Item"
+  },
+  "wbr": {
+    "scope": "md,mdx",
+    "prefix": "wbr",
+    "body": [
+      "<wbr/>",
+    ],
+    "description": "wbr"
+  }
 }

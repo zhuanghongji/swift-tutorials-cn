@@ -1,11 +1,23 @@
 # AnnotationContext
 
-<ToBePolishedAfterTranslation />
-
 <OriginalSource
   title="AnnotationContext"
   url="https://developer.apple.com/documentation/charts/annotationcontext"
-  summary="有关你添加注释的项目的信息"
+  summary="有关你添加注解的项目的信息"
 />
 
-## 概述
+```swift
+@available(iOS 16.0, macOS 13.0, tvOS 16.0, watchOS 9.0, *)
+public struct AnnotationContext {
+    // ...
+}
+```
+
+## 实例属性
+
+### targetSize
+
+```swift
+// 获取正在注解（being annotated）的项目的边界框（bounding box）
+public let targetSize: CGSize
+```

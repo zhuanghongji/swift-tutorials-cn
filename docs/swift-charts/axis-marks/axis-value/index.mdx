@@ -8,4 +8,33 @@
   summary="轴标记的值"
 />
 
-## 概述
+```swift
+@available(iOS 16.0, macOS 13.0, tvOS 16.0, watchOS 9.0, *)
+public struct AxisValue {
+    // ...
+}
+```
+
+## 实例属性
+
+### count
+
+```swift
+// 该轴上的值的数量
+public var count: Int { get }
+```
+
+### index
+
+```swift
+// 值沿轴的索引
+public var index: Int { get }
+```
+
+### 实例方法
+
+### as
+
+```swift
+public func `as`<P>(_ type: P.Type) -> P? where P : Plottable
+```

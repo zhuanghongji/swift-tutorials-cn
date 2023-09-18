@@ -8,4 +8,142 @@
   summary="描述轴标记值的标签"
 />
 
-## 概述
+```swift
+@available(iOS 16.0, macOS 13.0, tvOS 16.0, watchOS 9.0, *)
+public struct AxisValueLabel<Content> : AxisMark where Content : View {
+    // ...
+}
+```
+
+## 初始化器
+
+### init(\_:centered:<wbr>anchor:multiLabelAlignment:collisionResolution:offsetsMarks:orientation:horizontalSpacing:verticalSpacing:)
+
+```swift
+// 使用给定属性构造一个轴值标签以显示给定字符串
+//
+// - titleKey: 从本地化字符串生成的标题
+// - centered: 是否使标签在两个轴值之间居中。如果 nil ，则对于离散数据默认为 true，对于连续数据默认为 false
+// - anchor: 附加到 position 的文本元素边界框上的锚点
+// - multiLabelAlignment: 沿轴的标签如何彼此对齐
+// - collisionResolution: 如何解决与其他标签冲突的标签
+// - offsetsMarks: 是否偏移标记以适应标签使用的空间
+// - orientation: 标签的方向
+// - horizontalSpacing: 标签的水平间距。如果 nil ，将使用默认间距
+// - verticalSpacing: 标签的垂直间距
+public init(_ titleKey: LocalizedStringKey,
+            centered: Bool? = nil,
+            anchor: UnitPoint? = nil,
+            multiLabelAlignment: Alignment? = nil,
+            collisionResolution: AxisValueLabelCollisionResolution = .automatic,
+            offsetsMarks: Bool? = nil,
+            orientation: AxisValueLabelOrientation = .automatic,
+            horizontalSpacing: CGFloat? = nil,
+            verticalSpacing: CGFloat? = nil
+) where Content == Text
+```
+
+### init(\_:centered:<wbr>anchor:multiLabelAlignment:collisionResolution:offsetsMarks:orientation:horizontalSpacing:verticalSpacing:)
+
+```swift
+// 使用给定属性构造一个轴值标签以显示给定字符串
+//
+// - title: 从字符串生成的标题
+// - centered: 是否使标签在两个轴值之间居中。如果 nil ，则对于离散数据默认为 true，对于连续数据默认为 false
+// - anchor: 附加到 position 的文本元素边界框上的锚点
+// - multiLabelAlignment: 沿轴的标签如何彼此对齐
+// - collisionResolution: 如何解决与其他标签冲突的标签
+// - offsetsMarks: 是否偏移标记以适应标签使用的空间
+// - orientation: 标签的方向
+// - horizontalSpacing: 标签的水平间距。如果 nil ，将使用默认间距
+// - verticalSpacing: 标签的垂直间距
+public init<S>(_ title: S,
+               centered: Bool? = nil,
+               anchor: UnitPoint? = nil,
+               multiLabelAlignment: Alignment? = nil,
+               collisionResolution: AxisValueLabelCollisionResolution = .automatic,
+               offsetsMarks: Bool? = nil,
+               orientation: AxisValueLabelOrientation = .automatic,
+               horizontalSpacing: CGFloat? = nil,
+               verticalSpacing: CGFloat? = nil
+) where Content == Text, S : StringProtocol
+```
+
+### init(centered:<wbr>anchor:multiLabelAlignment:collisionResolution:offsetsMarks:orientation:horizontalSpacing:verticalSpacing:)
+
+```swift
+// 使用给定属性和默认文本构造轴值标签
+//
+// - centered: 是否使标签在两个轴值之间居中。如果 nil ，则对于离散数据默认为 true，对于连续数据默认为 false
+// - anchor: 附加到 position 的文本元素边界框上的锚点
+// - multiLabelAlignment: 沿轴的标签如何彼此对齐
+// - collisionResolution: 如何解决与其他标签冲突的标签
+// - offsetsMarks: 是否偏移标记以适应标签使用的空间
+// - orientation: 标签的方向
+// - horizontalSpacing: 标签的水平间距。如果 nil ，将使用默认间距
+// - verticalSpacing: 标签的垂直间距。如果 nil ，将使用默认间距
+public init(centered: Bool? = nil,
+            anchor: UnitPoint? = nil,
+            multiLabelAlignment: Alignment? = nil,
+            collisionResolution: AxisValueLabelCollisionResolution = .automatic,
+            offsetsMarks: Bool? = nil,
+            orientation: AxisValueLabelOrientation = .automatic,
+            horizontalSpacing: CGFloat? = nil,
+            verticalSpacing: CGFloat? = nil
+) where Content == Never
+```
+
+### init(centered:<wbr/>anchor:multiLabelAlignment:collisionResolution:offsetsMarks:orientation:horizontalSpacing:verticalSpacing:content:)
+
+```swift
+// 使用给定属性构造一个轴值标签以显示给定内容
+//
+// - centered: 是否使标签在两个轴值之间居中。如果 nil ，则对于离散数据默认为 true，对于连续数据默认为 false
+// - anchor: 附加到 position 的文本元素边界框上的锚点
+// - multiLabelAlignment: 沿轴的标签如何彼此对齐
+// - collisionResolution: 如何解决与其他标签冲突的标签
+// - offsetsMarks: 是否偏移标记以适应标签使用的空间
+// - orientation: 标签的方向
+// - horizontalSpacing: 标签的水平间距。如果 nil ，将使用默认间距
+// - verticalSpacing: 标签的垂直间距
+// - content: 标签内容
+public init(centered: Bool? = nil,
+            anchor: UnitPoint? = nil,
+            multiLabelAlignment: Alignment? = nil,
+            collisionResolution: AxisValueLabelCollisionResolution = .automatic,
+            offsetsMarks: Bool? = nil,
+            orientation: AxisValueLabelOrientation = .automatic,
+            horizontalSpacing: CGFloat? = nil,
+            verticalSpacing: CGFloat? = nil,
+            @ViewBuilder content: () -> Content
+)
+```
+
+### init(format:centered:<wbr/>anchor:multiLabelAlignment:collisionResolution:offsetsMarks:orientation:horizontalSpacing:verticalSpacing:)
+
+```swift
+// 使用给定属性构造一个轴值标签以显示给定内容
+//
+// - format: 文本的格式
+// - centered: 是否使标签在两个轴值之间居中。如果 nil ，则对于离散数据默认为 true，对于连续数据默认为 false
+// - anchor: 附加到 position 的文本元素边界框上的锚点
+// - multiLabelAlignment: 沿轴的标签如何彼此对齐
+// - collisionResolution: 如何解决与其他标签冲突的标签
+// - offsetsMarks: 是否偏移标记以适应标签使用的空间
+// - orientation: 标签的方向
+// - horizontalSpacing: 标签的水平间距。如果 nil ，将使用默认间距
+// - verticalSpacing: 标签的垂直间距
+public init<Format>(format: Format,
+                    centered: Bool? = nil,
+                    anchor: UnitPoint? = nil,
+                    multiLabelAlignment: Alignment? = nil,
+                    collisionResolution: AxisValueLabelCollisionResolution = .automatic,
+                    offsetsMarks: Bool? = nil,
+                    orientation: AxisValueLabelOrientation = .automatic,
+                    horizontalSpacing: CGFloat? = nil,
+                    verticalSpacing: CGFloat? = nil
+) where Content == Never,
+        Format : FormatStyle,
+        Format.FormatInput : Plottable,
+        Format.FormatOutput == String
+```

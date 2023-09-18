@@ -8,4 +8,149 @@
   summary="图表绘制的一组视觉标记，用于指示图表轴的组成"
 />
 
-## 概述
+```swift
+@available(iOS 16.0, macOS 13.0, tvOS 16.0, watchOS 9.0, *)
+public struct AxisMarks<Content> : AxisContent where Content : AxisMark {
+    // ...
+}
+```
+
+## 初始化器
+
+### init(format:preset:position:values:stroke:)
+
+```swift
+// 使用给定属性创建轴标记，将覆盖默认标记。默认内容将用于轴标记
+//
+// - format: 用于标签的格式
+// - preset: 轴标记的预设
+// - position: 轴标记的位置
+// - values: 轴标记的值
+// - stroke: 用于网格线和刻度线的笔画
+public init<Format>(format: Format,
+                    preset: AxisMarkPreset = .automatic,
+                    position: AxisMarkPosition = .automatic,
+                    values: AxisMarkValues = .automatic,
+                    stroke: StrokeStyle? = nil
+) where Content == Never,
+        Format : FormatStyle,
+        Format.FormatInput : Plottable,
+        Format.FormatOutput == String
+```
+
+### init(format:preset:position:values:stroke:)
+
+```swift
+// 使用给定属性创建轴标记，将覆盖默认标记。默认内容将用于轴标记
+//
+// - format: 用于标签的格式
+// - preset: 轴标记的预设
+// - position: 轴标记的位置
+// - values: 轴标记的值
+// - stroke: 用于网格线和刻度线的笔画
+public init<Value, Format>(format: Format,
+                           preset: AxisMarkPreset = .automatic,
+                           position: AxisMarkPosition = .automatic,
+                           values: [Value], stroke: StrokeStyle? = nil
+) where Content == Never,
+        Value : Plottable,
+        Value == Format.FormatInput,
+        Format : FormatStyle,
+        Format.FormatOutput == String
+```
+
+### init(preset:position:values:content:)
+
+```swift
+// 使用给定属性创建轴标记，将覆盖默认标记
+//
+// - preset: 轴标记的预设
+// - position: 轴标记的位置
+// - values: 轴标记的值
+// - content: 一个结果生成器，返回给定轴值的轴标记的内容
+public init<Value>(preset: AxisMarkPreset = .automatic,
+                   position: AxisMarkPosition = .automatic,
+                   values: [Value],
+                   @AxisMarkBuilder content: @escaping (AxisValue) -> Content
+) where Value : Plottable
+```
+
+### init(preset:position:values:content:)
+
+```swift
+// 使用给定属性创建轴标记，将覆盖默认标记
+//
+// - preset: 轴标记的预设
+// - position: 轴标记的位置
+// - values: 轴标记的值
+// - content: 返回轴标记内容的结果生成器
+public init<Value>(preset: AxisMarkPreset = .automatic,
+                   position: AxisMarkPosition = .automatic,
+                   values: [Value],
+                   @AxisMarkBuilder content: @escaping () -> Content
+) where Value : Plottable
+```
+
+### init(preset:position:values:content:)
+
+```swift
+// 使用给定属性创建轴标记，将覆盖默认标记
+//
+// - preset: 轴标记的预设
+// - position: 轴标记的位置
+// - values: 轴标记的值
+// - content: 返回轴标记内容的结果生成器
+public init(preset: AxisMarkPreset = .automatic,
+            position: AxisMarkPosition = .automatic,
+            values: AxisMarkValues = .automatic,
+            @AxisMarkBuilder content: @escaping () -> Content
+)
+```
+
+### init(preset:position:values:content:)
+
+```swift
+// 使用给定属性创建轴标记，将覆盖默认标记
+//
+// - preset: 轴标记的预设
+// - position: 轴标记的位置
+// - values: 轴标记的值
+// - content: 一个结果生成器，返回给定轴值的轴标记的内容
+public init(preset: AxisMarkPreset = .automatic,
+            position: AxisMarkPosition = .automatic,
+            values: AxisMarkValues = .automatic,
+            @AxisMarkBuilder content: @escaping (AxisValue) -> Content
+)
+```
+
+### init(preset:position:values:stroke:)
+
+```swift
+// 使用给定属性创建轴标记，将覆盖默认标记。默认内容将用于轴标记
+//
+// - preset: 轴标记的预设
+// - position: 轴标记的位置
+// - values: 轴标记的值
+// - stroke: 用于网格线和刻度线的笔画
+public init(preset: AxisMarkPreset = .automatic,
+            position: AxisMarkPosition = .automatic,
+            values: AxisMarkValues = .automatic,
+            stroke: StrokeStyle? = nil
+) where Content == Never
+```
+
+### init(preset:position:values:stroke:)
+
+```swift
+// 使用给定属性创建轴标记，将覆盖默认标记。默认内容将用于轴标记
+//
+// - preset: 轴标记的预设
+// - position: 轴标记的位置
+// - values: 轴标记的值
+// - stroke: 用于网格线和刻度线的笔画
+public init<Value>(preset: AxisMarkPreset = .automatic,
+                   position: AxisMarkPosition = .automatic,
+                   values: [Value],
+                   stroke: StrokeStyle? = nil
+) where Content == Never, Value : Plottable
+```

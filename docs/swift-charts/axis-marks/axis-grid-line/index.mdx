@@ -8,4 +8,22 @@
   summary="图表在其绘图区域上绘制的一条线，用于指示沿特定轴的参考点"
 />
 
-## 概述
+```swift
+@available(iOS 16.0, macOS 13.0, tvOS 16.0, watchOS 9.0, *)
+public struct AxisGridLine : AxisMark {
+    // ...
+}
+```
+
+## 初始化器
+
+### init(centered:stroke:)
+
+```swift
+
+// 创建具有给定属性的轴网格线
+//
+// - centered: 是否使网格线在两个轴值之间居中
+// - stroke: 网格线的笔触样式
+public init(centered: Bool? = nil, stroke: StrokeStyle? = nil)
+```

@@ -8,6 +8,28 @@
   summary="表示用于构建图表轴的元素的类型"
 />
 
-## 概述
+```swift
+@available(iOS 16.0, macOS 13.0, tvOS 16.0, watchOS 9.0, *)
+public protocol AxisContent {
+    // ...
+}
+```
 
---
+## 实例方法
+
+### compositingLayer()
+
+```swift
+// 为图表内容创建合成层
+public func compositingLayer() -> some AxisContent
+```
+
+### compositingLayer(style:)
+
+```swift
+// 为图表内容创建合成图层，并将视图修改器应用到合成图层
+//
+// - style: 将视图修饰符应用于合成层的闭包
+public func compositingLayer<V>(@ViewBuilder style: (PlaceholderContentView<Self>) -> V)
+        -> some AxisContent where V : View
+```

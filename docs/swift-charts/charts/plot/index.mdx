@@ -8,6 +8,15 @@
   summary="一种将图表内容分组为单个实体的机制"
 />
 
-## 概述
+```swift
+@available(iOS 16.0, macOS 13.0, tvOS 16.0, watchOS 9.0, *)
+public struct Plot<Content> where Content : ChartContent {
+    // ...
+}
+```
 
---
+## 初始化器
+
+```swift
+public init(@ChartContentBuilder content: () -> Content)
+```

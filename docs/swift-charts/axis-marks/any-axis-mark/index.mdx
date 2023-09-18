@@ -8,4 +8,23 @@
   summary="打字擦除的轴标记"
 />
 
-## 概述
+```swift
+@available(iOS 16.0, macOS 13.0, tvOS 16.0, watchOS 9.0, *)
+@frozen public struct AnyAxisMark : AxisMark {
+    // ...
+}
+```
+
+## 初始化器
+
+### init(\_:)
+
+```swift
+@inlinable public init(_ content: AxisMark)
+```
+
+### init(erasing:)
+
+```swift
+@inlinable public init(erasing content: some AxisMark)
+```

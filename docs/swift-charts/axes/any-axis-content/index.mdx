@@ -8,4 +8,23 @@
   summary="图表轴的类型擦除元素"
 />
 
-## 概述
+```swift
+@available(iOS 16.0, macOS 13.0, tvOS 16.0, watchOS 9.0, *)
+@frozen public struct AnyAxisContent : AxisContent {
+    // ...
+}
+```
+
+## 初始化器
+
+### init(\_:)
+
+```swift
+@inlinable public init(_ content: AxisContent)
+```
+
+### init(erasing:)
+
+```swift
+@inlinable public init(erasing content: some AxisContent)
+```

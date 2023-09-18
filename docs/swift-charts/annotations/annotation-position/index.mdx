@@ -5,7 +5,84 @@
 <OriginalSource
   title="AnnotationPosition"
   url="https://developer.apple.com/documentation/charts/annotationposition"
-  summary="注释的位置"
+  summary="注解的位置"
 />
 
-## 概述
+```swift
+@available(iOS 16.0, macOS 13.0, tvOS 16.0, watchOS 9.0, *)
+public struct AnnotationPosition : Equatable {
+    // ...
+}
+```
+
+## 类型属性
+
+### automatic
+
+```swift
+// 自动放置注解
+public static let automatic: AnnotationPosition
+```
+
+### bottom
+
+```swift
+// 将注解放在项目的底部
+public static let bottom: AnnotationPosition
+```
+
+### bottomLeading
+
+```swift
+// 将注解放在项目的底部前角
+public static let bottomLeading: AnnotationPosition
+```
+
+### bottomTrailing
+
+```swift
+// 将注解放在项目的底部尾角
+public static let bottomTrailing: AnnotationPosition
+```
+
+### leading
+
+```swift
+// 将注解放在项目的前缘
+public static let leading: AnnotationPosition
+```
+
+### overlay
+
+```swift
+// 将注解放置为项目的覆盖层
+public static let overlay: AnnotationPosition
+```
+
+### top
+
+```swift
+// 将注解放在项目的上部
+public static let top: AnnotationPosition
+```
+
+### topLeading
+
+```swift
+// 将注解放在项目的上部前角
+public static let topLeading: AnnotationPosition
+```
+
+### topTrailing
+
+```swift
+// 将注解放在项目的上部尾角
+public static let topTrailing: AnnotationPosition
+```
+
+### trailing
+
+```swift
+// 将注解放置在项目的尾边
+public static let trailing: AnnotationPosition
+```

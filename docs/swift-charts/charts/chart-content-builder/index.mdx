@@ -8,8 +8,85 @@
   summary="用于组成图表内容的结果生成器"
 />
 
+```swift
+@available(iOS 16.0, macOS 13.0, tvOS 16.0, watchOS 9.0, *)
+@resultBuilder public struct ChartContentBuilder {
+    // ...
+}
+```
+
 ## 概述
 
 此 [Result Builder](https://docs.swift.org/swift-book/LanguageGuide/AdvancedOperators.html#ID630) 将任意数量的 [ChartContent](https://developer.apple.com/documentation/charts/chartcontent) 实例组合成单个复合实例，包括对条件的支持。
 
 你不直接调用结果生成器的方法。相反，Swift 使用它们来组合你在任何具有 `@ChartContentBuilder` 属性的闭包中声明的元素。特别是，当你在 [Chart](https://developer.apple.com/documentation/charts/chart) 初始化程序（如 [init(content:)](<https://developer.apple.com/documentation/charts/chart/init(content:)>) ）中声明 content 时，你会依赖此行为。
+
+## 构建图标内容
+
+### buildPartialBlock(first:)
+
+```swift
+// 从单个第一个组件构建部分结果
+//
+/// - content: 第一个要积累的成分
+public static func buildPartialBlock<T>(first content: T) -> T where T : ChartContent
+```
+
+### buildPartialBlock(accumulated:next:)
+
+```swift
+// 通过组合累积组件和新组件来构建部分结果
+//
+// - accumulated: 累积的结果
+// - next: 要累积的下一个组件
+public static func buildPartialBlock(accumulated: some ChartContent, next: some ChartContent) -> some ChartContent
+```
+
+### buildBlock()
+
+```swift
+// 生成空图表内容
+public static func buildBlock() -> some ChartContent
+```
+
+### 选择性构建
+
+### buildIf(\_:)
+
+```swift
+
+// 构建有条件存在的部分结果
+//
+// - content: 条件为 true 时使用的内容
+public static func buildIf<T>(_ content: T?) -> T? where T : ChartContent
+```
+
+此方法提供对 `if` 语句的支持。它生成仅当条件评估为 `true` 时才可见的可选图表内容。
+
+### buildEither(first:)
+
+```swift
+// 根据正确的条件构建部分结果
+//
+/// - first: 条件为 true 时使用的内容
+public static func buildEither<T1, T2>(first: T1) -> BuilderConditional<T1, T2> where T1 : ChartContent, T2 : ChartContent
+```
+
+此方法为带有 else 子句和 switch 语句的 if 语句提供支持。它会生成可选的图表内容，当条件计算结果为 true 时，该内容可见。
+
+### buildEither(second:)
+
+```swift
+// 根据错误的条件构建部分结果
+//
+// - second: 条件为 false 时使用的内容
+public static func buildEither<T1, T2>(second: T2) -> BuilderConditional<T1, T2> where T1 : ChartContent, T2 : ChartContent
+```
+
+此方法为带有 else 子句和 switch 语句的 if 语句提供支持。它会生成可选的图表内容，当条件计算结果为 false 时，该内容可见。
+
+## 类型方法
+
+```swift
+public static func buildExpression<Content>(_ content: Content) -> Content where Content : ChartContent
+```

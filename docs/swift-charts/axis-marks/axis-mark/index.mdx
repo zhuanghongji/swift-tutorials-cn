@@ -8,4 +8,43 @@
   summary="用作轴元素的基本构建块的类型"
 />
 
-## 概述
+```swift
+@available(iOS 16.0, macOS 13.0, tvOS 16.0, watchOS 9.0, *)
+public protocol AxisMark {
+    // ...
+}
+```
+
+## 实例方法
+
+### font(\_:)
+
+```swift
+// 设置此轴内容中文本的默认字体
+//
+// - font: 此轴内容中使用的默认字体
+// - Returns: 使用给定文本默认字体的轴内容
+public func font(_ font: Font?) -> some AxisMark
+```
+
+### foregroundStyle(\_:)
+
+```swift
+// 设置轴内容的前景元素以使用给定的样式
+//
+// - style: 填充前景元素时使用的颜色或图案
+// - Returns: 使用给定前景样式的轴内容
+public func foregroundStyle<S>(_ style: S) -> some AxisMark where S : ShapeStyle
+```
+
+### offset(\_:)
+
+```swift
+public func offset(_ offset: CGSize) -> some AxisMark
+```
+
+### offset(x:y:)
+
+```swift
+public func offset(x: CGFloat = 0, y: CGFloat = 0) -> some AxisMark
+```
