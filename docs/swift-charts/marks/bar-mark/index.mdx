@@ -89,11 +89,11 @@ Chart(data) {
 }
 ```
 
-你可以在 BarMark 初始值设定项中使用可选的 stacking: 参数来修改堆栈机制。有关堆叠选项，请参阅 MarkStackingMethod 。
+你可以在 BarMark 初始化器中使用可选的 stacking: 参数来修改堆栈机制。有关堆叠选项，请参阅 MarkStackingMethod 。
 
 ## 一维条形图
 
-要构建一维图表，请使用仅需要用于一维的 PlottableValue 的初始值设定项之一，例如用于使用 x 进行绘图的 init(x:yStart:yEnd:width:stacking:) 。下面的示例重复使用上一个示例中的数据来获取生产部门值：
+要构建一维图表，请使用仅需要用于一维的 PlottableValue 的初始化器之一，例如用于使用 x 进行绘图的 init(x:yStart:yEnd:width:stacking:) 。下面的示例重复使用上一个示例中的数据来获取生产部门值：
 
 ```swift
 Chart(data) { // Get the Production values.

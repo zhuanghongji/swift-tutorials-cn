@@ -1,16 +1,21 @@
 # Chart
 
-<ToBePolishedAfterTranslation />
-
 <OriginalSource
   title="Chart"
   url="https://developer.apple.com/documentation/charts/chart"
   summary="显示图表的 SwiftUI 视图"
 />
 
+```swift
+@available(iOS 16.0, macOS 13.0, tvOS 16.0, watchOS 9.0, *)
+public struct Chart<Content> : View where Content : ChartContent {
+    // ...
+}
+```
+
 ## 概述
 
-要创建图表，请实例化一个带有显示数据属性的标记的 Chart 结构。例如，假设你有一个 ValuePerCategory 结构数组，它定义由 category 和 value 组成的数据点：
+要创建图表，可实例化一个带有显示数据属性的标记的 `Chart` 结构体。例如，假设你有一个 `ValuePerCategory` 结构体数组，它定义由 `category` 和 `value` 组成的数据点（data points）：
 
 ```swift
 struct ValuePerCategory {
@@ -25,7 +30,7 @@ let data: [ValuePerCategory] = [
 ]
 ```
 
-你可以在图表内使用 BarMark 将 category 属性表示为图表中的不同条形，将 value 属性表示为每个条形的 y 值：
+你可以在图表内使用 [BarMark](https://developer.apple.com/documentation/charts/barmark) 将 `category` 属性表示为图表中的不同条形，将 `value` 属性表示为每个条形的 `y` 值：
 
 ```swift
 Chart(data, id: \.category) { item in
@@ -36,13 +41,44 @@ Chart(data, id: \.category) { item in
 }
 ```
 
-此图表初始值设定项的行为很像 SwiftUI ForEach ，为 data 数组中的每个值创建一个标记（在本例中为一个条形）：
+此图表初始化器的行为很像 SwiftUI [ForEach](https://developer.apple.com/documentation/SwiftUI/ForEach ，为 `data` 数组中的每个值创建一个标记（在本例中为一个条形）：
 
-<Figure src={require("./image_1.png")} size={480} />
+<Figure src={require("./image_1.png")} size={320} />
 
-## 控制图表内的数据系列
+在 iOS 中显示效果如下：
 
-你可以通过向图表提供多个标记系列来组成更复杂的图表。例如，假设你有两家公司的利润数据：
+<ScreenshotBlock src={require('./screenshot_1.png')}>
+
+```swift
+struct ValuePerCategory {
+    var category: String
+    var value: Double
+}
+
+struct ContentView: View {
+    let data: [ValuePerCategory] = [
+        .init(category: "A", value: 5),
+        .init(category: "B", value: 9),
+        .init(category: "C", value: 7)
+    ]
+
+    var body: some View {
+        Chart(data, id: \.category) { item in
+            BarMark(
+                x: .value("Category", item.category),
+                y: .value("Value", item.value)
+            )
+        }
+        .padding()
+    }
+}
+```
+
+</ScreenshotBlock>
+
+## 控制图表内的数据序列
+
+你可以通过向图表提供多个标记系列来组成更复杂的（sophisticated）图表。例如，假设你有两家公司的利润数据：
 
 ```swift
 struct ProfitOverTime {
@@ -54,7 +90,7 @@ let departmentAProfit: [ProfitOverTime] = <#Profit array A#>
 let departmentBProfit: [ProfitOverTime] = <#Profit array B#>
 ```
 
-下图创建了两个不同系列的 LineMark 实例，它们具有不同的颜色来表示每个公司的数据。实际上，它将 ForEach 构造从图表的初始值设定项移动到图表主体中，使你能够表示多个不同的系列：
+下图创建了两个不同系列的 [LineMark](https://developer.apple.com/documentation/charts/linemark) 实例，它们具有不同的颜色来表示每个公司的数据。实际上（In effect），它将 `ForEach` 构造从图表的初始化器移动到图表主体中，使你能够呈现多个不同的系列：
 
 ```swift
 Chart {
@@ -81,6 +117,101 @@ Chart {
 }
 ```
 
-你可以通过指定线标记的 series 输入参数来指示线标记属于哪个系列。上面的图表还使用 RuleMark 生成一条水平线段，该线段在图表的宽度上显示恒定阈值：
+你可以通过指定线标记的 `series` 输入参数来指示线标记属于哪个系列。上面的图表还使用 [RuleMark](https://developer.apple.com/documentation/charts/rulemark) 生成一条水平线段，该线段在图表的宽度上显示恒定阈值：
 
 <Figure src={require("./image_2.png")} size={480} />
+
+构造具体的利润数据后，在 iOS 上显示效果如下：
+
+<ScreenshotBlock src={require('./screenshot_2.png')}>
+
+```swift
+let components: [Date] = [
+    Calendar.current.date(from: DateComponents(year: 2023,
+                                               month: 1))!,
+    Calendar.current.date(from: DateComponents(year: 2023,
+                                               month: 2))!,
+    Calendar.current.date(from: DateComponents(year: 2023,
+                                               month: 3))!,
+    Calendar.current.date(from: DateComponents(year: 2023,
+                                               month: 4))!,
+]
+
+var departmentAProfit: [ProfitOverTime] {
+    return [
+        .init(date: components[0], profit: 200),
+        .init(date: components[1], profit: 250),
+        .init(date: components[2], profit: 500),
+        .init(date: components[3], profit: 550),
+    ]
+}
+var departmentBProfit: [ProfitOverTime] {
+    return [
+        .init(date: components[0], profit: 100),
+        .init(date: components[1], profit: 300),
+        .init(date: components[2], profit: 750),
+        .init(date: components[3], profit: 800),
+    ]
+}
+
+var body: some View {
+    Chart {
+        // ... 如上述 Chart 主体代码相同
+    }
+    .padding()
+    .frame(width: UIScreen.main.bounds.width,
+           height: UIScreen.main.bounds.width)
+}
+```
+
+</ScreenshotBlock>
+
+## 创建图表
+
+### init(content:)
+
+```swift
+// 创建由任意数量的数据序列和单个（individual）标记组成的图表
+//
+// - content: 图表内容生成器，返回图表应绘制的标记
+public init(@ChartContentBuilder content: () -> Content)
+```
+
+该初始化器绘制你在 `content` 输入中指定的标记。你可以提供单独的标记，或由一个或多个 [ForEach](https://developer.apple.com/documentation/SwiftUI/ForEach) 构造生成的标记，或这些标记的任意组合。为了方便起见，当图表内容中只有一个 `ForEach` 时，你可以使用 [init(\_:content:)](<https://developer.apple.com/documentation/charts/chart/init(_:content:)>) 或 [init(\_:<wbr/>id:content:)](<https://developer.apple.com/documentation/charts/chart/init(_:id:content:)>) 初始化器来代替，其中任何一个都将内容包装在隐式 `ForEach`。
+
+### init(\_:content:)
+
+```swift
+// 创建由一系列可识别标记组成的图表
+//
+// - data: 符合 Identifiable 协议的数据集合
+// - content: 图表为数据集合中的每个元素绘制的标记
+public init<Data, C>(_ data: Data,
+                     @ChartContentBuilder content: @escaping (Data.Element) -> C
+) where Content == ForEach<Data, Data.Element.ID, C>,
+        Data : RandomAccessCollection,
+        C : ChartContent,
+        Data.Element : Identifiable
+```
+
+该初始化器将你作为输入提供的数据包装在隐式 [ForEach](https://developer.apple.com/documentation/SwiftUI/ForEach) 结构中。如果你需要在图表中表示多个序列，请使用 [init(content:)](<https://developer.apple.com/documentation/charts/chart/init(content:)>)。
+
+### init(\_:<wbr/>id:content:)
+
+```swift
+// 创建由一系列标记组成的图表
+//
+// - data: 数据的集合
+// - id: 表示每个数据元素的属性的键路径（key path），可以充当该元素的唯一标识符
+//       确保此属性符合 Hashable 协议
+// - content: 图表应为数据集合中的每个元素绘制的标记
+public init<Data, ID, C>(_ data: Data,
+                         id: KeyPath<Data.Element, ID>,
+                         @ChartContentBuilder content: @escaping (Data.Element) -> C
+) where Content == ForEach<Data, ID, C>,
+        Data : RandomAccessCollection,
+        ID : Hashable,
+        C : ChartContent
+```
+
+该初始化器将你作为输入提供的数据包装在隐式 [ForEach](https://developer.apple.com/documentation/SwiftUI/ForEach) 结构中。如果你需要在图表中表示多个系列，请使用 [init(content:)](<https://developer.apple.com/documentation/charts/chart/init(content:)>)。
