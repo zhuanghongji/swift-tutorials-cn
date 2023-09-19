@@ -8,6 +8,26 @@
   summary="图表的单个 bin 代表的数据范围"
 />
 
+```swift
+public struct ChartBinRange<Bound> : RangeExpression where Bound : Comparable {
+    // ...
+}
+```
+
 ## 概述
 
 除特定图表的最后一个之外的所有箱均表示开放范围，这意味着该范围不包括上限。最后一个 bin 的最后一个范围是封闭的，因此它确实包含上限。系统跟踪特定范围的打开或关闭状态。
+
+## 实例属性
+
+### lowerBound
+
+```swift
+public let lowerBound: Bound
+```
+
+### upperBound
+
+```swift
+public let upperBound: Bound
+```

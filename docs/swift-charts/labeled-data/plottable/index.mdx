@@ -8,6 +8,13 @@
   summary="一种类型，可用作你在图表上绘制的标记的可绘制值的数据"
 />
 
+```swift
+@available(iOS 16.0, macOS 13.0, tvOS 16.0, watchOS 9.0, *)
+public protocol Plottable {
+    // ...
+}
+```
+
 ## 概述
 
 你可以用 `.value(label, keyPath)` 标记绘制 `Plottable` 数据值：
@@ -37,4 +44,28 @@ enum Status: String, Plottable {
     case active = "Active"
     case inactive = "Inactive"
 }
+```
+
+## 相关类型
+
+```swift
+// 原始可绘图类型，使用已符合 Plottable 的原始类型
+// 比如：`Double`, `Date`, or `String`
+associatedtype PrimitivePlottable : PrimitivePlottableProtocol
+```
+
+## 初始化器
+
+### init(primitivePlottable:)
+
+```swift
+// 创建具有原始值的值。如果无法转换，则返回 nil
+init?(primitivePlottable: Self.PrimitivePlottable)
+```
+
+## 实例属性
+
+```swift
+// 将类型转换为其原始值
+var primitivePlottable: Self.PrimitivePlottable { get }
 ```

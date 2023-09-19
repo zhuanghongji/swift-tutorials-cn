@@ -8,15 +8,21 @@
   summary="使用一系列连接的线段表示数据的图表内容"
 />
 
+```swift
+@available(iOS 16.0, macOS 13.0, tvOS 16.0, watchOS 9.0, *)
+public struct LineMark {
+    // ...
+}
+```
+
 ## 概述
 
-你可以通过绘制类别或日期属性（通常使用 x 位置）并绘制数字类别（通常使用 y 位置）来创建折线图。下面的示例使用 init(x:y:) 将 date 属性绘制到 x 位置，将 hoursOfSunshine 属性绘制到 y 位置：
+你可以通过绘制类别或日期属性（通常使用 x 位置）并绘制数字类别（通常使用 y 位置）来创建折线图。下面的示例使用 `init(x:y:)` 将 `date` 属性绘制到 `x` 位置，将 `hoursOfSunshine` 属性绘制到 y 位置：
 
 ```swift
 struct MonthlyHoursOfSunshine {
     var date: Date
     var hoursOfSunshine: Double
-
 
     init(month: Int, hoursOfSunshine: Double) {
         let calendar = Calendar.autoupdatingCurrent
@@ -25,14 +31,12 @@ struct MonthlyHoursOfSunshine {
     }
 }
 
-
 var data: [MonthlyHoursOfSunshine] = [
     MonthlyHoursOfSunshine(month: 1, hoursOfSunshine: 74),
     MonthlyHoursOfSunshine(month: 2, hoursOfSunshine: 99),
     // ...
     MonthlyHoursOfSunshine(month: 12, hoursOfSunshine: 62)
 ]
-
 
 var body: some View {
     Chart(data) {
@@ -48,14 +52,13 @@ var body: some View {
 
 ## 绘制多条线
 
-你可以通过在 init(x:y:series:) 中显式指定 series 参数或应用 foregroundStyle(_:) 或 lineStyle(_:) 修饰符在图表中绘制多条线。具有相同 series 值的线标记将始终一起呈现为单线。当 series 未指定时，具有相同值的线条标记将绘制为前景样式，并且线条样式将组合在一起并绘制在自己的线条上。下面的示例为 city 中的每个不同值绘制一条线，并根据它代表的 city 为每条线着色：
+你可以通过在 `init(x:y:series:)` 中显式指定 series 参数或应用 foregroundStyle(_:) 或 lineStyle(_:) 修饰符在图表中绘制多条线。具有相同 series 值的线标记将始终一起呈现为单线。当 series 未指定时，具有相同值的线条标记将绘制为前景样式，并且线条样式将组合在一起并绘制在自己的线条上。下面的示例为 city 中的每个不同值绘制一条线，并根据它代表的 city 为每条线着色：
 
 ```swift
 struct MonthlyHoursOfSunshine {
     var city: String
     var date: Date
     var hoursOfSunshine: Double
-
 
     init(city: String, month: Int, hoursOfSunshine: Double) {
         let calendar = Calendar.autoupdatingCurrent
@@ -65,7 +68,6 @@ struct MonthlyHoursOfSunshine {
     }
 }
 
-
 var data: [MonthlyHoursOfSunshine] = [
     MonthlyHoursOfSunshine(city: "Seattle", month: 1, hoursOfSunshine: 74),
     MonthlyHoursOfSunshine(city: "Cupertino", month: 1, hoursOfSunshine: 196),
@@ -73,7 +75,6 @@ var data: [MonthlyHoursOfSunshine] = [
     MonthlyHoursOfSunshine(city: "Seattle", month: 12, hoursOfSunshine: 62),
     MonthlyHoursOfSunshine(city: "Cupertino", month: 12, hoursOfSunshine: 199)
 ]
-
 
 var body: some View {
     Chart(data) {
@@ -93,3 +94,58 @@ var body: some View {
 如果系列数大于颜色总数，则颜色会重复。
 
 :::
+
+## 创建折线标记
+
+### init(x:y:)
+
+```swift
+// 创建折线标记
+//
+// - x: 用 x 绘制的值
+// - y: 用 y 绘制的值
+public init<X, Y>(x: PlottableValue<X>,
+                  y: PlottableValue<Y>
+) where X : Plottable, Y : Plottable
+```
+
+使用此初始值设定项创建带有单线的图表。
+
+```swift
+Chart(sunshineData) {
+    LineMark(
+        x: .value("Month", $0.date),
+        y: .value("Hours of Sunshine", $0.hoursOfSunshine)
+    )
+}
+```
+
+<Figure src={require("./image_3.png")} size={420} />
+
+### init(x:y:series:)
+
+```swift
+// 为系列的每个唯一值创建单独的行
+//
+// - x: 用 x 绘制的值
+// - y: 用 y 绘制的值
+// - series: 用于分割线系列的值
+public init<X, Y, S>(x: PlottableValue<X>,
+                     y: PlottableValue<Y>,
+                     series: PlottableValue<S>
+) where X : Plottable, Y : Plottable, S : Plottable
+```
+
+使用此初始值设定项从单个数据源创建多线图表。
+
+```swift
+Chart(sunshineData) {
+    LineMark(
+        x: .value("Month", $0.date),
+        y: .value("Hours of Sunshine", $0.hoursOfSunshine)
+    )
+    .foregroundStyle(by: .value("City", $0.city))
+}
+```
+
+<Figure src={require("./image_4.png")} size={420} />

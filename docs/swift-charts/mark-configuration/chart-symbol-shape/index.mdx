@@ -8,6 +8,16 @@
   summary="一种类型，可充当添加到图表中的标记的形状"
 />
 
-## 概述
+```swift
+@available(iOS 16.0, macOS 13.0, tvOS 16.0, watchOS 9.0, *)
+public protocol ChartSymbolShape : Shape {
+    // ...
+}
+```
 
---
+## 实例属性
+
+```swift
+// 返回一个矩形，该矩形以观察者认为它具有与单位矩形相同的大小和位置的方式限制形状
+var perceptualUnitRect: CGRect { get }
+```

@@ -8,6 +8,13 @@
   summary="使用一个或多个区域的面积表示数据的图表内容"
 />
 
+```swift
+@available(iOS 16.0, macOS 13.0, tvOS 16.0, watchOS 9.0, *)
+public struct AreaMark {
+    // ...
+}
+```
+
 ## 概述
 
 使用 AreaMark 将数据表示为图表上的填充区域。要创建简单的面积标记图表，请在 x 轴上绘制日期或有序字符串属性，并在 y 轴上绘制数字。例如，假设你有代表芝士汉堡随时间变化的成本的数据，存储在 Food 结构数组中：
@@ -149,3 +156,153 @@ Chart(data) { day in
 这将创建一个由每个日期的起点和终点塑造的填充区域：
 
 <Figure src={require("./image_5.png")} size={480} />
+
+## 创建区域标记
+
+### init(x:y:stacking:)
+
+```swift
+// 使用指定的水平和垂直位置创建区域标记
+//
+// - x: 标记的水平位置
+// - y: 标记的垂直位置
+// - stacking: 图表堆叠区域的方式。默认为 standard
+public init<X, Y>(x: PlottableValue<X>,
+                  y: PlottableValue<Y>,
+                  stacking: MarkStackingMethod = .standard
+) where X : Plottable, Y : Plottable
+```
+
+您可以使用此初始值设定项创建基本面积图：
+
+```swift
+Chart(cheeseburgerCost) { cost in
+    AreaMark(
+        x: .value("Date", cost.date),
+        y: .value("Price", cost.price)
+    )
+}
+```
+
+生成的图表会根据数据自动缩放和标记轴，并使用默认颜色填充数据点下方的区域：
+
+<Figure src={require("./image_6.png")} size={420} />
+
+### init(x:y:series:stacking:)
+
+```swift
+// 创建区域标记并将其与指定的系列关联
+//
+// - x: 标记的水平位置
+// - y: 标记的垂直位置
+// - series: 与标记相关联的系列
+// - stacking: 图表堆叠区域的方式。默认为 standard
+public init<X, Y, S>(x: PlottableValue<X>,
+                     y: PlottableValue<Y>,
+                     series: PlottableValue<S>,
+                     stacking: MarkStackingMethod = .standard
+) where X : Plottable, Y : Plottable, S : Plottable
+```
+
+初始化程序的行为类似于 [init(x:y:stacking:)](<https://developer.apple.com/documentation/charts/areamark/init(x:y:stacking:)>)，不同之处在于您可以通过为 `series` 输入提供值来指示每个数据点属于哪个区域。这使您能够在一张图表上绘制多个区域。
+
+## 创建范围面积图
+
+### init(x:yStart:yEnd:)
+
+```swift
+// 创建一个区域标记，以垂直间隔绘制值
+//
+// - x: 标记的水平位置
+// - yStart: 标记的起始垂直位置
+// - yEnd: 标记的结束垂直位置
+public init<X, Y>(x: PlottableValue<X>,
+                  yStart: PlottableValue<Y>,
+                  yEnd: PlottableValue<Y>
+) where X : Plottable, Y : Plottable
+```
+
+使用此初始值设定项创建具有垂直间隔的范围面积图。例如，您可以创建一个包含一天中、多天内的所有温度的区域：
+
+```swift
+Chart(data) { day in
+    AreaMark(
+        x: .value("Date", day.date),
+        yStart: .value("Minimum Temperature", minimumTemperature),
+        yEnd: .value("Maximum Temperature", day.maximumTemperature)
+    )
+}
+```
+
+<Figure src={require("./image_7.png")} size={420} />{" "}
+
+如果要绘制具有水平间隔的值，请改用 [init(xStart:xEnd:y:)](<https://developer.apple.com/documentation/charts/areamark/init(xstart:xend:y:)>)。
+
+### init(x:yStart:yEnd:series:)
+
+```swift
+// 创建一个区域标记，以垂直间隔绘制值并将其与指定的系列关联
+//
+// - x: 标记的水平位置
+// - yStart: 标记的起始垂直位置
+// - yEnd: 标记的结束垂直位置
+// - series: 与标记相关联的系列
+public init<X, Y, S>(x: PlottableValue<X>,
+                     yStart: PlottableValue<Y>,
+                     yEnd: PlottableValue<Y>,
+                     series: PlottableValue<S>
+) where X : Plottable, Y : Plottable, S : Plottable
+```
+
+初始化程序的行为类似于 [init(x:yStart:yEnd:)](<https://developer.apple.com/documentation/charts/areamark/init(x:ystart:yend:)>)，不同之处在于您可以通过为 series 输入提供值来指示每个间隔属于哪个区域。这使您能够在一张图表上绘制多个区域。
+
+要绘制一系列具有水平间隔的值，请改用 [init(xStart:xEnd:y:series:)](<https://developer.apple.com/documentation/charts/areamark/init(xstart:xend:y:series:)>)。
+
+### init(xStart:xEnd:y:)
+
+```swift
+//
+// - xStart: 标记的起始水平位置
+// - xEnd: 标记的结束水平位置
+// - y: 标记的垂直位置
+public init<X, Y>(xStart: PlottableValue<X>,
+                  xEnd: PlottableValue<X>,
+                  y: PlottableValue<Y>
+) where X : Plottable, Y : Plottable
+```
+
+使用此初始值设定项创建具有水平间隔的范围面积图。例如，您可以创建一个包含一天中、多天内的所有温度的区域：
+
+```swift
+Chart(data) { day in
+    AreaMark(
+        xStart: .value("Minimum Temperature", minimumTemperature),
+        xEnd: .value("Maximum Temperature", day.maximumTemperature),
+        y: .value("Date", day.date)
+    )
+}
+```
+
+<Figure src={require("./image_8.png")} size={420} />
+
+如果要绘制具有垂直间隔的值，请改用 [init(x:yStart:yEnd:)](<https://developer.apple.com/documentation/charts/areamark/init(x:ystart:yend:)>)。
+
+### init(xStart:xEnd:y:series:)
+
+```swift
+// 创建一个区域标记，以水平间隔绘制值
+//
+// - xStart: 标记的起始水平位置
+// - xEnd: 标记的结束水平位置
+// - y: 标记的垂直位置
+// - series: 与标记相关联的系列
+public init<X, Y, S>(xStart: PlottableValue<X>,
+                     xEnd: PlottableValue<X>,
+                     y: PlottableValue<Y>,
+                     series: PlottableValue<S>
+) where X : Plottable, Y : Plottable, S : Plottable
+```
+
+初始化程序的行为类似于 [init(xStart:xEnd:y:)](<https://developer.apple.com/documentation/charts/areamark/init(xstart:xend:y:)>)，不同之处在于您可以通过为 series 输入提供值来指示每个间隔属于哪个区域。这使您能够在一张图表上绘制多个区域。
+
+要绘制一系列具有垂直间隔的值，请改用 [init(x:yStart:yEnd:series:)](<https://developer.apple.com/documentation/charts/areamark/init(x:ystart:yend:series:)>)。

@@ -8,6 +8,13 @@
   summary="使用点表示数据的图表内容"
 />
 
+```swift
+@available(iOS 16.0, macOS 13.0, tvOS 16.0, watchOS 9.0, *)
+public struct PointMark {
+    // ...
+}
+```
+
 ## 概述
 
 你可以使用 PointMark 图表内容创建不同类型的点图。你可以使用点标记构建的一种常见图表是散点图，它显示两个数值数据属性之间的关系。要构建散点图，请使用 `init(x:y:)`。为 `x` 和 `y` 参数提供一个带有字符串的 `.value`，用作数据的标签以及要绘制的数据元素。以下示例分别用 `x` 和 `y` 绘制 `wingLength` 和 `wingHeight` 属性：
@@ -21,14 +28,12 @@ struct Insect {
     let weight: Double
 }
 
-
 var data: [Insect] = [
     Insect(name: "Hepialidae", family: "Lepidoptera", wingLength: 61, wingWidth: 52, weight: 22),
     Insect(name: "Danaidae", family: "Lepidoptera", wingLength: 60, wingWidth: 48, weight: 24),
     Insect(name: "Riodinidae", family: "Lepidoptera", wingLength: 53, wingWidth: 43, weight: 18),
     // ...
 ]
-
 
 var body: some View {
     Chart(data) {
@@ -85,3 +90,65 @@ Chart(data) {
 ```
 
 <Figure src={require("./image_3.png")} size={420} />
+
+## 创建点标记
+
+### init(x:y:)
+
+```swift
+// 创建一个点标记，绘制 x 和 y 的值
+//
+// - x: 用 x 绘制的值
+// - y: 用 y 绘制的值
+public init<X, Y>(x: PlottableValue<X>,
+                  y: PlottableValue<Y>
+) where X : Plottable, Y : Plottable
+```
+
+使用此初始值设定项以 x 绘制一个属性，并用 y 绘制另一属性：
+
+<Figure src={require("./image_4.png")} size={420} />
+
+有关更多背景信息，请参阅 [PointMark](https://developer.apple.com/documentation/charts/pointmark) 中使用的第一个示例，该示例显示包含 `wingLength` 和 `wingHeight` 属性的结构。
+
+## 初始化器
+
+### init(x:y:)
+
+```swift
+// 创建具有固定 x 位置的点标记并使用 y 绘制值
+//
+// - x: x 位置。如果 x 为 nil ，则该栏将默认水平居中
+// - y: 用 y 绘制的值
+public init<Y>(x: CGFloat? = nil, y: PlottableValue<Y>) where Y : Plottable
+```
+
+使用此初始值设定项将属性绘制到 `y`：
+
+<Figure src={require("./image_5.png")} size={120} />
+
+有关更多背景信息，请参阅 [PointMark](https://developer.apple.com/documentation/charts/pointmark) 中使用的第一个示例，该示例显示包含 `weight` 属性的结构。
+
+### init(x:y:)
+
+```swift
+// 创建一个点标记，在固定 y 位置的 x 上绘制值
+//
+// - x: 用 x 绘制的值
+// - y: y 位置。如果 y 为 nil ，则默认情况下该栏将垂直居中
+public init<X>(x: PlottableValue<X>, y: CGFloat? = nil) where X : Plottable
+```
+
+使用此初始值设定项来绘制带有 x 的属性：
+
+```swift
+Chart(data) {
+    PointMark(
+        x: .value("Weight", $0.weight)
+    )
+}
+```
+
+<Figure src={require("./image_6.png")} size={420} />
+
+有关更多背景信息，请参阅 [PointMark](https://developer.apple.com/documentation/charts/pointmark) 中使用的第一个示例，该示例显示包含 `weight` 属性的结构。

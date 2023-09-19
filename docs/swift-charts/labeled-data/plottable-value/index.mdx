@@ -8,6 +8,13 @@
   summary="使用标记在图表上绘制的标记数据"
 />
 
+```swift
+@available(iOS 16.0, macOS 13.0, tvOS 16.0, watchOS 9.0, *)
+public struct PlottableValue<Value> where Value : Plottable {
+    // ...
+}
+```
+
 ## 概述
 
 向 Mark 属性（例如 x、y、foregroundStyle）提供 PlottableValue ，以使用 mark 属性绘制数据值。
@@ -48,4 +55,37 @@ var body: some View {
         .foregroundStyle(.value("Group", $0.group))
     }
 }
+```
+
+## 类型方法
+
+### value(_:_:)
+
+```swift
+// 创建带有标签和值的参数值
+//
+// - label: 标签
+// - value: The parameter's value.
+public static func value<S>(_ label: S, _ value: Value)
+        -> PlottableValue<Value> where S : StringProtocol
+```
+
+### value(_:_:)
+
+```swift
+// 使用标签键和值创建参数值
+//
+// - labelKey: 标签的本地化字符串键
+// - value: 参数的值
+public static func value(_ labelKey: LocalizedStringKey, _ value: Value) -> PlottableValue<Value>
+```
+
+### value(_:_:)
+
+```swift
+// 创建带有标签和值的参数值
+//
+// - label: 标签
+// - value: 参数的值
+public static func value(_ label: Text, _ value: Value) -> PlottableValue<Value>
 ```

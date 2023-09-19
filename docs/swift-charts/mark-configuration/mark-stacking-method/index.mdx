@@ -8,6 +8,43 @@
   summary="在图表中堆叠标记的方法"
 />
 
-## 概述
+```swift
+@available(iOS 16.0, macOS 13.0, tvOS 16.0, watchOS 9.0, *)
+@frozen public struct MarkStackingMethod : Equatable {
+    // ...
+}
+```
 
---
+## 类型属性
+
+### center
+
+```swift
+// 使用中心偏移堆叠标记
+@inlinable public static var center: MarkStackingMethod { get }
+```
+
+使用此类型创建流图（stream graph）。
+
+### normalized
+
+```swift
+// 创建标准化的堆积条形图和面积图
+@inlinable public static var normalized: MarkStackingMethod { get }
+```
+
+### standard
+
+```swift
+// 堆栈标记从零开始
+@inlinable public static var standard: MarkStackingMethod { get }
+```
+
+负值出现在零以下，从而产生不同的堆叠标记。
+
+### unstacked
+
+```swift
+// 不要堆叠标记
+@inlinable public static var unstacked: MarkStackingMethod { get }
+```

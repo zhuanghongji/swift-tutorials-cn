@@ -8,6 +8,80 @@
   summary="线或区域标记插入其数据的方式"
 />
 
+```swift
+@available(iOS 16.0, macOS 13.0, tvOS 16.0, watchOS 9.0, *)
+@frozen public struct InterpolationMethod {
+    // ...
+}
+```
+
 ## 概述
 
---
+### cardinal
+
+```swift
+// 使用基数样条插值数据点
+@inlinable public static var cardinal: InterpolationMethod { get }
+```
+
+### catmullRom
+
+```swift
+// 使用 Catmull-Rom 样条插值数据点
+@inlinable public static var catmullRom: InterpolationMethod { get }
+```
+
+### linear
+
+```swift
+// 线性插值数据点
+@inlinable public static var linear: InterpolationMethod { get }
+```
+
+### monotone
+
+```swift
+// 使用三次样条对数据点进行插值，以保持数据的单调性
+@inlinable public static var monotone: InterpolationMethod { get }
+```
+
+### stepCenter
+
+```swift
+// 使用步骤或分段常数函数对数据点进行插值，其中数据点位于步骤的中心
+@inlinable public static var stepCenter: InterpolationMethod { get }
+```
+
+### stepEnd
+
+```swift
+// 使用步骤或分段常数函数对数据点进行插值，其中数据点位于步骤的末尾
+@inlinable public static var stepEnd: InterpolationMethod { get }
+```
+
+### stepStart
+
+```swift
+// 使用步骤或分段常数函数对数据点进行插值，其中数据点位于步骤的开始处
+@inlinable public static var stepStart: InterpolationMethod { get }
+```
+
+## 类型方法
+
+### cardinal(tension:)
+
+```swift
+// 使用给定的张力参数，用基数样条插值数据点
+///
+// - tension: 控制基数样条线中切线长度的参数
+@inlinable public static func cardinal(tension: CGFloat) -> InterpolationMethod
+```
+
+### catmullRom(alpha:)
+
+```swift
+// 使用给定的 alpha 参数，通过 Catmull-Rom 样条线对数据点进行插值
+//
+// - alpha: Catmull-Rom 样条线的参数。对于均匀样条线使用 0，对于向心样条线使用 0.5，对于弦样条线使用 1.0
+@inlinable public static func catmullRom(alpha: CGFloat) -> InterpolationMethod
+```

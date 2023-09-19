@@ -8,6 +8,13 @@
   summary="使用矩形表示数据的图表内容"
 />
 
+```swift
+@available(iOS 16.0, macOS 13.0, tvOS 16.0, watchOS 9.0, *)
+public struct RectangleMark {
+    // ...
+}
+```
+
 ## 概述
 
 使用矩形标记将数据字段映射到矩形。你可以使用矩形标记创建热图或注释图表中的矩形区域。
@@ -96,3 +103,335 @@ var body: some View {
 ```
 
 <Figure src={require("./image_2.png")} size={420} />
+
+## 创建矩形标记
+
+### init(x:yStart:yEnd:width:)
+
+```swift
+// 创建具有 y 间隔编码和 x 编码的矩形标记
+//
+// - yStart: 以 x 开始绘制的值
+// - yEnd: 以 x 结尾绘制的值
+// - x: 用 y 绘制的值
+// - width: 矩形的宽度。如果 width 为 nil ，则将使用步长。如果没有步长，将使用默认宽度（以磅为单位）
+public init<X, Y>(x: PlottableValue<X>,
+                  yStart: PlottableValue<Y>,
+                  yEnd: PlottableValue<Y>,
+                  width: MarkDimension = .automatic
+) where X : Plottable, Y : Plottable
+```
+
+使用此初始值设定项将每个数据元素的 y 起点、y 终点和 x 位置映射到矩形。 （可选）指定矩形的宽度。
+
+下面的示例省略了可选的 width 字段，并使用从 (0,0) 开始到 (6,6) 结束的数字刻度。该矩形的坐标为：(0,2)、(0,4)、(4,4)、(4,2)。
+
+```swift
+Chart(data) {
+    RectangleMark(
+        yStart: .value("Rect yStart", 2),
+        yEnd: .value("Rect yEnd", 4),
+        x: .value("Rect X", 4)
+    )
+    .opacity(0.2)
+
+   PointMark(
+        x: .value("X", $0.x),
+        y: .value("Y", $0.y)
+    )
+}
+```
+
+<Figure src={require("./image_3.png")} size={420} />
+
+### init(xStart:xEnd:y:height:)
+
+```swift
+// 创建具有 x 间隔编码和 y 编码的矩形标记
+//
+// - xStart: 以 x 开始绘制的值
+// - xEnd: 以 x 结尾绘制的值
+// - y: 用 y 绘制的值
+// - height: 矩形的高度。如果 height 为 nil ，则将使用步长。如果没有步长，将使用默认高度（以磅为单位）
+public init<X, Y>(xStart: PlottableValue<X>,
+                  xEnd: PlottableValue<X>,
+                  y: PlottableValue<Y>,
+                  height: MarkDimension = .automatic
+) where X : Plottable, Y : Plottable
+```
+
+使用此初始值设定项将每个数据元素的 x 起点、x 终点和 y 位置映射到矩形。 （可选）指定矩形的高度。
+
+下面的示例省略了可选的 height 参数，并使用从 (0,0) 开始到 (6,6) 结束的数字刻度。该矩形的坐标为：(2,0)、(2,4)、(4,4)、(4,0)。
+
+```swift
+Chart(data) {
+    RectangleMark(
+        xStart: .value("Rect xStart", 2),
+        xEnd: .value("Rect xEnd", 4),
+        y: .value("Rect Y", 4)
+    )
+    .opacity(0.2)
+
+    PointMark(
+        x: .value("X", $0.x),
+        y: .value("Y", $0.y)
+    )
+}
+```
+
+<Figure src={require("./image_4.png")} size={420} />
+
+### init(xStart:xEnd:yStart:yEnd:)
+
+```swift
+// 创建具有 x 和 y 间隔编码的矩形标记
+//
+// - xStart: 以 x 开始绘制的值
+// - xEnd: 以 x 结尾绘制的值
+// - yStart: 以 y 开头绘制的值
+// - yEnd: 以 y 端绘制的值
+public init<X, Y>(xStart: PlottableValue<X>,
+                  xEnd: PlottableValue<X>,
+                  yStart: PlottableValue<Y>,
+                  yEnd: PlottableValue<Y>
+) where X : Plottable, Y : Plottable
+```
+
+使用此初始值设定项将每个数据元素的 x 开始、x 结束、y 开始和 y 结束位置映射到矩形。
+
+下面的示例使用从 (0,0) 开始到 (6,6) 结束的数字刻度。该矩形的坐标为：(2,2)、(2,4)、(4,4)、(4,2)。
+
+```swift
+Chart(data) {
+    RectangleMark(
+        xStart: .value("Rect xStart", 2),
+        xEnd: .value("Rect xEnd", 4),
+        yStart: .value("Rect yStart", 2),
+        yEnd: .value("Rect yEnd", 4)
+    )
+    .opacity(0.2)
+
+    PointMark(
+        x: .value("X", $0.x),
+        y: .value("Y", $0.y)
+    )
+}
+```
+
+<Figure src={require("./image_5.png")} size={420} />
+
+### init(x:y:width:height:)
+
+```swift
+// 创建一个用 x 和 y 绘制值的矩形
+//
+// - x: 用 x 绘制的值
+// - y: 用 y 绘制的值
+// - width: 矩形的宽度。如果 width 为 nil ，则将使用步长。如果没有步长，将使用默认宽度（以磅为单位）
+// - height: 矩形的高度。如果 height 为 nil ，则将使用步长。如果没有步长，将使用默认高度（以磅为单位）
+public init<X, Y>(x: PlottableValue<X>,
+                  y: PlottableValue<Y>,
+                  width: MarkDimension = .automatic,
+                  height: MarkDimension = .automatic
+) where X : Plottable, Y : Plottable
+```
+
+使用此初始值设定项将每个数据元素的 x 和 y 位置映射到矩形。 （可选）指定矩形的宽度或高度。
+
+下面的示例省略了可选的 width 和 height 参数，并使用从 (0,0) 开始的数字刻度。该矩形的坐标为：(0,0)、(0,3)、(3,0)、(3,3)。
+
+```swift
+Chart(data) {
+    RectangleMark(
+        x: .value("Rect X", 3),
+        y: .value("Rect Y", 3)
+    )
+    .opacity(0.2)
+
+    PointMark(
+        x: .value("X", $0.x),
+        y: .value("Y", $0.y)
+    )
+}
+```
+
+<Figure src={require("./image_6.png")} size={420} />
+
+## 初始化器
+
+### init(x:yStart:yEnd:width:)
+
+```swift
+// 创建一个矩形标记，在 x 上绘制值并具有固定的 y 间隔
+//
+// - x: 用 x 绘制的值
+// - width: 矩形的宽度。如果 width 为 nil ，则将使用步长。如果没有步长，将使用默认宽度（以磅为单位）
+// - yStart: y 起始位置。如果 yStart 为 nil ，则矩形将从绘图区域的前缘开始
+// - yEnd: y 结束位置。如果 yEnd 为 nil ，则矩形将在绘图区域的后缘处结束
+public init<X>(x: PlottableValue<X>,
+               yStart: CGFloat? = nil,
+               yEnd: CGFloat? = nil,
+               width: MarkDimension = .automatic
+) where X : Plottable
+```
+
+使用此初始值设定项将每个数据元素的 x 位置映射到矩形。 （可选）指定矩形的宽度、yStart 位置或 yEnd 位置。
+
+下面的示例省略了可选的 width 、 yStart 和 yEnd 参数，并使用从 (0,0) 开始到 (6,6 ）。该矩形的坐标为：(0,0)、(0,6)、(3,6)、(3,0)。
+
+```swift
+Chart(data) {
+    RectangleMark(
+        x: .value("Rect X", 3)
+    )
+    .opacity(0.2)
+
+    PointMark(
+        x: .value("X", $0.x),
+        y: .value("Y", $0.y)
+    )
+}
+```
+
+<Figure src={require("./image_7.png")} size={420} />
+
+### init(xStart:xEnd:y:height:)
+
+```swift
+// 创建具有固定 x 间隔和 y 编码的矩形标记
+//
+// - xStart: x 起始位置。如果 xStart 为 nil ，则矩形将从绘图区域的前缘开始
+// - xEnd: x 结束位置。如果 xEnd 为 nil ，则矩形将在绘图区域的后缘处结束
+// - y: 用 y 绘制的值
+// - height: 矩形的高度。如果 height 为 nil ，则将使用步长。如果没有步长，将使用默认高度（以磅为单位）
+public init<Y>(xStart: CGFloat? = nil,
+               xEnd: CGFloat? = nil,
+               y: PlottableValue<Y>,
+               height: MarkDimension = .automatic
+) where Y : Plottable
+```
+
+使用此初始值设定项将每个数据元素的 y 位置映射到矩形。 （可选）指定矩形的高度、xStart 位置或 xEnd 位置。
+
+下面的示例省略了可选的 x 、 width 和 height 参数，并使用从 (0,0) 开始到 (6,6 ）。该矩形的坐标为：(0,0)、(0,3)、(6,3)、(6,0)。
+
+```swift
+Chart(data) {
+    RectangleMark(
+        y: .value("Rect Y", 3)
+    )
+    .opacity(0.2)
+
+    PointMark(
+        x: .value("X", $0.x),
+        y: .value("Y", $0.y)
+    )
+}
+```
+
+<Figure src={require("./image_8.png")} size={420} />
+
+### init(xStart:xEnd:yStart:yEnd:)
+
+```swift
+// 创建具有固定 x 和 y 间隔的矩形标记
+//
+// - xStart: x 起始位置。如果 xStart 为 nil ，则矩形将从绘图区域的前缘开始
+// - xEnd: x 结束位置。如果 xEnd 为 nil ，则矩形将在绘图区域的后缘处结束
+// - yStart: y 起始位置。如果 yStart 为 nil ，则矩形将从绘图区域的前缘开始
+// - yEnd: y 结束位置。如果 yEnd 为 nil ，则矩形将在绘图区域的后缘处结束
+public init(xStart: CGFloat? = nil, xEnd: CGFloat? = nil, yStart: CGFloat? = nil, yEnd: CGFloat? = nil)
+```
+
+使用此初始值设定项可创建一个具有任意可选 x 起始位置、x 结束位置、y 起始位置和 y 结束位置的矩形。如果未指定参数，则矩形将填充图表的绘图区域。
+
+下面的示例使用从 (0,0) 开始到 (6,6) 结束的数字刻度。该矩形的坐标为：(2,2)、(2,4)、(4,4)、(4,2)。
+
+```swift
+Chart(data) {
+    RectangleMark()
+        .opacity(0.2)
+
+    PointMark(
+        x: .value("X", $0.x),
+        y: .value("Y", $0.y)
+    )
+}
+```
+
+<Figure src={require("./image_9.png")} size={420} />
+
+### init(xStart:xEnd:yStart:yEnd:)
+
+```swift
+// 创建具有 y 间隔编码和固定 x 间隔的矩形标记
+//
+// - yStart: 以 y 端绘制的值
+// - yEnd: 以 y 端绘制的值
+// - xStart: x 起始位置。如果 xStart 为 nil ，则矩形将从绘图区域的前缘开始
+// - xEnd: x 结束位置。如果 xEnd 为 nil ，则矩形将在绘图区域的后缘处结束
+public init<Y>(xStart: CGFloat? = nil,
+               xEnd: CGFloat? = nil,
+               yStart: PlottableValue<Y>,
+               yEnd: PlottableValue<Y>
+) where Y : Plottable
+```
+
+使用此初始值设定项将每个数据元素的 y 开始和 y 结束位置映射到矩形。 （可选）指定矩形的 xStart 或 xEnd 位置。
+
+下面的示例省略了可选的 x 和 width 字段，并使用从 (0,0) 开始到 (6,6) 结束的数字刻度。该矩形的坐标为：(0,2)、(0,4)、(6,4)、(6,2)。
+
+```swift
+Chart(data) {
+    RectangleMark(
+        yStart: .value("Rect yStart", 2),
+        yEnd: .value("Rect yEnd", 4)
+    )
+    .opacity(0.2)
+
+    PointMark(
+        x: .value("X", $0.x),
+        y: .value("Y", $0.y)
+    )
+}
+```
+
+<Figure src={require("./image_10.png")} size={420} />
+
+### init(xStart:xEnd:yStart:yEnd:)
+
+```swift
+// 创建具有 x 间隔编码和固定 y 间隔的矩形标记
+//
+// - xStart: 以 x 开始绘制的值
+// - xEnd: 以 x 结尾绘制的值
+// - yStart: y 结束位置。如果 yStart 为 nil ，则矩形将从绘图区域的前缘开始
+// - yEnd: y 结束位置。如果 yEnd 为 nil ，则矩形将在绘图区域的后缘处结束
+public init<X>(xStart: PlottableValue<X>,
+               xEnd: PlottableValue<X>,
+               yStart: CGFloat? = nil,
+               yEnd: CGFloat? = nil
+) where X : Plottable
+```
+
+使用此初始值设定项将每个数据元素的 x 起点和 x 终点映射到矩形。 （可选）指定矩形的 yStart 或 yEnd 位置。
+
+下面的示例省略了可选的 y 和 height 字段，并使用从 (0,0) 开始到 (6,6) 结束的数字刻度。该矩形的坐标为：(2,0)、(2,6)、(4,6)、(4,0)。
+
+```swift
+Chart(data) {
+    RectangleMark(
+        xStart: .value("Rect xStart", 2),
+        xEnd: .value("Rect xEnd", 4)
+    )
+    .opacity(0.2)
+
+    PointMark(
+        x: .value("X", $0.x),
+        y: .value("Y", $0.y)
+    )
+}
+```
+
+<Figure src={require("./image_11.png")} size={420} />

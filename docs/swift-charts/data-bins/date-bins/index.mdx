@@ -8,4 +8,75 @@
   summary="图表的 bin 集合，根据日期绘制数据"
 />
 
-## 概述
+```swift
+@available(iOS 16.0, macOS 13.0, tvOS 16.0, watchOS 9.0, *)
+public struct DateBins {
+    // ...
+}
+```
+
+## 初始化器
+
+### init(data:desiredCount:<wbr/>calendar:)
+
+```swift
+// 自动根据数据确定 bin
+//
+// - data: 给定的数据值
+// - desiredCount: 给定数据所需的 bin 数量。如果 nil ，则使用 Scott’s normal reference rule
+//                 自动从数据推断 bin 数量，上限为 200
+// - Returns: 推断的 bins
+public init(data: [Date],
+            desiredCount: Int? = nil,
+            calendar: Calendar = .autoupdatingCurrent)
+```
+
+### init(range:desiredCount:<wbr/>calendar:)
+
+```swift
+// 自动从一系列数据中确定 bins
+//
+// - range: bins 应覆盖的范围
+// - desiredCount: 给定数据所需的 bin 数量
+// - Returns: 推断的 bins
+public init(range: ClosedRange<Date>,
+            desiredCount: Int = 10,
+            calendar: Calendar = .autoupdatingCurrent)
+```
+
+### init(thresholds:)
+
+```swift
+// 使用给定的 N thresholds 创建 N-1 个 bin
+//
+// - thresholds: bins 周围的阈值
+// - Returns: bins
+public init(thresholds: [Date])
+```
+
+### init(timeInterval:range:)
+
+```swift
+// 创建覆盖给定范围的统一垃圾箱。第一个 bin 从范围的下限开始
+//
+// - timeInterval: bins 的大小
+// - range: bin 涵盖的数据范围
+// - Returns: bins
+public init(timeInterval: TimeInterval, range: ClosedRange<Date>)
+```
+
+### init(unit:by:range:<wbr/>calendar:)
+
+```swift
+// 创建覆盖给定范围的统一 bins
+//
+// - unit: bins 的大小
+// - stride: 每个 bin 的组件数量
+// - range: bin 涵盖的数据范围
+// - calendar: 要使用的日历
+// - Returns: bins
+public init(unit: Calendar.Component,
+            by stride: Int = 1,
+            range: ClosedRange<Date>,
+            calendar: Calendar = .autoupdatingCurrent)
+```

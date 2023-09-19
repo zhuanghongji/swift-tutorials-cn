@@ -8,6 +8,17 @@
   summary="类型擦除的绘图形状"
 />
 
-## 概述
+```swift
+@available(iOS 16.0, macOS 13.0, tvOS 16.0, watchOS 9.0, *)
+@frozen public struct AnyChartSymbolShape : ChartSymbolShape {
+    // ...
+}
+```
 
---
+## 初始化器
+
+### init(\_:)
+
+```swift
+public init(_ content: ChartSymbolShape)
+```

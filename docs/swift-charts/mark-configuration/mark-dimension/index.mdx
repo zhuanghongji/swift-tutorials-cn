@@ -8,6 +8,67 @@
   summary="表示标记宽度或高度的单独尺寸"
 />
 
-## 概述
+```swift
+@available(iOS 16.0, macOS 13.0, tvOS 16.0, watchOS 9.0, *)
+@frozen public struct MarkDimension : ExpressibleByFloatLiteral, ExpressibleByIntegerLiteral {
+    // ...
+}
+```
 
---
+## 初始化器
+
+### init(floatLiteral:)
+
+```swift
+// 从浮点值创建恒定的宽度或高度
+//
+// - value: 宽度或高度
+@inlinable public init(floatLiteral value: Double)
+```
+
+### init(integerLiteral:)
+
+```swift
+// 从整数创建恒定的宽度或高度
+//
+// - value: 宽度或高度
+@inlinable public init(integerLiteral value: Int)
+```
+
+## 类型属性
+
+### automatic
+
+```swift
+// 自动确定其值的维度
+@inlinable public static var automatic: MarkDimension { get }
+```
+
+## 类型方法
+
+### fixed(\_:)
+
+```swift
+// 一个恒定的维度
+///
+// - value: 固定的宽度或高度
+@inlinable public static func fixed(_ value: CGFloat) -> MarkDimension
+```
+
+### inset(\_:)
+
+```swift
+// 尺寸是步长减去每侧指定的插入值
+//
+// - value: 屏幕坐标中给定的插入值
+@inlinable public static func inset(_ value: CGFloat) -> MarkDimension
+```
+
+### ratio(\_:)
+
+```swift
+// 使用指定比率与缩放步长成比例的尺寸
+//
+// - value: 给定的比率，从 0 到 1
+@inlinable public static func ratio(_ value: CGFloat) -> MarkDimension
+```

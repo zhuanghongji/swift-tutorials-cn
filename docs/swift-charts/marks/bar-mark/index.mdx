@@ -8,9 +8,16 @@
   summary="使用条形表示数据的图表内容"
 />
 
+```swift
+@available(iOS 16.0, macOS 13.0, tvOS 16.0, watchOS 9.0, *)
+public struct BarMark {
+    // ...
+}
+```
+
 ## 概述
 
-你可以使用 BarMark 图表内容创建不同类型的条形图。要创建一个简单的垂直条形图来绘制 x 位置的类别和 y 位置的数字，请使用 init(x:y:width:height:stacking:) 。例如，你可以按部门显示利润：
+你可以使用 `BarMark` 图表内容创建不同类型的条形图。要创建一个简单的垂直条形图来绘制 `x` 位置的类别和 `y` 位置的数字，请使用 `init(x:y:width:height:stacking:)`。例如，你可以按部门显示利润：
 
 ```swift
 struct Profit {
@@ -38,11 +45,11 @@ var body: some View {
 
 <Figure src={require("./image_1.png")} size={420} />
 
-Swift Charts 为 BarMark 提供了其它几个初始化器。下面是更多使用它们的示例。有关初始化程序的完整列表，请参阅主题部分。
+Swift Charts 为 `BarMark` 提供了其它几个初始化器。下面是更多使用它们的示例。有关初始化程序的完整列表，请参阅主题部分。
 
 ## 堆积条形图
 
-当多个栏映射到同一位置时， BarkMark 会自动堆叠内容。如果按类别拆分利润数据，你可以看到这一点：
+当多个栏映射到同一位置时，`BarkMark` 会自动堆叠内容。如果按类别拆分利润数据，你可以看到这一点：
 
 ```swift
 struct ProfitByCategory {
@@ -77,7 +84,7 @@ var body: some View {
 
 <Figure src={require("./image_2.png")} size={420} />
 
-这会导致图表看起来与“概述”部分中看到的图表相同，因为具有相同部门类别的条形图彼此堆叠在一起。要区分产品类别，请添加 foregroundStyle(by:) 修饰符，指定 productCategory 的视觉编码：
+这会导致图表看起来与“概述”部分中看到的图表相同，因为具有相同部门类别的条形图彼此堆叠在一起。要区分产品类别，请添加 `foregroundStyle(by:)` 修饰符，指定 `productCategory` 的视觉编码：
 
 ```swift
 Chart(data) {
@@ -89,11 +96,11 @@ Chart(data) {
 }
 ```
 
-你可以在 BarMark 初始化器中使用可选的 stacking: 参数来修改堆栈机制。有关堆叠选项，请参阅 MarkStackingMethod 。
+你可以在 BarMark 初始化器中使用可选的 `stacking:` 参数来修改堆栈机制。有关堆叠选项，请参阅 `MarkStackingMethod`。
 
 ## 一维条形图
 
-要构建一维图表，请使用仅需要用于一维的 PlottableValue 的初始化器之一，例如用于使用 x 进行绘图的 init(x:yStart:yEnd:width:stacking:) 。下面的示例重复使用上一个示例中的数据来获取生产部门值：
+要构建一维图表，请使用仅需要用于一维的 `PlottableValue` 的初始化器之一，例如用于使用 x 进行绘图的 `init(x:yStart:yEnd:width:stacking:)`。下面的示例重复使用上一个示例中的数据来获取生产部门值：
 
 ```swift
 Chart(data) { // Get the Production values.
@@ -108,7 +115,7 @@ Chart(data) { // Get the Production values.
 
 ## 区间条形图
 
-使用 BarMark 通过使用 init(xStart:xEnd:y:height:) 、 init(xStart:xEnd:y:height:stacking:) 、 init(x:yStart:yEnd:width:) 或 init(x:yStart:yEnd:width:stacking:) 来表示间隔。下面的示例通过将 start 和 end 属性绘制到 x 位置并将 task 属性绘制到 y 位置来显示甘特图：
+使用 BarMark 通过使用 `init(xStart:xEnd:y:height:)`、`init(xStart:xEnd:y:height:stacking:)`、`init(x:yStart:yEnd:width:)` 或 `init(x:yStart:yEnd:width:stacking:)` 来表示间隔。下面的示例通过将 `start` 和 `end` 属性绘制到 `x` 位置并将 `task` 属性绘制到 `y` 位置来显示甘特图：
 
 ```swift
 struct Job {
@@ -140,3 +147,218 @@ var body: some View {
 ```
 
 <Figure src={require("./image_5.png")} size={420} />
+
+## 创建条形标记
+
+### init(x:yStart:yEnd:width:)
+
+```swift
+// 创建一个条形标记，用 x 及其 y 间隔绘制值
+//
+// - x: 用 x 绘制的值
+// - yStart: 以 y 开头绘制的值
+// - yEnd: 以 y 端绘制的值
+// - width: 条形宽度。如果 width 为 nil ，则将应用默认的条形大小
+public init<X, Y>(x: PlottableValue<X>,
+                  yStart: PlottableValue<Y>,
+                  yEnd: PlottableValue<Y>,
+                  width: MarkDimension = .automatic
+) where X : Plottable, Y : Plottable
+```
+
+使用此初始值设定项显示一个或多个类别的垂直间隔：
+
+```swift
+Chart(data) {
+   BarMark(
+       x: .value("Job", $0.job),
+       yStart: .value("Start Time", $0.start),
+       yEnd: .value("End Time", $0.end)
+   )
+}
+```
+
+<Figure src={require("./image_6.png")} size={420} />
+
+### init(xStart:xEnd:y:height:)
+
+```swift
+// 创建一个条形标记，用其 x 间隔和 y 绘制值
+//
+// - xStart: 以 x 开始绘制的值
+// - xEnd: 以 x 结尾绘制的值
+// - y: 用 y 绘制的值
+// - height: 条形高度。如果 height 为 nil ，则将应用默认的条形大小
+public init<X, Y>(xStart: PlottableValue<X>,
+                  xEnd: PlottableValue<X>,
+                  y: PlottableValue<Y>,
+                  height: MarkDimension = .automatic
+) where X : Plottable, Y : Plottable
+```
+
+使用此初始值设定项显示一个或多个类别的水平间隔：
+
+```swift
+Chart(data) {
+   BarMark(
+       xStart: .value("Start Time", $0.start),
+       xEnd: .value("End Time", $0.end),
+       y: .value("Job", $0.job)
+   )
+}
+```
+
+<Figure src={require("./image_7.png")} size={420} />
+
+### init(x:y:width:height:stacking:)
+
+```swift
+// 创建一个用 x 和 y 绘制值的条形标记
+//
+// - x: 用 x 绘制的值
+// - y: 用 y 绘制的值
+// - width: 条形宽度。如果 width 为 nil ，则将应用默认的条形大小
+// - height: 条形高度。如果 height 为 nil ，则将应用默认的条形大小
+// - stacking: 具有相同分类/日期值的条形的堆叠方法。如果 stacking 是 nil ，则条形图不会堆叠
+public init<X, Y>(x: PlottableValue<X>,
+                  y: PlottableValue<Y>,
+                  width: MarkDimension = .automatic,
+                  height: MarkDimension = .automatic,
+                  stacking: MarkStackingMethod = .standard
+) where X : Plottable, Y : Plottable
+```
+
+使用此初始值设定项创建包含一个或多个条形的图表。对于水平条形图，用 y 绘制类别或日期，用 x 绘制数字。对于竖条，用 x 绘制类别或日期，用 y 绘制数字：
+
+```swift
+Chart(data) {
+    BarMark(
+        x: .value("Department", $0.department),
+        y: .value("Profit", $0.profit)
+    )
+}
+```
+
+<Figure src={require("./image_8.png")} size={420} />
+
+### init(x:y:width:height:stacking:)
+
+```swift
+// 创建一个用 x 和 y 绘制值的条形标记
+//
+// - x: 用 x 绘制的值
+// - yStart: y 起始位置。如果 yStart 为 nil ，则矩形将从绘图区域的前缘开始
+// - yEnd: y 结束位置。如果 yEnd 为 nil ，则矩形将在绘图区域的后缘处结束
+// - width: 条形宽度。如果 width 为 nil ，则将应用默认的条形大小
+// - stacking: 具有相同分类/日期值的条形的堆叠方法。如果 stacking 是 nil ，则条形图不会堆叠
+public init<X>(x: PlottableValue<X>,
+               yStart: CGFloat? = nil,
+               yEnd: CGFloat? = nil,
+               width: MarkDimension = .automatic,
+               stacking: MarkStackingMethod = .standard
+) where X : Plottable
+```
+
+使用此初始值设定项创建带有单个水平条的图表：
+
+```swift
+Chart(data) {
+    BarMark(
+        x: .value("Profit", $0.profit)
+    )
+    .foregroundStyle(by: .value("Product Category", $0.productCategory))
+}
+```
+
+<Figure src={require("./image_9.png")} size={420} />
+
+### init(xStart:xEnd:y:height:stacking:)
+
+```swift
+// 创建一个条形标记，以固定的 x 间隔绘制 y 上的值
+//
+// - xStart: x 起始位置。如果 xStart 为 nil ，则矩形将从绘图区域的前缘开始
+// - xEnd: x 结束位置。如果 xStart 为 nil ，则矩形将在绘图区域的后缘处结束
+// - y: 用 y 绘制的值
+// - height: 条形高度。如果 height 为 nil ，则将应用默认的条形大小
+// - stacking: 具有相同分类/日期值的条形的堆叠方法。如果 stacking 是 nil ，则条形图不会堆叠
+public init<Y>(xStart: CGFloat? = nil,
+               xEnd: CGFloat? = nil,
+               y: PlottableValue<Y>,
+               height: MarkDimension = .automatic,
+               stacking: MarkStackingMethod = .standard
+) where Y : Plottable
+```
+
+使用此初始值设定项创建带有单个垂直条的图表：
+
+```swift
+Chart(data) {
+    BarMark(
+        y: .value("Profit", $0.profit)
+    )
+    .foregroundStyle(by: .value("Product Category", $0.productCategory))
+}
+```
+
+<Figure src={require("./image_10.png")} size={120} />
+
+## 初始化器
+
+### init(xStart:xEnd:yStart:yEnd:)
+
+```swift
+// 创建具有固定 x 间隔的条形标记，并以其 y 间隔绘制值
+//
+// - xStart: x 起始位置。如果 xStart 为 nil ，则矩形将从绘图区域的前缘开始
+// - xEnd: x 结束位置。如果 xStart 为 nil ，则矩形将在绘图区域的后缘处结束
+// - yStart: 绘制到 y 起点的值
+// - yEnd: 绘制到 y 端的值
+public init<Y>(xStart: CGFloat? = nil,
+               xEnd: CGFloat? = nil,
+               yStart: PlottableValue<Y>,
+               yEnd: PlottableValue<Y>
+) where Y : Plottable
+```
+
+使用此初始值设定项来显示一个类别的垂直间隔：
+
+```swift
+Chart(data) {
+   BarMark(
+       yStart: .value("Start Time", $0.start),
+       yEnd: .value("End Time", $0.end)
+   )
+}
+```
+
+<Figure src={require("./image_11.png")} size={120} />
+
+### init(xStart:xEnd:yStart:yEnd:)
+
+```swift
+// 创建一个条形标记，用其 x 间隔和固定 y 位置绘制值
+//
+// - xStart: 以 x 开始绘制的值
+// - xEnd: 以 x 结尾绘制的值
+// - y: y 位置。如果 y 为 nil ，则默认情况下该栏将垂直居中
+// - height: 条形高度。如果 height 为 nil ，则将应用默认的条形大小
+public init<X>(xStart: PlottableValue<X>,
+               xEnd: PlottableValue<X>,
+               yStart: CGFloat? = nil,
+               yEnd: CGFloat? = nil
+) where X : Plottable
+```
+
+使用此初始值设定项显示一个类别的水平间隔：
+
+```swift
+Chart(data) {
+   BarMark(
+       xStart: .value("Start Time", $0.start),
+       xEnd: .value("End Time", $0.end)
+   )
+}
+```
+
+<Figure src={require("./image_12.png")} size={420} />

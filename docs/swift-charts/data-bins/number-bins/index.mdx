@@ -5,7 +5,148 @@
 <OriginalSource
   title="NumberBins"
   url="https://developer.apple.com/documentation/charts/numberbins"
-  summary="根据数字绘制数据的图表的箱的集合"
+  summary="根据数字绘制数据的图表的 bin 的集合"
 />
 
-## 概述
+```swift
+@available(iOS 16.0, macOS 13.0, tvOS 16.0, watchOS 9.0, *)
+public struct NumberBins<Value> where Value : Comparable, Value : Numeric {
+    // ...
+}
+```
+
+## 初始化器
+
+### init(data:desiredCount:minimumStride:)
+
+```swift
+// 自动根据数据确定 bin
+//
+// - data: 给定的数据值
+// - desiredCount: 给定数据所需的 bin 数量。如果 nil ，则使用 Scott’s normal reference rule
+//                 自动从数据推断 bin 数量，上限为 200。
+// - minimumStride: 允许的最小 bin 大小
+// - Returns: 推断的 bins
+public init(data: [Value],
+            desiredCount: Int? = nil,
+            minimumStride: Value = 0) where Value : BinaryFloatingPoint
+```
+
+### init(data:desiredCount:minimumStride:)
+
+```swift
+// 自动根据数据确定 bin
+//
+// - data: 给定的数据值
+// - desiredCount: 给定数据所需的 bin 数量。如果 nil ，则使用 Scott’s normal reference rule
+//                 自动从数据推断 bin 数量，上限为 200。
+// - minimumStride: 允许的最小 bin 大小
+// - Returns: 推断的 bins
+public init(data: [Value],
+            desiredCount: Int? = nil,
+            minimumStride: Value = 0) where Value : BinaryInteger
+```
+
+### init(range:count:)
+
+```swift
+// 为范围创建给定数量的 bin
+// 期望范围长度是 count 的倍数以允许统一的整数 bin
+//
+// - range: bin 的范围
+//          第一个 bin 从范围的下限开始，最后一个 bin 在范围的上限结束
+// - count: bin 的确切数量
+public init(range: ClosedRange<Value>, count: Int) where Value : BinaryInteger
+```
+
+### init(range:count:)
+
+```swift
+// 为范围创建给定数量的 bin
+// 期望范围长度是 count 的倍数以允许统一的整数 bin
+//
+// - range: bin 的范围
+//          第一个 bin 从范围的下限开始，最后一个 bin 在范围的上限结束
+// - count: bin 的确切数量
+public init(range: ClosedRange<Value>, count: Int) where Value : BinaryFloatingPoint
+```
+
+### init(range:desiredCount:minimumStride:)
+
+```swift
+// 自动从一系列数据中确定 bin
+//
+// - range: bins 应覆盖的范围
+// - desiredCount: 给定数据所需的 bin 数量。如果 nil ，则从数据中自动推断出数字
+// - minimumStride: 允许的最小 bin 大小
+// - Returns: 推断的 bins
+public init(range: ClosedRange<Value>,
+            desiredCount: Int = 10,
+            minimumStride: Value = 0) where Value : BinaryFloatingPoint
+```
+
+### init(range:desiredCount:minimumStride:)
+
+```swift
+// 自动从一系列数据中确定 bin
+//
+// - range: bins 应覆盖的范围
+// - desiredCount: 给定数据所需的 bin 数量。如果 nil ，则从数据中自动推断出数字
+// - minimumStride: 允许的最小 bin 大小
+// - Returns: 推断的 bins
+public init(range: ClosedRange<Value>,
+            desiredCount: Int = 10,
+            minimumStride: Value = 0) where Value : BinaryInteger
+```
+
+### init(size:range:)
+
+```swift
+// 创建覆盖给定范围的统一 bins
+//
+// - size: bins 的大小
+// - range: bins 涵盖的数据范围
+// - Returns: bins
+public init(size: Value, range: ClosedRange<Value>) where Value : BinaryFloatingPoint
+```
+
+### init(size:range:)
+
+```swift
+// 创建覆盖给定范围的统一 bins
+//
+// - size: bins 的大小
+// - range: bins 涵盖的数据范围
+// - Returns: bins
+public init(size: Value, range: ClosedRange<Value>) where Value : BinaryInteger
+```
+
+### init(thresholds:)
+
+```swift
+// 使用给定的 N thresholds 创建 N-1 个 bins
+//
+// - thresholds: bins 周围的阈值
+// - Returns: bins
+public init(thresholds: [Value])
+```
+
+## 实例属性
+
+### thresholds
+
+```swift
+// 找到 bin 阈值
+//
+// - Returns: 围绕 bins 的 bin 阈值
+public var thresholds: [Value] { get }
+```
+
+## 实例方法
+
+```swift
+// 返回给定值的 bin 索引
+// - value: 要获取索引的数值
+// - Returns: bin 索引
+public func index(for value: Value) -> Int
+```
