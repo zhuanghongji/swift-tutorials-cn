@@ -8,4 +8,21 @@
   summary="基本图表符号形状"
 />
 
-## 概述
+```swift
+@available(iOS 16.0, macOS 13.0, tvOS 16.0, watchOS 9.0, *)
+public struct BasicChartSymbolShape : ChartSymbolShape {
+    // ...
+}
+```
+
+## 实例方法
+
+### strokeBorder(lineWidth:)
+
+```swift
+// 通过对基本符号形状进行内部描边来创建描边符号形状
+//
+// - lineWidth: 描边线宽度
+// - Returns: 描画 self 形状的符号形状
+public func strokeBorder(lineWidth: CGFloat = 1) -> some ChartSymbolShape
+```

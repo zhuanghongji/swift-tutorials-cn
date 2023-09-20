@@ -8,6 +8,85 @@
   summary="缩放绘图域或范围的方法"
 />
 
+```swift
+@available(iOS 16.0, macOS 13.0, tvOS 16.0, watchOS 9.0, *)
+public struct ScaleType {
+    // ...
+}
+```
+
 ## 概述
 
 将此类型与 `.chartXScale` 视图修饰符的 `type:` 参数结合使用以自定义比例类型。
+
+## 类型属性
+
+### category
+
+```swift
+// 以离散域值作为输入的量表
+public static var category: ScaleType { get }
+```
+
+### date
+
+```swift
+// 日期刻度，其中每个范围值 y 都可以表示为域值 x 的时间戳的函数
+// 使用 y = a * x.timeIntervalSinceReferenceDate + b
+public static var date: ScaleType { get }
+```
+
+### linear
+
+```swift
+// 一个数字刻度，其中每个范围值 y 都可以表示为域值 x 的线性函数
+// 使用 y = a * x + b
+public static var linear: ScaleType { get }
+```
+
+### log
+
+```swift
+// 一个数字刻度，其中每个范围值 y 都可以表示为域值 x 的对数函数
+// 使用 y = a * log(x) + b
+public static var log: ScaleType { get }
+```
+
+### squareRoot
+
+```swift
+// 一个数字尺度，其中每个范围值 y 可以表示为域值 x 的平方根函数
+// 使用 y = a * sqrt(x) + b 。这相当于指数为 0.5 的幂标度
+public static var squareRoot: ScaleType { get }
+```
+
+### symmetricLog
+
+```swift
+// 一个数字尺度，其中每个范围值 y 都可以表示为域值 x 的对称对数函数
+// 使用 y = a * sign(x) * log(1 + |x * slopeAtZero|) + b
+// 常量 slopeAtZero 默认为 1。你可以使用 symmetricLog(slopeAtZero:) 配置它
+public static var symmetricLog: ScaleType { get }
+```
+
+## 类型方法
+
+### power(exponent:)
+
+```swift
+// 一个数字尺度，其中每个范围值 y 都可以表示为域值 x 的幂函数
+// 使用 y = a * pow(x, exponent) + b
+//
+/// - exponent: 幂函数的指数
+public static func power(exponent: Double) -> ScaleType
+```
+
+symmetricLog(slopeAtZero:)
+
+```swift
+// 一个数字尺度，其中每个范围值 y 都可以表示为域值 x 的对称对数函数
+// 使用 y = a * sign(x) * log(1 + |x * slopeAtZero|) + b
+//
+// - slopeAtZero: 将对称对数函数的斜率控制为零的正常数
+public static func symmetricLog(slopeAtZero: Double) -> ScaleType
+```

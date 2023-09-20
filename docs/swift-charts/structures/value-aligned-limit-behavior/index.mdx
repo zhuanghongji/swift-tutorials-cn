@@ -8,4 +8,38 @@
   summary="定义一次可以滚动的标记数量的类型"
 />
 
-## 概述
+```swift
+@available(iOS 17.0, macOS 14.0, tvOS 17.0, watchOS 10.0, *)
+public struct ValueAlignedLimitBehavior {
+    // ...
+}
+```
+
+## 类型属性
+
+### always
+
+```swift
+// 总是限制行为
+public static var always: ValueAlignedLimitBehavior { get }
+```
+
+始终限制可以滚动的标记数量。
+
+### automatic
+
+```swift
+// 自动限制行为
+public static var automatic: ValueAlignedLimitBehavior { get }
+```
+
+默认情况下，该行为将仅限于沿可滚动轴紧凑的滚动视图。
+
+### never
+
+```swift
+// 永不限制行为
+public static var never: ValueAlignedLimitBehavior { get }
+```
+
+切勿限制可滚动的标记数量。

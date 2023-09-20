@@ -8,4 +8,62 @@
   summary="描述轴标记将呈现的值（每个值一个）"
 />
 
-## 概述
+```swift
+@available(iOS 16.0, macOS 13.0, tvOS 16.0, watchOS 9.0, *)
+public struct AxisMarkValues : CustomStringConvertible {
+    // ...
+}
+```
+
+## 类型属性
+
+### automatic
+
+```swift
+// 自动确定轴标记的值
+public static var automatic: AxisMarkValues { get }
+```
+
+## 类型方法
+
+### automatic(desiredCount:roundLowerBound:roundUpperBound:)
+
+```swift
+// 自动确定标记的值，近似目标值数
+public static func automatic(desiredCount: Int? = nil,
+                             roundLowerBound: Bool? = nil,
+                             roundUpperBound: Bool? = nil
+) -> AxisMarkValues
+```
+
+### automatic(minimumStride:desiredCount:roundLowerBound:roundUpperBound:)
+
+```swift
+public static func automatic<P>(minimumStride: P,
+                                desiredCount: Int? = nil,
+                                roundLowerBound: Bool? = nil,
+                                roundUpperBound: Bool? = nil
+) -> AxisMarkValues where P : BinaryFloatingPoint
+```
+
+### stride(by:count:roundLowerBound:roundUpperBound:<wbr/>calendar:)
+
+```swift
+// 使用给定的日历单位创建值
+public static func stride(by component: Calendar.Component,
+                          count: Int = 1,
+                          roundLowerBound: Bool? = nil,
+                          roundUpperBound: Bool? = nil,
+                          calendar: Calendar? = nil
+) -> AxisMarkValues
+```
+
+### stride(by:roundLowerBound:roundUpperBound:)
+
+```swift
+// 使用给定的数字步长创建值
+public static func stride<P>(by stepSize: P,
+                             roundLowerBound: Bool? = nil,
+                             roundUpperBound: Bool? = nil
+) -> AxisMarkValues where P : BinaryFloatingPoint
+```

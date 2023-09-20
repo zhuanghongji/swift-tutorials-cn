@@ -8,4 +8,39 @@
   summary="描述轴标记的预设样式"
 />
 
-## 概述
+```swift
+@available(iOS 16.0, macOS 13.0, tvOS 16.0, watchOS 9.0, *)
+public struct AxisMarkPreset : CustomStringConvertible {
+    // ...
+}
+```
+
+## 类型属性
+
+### aligned
+
+```swift
+// 对齐的轴标记样式
+public static var aligned: AxisMarkPreset { get }
+```
+
+### automatic
+
+```swift
+// 自动确定标记样式
+public static var automatic: AxisMarkPreset { get }
+```
+
+### extended
+
+```swift
+// 延长轴标记样式
+public static var extended: AxisMarkPreset { get }
+```
+
+### inset
+
+```swift
+// 插入轴标记样式
+public static var inset: AxisMarkPreset { get }
+```

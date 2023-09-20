@@ -8,4 +8,23 @@
   summary="类型擦除的图表内容"
 />
 
-## 概述
+```swift
+@available(iOS 16.0, macOS 13.0, tvOS 16.0, watchOS 9.0, *)
+@frozen public struct AnyChartContent {
+    // ...
+}
+```
+
+## 初始化器
+
+### init(\_:)
+
+```swift
+@inlinable public init(_ content: ChartContent)
+```
+
+### init(erasing:)
+
+```swift
+@inlinable public init(erasing content: some ChartContent)
+```

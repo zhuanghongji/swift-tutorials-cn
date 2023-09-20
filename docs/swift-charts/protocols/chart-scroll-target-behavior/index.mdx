@@ -8,4 +8,154 @@
   summary="配置图表滚动行为的类型"
 />
 
-## 概述
+```swift
+@available(iOS 17.0, macOS 14.0, tvOS 17.0, watchOS 10.0, *)
+public protocol ChartScrollTargetBehavior : ScrollTargetBehavior {
+    // ...
+}
+```
+
+## 实例方法
+
+### updateTarget(\_:context:)
+
+```swift
+// 更新可滚动视图应滚动到的建议目标
+public func updateTarget(_ target: inout ScrollTarget, context: ScrollTargetBehaviorContext)
+```
+
+系统主要在两种情况下调用该方法：
+
+- 当滚动手势结束时，它会使用其减速率计算自然滚动到的位置。系统提供该计算值作为该方法的目标。
+- 当可滚动视图的大小发生变化时，它会根据新的大小计算应滚动到的位置，并提供此计算值作为此方法的目标。
+
+你可以实现此方法来覆盖计算的目标，这将使可滚动视图滚动到与其他情况不同的位置。
+
+## 类型方法
+
+### valueAligned(matching:majorAlignment:limitBehavior:)
+
+```swift
+// 创建一个滚动目标行为，该行为与沿可滚动轴以规则间隔间隔的值对齐
+//
+// - components: 用户完成滚动后对齐时要搜索的组件
+// - majorAlignment: 与主要价值观保持一致的行为。当用户在图表上滑动时，
+//                   图表将根据滑动方向捕捉到下一个或上一个主要单位。启用后，默认主要单位是页。
+// - limitBehavior: 滚动限制行为
+public static func valueAligned(matching components: DateComponents,
+                                majorAlignment: MajorValueAlignment<Date>? = nil,
+                                limitBehavior: ValueAlignedLimitBehavior = .automatic
+) -> ValueAlignedChartScrollTargetBehavior where Self == ValueAlignedChartScrollTargetBehavior
+```
+
+### valueAligned(unit:majorAlignment:limitBehavior:)
+
+```swift
+// 创建一个滚动目标行为，该行为与沿可滚动轴以规则间隔间隔的值对齐
+//
+// - unit: 对齐单元。当用户完成滚动手势时，图表将对齐到给定单位或域的末尾。
+// - majorAlignment: 与主要价值观保持一致的行为。当用户在图表上滑动时，
+//                   图表将根据滑动方向捕捉到下一个或上一个主要单位。启用后，默认主要单位是页。
+// - limitBehavior: 滚动限制行为
+public static func valueAligned<P>(unit: P,
+                                   majorAlignment: MajorValueAlignment<P>? = nil,
+                                   limitBehavior: ValueAlignedLimitBehavior = .automatic
+) -> ValueAlignedChartScrollTargetBehavior where Self == ValueAlignedChartScrollTargetBehavior,
+                                                 P : Plottable,
+                                                 P : Numeric
+```
+
+使用此方法创建与所需单位对齐的滚动行为。
+
+```swift
+Chart(data) {
+    BarMark(
+        x: .value("x", $0.x),
+        y: .value("y", $0.y)
+    )
+}
+.chartScrollableAxes(.horizontal)
+.chartScrollTargetBehavior(.valueAligned(unit: 10))
+```
+
+值对齐行为可以设置为与滑动时的主要单位对齐。启用后，默认主要单位是页面，滑动行为类似于 `.paged` 行为。
+
+### valueAligned(xMatching:yMatching:xMajorAlignment:yMajorAlignment:limitBehavior:)
+
+```swift
+// 创建一个滚动目标行为，该行为与沿可滚动轴以规则间隔间隔的值对齐
+//
+// - xComponents: x 轴的对齐组件
+// - yComponents: y 轴的对齐分量
+// - xMajorAlignment: 沿 x 轴对齐主要值的行为
+// - yMajorAlignment: 沿 y 轴对齐主要值的行为
+// - limitBehavior: 滚动限制行为
+public static func valueAligned(xMatching xComponents: DateComponents,
+                                yMatching yComponents: DateComponents,
+                                xMajorAlignment: MajorValueAlignment<Date>? = nil,
+                                yMajorAlignment: MajorValueAlignment<Date>? = nil,
+                                limitBehavior: ValueAlignedLimitBehavior = .automatic
+) -> ValueAlignedChartScrollTargetBehavior where Self == ValueAlignedChartScrollTargetBehavior
+```
+
+### valueAligned(xMatching:yUnit:xMajorAlignment:yMajorAlignment:limitBehavior:)
+
+```swift
+// 创建一个滚动目标行为，该行为与沿可滚动轴以规则间隔间隔的值对齐
+//
+// - xComponents: x 轴的对齐组件
+// - yUnit: y 轴的对齐单位
+// - xMajorAlignment: 沿 x 轴对齐主要值的行为
+// - yMajorAlignment: 沿 y 轴对齐主要值的行为
+// - limitBehavior: 滚动限制行为
+public static func valueAligned<Y>(xMatching xComponents: DateComponents,
+                                   yUnit: Y,
+                                   xMajorAlignment: MajorValueAlignment<Date>? = nil,
+                                   yMajorAlignment: MajorValueAlignment<Y>? = nil,
+                                   limitBehavior: ValueAlignedLimitBehavior = .automatic
+) -> ValueAlignedChartScrollTargetBehavior where Self == ValueAlignedChartScrollTargetBehavior,
+                                                 Y : Plottable,
+                                                 Y : Numeric
+```
+
+### valueAligned(xUnit:yMatching:xMajorAlignment:yMajorAlignment:limitBehavior:)
+
+```swift
+// 创建一个滚动目标行为，该行为与沿可滚动轴以规则间隔间隔的值对齐
+//
+// - xUnit: x 轴的对齐单位
+// - yComponents: y 轴的对齐分量
+// - xMajorAlignment: 沿 x 轴对齐主要值的行为
+// - yMajorAlignment: 沿 y 轴对齐主要值的行为
+// - limitBehavior: 滚动限制行为
+public static func valueAligned<X>(xUnit: X,
+                                   yMatching yComponents: DateComponents,
+                                   xMajorAlignment: MajorValueAlignment<X>? = nil,
+                                   yMajorAlignment: MajorValueAlignment<Date>? = nil,
+                                   limitBehavior: ValueAlignedLimitBehavior = .automatic
+) -> ValueAlignedChartScrollTargetBehavior where Self == ValueAlignedChartScrollTargetBehavior,
+                                                 X : Plottable,
+                                                 X : Numeric
+```
+
+### valueAligned(xUnit:yUnit:xMajorAlignment:yMajorAlignment:limitBehavior:)
+
+```swift
+// 创建一个滚动目标行为，该行为与沿可滚动轴以规则间隔间隔的值对齐
+//
+// - xUnit: x 轴的对齐单位
+// - yUnit: y 轴的对齐单位
+// - xMajorAlignment: 沿 x 轴对齐主要值的行为
+// - yMajorAlignment: 沿 y 轴对齐主要值的行为
+// - limitBehavior: 滚动限制行为
+public static func valueAligned<X, Y>(xUnit: X,
+                                      yUnit: Y,
+                                      xMajorAlignment: MajorValueAlignment<X>? = nil,
+                                      yMajorAlignment: MajorValueAlignment<Y>? = nil,
+                                      limitBehavior: ValueAlignedLimitBehavior = .automatic
+) -> ValueAlignedChartScrollTargetBehavior where Self == ValueAlignedChartScrollTargetBehavior,
+                                                 X : Plottable,
+                                                 X : Numeric,
+                                                 Y : Plottable,
+                                                 Y : Numeric
+```

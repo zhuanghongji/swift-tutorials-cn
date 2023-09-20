@@ -173,7 +173,7 @@ public init<X, Y>(x: PlottableValue<X>,
 ) where X : Plottable, Y : Plottable
 ```
 
-您可以使用此初始值设定项创建基本面积图：
+你可以使用此初始值设定项创建基本面积图：
 
 ```swift
 Chart(cheeseburgerCost) { cost in
@@ -204,7 +204,7 @@ public init<X, Y, S>(x: PlottableValue<X>,
 ) where X : Plottable, Y : Plottable, S : Plottable
 ```
 
-初始化程序的行为类似于 [init(x:y:stacking:)](<https://developer.apple.com/documentation/charts/areamark/init(x:y:stacking:)>)，不同之处在于您可以通过为 `series` 输入提供值来指示每个数据点属于哪个区域。这使您能够在一张图表上绘制多个区域。
+初始化程序的行为类似于 [init(x:y:stacking:)](<https://developer.apple.com/documentation/charts/areamark/init(x:y:stacking:)>)，不同之处在于你可以通过为 `series` 输入提供值来指示每个数据点属于哪个区域。这使你能够在一张图表上绘制多个区域。
 
 ## 创建范围面积图
 
@@ -222,7 +222,7 @@ public init<X, Y>(x: PlottableValue<X>,
 ) where X : Plottable, Y : Plottable
 ```
 
-使用此初始值设定项创建具有垂直间隔的范围面积图。例如，您可以创建一个包含一天中、多天内的所有温度的区域：
+使用此初始值设定项创建具有垂直间隔的范围面积图。例如，你可以创建一个包含一天中、多天内的所有温度的区域：
 
 ```swift
 Chart(data) { day in
@@ -254,7 +254,7 @@ public init<X, Y, S>(x: PlottableValue<X>,
 ) where X : Plottable, Y : Plottable, S : Plottable
 ```
 
-初始化程序的行为类似于 [init(x:yStart:yEnd:)](<https://developer.apple.com/documentation/charts/areamark/init(x:ystart:yend:)>)，不同之处在于您可以通过为 series 输入提供值来指示每个间隔属于哪个区域。这使您能够在一张图表上绘制多个区域。
+初始化程序的行为类似于 [init(x:yStart:yEnd:)](<https://developer.apple.com/documentation/charts/areamark/init(x:ystart:yend:)>)，不同之处在于你可以通过为 series 输入提供值来指示每个间隔属于哪个区域。这使你能够在一张图表上绘制多个区域。
 
 要绘制一系列具有水平间隔的值，请改用 [init(xStart:xEnd:y:series:)](<https://developer.apple.com/documentation/charts/areamark/init(xstart:xend:y:series:)>)。
 
@@ -271,7 +271,7 @@ public init<X, Y>(xStart: PlottableValue<X>,
 ) where X : Plottable, Y : Plottable
 ```
 
-使用此初始值设定项创建具有水平间隔的范围面积图。例如，您可以创建一个包含一天中、多天内的所有温度的区域：
+使用此初始值设定项创建具有水平间隔的范围面积图。例如，你可以创建一个包含一天中、多天内的所有温度的区域：
 
 ```swift
 Chart(data) { day in
@@ -303,6 +303,6 @@ public init<X, Y, S>(xStart: PlottableValue<X>,
 ) where X : Plottable, Y : Plottable, S : Plottable
 ```
 
-初始化程序的行为类似于 [init(xStart:xEnd:y:)](<https://developer.apple.com/documentation/charts/areamark/init(xstart:xend:y:)>)，不同之处在于您可以通过为 series 输入提供值来指示每个间隔属于哪个区域。这使您能够在一张图表上绘制多个区域。
+初始化程序的行为类似于 [init(xStart:xEnd:y:)](<https://developer.apple.com/documentation/charts/areamark/init(xstart:xend:y:)>)，不同之处在于你可以通过为 series 输入提供值来指示每个间隔属于哪个区域。这使你能够在一张图表上绘制多个区域。
 
 要绘制一系列具有垂直间隔的值，请改用 [init(x:yStart:yEnd:series:)](<https://developer.apple.com/documentation/charts/areamark/init(x:ystart:yend:series:)>)。

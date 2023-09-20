@@ -8,4 +8,38 @@
   summary="定义 valigned 对齐图表滚动目标行为如何与滑动时的主要值对齐的类型"
 />
 
-## 概述
+```swift
+@available(iOS 17.0, macOS 14.0, tvOS 17.0, watchOS 10.0, *)
+public struct MajorValueAlignment<Value> where Value : Plottable {
+    // ...
+}
+```
+
+## 类型属性
+
+### page
+
+```swift
+// 自动将主要对齐单位设置为相当于页面的可见域的大小
+public static var page: MajorValueAlignment<Value> { get }
+```
+
+## 类型方法
+
+### matching(\_:)
+
+```swift
+// 与日历组件对齐
+//
+// - components: 对齐组件
+public static func matching(_ components: DateComponents) -> MajorValueAlignment<Value> where Value == Date
+```
+
+### unit(\_:)
+
+```swift
+// 与单位对齐
+//
+// - unit: 对齐单元
+public static func unit(_ unit: Value) -> MajorValueAlignment<Value> where Value : Numeric
+```

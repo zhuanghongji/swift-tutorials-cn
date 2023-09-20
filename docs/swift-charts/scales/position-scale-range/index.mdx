@@ -8,6 +8,39 @@
   summary="配置 x 轴和 y 轴值的类型"
 />
 
-## 概述
+```swift
+@available(iOS 16.0, macOS 13.0, tvOS 16.0, watchOS 9.0, *)
+public protocol PositionScaleRange : ScaleRange where Self.VisualValue == CGFloat {
+    // ...
+}
+```
 
---
+## 类型属性
+
+### plotDimension
+
+```swift
+// 填充绘图区域的比例范围
+public static var plotDimension: PlotDimensionScaleRange { get }
+```
+
+## 类型方法
+
+### plotDimension(padding:)
+
+```swift
+// 在开始和结束时使用给定填充值填充绘图区域的比例范围
+//
+// - padding: 屏幕坐标中的开始和结束填充值
+public static func plotDimension(padding: CGFloat) -> PlotDimensionScaleRange
+```
+
+### plotDimension(startPadding:endPadding:)
+
+```swift
+// 分别在开始和结束处使用给定填充值填充绘图区域的比例范围
+//
+// - startPadding: 屏幕坐标中的起始填充值
+// - endPadding: 屏幕坐标中的结束填充值
+public static func plotDimension(startPadding: CGFloat = 0, endPadding: CGFloat = 0) -> PlotDimensionScaleRange
+```

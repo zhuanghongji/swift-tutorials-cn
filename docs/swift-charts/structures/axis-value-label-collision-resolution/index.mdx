@@ -8,4 +8,62 @@
   summary=""
 />
 
-## 概述
+```swift
+@available(iOS 16.0, macOS 13.0, tvOS 16.0, watchOS 9.0, *)
+public struct AxisValueLabelCollisionResolution : CustomStringConvertible {
+
+
+
+
+
+
+
+
+
+
+}
+```
+
+## 类型属性
+
+### automatic
+
+```swift
+// 根据轴类型和数据自动确定预防方法
+public static var automatic: AxisValueLabelCollisionResolution { get }
+```
+
+### disabled
+
+```swift
+// 不要对此标签应用冲突解决方案。标签将始终显示
+public static var disabled: AxisValueLabelCollisionResolution { get }
+```
+
+### greedy
+
+```swift
+// 使用贪心算法。如果标签不与其他标签重叠，则显示该标签
+public static var greedy: AxisValueLabelCollisionResolution { get }
+```
+
+### truncate
+
+```swift
+// 将标签截断为其可用的空间
+public static var truncate: AxisValueLabelCollisionResolution { get }
+```
+
+## 类型方法
+
+### greedy(priority:minimumSpacing:)
+
+```swift
+// 使用贪心算法。如果标签不与其他标签重叠，则显示该标签
+//
+// - priority: 标签的优先级。贪婪算法将首先放置具有较高优先级的标签
+// - minimumSpacing: 标签与其相邻标签之间的最小间距
+public static func greedy(priority: Double = 0,
+                          minimumSpacing: CGFloat? = nil
+) -> AxisValueLabelCollisionResolution
+```

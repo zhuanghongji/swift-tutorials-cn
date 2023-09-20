@@ -8,4 +8,85 @@
   summary="饼图或圆环图的一个部分，显示各个类别如何构成有意义的总数"
 />
 
+```swift
+@available(iOS 17.0, macOS 14.0, tvOS 17.0, watchOS 10.0, *)
+public struct SectorMark {
+
+
+}
+```
+
 ## 概述
+
+构成总值的每个类别值的相对大小被映射到扇区的角度大小。
+
+为了确保可视化易于阅读，请设计不超过 5-7 个扇区的饼图或圆环图。如有必要，将所有剩余值汇总到“其他”组中，或者考虑水平条形图，它可以扩展到许多条形，易于用类别标记，并让用户更准确地比较项目。
+
+确保你的数据仅包含正值。此外，图表中非常小的比例可能无法辨别，特别是在指定了角度插入的情况下。
+
+## 创建带有扇形标记的饼图
+
+要直观地显示值与它们总共加起来的总数的比率，请指定值，通常按递减的值排序。如果需要，添加“其他”组作为最后一项。
+
+```swift
+let data = [
+    (name: "Cachapa", sales: 9631),
+    (name: "Crêpe", sales: 6959),
+    (name: "Injera", sales: 4891),
+    (name: "Jian Bing", sales: 2506),
+    (name: "American", sales: 1777),
+    (name: "Dosa", sales: 625),
+]
+
+
+var body: some View {
+    Chart(data, id: \.name) { name, sales in
+        SectorMark(angle: .value("Value", sales))
+            .foregroundStyle(by: .value("Product category", name))
+    }
+}
+```
+
+## 创建带有扇形标记的圆环图并设置其样式
+
+内半径和外半径可根据你的设计定制。非零内半径会生成圆环图。小角度插入通过增加扇区之间的对比度来帮助可访问性和可读性，这对于饼图和圆环图非常有用。将角度插入和角半径的大小限制为较小的值，以避免扭曲扇形的形状和相对大小。
+
+```swift
+var body: some View {
+    Chart(data, id: \.name) { name, sales in
+        SectorMark(
+            angle: .value("Value", sales),
+            innerRadius: .ratio(0.618),
+            outerRadius: .inset(10),
+            angularInset: 1
+        )
+        .cornerRadius(4)
+        .foregroundStyle(by: .value("Product category", name))
+    }
+}
+```
+
+## 初始化器
+
+### init(angle:innerRadius:outerRadius:angularInset:)
+
+```swift
+/// Creates a sector mark, which uses the angular size to represent the proportion of the value to the sum of all values.
+///
+/// Use this initializer to map angular positions to a sector for each data element.
+///
+// -  angle: 将映射到扇区角度大小的可绘图值。
+//           它要么是与整圆内的角度成比例的值，要么是明确的开始/结束角度的值范围
+// -  innerRadius: 扇区的内半径。它要么是以磅为单位的大小
+//                 要么是相对于外半径的 .ratio 或 .inset
+// -  outerRadius: 扇区的外半径。它可以是以磅为单位的大小
+//                 也可以是相对于可用绘图区域的 .ratio 或 .inset
+// -  angularInset: 扇区角的半径
+///
+public init(angle: PlottableValue<some Plottable>,
+            innerRadius: MarkDimension = .automatic,
+            outerRadius: MarkDimension = .automatic,
+            angularInset: CGFloat? = nil)
+```
+
+使用此初始值设定项将每个数据元素的角度位置映射到扇区。

@@ -8,4 +8,112 @@
   summary="滚动目标行为，与沿可滚动轴以规则间隔间隔的值对齐"
 />
 
-## 概述
+```swift
+@available(iOS 17.0, macOS 14.0, tvOS 17.0, watchOS 10.0, *)
+public struct ValueAlignedChartScrollTargetBehavior : ChartScrollTargetBehavior {
+    // ...
+}
+```
+
+## 初始化器
+
+### init(matching:majorAlignment:limitBehavior:)
+
+```swift
+// 创建一个滚动目标行为，该行为与沿可滚动轴以规则间隔间隔的值对齐
+//
+// - components: 用户完成滚动后对齐时要搜索的组件
+// - majorAlignment: 与主要价值观保持一致的行为。当用户在图表上滑动时，
+//                   图表将根据滑动方向捕捉到下一个或上一个主要单位。
+//                   启用后，默认主要单位是页。
+// - limitBehavior: 滚动限制行为
+public init(matching components: DateComponents,
+            majorAlignment: MajorValueAlignment<Date>? = nil,
+            limitBehavior: ValueAlignedLimitBehavior = .automatic)
+```
+
+### init(unit:majorAlignment:limitBehavior:)
+
+```swift
+// 创建一个滚动目标行为，该行为与沿可滚动轴以规则间隔间隔的值对齐
+//
+// - unit: 对齐单元。当用户完成滚动手势时，图表将对齐到给定单位或域的末尾
+// - majorAlignment: 与主要价值观保持一致的行为。当用户在图表上滑动时，
+//                   图表将根据滑动方向捕捉到下一个或上一个主要单位。
+//                   启用后，默认主要单位是页。
+// - limitBehavior: 滚动限制行为
+public init<T>(unit: T,
+               majorAlignment: MajorValueAlignment<T>? = nil,
+               limitBehavior: ValueAlignedLimitBehavior = .automatic
+) where T : Plottable, T : Numeric
+```
+
+### init(xMatching:yMatching:xMajorAlignment:yMajorAlignment:limitBehavior:)
+
+```swift
+// 创建一个滚动目标行为，该行为与沿可滚动轴以规则间隔间隔的值对齐
+//
+// - xComponents: x 轴的对齐组件
+// - yComponents: y 轴的对齐分量
+// - xMajorAlignment: 沿 x 轴对齐主要值的行为
+// - yMajorAlignment: 沿 y 轴对齐主要值的行为
+// - limitBehavior: 滚动限制行为
+public init(xMatching xComponents: DateComponents,
+            yMatching yComponents: DateComponents,
+            xMajorAlignment: MajorValueAlignment<Date>? = nil,
+            yMajorAlignment: MajorValueAlignment<Date>? = nil,
+            limitBehavior: ValueAlignedLimitBehavior = .automatic)
+```
+
+### init(xMatching:yUnit:xMajorAlignment:yMajorAlignment:limitBehavior:)
+
+```swift
+// 创建一个滚动目标行为，该行为与沿可滚动轴以规则间隔间隔的值对齐
+//
+// - xComponents: x 轴的对齐组件
+// - yUnit: y 轴的对齐单位
+// - xMajorAlignment: 沿 x 轴对齐主要值的行为
+// - yMajorAlignment: 沿 y 轴对齐主要值的行为
+// - limitBehavior: 滚动限制行为
+public init<Y>(xMatching xComponents: DateComponents,
+               yUnit: Y, xMajorAlignment: MajorValueAlignment<Date>? = nil,
+               yMajorAlignment: MajorValueAlignment<Y>? = nil,
+               limitBehavior: ValueAlignedLimitBehavior = .automatic
+) where Y : Plottable, Y : Numeric
+```
+
+### init(xUnit:yMatching:xMajorAlignment:yMajorAlignment:limitBehavior:)
+
+```swift
+// 创建一个滚动目标行为，该行为与沿可滚动轴以规则间隔间隔的值对齐
+//
+// - xUnit: x 轴的对齐单位
+// - yComponents: y 轴的对齐分量
+// - xMajorAlignment: 沿 x 轴对齐主要值的行为
+// - yMajorAlignment: 沿 y 轴对齐主要值的行为
+// - limitBehavior: 滚动限制行为
+public init<X>(xUnit: X,
+               yMatching yComponents: DateComponents,
+               xMajorAlignment: MajorValueAlignment<X>? = nil,
+               yMajorAlignment: MajorValueAlignment<Date>? = nil,
+               limitBehavior: ValueAlignedLimitBehavior = .automatic
+) where X : Plottable, X : Numeric
+```
+
+### init(xUnit:yUnit:xMajorAlignment:yMajorAlignment:limitBehavior:)
+
+```swift
+// 创建一个滚动目标行为，该行为与沿可滚动轴以规则间隔间隔的值对齐
+//
+// - xUnit: x 轴的对齐单位
+// - yUnit: y 轴的对齐单位
+// - xMajorAlignment: 沿 x 轴对齐主要值的行为
+// - yMajorAlignment: 沿 y 轴对齐主要值的行为
+// - limitBehavior: 滚动限制行为
+public init<X, Y>(xUnit: X,
+                  yUnit: Y,
+                  xMajorAlignment: MajorValueAlignment<X>? = nil,
+                  yMajorAlignment: MajorValueAlignment<Y>? = nil,
+                  limitBehavior: ValueAlignedLimitBehavior = .automatic
+) where X : Plottable, X : Numeric, Y : Plottable, Y : Numeric
+```

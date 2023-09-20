@@ -8,4 +8,38 @@
   summary="描述标签的方向"
 />
 
-## 概述
+```swift
+@available(iOS 16.0, macOS 13.0, tvOS 16.0, watchOS 9.0, *)
+public struct AxisValueLabelOrientation : CustomStringConvertible {
+    // ...
+}
+```
+
+## 类型属性
+
+### automatic
+
+```swift
+public static var automatic: AxisValueLabelOrientation { get }
+```
+
+### horizontal
+
+```swift
+// 水平标签
+public static var horizontal: AxisValueLabelOrientation { get }
+```
+
+### vertical
+
+```swift
+// 垂直标签，自上而下阅读
+public static var vertical: AxisValueLabelOrientation { get }
+```
+
+### verticalReversed
+
+```swift
+// 垂直标签，自下而上阅读
+public static var verticalReversed: AxisValueLabelOrientation { get }
+```

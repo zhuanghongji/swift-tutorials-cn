@@ -8,4 +8,46 @@
   summary="描述轴标记的位置"
 />
 
-## 概述
+```swift
+@available(iOS 16.0, macOS 13.0, tvOS 16.0, watchOS 9.0, *)
+public struct AxisMarkPosition : CustomStringConvertible {
+    // ...
+}
+```
+
+## 类型属性
+
+### automatic
+
+```swift
+// 自动放置标题
+public static var automatic: AxisMarkPosition { get }
+```
+
+### bottom
+
+```swift
+// 图表底部的标记
+public static var bottom: AxisMarkPosition { get }
+```
+
+### leading
+
+```swift
+// 图表前沿的标记
+public static var leading: AxisMarkPosition { get }
+```
+
+### top
+
+```swift
+// 图表顶部的标记
+public static var top: AxisMarkPosition { get }
+```
+
+### trailing
+
+```swift
+// 图表后缘上的标记
+public static var trailing: AxisMarkPosition { get }
+```

@@ -8,4 +8,73 @@
   summary=""
 />
 
-## 概述
+```swift
+@available(iOS 17.0, macOS 14.0, tvOS 17.0, watchOS 10.0, *)
+public struct AnnotationOverflowResolution {
+    // ...
+}
+```
+
+## 结构体
+
+### Boundary
+
+```swift
+// 描述溢出解决方案的图表边界
+public struct Boundary {
+
+    // 绘制面积
+    public static let plot: AnnotationOverflowResolution.Boundary
+
+    // 整个图表
+    public static let chart: AnnotationOverflowResolution.Boundary
+
+    // 自动确定要使用的边界
+    public static let automatic: AnnotationOverflowResolution.Boundary
+}
+```
+
+### Strategy
+
+```swift
+// 注释溢出解决策略
+public struct Strategy {
+
+    // 自动适应注释，调整其位置以确保它不会溢出
+    public static let fit: AnnotationOverflowResolution.Strategy
+
+    // 使注释适合给定边界，调整其位置以确保其不会溢出
+    public static func fit(to boundary: AnnotationOverflowResolution.Boundary) -> AnnotationOverflowResolution.Strategy
+
+    // 填充图表的比例以为注释腾出空间
+    public static let padScale: AnnotationOverflowResolution.Strategy
+
+    // “按原样”放置注释
+    public static let disabled: AnnotationOverflowResolution.Strategy
+
+    // 自动选择溢出分辨率
+    public static let automatic: AnnotationOverflowResolution.Strategy
+}
+```
+
+## 初始化器
+
+### init(x:y:)
+
+```swift
+// 使用 X 和 Y 维度的策略创建 AnnotationOverflowResolution
+//
+// - x: 解决 X 溢出的策略
+// - y: 解决 Y 溢出的策略
+public init(x: AnnotationOverflowResolution.Strategy = .automatic,
+            y: AnnotationOverflowResolution.Strategy = .automatic)
+```
+
+## 类型属性
+
+### automatic
+
+```swift
+// 自动解决每个维度的溢出问题
+public static let automatic: AnnotationOverflowResolution
+```

@@ -8,4 +8,24 @@
   summary="可用于确定如何最好地调整图表滚动方式的上下文信息"
 />
 
-## 概述
+```swift
+@available(iOS 17.0, macOS 14.0, tvOS 17.0, watchOS 10.0, *)
+@dynamicMemberLookup public struct ChartScrollTargetBehaviorContext {
+    // ...
+}
+```
+
+## 实例属性
+
+### chartProxy
+
+```swift
+// 用于访问图表的比例和绘图区域的图表代理
+public var chartProxy: ChartProxy { get }
+```
+
+## 下标
+
+```swift
+public subscript<T>(dynamicMember keyPath: KeyPath<ScrollTargetBehaviorContext, T>) -> T { get }
+```

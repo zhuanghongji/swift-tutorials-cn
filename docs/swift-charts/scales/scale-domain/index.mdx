@@ -8,6 +8,73 @@
   summary="可用于配置图表域的类型"
 />
 
-## 概述
+```swift
+@available(iOS 16.0, macOS 13.0, tvOS 16.0, watchOS 9.0, *)
+public protocol ScaleDomain {
+    // ...
+}
+```
 
---
+## 类型属性
+
+### automatic
+
+```swift
+// 创建从数据推断比例域的比例域配置
+public static var automatic: AutomaticScaleDomain { get }
+```
+
+## 类型方法
+
+### automatic(includesZero:reversed:)
+
+```swift
+// 创建从数据推断比例域的比例域配置
+//
+/// - includesZero: 比例域是否应包含零（仅适用于数值）
+/// - reversed: 比例域是否应该反转（例如，100 … 0）
+public static func automatic(includesZero: Bool? = nil,
+                             reversed: Bool? = nil
+) -> AutomaticScaleDomain
+```
+
+### automatic(includesZero:reversed:dataType:modifyInferredDomain:)
+
+```swift
+// 创建从数据推断比例域的比例域配置
+//
+// - includesZero: 比例域是否应包含零（仅适用于数值）
+// - reversed: 比例域是否应该反转（例如，100 … 0）
+// - dataType: 域中数据值的类型
+// - modifyInferredDomain: 修改自动推断域的闭包
+public static func automatic<DataValue>(includesZero: Bool? = nil,
+                                        reversed: Bool? = nil,
+                                        dataType: DataValue.Type,
+                                        modifyInferredDomain: @escaping (inout [DataValue]) -> Void
+) -> AutomaticScaleDomain where DataValue : Plottable
+```
+
+你可以使用函数修改推断的比例域。
+
+例如，你可以按分类 x 比例对类别进行排序：
+
+```swift
+Chart { ... }
+.chartXScale(domain: .automatic(dataType: String.self)) { domain in
+    // Sort the categories.
+    domain.sort(using: .localizedStandard)
+    // Include a new category.
+    domain.append("Other")
+}
+```
+
+你还可以修改数字比例以包含给定值。下面的示例将 y 比例设置为始终包含值 100。
+
+```swift
+Chart { ... }
+.chartYScale(domain: .automatic(dataType: Double.self)) { domain in
+    domain.append(100)
+}
+```
+
+请注意，`modifyInferredDomain` 闭包用作自动缩放域推断过程的一部分。其结果可以通过 `reversed` 参数进一步修改，并包含来自轴标记的值。要将比例域设置为精确值，请直接将该值指定为 `domain:` 参数，而不是使用 `.automatic`。
