@@ -1,7 +1,5 @@
 # Plot
 
-<ToBePolishedAfterTranslation />
-
 <OriginalSource
   title="Plot"
   url="https://developer.apple.com/documentation/charts/plot"
@@ -11,7 +9,15 @@
 ```swift
 @available(iOS 16.0, macOS 13.0, tvOS 16.0, watchOS 9.0, *)
 public struct Plot<Content> where Content : ChartContent {
-    // ...
+
+    public init(@ChartContentBuilder content: () -> Content)
+
+    /// The type of chart content contained in the body of this instance.
+    public typealias Body = Never
+}
+
+@available(iOS 16.0, macOS 13.0, tvOS 16.0, watchOS 9.0, *)
+extension Plot : ChartContent {
 }
 ```
 
