@@ -74,7 +74,7 @@ Swift 中的访问级别遵循一个总体指导原则：任何实体都不能�
 
 ## 访问控制语法
 
-通过在实体声明的开头放置 `open`、`public`、`internal`、`fileprivate` 或 `private` 修饰符之一来定义实体的访问级别。
+通过在实体声明的开头放置 `open`、`public`、`internal`、`fileprivate` 或 `private` 修饰器之一来定义实体的访问级别。
 
 ```swift
 public class SomePublicClass {}
@@ -88,7 +88,7 @@ fileprivate func someFilePrivateFunction() {}
 private func somePrivateFunction() {}
 ```
 
-除非另有说明，否则默认访问级别为内部，如默认访问级别中所述。这意味着 and 可以在没有显式访问级别修饰符的情况下编写，并且仍然具有内部访问级别：SomeInternalClasssomeInternalConstant
+除非另有说明，否则默认访问级别为内部，如默认访问级别中所述。这意味着 and 可以在没有显式访问级别修饰器的情况下编写，并且仍然具有内部访问级别：SomeInternalClasssomeInternalConstant
 
 ```swift
 class SomeInternalClass {}              // implicitly internal
@@ -141,7 +141,7 @@ private class SomePrivateClass {                // explicitly private class
 
 函数类型的访问级别计算为函数参数类型和返回类型的最严格访问级别。如果函数的计算访问级别与上下文默认值不匹配，则必须明确指定访问级别作为函数定义的一部分。
 
-下面的示例定义了一个名为 的全局函数，但没有为该函数本身提供特定的访问级别修饰符。你可能希望此函数具有默认访问级别“内部”，但事实并非如此。事实上，不会像下面写的那样编译：someFunction()someFunction()
+下面的示例定义了一个名为 的全局函数，但没有为该函数本身提供特定的访问级别修饰器。你可能希望此函数具有默认访问级别“内部”，但事实并非如此。事实上，不会像下面写的那样编译：someFunction()someFunction()
 
 ```swift
 func someFunction() -> (SomeInternalClass, SomePrivateClass) {
@@ -151,7 +151,7 @@ func someFunction() -> (SomeInternalClass, SomePrivateClass) {
 
 该函数的返回类型是一个元组类型，由上面自定义类型中定义的两个自定义类组成。其中一个类定义为内部类，另一个定义为私有类。因此，复合元组类型的整体访问级别是私有的（元组组成类型的最低访问级别）。
 
-因为函数的返回类型是私有的，所以必须用修饰符标记函数的整体访问级别，private 函数声明才有效：
+因为函数的返回类型是私有的，所以必须用修饰器标记函数的整体访问级别，private 函数声明才有效：
 
 ```swift
 private func someFunction() -> (SomeInternalClass, SomePrivateClass) {
@@ -159,7 +159,7 @@ private func someFunction() -> (SomeInternalClass, SomePrivateClass) {
 }
 ```
 
-用 or 修饰符标记定义，或使用默认设置 internal 是无效的，因为函数的公共或内部用户可能没有适当的访问权限来访问函数返回类型中使用的私有类。someFunction()publicinternal
+用 or 修饰器标记定义，或使用默认设置 internal 是无效的，因为函数的公共或内部用户可能没有适当的访问权限来访问函数返回类型中使用的私有类。someFunction()publicinternal
 
 ## 枚举类型
 
@@ -253,7 +253,7 @@ struct TrackedString {
 
 该结构定义了一个名为 的存储字符串属性，其初始值为（空字符串）。该结构还定义了一个名为 的存储整数属性，用于跟踪修改次数。这种修改跟踪是通过属性上的属性观察器实现的，每次属性设置为新值时它都会递增。TrackedStringvalue""numberOfEditsvaluedidSetvaluenumberOfEditsvalue
 
-结构和属性不提供显式访问级别修饰符，因此它们都接收默认的内部访问级别。但是，该属性的访问级别用修饰符标记，以指示该属性的 getter 仍然具有默认的内部访问级别，但该属性只能从作为结构一部分的代码中设置。这允许在内部修改属性，但在结构定义之外使用时将属性显示为只读属性。TrackedStringvaluenumberOfEditsprivate(set)TrackedStringTrackedStringnumberOfEdits
+结构和属性不提供显式访问级别修饰器，因此它们都接收默认的内部访问级别。但是，该属性的访问级别用修饰器标记，以指示该属性的 getter 仍然具有默认的内部访问级别，但该属性只能从作为结构一部分的代码中设置。这允许在内部修改属性，但在结构定义之外使用时将属性显示为只读属性。TrackedStringvaluenumberOfEditsprivate(set)TrackedStringTrackedStringnumberOfEdits
 
 如果你创建一个实例并多次修改其字符串值，你可以看到属性值更新以匹配修改次数：TrackedStringnumberOfEdits
 
@@ -268,7 +268,7 @@ print("The number of edits is \(stringToEdit.numberOfEdits)")
 
 虽然你可以从另一个源文件中查询该属性的当前值，但你不能从另一个源文件中修改该属性。此限制保护了编辑跟踪功能的实现细节，同时仍提供对该功能的某个方面的方便访问。numberOfEditsTrackedString
 
-请注意，如果需要，你可以为 getter 和 setter 分配显式访问级别。下面的示例显示了结构的一个版本，其中结构被定义为具有显式访问级别 public。因此，结构的成员（包括属性）默认具有内部访问级别。你可以通过结合访问级别修饰符和访问级别修饰符，使结构的属性 getter 公开，其属性 setter 私有：TrackedStringnumberOfEditsnumberOfEditspublicprivate(set)
+请注意，如果需要，你可以为 getter 和 setter 分配显式访问级别。下面的示例显示了结构的一个版本，其中结构被定义为具有显式访问级别 public。因此，结构的成员（包括属性）默认具有内部访问级别。你可以通过结合访问级别修饰器和访问级别修饰器，使结构的属性 getter 公开，其属性 setter 私有：TrackedStringnumberOfEditsnumberOfEditspublicprivate(set)
 
 ```swift
 public struct TrackedString {
@@ -330,9 +330,9 @@ public struct TrackedString {
 
 你可以在类、结构或枚举可用的任何访问上下文中扩展类、结构或枚举。添加到扩展中的任何类型成员与在被扩展的原始类型中声明的类型成员具有相同的默认访问级别。如果你扩展公共或内部类型，则你添加的任何新类型成员都具有默认的内部访问级别。如果扩展文件私有类型，则你添加的任何新类型成员都具有文件私有的默认访问级别。如果你扩展私有类型，则你添加的任何新类型成员都具有默认的私有访问级别。
 
-或者，你可以使用显式访问级别修饰符（例如，）标记扩展，private 以便为扩展中定义的所有成员设置新的默认访问级别。这个新的默认值仍然可以在单个类型成员的扩展中被覆盖。
+或者，你可以使用显式访问级别修饰器（例如，）标记扩展，private 以便为扩展中定义的所有成员设置新的默认访问级别。这个新的默认值仍然可以在单个类型成员的扩展中被覆盖。
 
-如果你使用该扩展来添加协议一致性，则不能为该扩展提供显式访问级别修饰符。相反，协议自己的访问级别用于为扩展中的每个协议要求实现提供默认访问级别。
+如果你使用该扩展来添加协议一致性，则不能为该扩展提供显式访问级别修饰器。相反，协议自己的访问级别用于为扩展中的每个协议要求实现提供默认访问级别。
 
 ## 扩展中的私有成员
 

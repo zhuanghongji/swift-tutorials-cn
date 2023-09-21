@@ -321,7 +321,7 @@ let combinedVector = vector + anotherVector
 
 上面显示的示例演示了二进制中缀运算符的自定义实现。类和结构也可以提供标准一元运算符的实现。一元运算符对单个目标进行操作。如果它们位于目标之前（例如），则它们是前缀；如果它们位于目标之后（例如） ，则它们是后缀运算符。-ab!
 
-在声明运算符方法时，通过在关键字前写入 prefixor 修饰符来实现前缀或后缀一元运算符：postfixfunc
+在声明运算符方法时，通过在关键字前写入 prefixor 修饰器来实现前缀或后缀一元运算符：postfixfunc
 
 ```swift
 extension Vector2D {
@@ -331,7 +331,7 @@ extension Vector2D {
 }
 ```
 
-上面的示例-a 为实例实现了一元减号运算符 ( ) Vector2D。一元减号运算符是前缀运算符，因此必须使用修饰符限定此方法 prefix。
+上面的示例-a 为实例实现了一元减号运算符 ( ) Vector2D。一元减号运算符是前缀运算符，因此必须使用修饰器限定此方法 prefix。
 
 对于简单的数值，一元减运算符将正数转换为负数，反之亦然。实例的相应实现 Vector2D 对 x 和 y 属性执行此操作：
 
@@ -403,7 +403,7 @@ if twoThree == anotherTwoThree {
 
 除了 Swift 提供的标准运算符之外，你还可以声明和实现自己的自定义运算符。有关可用于定义自定义运算符的字符列表，请参阅运算符。
 
-新运算符使用关键字在全局级别声明 operator，并标有 prefix,infix 或 postfix 修饰符：
+新运算符使用关键字在全局级别声明 operator，并标有 prefix,infix 或 postfix 修饰器：
 
 ```swift
 prefix operator +++

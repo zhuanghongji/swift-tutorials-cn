@@ -298,7 +298,7 @@ print(#"6 times 7 is \#(6 * 7)."#)
 Unicode 是在不同书写系统中编码、表示和处理文本的国际标准。它使你能够以标准化形式表示来自任何语言的几乎任何字符，并在文本文件或网页等外部源中读取和写入这些字符。如本节所述， Swift 的 String 和 Character 类型完全符合 Unicode。
 
 Unicode 标量值
-在幕后，Swift 的原生 String 类型是从 Unicode 标量值构建的。Unicode 标量值是字符或修饰符的唯一 21 位数字，例如 U+0061( LATIN SMALL LETTER A)"a"或 U+1F425( )。FRONT-FACING BABY CHICK"🐥"
+在幕后，Swift 的原生 String 类型是从 Unicode 标量值构建的。Unicode 标量值是字符或修饰器的唯一 21 位数字，例如 U+0061( LATIN SMALL LETTER A)"a"或 U+1F425( )。FRONT-FACING BABY CHICK"🐥"
 
 请注意，并非所有 21 位 Unicode 标量值都分配给一个字符——一些标量保留供将来分配或用于 UTF-16 编码。已分配给字符的标量值通常也有一个名称，例如上面的示例中的 LATIN SMALL LETTER A 和。FRONT-FACING BABY CHICK
 

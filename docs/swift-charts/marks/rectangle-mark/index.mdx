@@ -23,7 +23,7 @@ public struct RectangleMark {
 
 在提供有关机器学习模型有效性的数据时，你通常使用混淆矩阵来组织数据，该矩阵显示模型的预测结果与实际结果。要创建表示机器学习模型的 2D 热图，请使用 `init(x:y:width:height:)` 。下面的示例使用 2D 热图来可视化具有以下布局的基本混淆矩阵：
 
-每个单元格中的记录数 num 由其相应矩形的颜色表示。这是通过将 foregroundStyle(by:) 修饰符应用于矩形标记并向其传递一个由 value(_:_:) 构造的 PlottableValue 来完成的，该 value(_:_:) 接受一个标签和要绘制的值，在此案例 num 。将自动生成从 num 值到颜色的比例，并用于根据该值为矩形着色。
+每个单元格中的记录数 num 由其相应矩形的颜色表示。这是通过将 foregroundStyle(by:) 修饰器应用于矩形标记并向其传递一个由 value(_:_:) 构造的 PlottableValue 来完成的，该 value(_:_:) 接受一个标签和要绘制的值，在此案例 num 。将自动生成从 num 值到颜色的比例，并用于根据该值为矩形着色。
 
 <TableWrapper>
 
@@ -34,7 +34,7 @@ public struct RectangleMark {
 
 </TableWrapper>
 
-每个单元格中的记录数 num 由其相应矩形的颜色表示。这是通过将 foregroundStyle(by:) 修饰符应用于矩形标记并向其传递一个由 value(_:_:) 构造的 PlottableValue 来完成的，该 value(_:_:) 接受一个标签和要绘制的值，在此案例 num 。将自动生成从 num 值到颜色的比例，并用于根据该值为矩形着色。
+每个单元格中的记录数 num 由其相应矩形的颜色表示。这是通过将 foregroundStyle(by:) 修饰器应用于矩形标记并向其传递一个由 value(_:_:) 构造的 PlottableValue 来完成的，该 value(_:_:) 接受一个标签和要绘制的值，在此案例 num 。将自动生成从 num 值到颜色的比例，并用于根据该值为矩形着色。
 
 ```swift
 struct MatrixEntry {

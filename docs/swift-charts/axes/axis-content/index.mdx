@@ -29,7 +29,7 @@ public func compositingLayer() -> some AxisContent
 ```swift
 // 为图表内容创建合成图层，并将视图修改器应用到合成图层
 //
-// - style: 将视图修饰符应用于合成层的闭包
+// - style: 将视图修饰器应用于合成层的闭包
 public func compositingLayer<V>(@ViewBuilder style: (PlaceholderContentView<Self>) -> V)
         -> some AxisContent where V : View
 ```

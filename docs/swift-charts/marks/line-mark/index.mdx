@@ -52,7 +52,7 @@ var body: some View {
 
 ## 绘制多条线
 
-你可以通过在 `init(x:y:series:)` 中显式指定 series 参数或应用 foregroundStyle(_:) 或 lineStyle(_:) 修饰符在图表中绘制多条线。具有相同 series 值的线标记将始终一起呈现为单线。当 series 未指定时，具有相同值的线条标记将绘制为前景样式，并且线条样式将组合在一起并绘制在自己的线条上。下面的示例为 city 中的每个不同值绘制一条线，并根据它代表的 city 为每条线着色：
+你可以通过在 `init(x:y:series:)` 中显式指定 series 参数或应用 foregroundStyle(_:) 或 lineStyle(_:) 修饰器在图表中绘制多条线。具有相同 series 值的线标记将始终一起呈现为单线。当 series 未指定时，具有相同值的线条标记将绘制为前景样式，并且线条样式将组合在一起并绘制在自己的线条上。下面的示例为 city 中的每个不同值绘制一条线，并根据它代表的 city 为每条线着色：
 
 ```swift
 struct MonthlyHoursOfSunshine {

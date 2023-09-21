@@ -49,7 +49,7 @@ var body: some View {
 
 ## 添加附加数据字段
 
-Swift Charts 为点标记提供了三个附加修饰符，每个修饰符都允许你将附加属性绘制到唯一的视觉通道。
+Swift Charts 为点标记提供了三个附加修饰器，每个修饰器都允许你将附加属性绘制到唯一的视觉通道。
 
 <TableWrapper >
 
@@ -61,7 +61,7 @@ Swift Charts 为点标记提供了三个附加修饰符，每个修饰符都允�
 
 </TableWrapper>
 
-例如，要将上例 Insect 结构中的 family 属性绘制为颜色，请添加 [foregroundStyle(by:)](<https://developer.apple.com/documentation/charts/chartcontent/foregroundstyle(by:)>) 修饰符：
+例如，要将上例 Insect 结构中的 family 属性绘制为颜色，请添加 [foregroundStyle(by:)](<https://developer.apple.com/documentation/charts/chartcontent/foregroundstyle(by:)>) 修饰器：
 
 ```swift
 Chart(data) {
@@ -77,7 +77,7 @@ Chart(data) {
 
 前景样式修饰器自动生成一个色标，为每个标记提供反映其值属性的颜色。要了解如何修改默认色标，请参阅 ScaleModifiers 。该修饰器还提供默认图例。要了解如何修改或禁用图例，请参阅 ChartLegend 。
 
-或者，你可以通过使用 [symbol(by:)](<https://developer.apple.com/documentation/charts/chartcontent/symbol(by:)>) 修饰符绘制 `family` 属性来区分具有不同符号的族：
+或者，你可以通过使用 [symbol(by:)](<https://developer.apple.com/documentation/charts/chartcontent/symbol(by:)>) 修饰器绘制 `family` 属性来区分具有不同符号的族：
 
 ```swift
 Chart(data) {

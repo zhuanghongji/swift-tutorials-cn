@@ -71,7 +71,7 @@ VStack {
 
 </ScreenshotBlock>
 
-如果你需要对文本的样式进行更精细的控制（finer control），可以使用相同的修饰符来设置系统字体或选择自定义字体。你还可以应用 `bold()` 或 `italic()` 等视图修饰器来进一步调整格式。
+如果你需要对文本的样式进行更精细的控制（finer control），可以使用相同的修饰器来设置系统字体或选择自定义字体。你还可以应用 `bold()` 或 `italic()` 等视图修饰器来进一步调整格式。
 
 <ScreenshotBlock src={ShakespeareImage}>
 
@@ -121,7 +121,7 @@ var body: some View {
 
 </ScreenshotBlock>
 
-文本视图始终精确地使用显示其呈现内容所需的空间量（the amount of space），但你可以影响视图的布局。例如，可以使用 `frame(width:height:alignment:)` 修饰符为视图建议（propose）特定尺寸。如果视图接受建议，但文本不适应可用空间，则视图将使用换行（wrapping）、收紧（tightening）、缩放（scaling）和截断（truncation）的组合来使其适应。如果宽度为 100 点（points），但对高度没有约束，文本视图可能会对长字符串进行换行：
+文本视图始终精确地使用显示其呈现内容所需的空间量（the amount of space），但你可以影响视图的布局。例如，可以使用 `frame(width:height:alignment:)` 修饰器为视图建议（propose）特定尺寸。如果视图接受建议，但文本不适应可用空间，则视图将使用换行（wrapping）、收紧（tightening）、缩放（scaling）和截断（truncation）的组合来使其适应。如果宽度为 100 点（points），但对高度没有约束，文本视图可能会对长字符串进行换行：
 
 <ScreenshotBlock src={Width100Image} srcRight={Width100BlendedImage}>
 

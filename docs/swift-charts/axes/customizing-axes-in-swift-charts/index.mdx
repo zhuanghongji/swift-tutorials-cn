@@ -56,7 +56,7 @@ Chart(BatteryData.data, id: \.date) {
 
 电池电量始终处于 0% 到 100% 的范围内。能够直观地将给定值与整个范围进行比较，有助于人们更好地了解当前电池状态与完整电池的比较情况。因此，无论当前数据集中的数据范围如何，将 y 轴的范围固定为完整可能的范围都是有意义的。
 
-使用 chartYScale(domain:type:) 视图修饰符设置 y 轴的范围：
+使用 chartYScale(domain:type:) 视图修饰器设置 y 轴的范围：
 
 ```swift
 .chartYScale(domain: [0, 100])
@@ -64,7 +64,7 @@ Chart(BatteryData.data, id: \.date) {
 
 ## 指定轴值
 
-Swift Charts 选择默认数量的网格线和标签来显示在每个轴上。你可以使用 chartYAxis(content:) 修饰符指定不同数量的值，该修饰符在其 content 参数中接受一个或多个 AxisMarks 实例。通过使用 automatic(desiredCount:roundLowerBound:roundUpperBound:) 值初始化轴标记实例来请求特定数量的值。例如，你可以请求轴具有三个值：
+Swift Charts 选择默认数量的网格线和标签来显示在每个轴上。你可以使用 chartYAxis(content:) 修饰器指定不同数量的值，该修饰器在其 content 参数中接受一个或多个 AxisMarks 实例。通过使用 automatic(desiredCount:roundLowerBound:roundUpperBound:) 值初始化轴标记实例来请求特定数量的值。例如，你可以请求轴具有三个值：
 
 ```swift
 .chartYAxis {
@@ -105,7 +105,7 @@ Swift Charts 选择默认数量的网格线和标签来显示在每个轴上。�
 
 ## 撰写轴标记
 
-要添加更复杂的样式，请在修饰符的 content 闭包内编写轴标记。例如，要添加更多水平网格线而不添加更多标签，请使用两个单独的 AxisMarks 实例分别渲染网格线和标签：
+要添加更复杂的样式，请在修饰器的 content 闭包内编写轴标记。例如，要添加更多水平网格线而不添加更多标签，请使用两个单独的 AxisMarks 实例分别渲染网格线和标签：
 
 ```swift
 .chartYAxis {
@@ -133,7 +133,7 @@ Swift Charts 选择默认数量的网格线和标签来显示在每个轴上。�
 
 对于指定的数据，电池图表沿 x 轴标记每六小时一次，并且默认情况下包括每小时的 AM 或 PM 指示器。你可以通过每三小时添加一个标记并仅在 AM 或 PM 指示器发生变化时显示该指示器来使图表更具可读性。
 
-使用 chartXAxis(content:) 视图修饰符来配置 x 轴，就像使用 chartYAxis(content:) 修饰符配置 y 轴一样。以下代码将 stride(by:count:roundLowerBound:roundUpperBound:calendar:) 值传递给 AxisMarks 实例来控制标记的频率，并使用条件格式仅在中午和午夜显示 AM 或 PM：
+使用 chartXAxis(content:) 视图修饰器来配置 x 轴，就像使用 chartYAxis(content:) 修饰器配置 y 轴一样。以下代码将 stride(by:count:roundLowerBound:roundUpperBound:calendar:) 值传递给 AxisMarks 实例来控制标记的频率，并使用条件格式仅在中午和午夜显示 AM 或 PM：
 
 ```swift
 .chartXAxis {

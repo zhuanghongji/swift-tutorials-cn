@@ -358,7 +358,7 @@ init(<#parameters#>) {
 }
 ```
 
-便利初始化器以相同的风格编写，但修饰符 convenience 放在 init 关键字之前，以空格分隔：
+便利初始化器以相同的风格编写，但修饰器 convenience 放在 init 关键字之前，以空格分隔：
 
 ```swift
 convenience init(<#parameters#>) {
@@ -483,15 +483,15 @@ Swift 的编译器执行四项有用的安全检查，以确保两阶段初始�
 
 如果你希望自定义子类呈现一个或多个与其超类相同的初始化器，你可以在子类中提供这些初始化器的自定义实现。
 
-当你编写与超类指定初始化器匹配的子类初始化器时，你实际上是在提供该指定初始化器的覆盖。override 因此，你必须在子类的初始化器定义之前编写修饰符。即使你正在覆盖自动提供的默认初始化器，也是如此，如默认初始化器中所述。
+当你编写与超类指定初始化器匹配的子类初始化器时，你实际上是在提供该指定初始化器的覆盖。override 因此，你必须在子类的初始化器定义之前编写修饰器。即使你正在覆盖自动提供的默认初始化器，也是如此，如默认初始化器中所述。
 
-与重写的属性、方法或下标一样，override 修饰符的存在会提示 Swift 检查超类是否具有匹配的指定初始化器来重写，并验证重写初始化器的参数是否已按预期指定。
+与重写的属性、方法或下标一样，override 修饰器的存在会提示 Swift 检查超类是否具有匹配的指定初始化器来重写，并验证重写初始化器的参数是否已按预期指定。
 
 :::note
-在重写超类的指定构造器时，你总是要写 override 修饰符，即使你的子类的构造器实现是一个便利构造器。
+在重写超类的指定构造器时，你总是要写 override 修饰器，即使你的子类的构造器实现是一个便利构造器。
 :::
 
-相反，如果你编写的子类初始化器与超类便捷初始化器相匹配，则你的子类永远不能直接调用该超类便捷初始化器，按照上面类类型的初始化器委派中描述的规则。因此，你的子类没有（严格来说）提供对超类初始化器的覆盖。因此，override 在提供超类便利初始化器的匹配实现时，你无需编写修饰符。
+相反，如果你编写的子类初始化器与超类便捷初始化器相匹配，则你的子类永远不能直接调用该超类便捷初始化器，按照上面类类型的初始化器委派中描述的规则。因此，你的子类没有（严格来说）提供对超类初始化器的覆盖。因此，override 在提供超类便利初始化器的匹配实现时，你无需编写修饰器。
 
 下面的示例定义了一个名为 Vehicle. 该基类声明了一个名为 的存储属性，其默认值为。该属性由调用的计算属性使用，以创建车辆特性的描述：numberOfWheelsInt0numberOfWheelsdescriptionString
 
@@ -523,7 +523,7 @@ class Bicycle: Vehicle {
 }
 ```
 
-子 Bicycle 类定义了一个自定义的指定初始化器，init(). 此指定构造器与 的超类中的指定构造器相匹配 Bicycle，因此 Bicycle 此构造器的版本用修饰符标记 override。
+子 Bicycle 类定义了一个自定义的指定初始化器，init(). 此指定构造器与 的超类中的指定构造器相匹配 Bicycle，因此 Bicycle 此构造器的版本用修饰器标记 override。
 
 的 init()初始化器 Bicycle 通过调用 开始，调用该类的超类的默认初始化器。这确保继承的属性在有机会修改属性之前被初始化。调用 后， 的原始值被替换为新值。super.init()BicycleVehiclenumberOfWheelsVehicleBicyclesuper.init()numberOfWheels2
 
@@ -645,7 +645,7 @@ class RecipeIngredient: Food {
 
 RecipeIngredient 还定义了一个方便的初始化器 init(name: String)，用于单独按名称创建实例。此便利初始化器假定任何在没有明确数量的情况下创建的实例的数量。这个便利初始化器的定义使得实例的创建更加快捷方便，并且在创建多个单数量实例时避免了代码重复。这个便利初始化器简单地委托给类的指定初始化器，传入一个值.RecipeIngredient1RecipeIngredientRecipeIngredientRecipeIngredientquantity1
 
-init(name: String)提供的便捷初始化器采用与指定初始化器相同的参数。因为这个便利构造器覆盖了其超类中的指定构造器，所以它必须用修饰符标记（如构造器继承和覆盖中所述）。RecipeIngredientinit(name: String) Foodoverride
+init(name: String)提供的便捷初始化器采用与指定初始化器相同的参数。因为这个便利构造器覆盖了其超类中的指定构造器，所以它必须用修饰器标记（如构造器继承和覆盖中所述）。RecipeIngredientinit(name: String) Foodoverride
 
 尽管将初始化器作为便利初始化器提供，但仍然提供了其超类的所有指定初始化器的实现。因此，也自动继承其超类的所有便利初始化器。RecipeIngredientinit(name: String)RecipeIngredientRecipeIngredient
 
@@ -971,7 +971,7 @@ init 你通常会定义一个可失败的初始化器，它通过在关键字 ( 
 
 ## 必需的初始化器
 
-required 在类初始化器的定义之前写修饰符，以指示该类的每个子类都必须实现该初始化器：
+required 在类初始化器的定义之前写修饰器，以指示该类的每个子类都必须实现该初始化器：
 
 ```swift
 class SomeClass {
@@ -981,7 +981,7 @@ class SomeClass {
 }
 ```
 
-你还必须 required 在所需初始化器的每个子类实现之前编写修饰符，以指示初始化器要求适用于链中的其它子类。override 覆盖所需的指定初始化器时，你不会编写修饰符：
+你还必须 required 在所需初始化器的每个子类实现之前编写修饰器，以指示初始化器要求适用于链中的其它子类。override 覆盖所需的指定初始化器时，你不会编写修饰器：
 
 ```swift
 class SomeSubclass: SomeClass {
