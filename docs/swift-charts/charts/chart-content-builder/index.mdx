@@ -1,7 +1,5 @@
 # ChartContentBuilder
 
-<ToBePolishedAfterTranslation />
-
 <OriginalSource
   title="ChartContentBuilder"
   url="https://developer.apple.com/documentation/charts/chartcontentbuilder"
@@ -17,35 +15,35 @@
 
 ## 概述
 
-此 [Result Builder](https://docs.swift.org/swift-book/LanguageGuide/AdvancedOperators.html#ID630) 将任意数量的 [ChartContent](https://developer.apple.com/documentation/charts/chartcontent) 实例组合成单个复合实例，包括对条件的支持。
+此 [Result Builder](https://docs.swift.org/swift-book/documentation/the-swift-programming-language/advancedoperators/#Result-Builders) 将任意数量的 [ChartContent](https://developer.apple.com/documentation/charts/chartcontent) 实例组合成单个复合实例，包括对条件的支持。
 
-你不直接调用结果生成器的方法。相反，Swift 使用它们来组合你在任何具有 `@ChartContentBuilder` 属性的闭包中声明的元素。特别是，当你在 [Chart](https://developer.apple.com/documentation/charts/chart) 初始化程序（如 [init(content:)](<https://developer.apple.com/documentation/charts/chart/init(content:)>) ）中声明 content 时，你会依赖此行为。
+你不直接调用结果生成器的方法。相反，Swift 使用它们来组合你在任何具有 `@ChartContentBuilder` 属性的闭包中声明的元素。特别是，当你在 [Chart](https://developer.apple.com/documentation/charts/chart) 初始化器（如 [init(content:)](<https://developer.apple.com/documentation/charts/chart/init(content:)>) ）中声明 `content` 时，你会依赖（rely on）此行为。
 
 ## 构建图标内容
 
 ### buildPartialBlock(first:)
 
 ```swift
-// 从单个第一个组件构建部分结果
+// 从单独的、第一个的组件（component）构建部分结果
 //
-/// - content: 第一个要积累的成分
+/// - content: 第一个要积累（accumulate）的组件
 public static func buildPartialBlock<T>(first content: T) -> T where T : ChartContent
 ```
 
 ### buildPartialBlock(accumulated:next:)
 
 ```swift
-// 通过组合累积组件和新组件来构建部分结果
+// 通过组合 "累积的组件" 和 "新组件" 来构建部分结果
 //
-// - accumulated: 累积的结果
-// - next: 要累积的下一个组件
+// - accumulated: 累积的结果（The accumulated result）
+// - next: 下一个要累积的组件
 public static func buildPartialBlock(accumulated: some ChartContent, next: some ChartContent) -> some ChartContent
 ```
 
 ### buildBlock()
 
 ```swift
-// 生成空图表内容
+// 产生空的图表内容
 public static func buildBlock() -> some ChartContent
 ```
 
@@ -55,7 +53,7 @@ public static func buildBlock() -> some ChartContent
 
 ```swift
 
-// 构建有条件存在的部分结果
+// 构建 "有条件存在的" 部分结果
 //
 // - content: 条件为 true 时使用的内容
 public static func buildIf<T>(_ content: T?) -> T? where T : ChartContent
@@ -66,27 +64,32 @@ public static func buildIf<T>(_ content: T?) -> T? where T : ChartContent
 ### buildEither(first:)
 
 ```swift
-// 根据正确的条件构建部分结果
+// 根据 "正确的条件" 构建部分结果
 //
 /// - first: 条件为 true 时使用的内容
-public static func buildEither<T1, T2>(first: T1) -> BuilderConditional<T1, T2> where T1 : ChartContent, T2 : ChartContent
+public static func buildEither<T1, T2>(first: T1)
+        -> BuilderConditional<T1, T2> where T1 : ChartContent, T2 : ChartContent
 ```
 
-此方法为带有 else 子句和 switch 语句的 if 语句提供支持。它会生成可选的图表内容，当条件计算结果为 true 时，该内容可见。
+此方法为带有 `else` 子句和 `switch` 语句的 `if` 语句提供支持。它会生成可选的图表内容，当条件计算结果为 `true` 时，该内容可见。
 
 ### buildEither(second:)
 
 ```swift
-// 根据错误的条件构建部分结果
+// 根据 "错误的条件" 构建部分结果
 //
 // - second: 条件为 false 时使用的内容
-public static func buildEither<T1, T2>(second: T2) -> BuilderConditional<T1, T2> where T1 : ChartContent, T2 : ChartContent
+public static func buildEither<T1, T2>(second: T2)
+        -> BuilderConditional<T1, T2> where T1 : ChartContent, T2 : ChartContent
 ```
 
-此方法为带有 else 子句和 switch 语句的 if 语句提供支持。它会生成可选的图表内容，当条件计算结果为 false 时，该内容可见。
+此方法为带有 `else` 子句和 `switch` 语句的 `if` 语句提供支持。它会生成可选的图表内容，当条件计算结果为 `false` 时，该内容可见。
 
 ## 类型方法
 
+### buildExpression(\_:)
+
 ```swift
-public static func buildExpression<Content>(_ content: Content) -> Content where Content : ChartContent
+public static func buildExpression<Content>(_ content: Content)
+        -> Content where Content : ChartContent
 ```
