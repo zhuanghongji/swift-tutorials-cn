@@ -43,7 +43,7 @@ class Person {
 }
 ```
 
-该类 Person 有一个初始化程序，它设置实例的 name 属性并打印一条消息以指示初始化正在进行。该类 Person 还有一个析构器，它在释放该类的实例时打印一条消息。
+该类 Person 有一个初始化器，它设置实例的 name 属性并打印一条消息以指示初始化正在进行。该类 Person 还有一个析构器，它在释放该类的实例时打印一条消息。
 
 下一个代码片段定义了三个 type 变量 Person?，用于 Person 在后续代码片段中设置对新实例的多个引用。因为这些变量是可选类型（Person?，而不是 Person），所以它们会自动初始化为值 nil，并且当前不引用 Person 实例。
 
@@ -60,7 +60,7 @@ reference1 = Person(name: "John Appleseed")
 // Prints "John Appleseed is being initialized"
 ```
 
-请注意，消息"John Appleseed is being initialized"是在你调用类的初始化程序时打印的 Person。这确认初始化已经发生。
+请注意，消息"John Appleseed is being initialized"是在你调用类的初始化器时打印的 Person。这确认初始化已经发生。
 
 因为新 Person 实例已分配给 reference1 变量，所以现在存在 reference1 对新 Person 实例的强引用。因为至少有一个强引用，ARC 确保它 Person 保存在内存中并且不会被释放。
 
@@ -260,7 +260,7 @@ unit4A = nil
 
 Customer 和之间的关系与上面弱引用示例中看到的和之间的关系略有不同。在此数据模型中，客户可能拥有也可能没有信用卡，但信用卡始终与客户相关联。一个实例永远不会超过它所指的那个。为了表示这一点，该类有一个可选属性，但该类有一个无主（和非可选）属性。CreditCardApartmentPersonCreditCardCustomerCustomercardCreditCardcustomer
 
-此外，只能通过将值和实例传递给自定义初始化程序来创建新实例。这确保了一个实例在创建时总是有一个实例与之关联。CreditCardnumbercustomerCreditCardCreditCardcustomerCreditCard
+此外，只能通过将值和实例传递给自定义初始化器来创建新实例。这确保了一个实例在创建时总是有一个实例与之关联。CreditCardnumbercustomerCreditCardCreditCardcustomerCreditCard
 
 因为信用卡总是有客户，所以你将其 customer 属性定义为无主引用，以避免强引用循环：
 
@@ -420,13 +420,13 @@ class City {
 }
 ```
 
-为了在两个类之间建立相互依赖性，for 的初始化程序 City 采用一个 Country 实例，并将该实例存储在其 country 属性中。
+为了在两个类之间建立相互依赖性，for 的初始化器 City 采用一个 Country 实例，并将该实例存储在其 country 属性中。
 
-的初始化程序 City 是从 的初始化程序中调用的 Country。但是，如两阶段初始化中所述，在新实例完全初始化之前，Country 不能将初始化器传递 self 给初始化器。CityCountry
+的初始化器 City 是从 的初始化器中调用的 Country。但是，如两阶段初始化中所述，在新实例完全初始化之前，Country 不能将初始化器传递 self 给初始化器。CityCountry
 
 为满足此要求，你将 的属性声明为隐式展开的可选属性，由其类型注释 ( ) 末尾的感叹号指示。这意味着该属性具有默认值，就像任何其它可选值一样，但可以在不需要解包其值的情况下访问，如 Implicitly Unwrapped Optionals 中所述。capitalCityCountryCity!capitalCitynil
 
-因为具有默认值，所以只要实例在其初始化器中设置其属性，就认为新实例已完全初始化。这意味着初始化程序可以在设置属性后立即开始引用和传递隐式属性。因此，当初始化器设置自己的属性时，初始化器可以作为初始化器的参数之一传递。capitalCitynilCountryCountrynameCountryselfnameCountryselfCityCountrycapitalCity
+因为具有默认值，所以只要实例在其初始化器中设置其属性，就认为新实例已完全初始化。这意味着初始化器可以在设置属性后立即开始引用和传递隐式属性。因此，当初始化器设置自己的属性时，初始化器可以作为初始化器的参数之一传递。capitalCitynilCountryCountrynameCountryselfnameCountryselfCityCountrycapitalCity
 
 所有这些意味着你可以在单个语句中创建 Country 和实例，而无需创建强引用循环，并且可以直接访问该属性，而无需使用感叹号来解包其可选值：CitycapitalCity
 

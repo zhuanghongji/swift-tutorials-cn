@@ -191,9 +191,9 @@ lightSwitch.toggle()
 // lightSwitch is now equal to .on
 ```
 
-## 初始化程序要求
+## 初始化器要求
 
-协议可能需要特定的初始化程序由符合类型来实现。你将这些初始化器作为协议定义的一部分，以与普通初始化器完全相同的方式编写，但没有大括号或初始化器主体：
+协议可能需要特定的初始化器由符合类型来实现。你将这些初始化器作为协议定义的一部分，以与普通初始化器完全相同的方式编写，但没有大括号或初始化器主体：
 
 ```swift
 protocol SomeProtocol {
@@ -203,7 +203,7 @@ protocol SomeProtocol {
 
 ## 协议初始化器要求的类实现
 
-你可以将协议初始化器要求作为指定初始化器或便利初始化器实现在符合类上。在这两种情况下，你都必须使用修饰符标记初始化程序实现 required：
+你可以将协议初始化器要求作为指定初始化器或便利初始化器实现在符合类上。在这两种情况下，你都必须使用修饰符标记初始化器实现 required：
 
 ```swift
 class SomeClass: SomeProtocol {
@@ -254,7 +254,7 @@ class SomeSubClass: SomeSuperClass, SomeProtocol {
 
 你可以在许多允许其它类型的地方使用协议，包括：
 
-- 作为函数、方法或初始化程序中的参数类型或返回类型
+- 作为函数、方法或初始化器中的参数类型或返回类型
 - 作为常量、变量或属性的类型
 - 作为数组、字典或其它容器中项目的类型
 
@@ -361,7 +361,7 @@ class SnakesAndLadders: DiceGame {
 
 这个版本的游戏被包装成一个名为 的类，它采用了协议。它提供了一个可获取的属性和一个方法以符合协议。（该属性被声明为常量属性是因为它在初始化后不需要改变，协议只要求它必须是可获取的。）SnakesAndLaddersDiceGamediceplay()dice
 
-Snakes and Ladders 游戏板设置发生在类的 init()初始化程序中。所有游戏逻辑都被转移到协议的 play 方法中，该方法使用协议的必需 dice 属性来提供其掷骰值。
+Snakes and Ladders 游戏板设置发生在类的 init()初始化器中。所有游戏逻辑都被转移到协议的 play 方法中，该方法使用协议的必需 dice 属性来提供其掷骰值。
 
 请注意，该 delegate 属性被定义为可选的 ，因为玩游戏不需要委托。因为它是可选类型，所以该属性会自动设置为初始值。此后，游戏实例化器可以选择将属性设置为合适的委托。因为该协议是仅限类的，所以你可以将委托声明为以防止引用循环。DiceGameDelegatedelegatenilDiceGameDelegateweak
 

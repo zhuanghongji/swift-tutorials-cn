@@ -257,7 +257,7 @@ print("the volume of fourByFiveByTwo is \(fourByFiveByTwo.volume)")
 在超类初始化器被调用之后，当在子类初始化器中设置属性时，将调用超类属性的 和观察者。在调用超类初始化器之前，类设置自己的属性时不会调用它们。willSetdidSet
 :::
 
-有关初始化程序委托的更多信息，请参阅值类型的初始化程序委托和类类型的初始化程序委托。
+有关初始化器委托的更多信息，请参阅值类型的初始化器委托和类类型的初始化器委托。
 
 下面是一个例子和实际操作。下面的示例定义了一个名为 的新类，它跟踪一个人走路时的总步数。此类可以与来自计步器或其它计步器的输入数据一起使用，以跟踪一个人在日常生活中的锻炼情况。willSetdidSetStepCounter
 
@@ -393,7 +393,7 @@ struct SmallNumber {
 }
 ```
 
-的定义包括三个初始化器 — 、和— 下面的示例使用它们来设置包装值和最大值。有关初始化和初始化程序语法的信息，请参阅初始化。SmallNumberinit()init(wrappedValue:)init(wrappedValue:maximum:)
+的定义包括三个初始化器 — 、和— 下面的示例使用它们来设置包装值和最大值。有关初始化和初始化器语法的信息，请参阅初始化。SmallNumberinit()init(wrappedValue:)init(wrappedValue:maximum:)
 
 当你将一个包装器应用到一个属性并且你没有指定一个初始值时，Swift 使用初始化器 init()来设置包装器。例如：
 
@@ -423,7 +423,7 @@ print(unitRectangle.height, unitRectangle.width)
 // Prints "1 1"
 ```
 
-当你= 1 使用包装器编写属性时，这将转换为对初始化程序的调用。该包装的实例是通过调用创建的。初始化程序使用此处指定的包装值，并使用默认最大值 12。init(wrappedValue:)SmallNumberheightwidthSmallNumber(wrappedValue: 1)
+当你= 1 使用包装器编写属性时，这将转换为对初始化器的调用。该包装的实例是通过调用创建的。初始化器使用此处指定的包装值，并使用默认最大值 12。init(wrappedValue:)SmallNumberheightwidthSmallNumber(wrappedValue: 1)
 
 当你在自定义属性后面的括号中写参数时，Swift 使用接受这些参数的初始化器来设置包装器。例如，如果你提供一个初始值和一个最大值，Swift 会使用初始化器：init(wrappedValue:maximum:)
 
@@ -445,9 +445,9 @@ print(narrowRectangle.height, narrowRectangle.width)
 
 包装的实例是通过调用创建的，包装的实例是通过调用创建的。SmallNumberheightSmallNumber(wrappedValue: 2, maximum: 5)widthSmallNumber(wrappedValue: 3, maximum: 4)
 
-通过向属性包装器包含参数，你可以在包装器中设置初始状态或在创建包装器时将其它选项传递给包装器。此语法是使用属性包装器的最通用方式。你可以向属性提供你需要的任何参数，并将它们传递给初始化程序。
+通过向属性包装器包含参数，你可以在包装器中设置初始状态或在创建包装器时将其它选项传递给包装器。此语法是使用属性包装器的最通用方式。你可以向属性提供你需要的任何参数，并将它们传递给初始化器。
 
-当你包含属性包装器参数时，你还可以使用赋值指定初始值。Swift 将赋值视为参数，并使用接受你包含的参数的初始化程序。例如：wrappedValue
+当你包含属性包装器参数时，你还可以使用赋值指定初始值。Swift 将赋值视为参数，并使用接受你包含的参数的初始化器。例如：wrappedValue
 
 ```swift
 struct MixedRectangle {

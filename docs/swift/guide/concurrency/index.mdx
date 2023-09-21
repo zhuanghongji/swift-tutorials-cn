@@ -185,7 +185,7 @@ await withTaskGroup(of: Data.self) { taskGroup in
 
 ## 非结构化并发
 
-除了前面部分描述的结构化并发方法外，Swift 还支持非结构化并发。与属于任务组的任务不同，非结构化任务没有父任务。你可以完全灵活地以你的程序需要的任何方式管理非结构化任务，但你也对它们的正确性负全部责任。要创建在当前 actor 上运行的非结构化任务，请调用初始化程序。要创建不属于当前参与者的非结构化任务（更具体地称为分离任务），请调用类方法。这两个操作都会返回一个你可以与之交互的任务——例如，等待其结果或取消它。Task.init(priority:operation:)Task.detached(priority:operation:)
+除了前面部分描述的结构化并发方法外，Swift 还支持非结构化并发。与属于任务组的任务不同，非结构化任务没有父任务。你可以完全灵活地以你的程序需要的任何方式管理非结构化任务，但你也对它们的正确性负全部责任。要创建在当前 actor 上运行的非结构化任务，请调用初始化器。要创建不属于当前参与者的非结构化任务（更具体地称为分离任务），请调用类方法。这两个操作都会返回一个你可以与之交互的任务——例如，等待其结果或取消它。Task.init(priority:operation:)Task.detached(priority:operation:)
 
 ```swift
 let newPhoto = // ... some photo data ...

@@ -87,7 +87,7 @@ let adder = MetalAdder(device: device)
 
 ## 获取 Metal 函数的引用
 
-初始化程序所做的第一件事是加载函数并准备其在 GPU 上运行。当你构建应用程序时，Xcode 会编译 `add_arrays` 函数并将其添加到嵌入应用程序的默认 Metal 库中。你使用 [MTLLibrary](https://developer.apple.com/documentation/metal/mtllibrary) 和 [MTLFunction](https://developer.apple.com/documentation/metal/mtlfunction) 对象来获取有关 Metal 库及其中包含的函数的信息。要获取表示 `add_arrays` 函数的对象，请要求 [MTLDevice](https://developer.apple.com/documentation/metal/mtldevice) 为默认库创建一个 [MTLLibrary](https://developer.apple.com/documentation/metal/mtllibrary) 对象，然后向库请求一个代表着色器函数的 [MTLFunction](https://developer.apple.com/documentation/metal/mtlfunction) 对象。
+初始化器所做的第一件事是加载函数并准备其在 GPU 上运行。当你构建应用程序时，Xcode 会编译 `add_arrays` 函数并将其添加到嵌入应用程序的默认 Metal 库中。你使用 [MTLLibrary](https://developer.apple.com/documentation/metal/mtllibrary) 和 [MTLFunction](https://developer.apple.com/documentation/metal/mtlfunction) 对象来获取有关 Metal 库及其中包含的函数的信息。要获取表示 `add_arrays` 函数的对象，请要求 [MTLDevice](https://developer.apple.com/documentation/metal/mtldevice) 为默认库创建一个 [MTLLibrary](https://developer.apple.com/documentation/metal/mtllibrary) 对象，然后向库请求一个代表着色器函数的 [MTLFunction](https://developer.apple.com/documentation/metal/mtlfunction) 对象。
 
 ```swift
 class MetalAdder {

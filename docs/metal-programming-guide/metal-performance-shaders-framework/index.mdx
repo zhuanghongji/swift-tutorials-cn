@@ -21,7 +21,7 @@ MPS 框架中的每个着色器都源自 `MPSKernel` 类。该类是一个抽象
 - 矩阵乘法运算
 - 神经网络
 
-每种类型的 MPS 的设置都遵循一个模式。每个 `MPSKernel` 实例都有一个初始化程序，它采用程序的 MTLDevice 实例：
+每种类型的 MPS 的设置都遵循一个模式。每个 `MPSKernel` 实例都有一个初始化器，它采用程序的 MTLDevice 实例：
 
 ```swift
 let sobel = MPSImageSobel(device: mtlDevice)
@@ -248,7 +248,7 @@ init(device: MTLDevice,
      beta: Double)
 ```
 
-你可以选择转置左矩阵或右矩阵。该选项被传递到初始化程序中。你还可以指定结果矩阵中的行数和列数。你传入的最后一个属性是乘积的比例因子和 C 的初始值。乘法内核使用以下编码方法进行编码：
+你可以选择转置左矩阵或右矩阵。该选项被传递到初始化器中。你还可以指定结果矩阵中的行数和列数。你传入的最后一个属性是乘积的比例因子和 C 的初始值。乘法内核使用以下编码方法进行编码：
 
 ```swift
 func encode(commandBuffer: MTLCommandBuffer,
