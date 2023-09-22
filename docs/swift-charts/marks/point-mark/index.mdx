@@ -105,7 +105,7 @@ public init<X, Y>(x: PlottableValue<X>,
 ) where X : Plottable, Y : Plottable
 ```
 
-使用此初始值设定项以 x 绘制一个属性，并用 y 绘制另一属性：
+使用此初始化器以 x 绘制一个属性，并用 y 绘制另一属性：
 
 <Figure src={require("./image_4.png")} size={420} />
 
@@ -123,7 +123,7 @@ public init<X, Y>(x: PlottableValue<X>,
 public init<Y>(x: CGFloat? = nil, y: PlottableValue<Y>) where Y : Plottable
 ```
 
-使用此初始值设定项将属性绘制到 `y`：
+使用此初始化器将属性绘制到 `y`：
 
 <Figure src={require("./image_5.png")} size={120} />
 
@@ -139,7 +139,7 @@ public init<Y>(x: CGFloat? = nil, y: PlottableValue<Y>) where Y : Plottable
 public init<X>(x: PlottableValue<X>, y: CGFloat? = nil) where X : Plottable
 ```
 
-使用此初始值设定项来绘制带有 x 的属性：
+使用此初始化器来绘制带有 x 的属性：
 
 ```swift
 Chart(data) {
