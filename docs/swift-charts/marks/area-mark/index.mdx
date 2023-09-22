@@ -1,7 +1,5 @@
 # AreaMark
 
-<ToBePolishedAfterTranslation />
-
 <OriginalSource
   title="AreaMark"
   url="https://developer.apple.com/documentation/charts/areamark"
@@ -17,7 +15,7 @@ public struct AreaMark {
 
 ## 概述
 
-使用 AreaMark 将数据表示为图表上的填充区域。要创建简单的面积标记图表，请在 x 轴上绘制日期或有序字符串属性，并在 y 轴上绘制数字。例如，假设你有代表芝士汉堡随时间变化的成本的数据，存储在 Food 结构数组中：
+使用 `AreaMark` 将数据表示（represent）为图表上的填充区域。要创建简单的区域标记图表（area mark chart），请在 `x` 轴上绘制日期或有序字符串属性，并在 `y` 轴上绘制数字。例如，假设你有表示芝士汉堡（cheeseburger）随时间变化的成本的数据，存储在 `Food` 结构体数组中：
 
 ```swift
 let cheeseburgerCost: [Food] = [
@@ -27,13 +25,11 @@ let cheeseburgerCost: [Food] = [
     .init(name: "Cheeseburger", price: 1.10, year: 2020)
 ]
 
-
 struct Food: Identifiable {
     let name: String
     let price: Double
     let date: Date
     let id = UUID()
-
 
     init(name: String, price: Double, year: Int) {
         self.name = name
@@ -44,7 +40,7 @@ struct Food: Identifiable {
 }
 ```
 
-你可以为区域标记的每个 x 和 y 输入以 PlottableValue 实例的形式创建标记数据：
+你可以为区域标记的每个 `x` 和 `y` 输入，以 [PlottableValue](https://developer.apple.com/documentation/charts/plottablevalue) 实例的形式创建标记数据：
 
 ```swift
 Chart(cheeseburgerCost) { cost in
@@ -55,15 +51,43 @@ Chart(cheeseburgerCost) { cost in
 }
 ```
 
-生成的图表会根据数据自动缩放和标记轴，并使用默认颜色填充数据点下方的区域：
+生成的图表会根据数据自动缩放和标签轴，并使用默认颜色填充数据点下方的区域：
 
 <Figure src={require("./image_1.png")} size={480} />
 
-如果你只需要该行而不填充该行下方的区域，请改用 LineMark 。
+在 iOS 上显示效果如下：
 
-## 使用堆积面积图添加细节
+<ScreenshotBlock src={require('./screenshot_1.png')}>
 
-要表示信息的附加维度，你可以创建堆积面积图。例如，假设你有另一个数据集，它表示与上一个示例相同的成本数据，但它被分解为汉堡、小圆面包和奶酪的组件成本：
+```swift
+let cheeseburgerCost: [Food] = [
+    .init(name: "Cheeseburger", price: 0.15, year: 1960),
+    .init(name: "Cheeseburger", price: 0.20, year: 1970),
+    .init(name: "Cheeseburger", price: 0.40, year: 1980),
+    .init(name: "Cheeseburger", price: 0.75, year: 1990),
+    .init(name: "Cheeseburger", price: 0.85, year: 2000),
+    .init(name: "Cheeseburger", price: 0.85, year: 2010),
+    .init(name: "Cheeseburger", price: 1.10, year: 2020)
+]
+
+var body: some View {
+    Chart(cheeseburgerCost) { cost in
+        AreaMark(
+            x: .value("Date", cost.date),
+            y: .value("Price", cost.price)
+        )
+    }
+    .padding()
+}
+```
+
+</ScreenshotBlock>
+
+如果你只需要折线而不需要填充折线下方的区域，请改用 [LineMark](https://developer.apple.com/documentation/charts/linemark)。
+
+## 使用堆叠区域面积图添加细节
+
+要表示信息的其它维度，你可以创建堆叠（stacked）区域面积图。例如，假设你有另一个数据集，它表示与上一个示例相同的成本数据，但它被分解为汉堡（Burger）、小圆面包（Bun）和奶酪（Cheese）的组件成本：
 
 ```swift
 let cheeseburgerCostByItem: [Food] = [
@@ -80,7 +104,7 @@ let cheeseburgerCostByItem: [Food] = [
 ]
 ```
 
-你可以再次使用数据创建区域标记，但在本例中添加 foregroundStyle(by:) 修饰符来创建堆积面积图，该图表根据数据的 name 属性将信息划分为不同的区域:
+你可以再次使用数据创建区域标记，但在本例中添加 [foregroundStyle(by:)](<https://developer.apple.com/documentation/charts/chartcontent/foregroundstyle(by:)>) 修饰器来创建堆叠区域面积图，该图表根据数据的 `name` 属性将信息划分为不同的区域:
 
 ```swift
 Chart(cheeseburgerCostByItem) { cost in
@@ -88,23 +112,77 @@ Chart(cheeseburgerCostByItem) { cost in
         x: .value("Date", cost.date),
         y: .value("Price", cost.price)
     )
+    // highlight-next-line
     .foregroundStyle(by: .value("Food Item", cost.name))
 }
 ```
 
-图表自动为每个区域分配不同的颜色，并添加一个图例，根据你提供给修饰器的名称指示每种颜色代表的含义：
+图表自动为每个区域分配不同的颜色，并根据你提供给修饰器的名称，添加图例（legend）以指示哪个颜色表示哪个区域：
 
 <Figure src={require("./image_2.png")} size={480} />
 
+在 iOS 上显示效果如下：
+
+<ScreenshotBlock src={require('./screenshot_2.png')}>
+
+```swift
+let cheeseburgerCostByItem: [Food] = [
+    .init(name: "Burger", price: 0.07, year: 1960),
+    .init(name: "Cheese", price: 0.03, year: 1960),
+    .init(name: "Bun", price: 0.05, year: 1960),
+
+    .init(name: "Burger", price: 0.10, year: 1970),
+    .init(name: "Cheese", price: 0.04, year: 1970),
+    .init(name: "Bun", price: 0.06, year: 1970),
+
+    // highlight-start
+    .init(name: "Burger", price: 0.15, year: 1980),
+    .init(name: "Cheese", price: 0.06, year: 1980),
+    .init(name: "Bun", price: 0.08, year: 1980),
+
+    .init(name: "Burger", price: 0.30, year: 1990),
+    .init(name: "Cheese", price: 0.10, year: 1990),
+    .init(name: "Bun", price: 0.12, year: 1990),
+
+    .init(name: "Burger", price: 0.40, year: 2000),
+    .init(name: "Cheese", price: 0.06, year: 2000),
+    .init(name: "Bun", price: 0.16, year: 2000),
+
+    .init(name: "Burger", price: 0.50, year: 2010),
+    .init(name: "Cheese", price: 0.20, year: 2010),
+    .init(name: "Bun", price: 0.20, year: 2010),
+    // highlight-end
+
+    .init(name: "Burger", price: 0.60, year: 2020),
+    .init(name: "Cheese", price: 0.26, year: 2020),
+    .init(name: "Bun", price: 0.24, year: 2020)
+]
+
+var body: some View {
+    Chart(cheeseburgerCostByItem) { cost in
+        AreaMark(
+            x: .value("Date", cost.date),
+            y: .value("Price", cost.price)
+        )
+        // highlight-next-line
+        .foregroundStyle(by: .value("Food Item", cost.name))
+    }
+    .padding()
+}
+```
+
+</ScreenshotBlock>
+
 ## 以不同的方式堆叠数据
 
-你可以通过以不同方式堆叠数据来突出显示数据的不同方面。例如，上图显示了每种成分对芝士汉堡总成本的绝对贡献。要查看相对贡献，你可以通过将区域标记的 stacking 参数设置为 normalized 来创建标准化图表：
+你可以通过以不同方式堆叠数据来突出数据的不同方面。例如，上图显示了每种成分（ingredient）对芝士汉堡总成本的绝对贡献（absolute contributions）。要查看相对贡献（relative contributions），你可以通过将区域标记的 `stacking` 参数设置为 [normalized](https://developer.apple.com/documentation/charts/markstackingmethod/normalized) 来创建标准化图表：
 
 ```swift
 Chart(cheeseburgerCostByItem) { cost in
     AreaMark(
         x: .value("Date", cost.date),
         y: .value("Price", cost.price),
+        // highlight-next-line
         stacking: .normalized
     )
     .foregroundStyle(by: .value("Food Item", cost.name))
@@ -113,7 +191,26 @@ Chart(cheeseburgerCostByItem) { cost in
 
 <Figure src={require("./image_3.png")} size={480} />
 
-或者，你可以使用 center 堆叠来创建流图，它将面积图的基线移动到图表绘制区域的中心：
+在 iOS 上显示效果如下：
+
+<ScreenshotBlock src={require('./screenshot_3.png')}>
+
+```swift
+Chart(cheeseburgerCostByItem) { cost in
+    AreaMark(
+        x: .value("Date", cost.date),
+        y: .value("Price", cost.price),
+        // highlight-next-line
+        stacking: .normalized
+    )
+    .foregroundStyle(by: .value("Food Item", cost.name))
+}
+.padding()
+```
+
+</ScreenshotBlock>
+
+或者，你可以使用 [center](https://developer.apple.com/documentation/charts/markstackingmethod/center) 堆叠方式来创建流图（streamgraph），它将区域面积图的基线移动到图表绘制区域的中心：
 
 ```swift
 Chart(cheeseburgerCostByItem) { cost in
@@ -128,9 +225,28 @@ Chart(cheeseburgerCostByItem) { cost in
 
 <Figure src={require("./image_4.png")} size={480} />
 
-## 创建范围面积图
+在 iOS 上显示效果如下：
 
-你还可以使用面积标记创建范围面积图，在其中为每个数据点提供一个填充区间。为此，你需要为 x 轴提供日期或有序字符串类别，并为 y 轴提供一系列值，反之亦然。例如，假设你在 Weather 结构中记录每天的最低和最高温度：
+<ScreenshotBlock src={require('./screenshot_4.png')}>
+
+```swift
+Chart(cheeseburgerCostByItem) { cost in
+    AreaMark(
+        x: .value("Date", cost.date),
+        y: .value("Price", cost.price),
+        // highlight-next-line
+        stacking: .center
+    )
+    .foregroundStyle(by: .value("Food Item", cost.name))
+}
+.padding()
+```
+
+</ScreenshotBlock>
+
+## 创建范围区域面积图
+
+你还可以使用区域标记创建范围区域面积图（range area chart），在其中为每个数据点提供一个填充区间（an interval to fill）。为此，你需要为 `x` 轴提供日期或有序字符串类别，并为 `y` 轴提供一系列值，反之亦然。例如，假设你在 `Weather` 结构体中记录每天的最低和最高温度：
 
 ```swift
 struct Weather: Identifiable {
@@ -141,7 +257,7 @@ struct Weather: Identifiable {
 }
 ```
 
-如果将这些结构的集合加载到 data 数组中，则可以使用 x 轴上的日期，以及每天的最低和最高温度作为 y 轴的起点和终点：
+如果将这些结构体的集合加载到 `data` 数组中，则可以在 `x` 轴上使用日期，以及在 `y` 轴上使用每天的最低和最高温度作为的起点和终点：
 
 ```swift
 Chart(data) { day in
@@ -156,6 +272,65 @@ Chart(data) { day in
 这将创建一个由每个日期的起点和终点塑造的填充区域：
 
 <Figure src={require("./image_5.png")} size={480} />
+
+在 iOS 上显示效果如下：
+
+<ScreenshotBlock src={require('./screenshot_5.png')}>
+
+```swift
+let data: [Weather] = [
+    .init(date: Calendar.autoupdatingCurrent.date(from: DateComponents(month: 1))!,
+            maximumTemperature: 45,
+            minimumTemperature: 38,
+            id: 1),
+    .init(date: Calendar.autoupdatingCurrent.date(from: DateComponents(month: 2))!,
+            maximumTemperature: 64,
+            minimumTemperature: 56,
+            id: 2),
+    .init(date: Calendar.autoupdatingCurrent.date(from: DateComponents(month: 3))!,
+            maximumTemperature: 60,
+            minimumTemperature: 52,
+            id: 3),
+    .init(date: Calendar.autoupdatingCurrent.date(from: DateComponents(month: 4))!,
+            maximumTemperature: 43,
+            minimumTemperature: 40,
+            id: 4),
+]
+
+var body: some View {
+    Chart(data) { day in
+        AreaMark(
+            x: .value("Date", day.date),
+            yStart: .value("Minimum Temperature", day.minimumTemperature),
+            yEnd: .value("Maximum Temperature", day.maximumTemperature)
+        )
+    }
+    .padding()
+}
+```
+
+</ScreenshotBlock>
+
+如果想让折线看起来顺滑一点，可使用 `interpolationMethod(_:)` 修饰器：
+
+<ScreenshotBlock src={require('./screenshot_6.png')}>
+
+```swift
+Chart(data) { day in
+    AreaMark(
+        x: .value("Date", day.date),
+        yStart: .value("Minimum Temperature",
+                       day.minimumTemperature),
+        yEnd: .value("Maximum Temperature",
+                     day.maximumTemperature)
+    )
+    // highlight-next-line
+    .interpolationMethod(.cardinal)
+}
+.padding()
+```
+
+</ScreenshotBlock>
 
 ## 创建区域标记
 
@@ -173,7 +348,7 @@ public init<X, Y>(x: PlottableValue<X>,
 ) where X : Plottable, Y : Plottable
 ```
 
-你可以使用此初始值设定项创建基本面积图：
+你可以使用此初始化器创建基本区域面积图：
 
 ```swift
 Chart(cheeseburgerCost) { cost in
@@ -206,7 +381,7 @@ public init<X, Y, S>(x: PlottableValue<X>,
 
 初始化器的行为类似于 [init(x:y:stacking:)](<https://developer.apple.com/documentation/charts/areamark/init(x:y:stacking:)>)，不同之处在于你可以通过为 `series` 输入提供值来指示每个数据点属于哪个区域。这使你能够在一张图表上绘制多个区域。
 
-## 创建范围面积图
+## 创建范围区域面积图
 
 ### init(x:yStart:yEnd:)
 
@@ -222,7 +397,7 @@ public init<X, Y>(x: PlottableValue<X>,
 ) where X : Plottable, Y : Plottable
 ```
 
-使用此初始值设定项创建具有垂直间隔的范围面积图。例如，你可以创建一个包含一天中、多天内的所有温度的区域：
+使用此初始化器创建具有垂直间隔的范围区域面积图。例如，你可以创建一个包含一天中、多天内的所有温度的区域：
 
 ```swift
 Chart(data) { day in
@@ -271,7 +446,7 @@ public init<X, Y>(xStart: PlottableValue<X>,
 ) where X : Plottable, Y : Plottable
 ```
 
-使用此初始值设定项创建具有水平间隔的范围面积图。例如，你可以创建一个包含一天中、多天内的所有温度的区域：
+使用此初始化器创建具有水平间隔的范围区域面积图。例如，你可以创建一个包含一天中、多天内的所有温度的区域：
 
 ```swift
 Chart(data) { day in
@@ -303,6 +478,6 @@ public init<X, Y, S>(xStart: PlottableValue<X>,
 ) where X : Plottable, Y : Plottable, S : Plottable
 ```
 
-初始化器的行为类似于 [init(xStart:xEnd:y:)](<https://developer.apple.com/documentation/charts/areamark/init(xstart:xend:y:)>)，不同之处在于你可以通过为 series 输入提供值来指示每个间隔属于哪个区域。这使你能够在一张图表上绘制多个区域。
+初始化器的行为类似于 [init(xStart:xEnd:y:)](<https://developer.apple.com/documentation/charts/areamark/init(xstart:xend:y:)>)，不同之处在于你可以通过为 `series` 输入提供值来指示每个间隔属于哪个区域。这使你能够在一张图表上绘制多个区域。
 
 要绘制一系列具有垂直间隔的值，请改用 [init(x:yStart:yEnd:series:)](<https://developer.apple.com/documentation/charts/areamark/init(x:ystart:yend:series:)>)。
