@@ -1,7 +1,5 @@
 # PointMark
 
-<ToBePolishedAfterTranslation />
-
 <OriginalSource
   title="PointMark"
   url="https://developer.apple.com/documentation/charts/pointmark"
@@ -17,7 +15,7 @@ public struct PointMark {
 
 ## 概述
 
-你可以使用 PointMark 图表内容创建不同类型的点图。你可以使用点标记构建的一种常见图表是散点图，它显示两个数值数据属性之间的关系。要构建散点图，请使用 `init(x:y:)`。为 `x` 和 `y` 参数提供一个带有字符串的 `.value`，用作数据的标签以及要绘制的数据元素。以下示例分别用 `x` 和 `y` 绘制 `wingLength` 和 `wingHeight` 属性：
+你可以使用 `PointMark` 图表内容创建不同类型的点图。你可以使用点标记构建的一种常见图表是散点图，它显示两个数值数据属性之间的关系。要构建散点图，可使用 `init(x:y:)`。为 `x` 和 `y` 参数提供一个带有字符串的 `.value`，以用作数据的标签以及要绘制的数据元素。以下示例分别在 `x` 和 `y` 上绘制 `wingLength` 和 `wingHeight` 属性：
 
 ```swift
 struct Insect {
@@ -28,6 +26,8 @@ struct Insect {
     let weight: Double
 }
 
+// Hepialidae：蝙蝠蛾科；Danaidae：斑蝶科；Riodinidae 蚬蝶科
+// Diptera：双翅目；Hymenoptera：膜翅目；Lepidoptera：鳞翅类
 var data: [Insect] = [
     Insect(name: "Hepialidae", family: "Lepidoptera", wingLength: 61, wingWidth: 52, weight: 22),
     Insect(name: "Danaidae", family: "Lepidoptera", wingLength: 60, wingWidth: 48, weight: 24),
@@ -47,9 +47,9 @@ var body: some View {
 
 <Figure src={require("./image_1.png")} size={420} />
 
-## 添加附加数据字段
+## 添加额外的数据字段
 
-Swift Charts 为点标记提供了三个附加修饰器，每个修饰器都允许你将附加属性绘制到唯一的视觉通道。
+Swift Charts 为点标记提供了三个 "额外的" 修饰器，每个修饰器都允许你将附加属性绘制到唯一的视觉通道。
 
 <TableWrapper >
 
@@ -61,7 +61,7 @@ Swift Charts 为点标记提供了三个附加修饰器，每个修饰器都允�
 
 </TableWrapper>
 
-例如，要将上例 Insect 结构中的 family 属性绘制为颜色，请添加 [foregroundStyle(by:)](<https://developer.apple.com/documentation/charts/chartcontent/foregroundstyle(by:)>) 修饰器：
+例如，要将上例 `Insect` 结构体中的 `family` 属性绘制为颜色，可添加 [foregroundStyle(by:)](<https://developer.apple.com/documentation/charts/chartcontent/foregroundstyle(by:)>) 修饰器：
 
 ```swift
 Chart(data) {
@@ -69,15 +69,16 @@ Chart(data) {
         x: .value("Wing Length", $0.wingLength),
         y: .value("Wing Width", $0.wingWidth)
     )
+    // highlight-next-line
     .foregroundStyle(by: .value("Family", $0.family))
 }
 ```
 
 <Figure src={require("./image_2.png")} size={420} />
 
-前景样式修饰器自动生成一个色标，为每个标记提供反映其值属性的颜色。要了解如何修改默认色标，请参阅 ScaleModifiers 。该修饰器还提供默认图例。要了解如何修改或禁用图例，请参阅 ChartLegend 。
+前景样式修饰器自动生成一个色标（color scale），为每个标记提供反映其值属性的颜色。要了解如何修改默认色标，请参阅 `ScaleModifiers` 。该修饰器还提供默认图例。要了解如何修改或禁用图例，请参阅 `ChartLegend`。
 
-或者，你可以通过使用 [symbol(by:)](<https://developer.apple.com/documentation/charts/chartcontent/symbol(by:)>) 修饰器绘制 `family` 属性来区分具有不同符号的族：
+或者，你可以通过使用 [symbol(by:)](<https://developer.apple.com/documentation/charts/chartcontent/symbol(by:)>) 修饰器绘制 `family` 属性来区分（distinguish）具有不同符号（symbols）的科（动植物的）：
 
 ```swift
 Chart(data) {
@@ -85,6 +86,7 @@ Chart(data) {
         x: .value("Wing Length", $0.wingLength),
         y: .value("Wing Length", $0.wingWidth)
     )
+    // highlight-next-line
     .symbol(by: .value("Family", $0.family))
 }
 ```
@@ -105,7 +107,7 @@ public init<X, Y>(x: PlottableValue<X>,
 ) where X : Plottable, Y : Plottable
 ```
 
-使用此初始化器以 x 绘制一个属性，并用 y 绘制另一属性：
+使用此初始化器以 `x` 绘制一个属性，并用 `y` 绘制另一属性：
 
 <Figure src={require("./image_4.png")} size={420} />
 
@@ -139,7 +141,7 @@ public init<Y>(x: CGFloat? = nil, y: PlottableValue<Y>) where Y : Plottable
 public init<X>(x: PlottableValue<X>, y: CGFloat? = nil) where X : Plottable
 ```
 
-使用此初始化器来绘制带有 x 的属性：
+使用此初始化器来绘制带有 `x` 的属性：
 
 ```swift
 Chart(data) {
