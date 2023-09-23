@@ -1,0 +1,213 @@
+import Tabs from "@theme/Tabs";
+import TabItem from "@theme/TabItem";
+
+# 在应用程序中添加和编辑持久数据
+
+<ToBePolishedAfterTranslation />
+
+<OriginalSource
+  title="Adding and editing persistent data in your app"
+  url="https://developer.apple.com/documentation/swiftdata/adding-and-editing-persistent-data-in-your-app"
+  summary="创建一个数据输入表单，用于收集和更改由 SwiftData 管理的数据"
+/>
+
+## 概述
+
+添加和编辑数据是数据驱动应用程序的基本功能，但应用程序如何提供这些功能对于应用程序来说是独一无二的。此示例展示了一种方法，即使用带有 SwiftData 的数据输入表单，让人们可以添加、编辑和存储有关动物的数据。
+
+## 定义数据模型 in page link
+
+在 SwiftData 可以存储应用程序中的数据之前，应用程序必须定义表示数据的数据模型。 SwiftData 使用模型类来构建数据模型的架构。例如，示例应用程序存储有关动物的数据，并将这些动物分组。为了定义此数据模型的架构，该示例定义了两个模型类： Animal 和 AnimalCategory 。
+
+Animal 模型类存储有关动物的信息，例如其名称和饮食。为了持久保存 Animal 的实例，类定义应用 Model() 宏。该宏在编译时生成代码，确保类符合 PersistentModel 协议，并使 SwiftData 能够将动物数据保存到模型容器中。
+
+```swift
+import SwiftData
+
+@Model
+final class Animal {
+    var name: String
+    var diet: Diet
+    var category: AnimalCategory?
+
+    init(name: String, diet: Diet) {
+        self.name = name
+        self.diet = diet
+    }
+}
+```
+
+AnimalCategory 模型类存储有关动物类别的信息，例如哺乳动物或爬行动物。模型类还包括属于该类别的动物列表。与 Animal 一样， AnimalCategory 模型类定义应用 Model() 宏来确保该类符合 PersistentModel 并保存动物类别数据到模型容器。
+
+```swift
+import SwiftData
+
+@Model
+final class AnimalCategory {
+    @Attribute(.unique) var name: String
+    // When deleting a category, `.cascade` deletes all animals in that category.
+    @Relationship(deleteRule: .cascade, inverse: \Animal.category)
+    var animals = [Animal]()
+
+    init(name: String) {
+        self.name = name
+    }
+}
+```
+
+<Tabs>
+  <TabItem value="iOS" label="iOS" default>
+    <Figure src={require("./image_1.png")} size={320} />
+  </TabItem>
+  <TabItem value="iPadOS" label="iPadOS">
+    <Figure src={require("./image_2.png")} size={720} />
+  </TabItem>
+  <TabItem value="macOS" label="macOS">
+    <Figure src={require("./image_3.png")} size={720} />
+  </TabItem>
+  <TabItem value="tvOS" label="tvOS">
+    <Figure src={require("./image_4.png")} size={720} />
+  </TabItem>
+</Tabs>
+
+AnimalEditor 的设计允许应用程序使用相同的视图来添加新动物和编辑现有动物。为了提供此行为，编辑器将 animal 属性声明为可选的 Animal 类型。如果 animal 是 nil ，则使用编辑器的人正在添加动物；否则，该人正在编辑现有的动物。编辑器根据计算属性中 animal 的值确定编辑器的标题，从而使意图变得明显。
+
+```swift
+struct AnimalEditor: View {
+    let animal: Animal?
+
+    private var editorTitle: String {
+        animal == nil ? "Add Animal" : "Edit Animal"
+    }
+    // ...
+}
+```
+
+为了能够编辑新动物或现有动物的值，编辑器为每个可编辑值定义状态变量。这些状态变量存储用户输入到编辑器中的数据，将用户输入的内容与存储在 animal 中的数据分开。
+
+```swift
+@State private var name = ""
+@State private var diet = Animal.Diet.herbivorous
+@State private var category: AnimalCategory?
+
+var body: some View {
+    NavigationStack {
+        Form {
+            TextField("Name", text: $name)
+
+            Picker("Category", selection: $category) {
+                Text("Select a category").tag(nil as AnimalCategory?)
+                ForEach(categories) { category in
+                    Text(category.name).tag(category as AnimalCategory?)
+                }
+            }
+
+            Picker("Diet", selection: $diet) {
+                ForEach(Animal.Diet.allCases, id: \.self) { diet in
+                    Text(diet.rawValue).tag(diet)
+                }
+            }
+        }
+    }
+}
+```
+
+这种分离确保 SwiftData 不会保存用户所做的更改，直到该人准备好保存这些更改。这种方法还使人们有机会放弃他们在编辑器中所做的任何更改，而不保存这些更改。
+
+示例应用程序使用此方法，因为它使用 SwiftData 的自动保存功能。自动保存功能会自动保存对模型类实例（例如 animal ）所做的数据更改，而不是依赖应用程序对模型上下文 save() 方法进行显式调用。有关自动保存的更多信息，请参阅 autosaveEnabled 。
+
+最后，为了让使用它的人清楚编辑器的用途， AnimalEditor 使用 editorTitle 计算属性在工具栏的主要位置显示标题：
+
+```swift
+.toolbar {
+    ToolbarItem(placement: .principal) {
+        Text(editorTitle)
+    }
+}
+```
+
+## 设置默认值 in page link
+
+AnimalEditor 视图使用新动物的默认值声明其状态变量，将 name 设置为空字符串，将 diet 设置为 herbivorous ，并将类别保留为 nil 。但编辑器也支持编辑现有的动物。如果有人编辑动物，编辑器需要显示传入动物的值，而不是新动物的默认值。
+
+为了显示传入动物的值，编辑器应用 onAppear(perform:) 修饰符并将可编辑值从 animal 复制到状态变量：
+
+```swift
+.onAppear {
+    if let animal {
+        // Edit the incoming animal.
+        name = animal.name
+        diet = animal.diet
+        category = animal.category
+    }
+}
+```
+
+## 保存更改 in page link
+
+为了保存更改，编辑器在工具栏中提供了一个“保存”按钮：
+
+```swift
+ToolbarItem(placement: .confirmationAction) {
+    Button("Save") {
+        withAnimation {
+            save()
+            dismiss()
+        }
+    }
+}
+```
+
+当用户单击“保存”按钮时，它会调用编辑器的 save 方法。如果该人正在编辑现有动物，则 save 将状态变量中的值复制到 Animal 的实例。这会直接更新 SwiftData 管理的数据，并且由于应用程序使用自动保存功能，SwiftData 会自动保存更改，而无需调用模型上下文 save() 方法。
+
+```swift
+private func save() {
+    if let animal {
+        // Edit the animal.
+        animal.name = name
+        animal.diet = diet
+        animal.category = category
+    } else {
+        // Add an animal.
+        // ...
+    }
+}
+```
+
+如果用户添加新动物， save 函数会创建一个新的 Animal 实例，并使用状态变量中的名称和饮食对其进行初始化。然后它设置类别并通过调用模型上下文 insert(\_:) 方法将动物插入到模型上下文中。
+
+```swift
+private func save() {
+    if let animal {
+        // Edit the animal.
+        // ...
+    } else {
+        // Add an animal.
+        let newAnimal = Animal(name: name, diet: diet)
+        newAnimal.category = category
+        modelContext.insert(newAnimal)
+    }
+}
+```
+
+保存数据后，“保存”按钮的操作通过调用 dismiss 关闭编辑器。
+
+:::note
+
+AnimalEditor 视图通过使用 @Environment(\.modelContext) private var modelContext 创建对上下文的引用，从视图的环境中检索模型上下文。有关详细信息，请参阅 modelContext 。
+
+:::
+
+## 放弃更改 in page link
+
+为了放弃某人所做的更改，编辑器在工具栏中提供了一个“取消”按钮：
+
+```swift
+ToolbarItem(placement: .cancellationAction) {
+    Button("Cancel", role: .cancel) {
+        dismiss()
+    }
+}
+```
+
+当用户单击 "取消" 按钮时，编辑器会通过在按钮操作中调用 dismiss 来放弃对数据所做的任何更改，这会关闭编辑器，而不在 SwiftData 中保存任何更改。

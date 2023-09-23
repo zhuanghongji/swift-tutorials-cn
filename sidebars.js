@@ -356,8 +356,77 @@ const swiftdataSidebar = [
     items: [
       {
         type: "category",
-        label: "概要",
-        items: ["swiftdata/essentials/about/index"],
+        label: "Essentials",
+        collapsed: false,
+        items: [
+          "swift-data/essentials/about/index",
+          "swift-data/essentials/preserving-your-app-s-model-data-across-launches/index",
+          "swift-data/essentials/building-a-document-based-app-using-swiftdata/index",
+        ],
+      },
+      {
+        type: "category",
+        label: "Model Definition",
+        collapsed: false,
+        items: [
+          "swift-data/model-definition/adding-and-editing-persistent-data-in-your-app/index",
+          "swift-data/model-definition/deleting-persistent-data-from-your-app/index",
+          "swift-data/model-definition/maintaining-a-local-copy-of-server-data/index",
+          "swift-data/model-definition/persistent-model/index",
+          "swift-data/model-definition/relationship-collection/index",
+        ],
+      },
+      {
+        type: "category",
+        label: "Model storage",
+        collapsed: false,
+        items: [
+          "swift-data/model-storage/model-container/index",
+          "swift-data/model-storage/model-context/index",
+          "swift-data/model-storage/model-document/index",
+        ],
+      },
+      {
+        type: "category",
+        label: "Model fetch",
+        collapsed: false,
+        items: [
+          "swift-data/model-fetch/filtering-and-sorting-persistent-data/index",
+          "swift-data/model-fetch/query/index",
+          "swift-data/model-fetch/fetch-descriptor/index",
+          "swift-data/model-fetch/predicate/index",
+          "swift-data/model-fetch/fetch-results-collection/index",
+        ],
+      },
+      {
+        type: "category",
+        label: "Concurrency support",
+        collapsed: false,
+        items: [
+          "swift-data/concurrency-support/model-actor/index",
+          "swift-data/concurrency-support/model-executor/index",
+        ],
+      },
+      {
+        type: "category",
+        label: "Errors",
+        collapsed: false,
+        items: ["swift-data/errors/swift-data-error/index"],
+      },
+      {
+        type: "category",
+        label: "Classes",
+        collapsed: false,
+        items: ["swift-data/classes/default-serial-model-executor/index"],
+      },
+      {
+        type: "category",
+        label: "Protocols",
+        collapsed: false,
+        items: [
+          "swift-data/protocols/schema-property/index",
+          "swift-data/protocols/serial-model-executor/index",
+        ],
       },
     ],
   },

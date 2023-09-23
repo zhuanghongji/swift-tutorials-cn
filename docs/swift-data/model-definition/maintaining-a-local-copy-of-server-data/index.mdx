@@ -1,0 +1,155 @@
+# 维护服务器数据的本地副本
+
+<ToBePolishedAfterTranslation />
+
+<OriginalSource
+  title="Maintaining a local copy of server data"
+  url="https://developer.apple.com/documentation/swiftdata/maintaining-a-local-copy-of-server-data"
+  summary="创建和更新持久存储以缓存只读网络数据"
+/>
+
+## 概述
+
+此示例应用程序显示一个列表，其中包含一天发生的地震，并显示地震的时间、位置和大小。为了帮助人们可视化列表，该应用程序还在地图上精确定位了每次地震。您可以在列表中选择地震以在地图上突出显示它。
+
+<Figure src={require("./image_1.png")} size={720} />
+
+该应用程序在以下假设下从网络下载地震数据：
+
+- 地震数据是只读的：应用程序不需要同步本地和远程更改。服务器始终是事实的来源。
+- 新的地震定期发生：应用程序需要提供一种方法来获取地震的初始列表并定期刷新该列表。
+- 现有的地震记录可能会发生变化：例如，报告的地震震级可能会随着额外测量的可用而发生变化。该应用程序需要区分新的地震和先前下载的地震的更新。
+
+该应用程序使用 SwiftData 持久存储其下载的数据。通过在本地缓存数据，应用程序减少了访问服务器的需要。 SwiftData 还使应用程序在下载新数据时可以轻松管理更新。
+
+:::note
+
+要了解应用程序如何通过查询和谓词管理数据呈现，请参阅过滤和排序持久数据。
+
+:::
+
+## 定义应用程序的数据模型 in page link
+
+应用程序通过定义 Quake 类来表示其界面所需的信息。类定义包含 Model() 宏，告诉系统使用 SwiftData 持久存储数据：
+
+```swift
+import SwiftData
+
+@Model
+class Quake {
+    @Attribute(.unique) var code: String
+    var magnitude: Double
+    var time: Date
+    var location: Location
+}
+```
+
+该模型包括以下字段：
+
+- 独特的代码：通过将 Attribute(\_:originalName:hashModifier:) 宏与 unique 属性选项包含在一起，应用程序可确保 SwiftData 仅存储一次具有该字段特定值的地震。
+- 震级：地震的大小。
+- 时间戳：地震发生的时刻，存储为 Date 实例。
+- 位置：包含位置名称和地图坐标的自定义 Location 实例：
+
+```swift
+struct Location: Codable {
+    var name: String
+    var longitude: Double
+    var latitude: Double
+}
+```
+
+Quake 模型可以嵌入位置实例，因为 Location 结构符合 Codable 协议。
+
+## 对服务器数据建模 in page link
+
+该应用程序从美国地质调查局 (USGS) 服务器加载数据，该服务器提供 GeoJSON 格式的地震数据。为了解释此数据，应用程序定义了一个 GeoFeatureCollection 结构，其属性名称与相关 JSON 属性的名称相匹配：
+
+```swift
+struct GeoFeatureCollection: Decodable {
+    let features: [Feature]
+
+    struct Feature: Decodable {
+        let properties: Properties
+        let geometry: Geometry
+
+        struct Properties: Decodable {
+            let mag: Double
+            let place: String
+            let time: Date
+            let code: String
+        }
+
+        struct Geometry: Decodable {
+            let coordinates: [Double]
+        }
+    }
+}
+```
+
+该结构及其子结构包括与该应用程序相关的元素，即幅度、时间和位置信息。它们省略了服务器提供的许多其他字段，因为应用程序不需要它们。该结构也符合 Decodable 协议，因此应用程序可以使用该结构来解码下载的数据。
+
+## 从服务器下载数据 in page link
+
+为了检索数据，应用程序定义了一个 fetchFeatures() 方法，该方法使用 URLSession 将地震 JSON 存储在 data 属性中：
+
+```swift
+let session = URLSession.shared
+guard let (data, response) = try? await session.data(from: url),
+      let httpResponse = response as? HTTPURLResponse,
+      httpResponse.statusCode == 200
+else {
+    throw DownloadError.missingData
+}
+```
+
+然后，该方法根据可解码的 GeoFeatureCollection 结构提供的定义，使用 JSONDecoder 实例解析数据：
+
+```swift
+do {
+    let jsonDecoder = JSONDecoder()
+    jsonDecoder.dateDecodingStrategy = .millisecondsSince1970
+    return try jsonDecoder.decode(GeoFeatureCollection.self, from: data)
+} catch {
+    throw DownloadError.wrongDataFormat(error: error)
+}
+```
+
+有关解码 JSON 数据的其他示例，请参阅将 JSON 与自定义类型结合使用。
+
+## 将服务器数据转换为模型数据 in page link
+
+检索特征集合后，应用程序将每个特征解释为地震。 Quake 类定义了一个方便的初始值设定项，用于从要素实例创建新的地震：
+
+```swift
+convenience init(from feature: GeoFeatureCollection.Feature) {
+    self.init(
+        code: feature.properties.code,
+        magnitude: feature.properties.mag,
+        time: feature.properties.time,
+        name: feature.properties.place,
+        longitude: feature.geometry.coordinates[0],
+        latitude: feature.geometry.coordinates[1]
+    )
+}
+```
+
+这使得应用程序能够将数据从服务器提供的格式转换为应用程序方便的格式。例如，初始化程序将要素 geometry.coordinates 数组中显示为匿名元素的经度和纬度坐标转换为命名参数。
+
+## 插入或更新新的地震数据 in page link
+
+当应用程序创建新的地震实例时，它会通过为每个实例调用模型上下文的 insert(\_:) 方法来持久存储震级大于零的任何地震实例：
+
+```swift
+for feature in featureCollection.features {
+    let quake = Quake(from: feature)
+
+    if quake.magnitude > 0 {
+        modelContext.insert(quake)
+    }
+}
+```
+
+应用程序针对初始下载和稍后的刷新操作运行此循环。当应用程序保存更改时（在本例中会自动发生，因为上下文的 autosaveEnabled 属性具有默认值 true ）- SwiftData 检查指定的地震是否为 code 参数与商店中已有的地震代码相匹配。如果是，框架将使用指定参数中的值更新存储的地震的其他参数。否则，框架会向存储添加新的地震。
+
+insert 方法适用于创建和更新地震模型实例，因为模型指示 code 参数是唯一的。这依赖于服务器确保每个地震事件都有唯一、稳定的代码这一事实。

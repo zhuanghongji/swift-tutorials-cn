@@ -1,0 +1,194 @@
+# 从应用程序中删除持久数据
+
+<ToBePolishedAfterTranslation />
+
+<OriginalSource
+  title="Deleting persistent data from your app"
+  url="https://developer.apple.com/documentation/swiftdata/deleting-persistent-data-from-your-app"
+  summary="探索使用 SwiftData 删除持久数据的不同方法"
+/>
+
+## 概述
+
+数据驱动的应用程序通常为人们提供一种删除数据的方法，此示例也不例外。它展示了删除存储在 SwiftData 模型容器中的数据的三种方法：
+
+- 滑动删除
+- 确认删除
+- 全部删除
+
+:::note
+
+如果您想了解如何使用 SwiftData 添加和编辑数据，请参阅在应用程序中添加和编辑持久数据。
+
+:::
+
+## 滑动删除 in page link
+
+示例应用程序显示了动物列表。使用该应用程序的人可以使用滑动手势删除动物。例如，以下代码通过将 onDelete(perform:) 修饰符应用于 ForEach 来将滑动删除选项添加到 AnimalList 视图：
+
+```swift
+private struct AnimalList: View {
+    @Environment(NavigationContext.self) private var navigationContext
+    @Environment(\.modelContext) private var modelContext
+    @Query(sort: \Animal.name) private var animals: [Animal]
+
+
+    var body: some View {
+        @Bindable var navigationContext = navigationContext
+        List(selection: $navigationContext.selectedAnimal) {
+            ForEach(animals) { animal in
+                NavigationLink(animal.name, value: animal)
+            }
+            .onDelete(perform: removeAnimals)
+        }
+    }
+}
+```
+
+前面代码中的 onDelete(perform:) 修饰符调用自定义方法 removeAnimals 以从列表中删除一个或多个动物。此方法接收一个 IndexSet ，它标识要删除的动物。然后，该方法迭代索引集，使用 ModelContext 方法 delete(\_:) 删除每个动物。
+
+```swift
+private func removeAnimals(at indexSet: IndexSet) {
+    for index in indexSet {
+        modelContext.delete(animals[index])
+    }
+}
+```
+
+但是，使用此示例的人可能会删除选定的动物，因此 removeAnimals 方法需要在删除动物之前取消选择该动物。 removeAnimals 的更新版本使用 persistentModelID 来确定要删除的动物是否也是所选动物。如果是，该方法将选定的动物设置为 nil 。
+
+```swift
+private func removeAnimals(at indexSet: IndexSet) {
+    for index in indexSet {
+        let animalToDelete = animals[index]
+        if navigationContext.selectedAnimal?.persistentModelID == animalToDelete.persistentModelID {
+            navigationContext.selectedAnimal = nil
+        }
+        modelContext.delete(animalToDelete)
+    }
+}
+```
+
+该示例使用 SwiftData 自动保存功能，该功能在使用 modelContainer(for:inMemory:isAutosaveEnabled:isUndoEnabled:onSetup:) 修饰符创建 ModelContainer 时默认启用。如果禁用此功能，则 removeAnimals 方法需要通过调用 ModelContext 方法 save() 显式保存更改；例如：
+
+```swift
+private func removeAnimals(at indexSet: IndexSet) {
+    do {
+	    for index in indexSet {
+	        let animalToDelete = animals[index]
+	        if navigationContext.selectedAnimal?.persistentModelID == animalToDelete.persistentModelID {
+	            navigationContext.selectedAnimal = nil
+	        }
+	        modelContext.delete(animalToDelete)
+	    }
+        try modelContext.save()
+    } catch {
+        // Handle error.
+    }
+}
+```
+
+:::note
+
+要禁用自动保存功能，请在使用 modelContainer(for:inMemory:isAutosaveEnabled:isUndoEnabled:onSetup:) 修饰符创建模型容器时将 isAutoSaveEnabled 参数设置为 false 。您还可以通过将模型上下文属性 autosaveEnabled 设置为 false 来禁用自动保存。
+
+:::
+
+## 确认删除 in page link
+
+示例应用程序还允许用户通过单击工具栏中显示的 AnimalDetailView 垃圾桶按钮来删除选定的动物。
+
+```swift
+struct AnimalDetailView: View {
+    var animal: Animal?
+    @State private var isDeleting = false
+    @Environment(\.modelContext) private var modelContext
+    @Environment(NavigationContext.self) private var navigationContext
+
+
+    var body: some View {
+        if let animal {
+            AnimalDetailContentView(animal: animal)
+                .navigationTitle("\(animal.name)")
+                .toolbar {
+                    Button { isDeleting = true } label: {
+                        Label("Delete \(animal.name)", systemImage: "trash")
+                            .help("Delete the animal")
+                    }
+                }
+        } else {
+            ContentUnavailableView("Select an animal", systemImage: "pawprint")
+        }
+    }
+}
+```
+
+该按钮的操作将状态变量 isDeleting 设置为 true ，这会显示以下代码中描述的删除确认警报：
+
+```swift
+.alert("Delete \(animal.name)?", isPresented: $isDeleting) {
+    Button("Yes, delete \(animal.name)", role: .destructive) {
+        delete(animal)
+    }
+}
+```
+
+确认删除请求后，确认按钮的操作将调用自定义 delete 方法。此方法将选定的动物设置为 nil ，然后通过调用 delete(\_:) 方法从模型上下文中删除该动物。
+
+```swift
+private func delete(_ animal: Animal) {
+    navigationContext.selectedAnimal = nil
+    modelContext.delete(animal)
+}
+```
+
+如果禁用 SwiftData 自动保存功能，则 delete 方法需要通过调用 ModelContext 方法 save() 显式保存更改；例如：
+
+```swift
+private func delete(_ animal: Animal) {
+    do {
+        navigationContext.selectedAnimal = nil
+        modelContext.delete(animal)
+        try modelContext.save()
+    } catch {
+        // Handle error.
+    }
+}
+```
+
+## 删除所有 in page link
+
+在数据驱动应用程序中，删除特定模型类型的所有项目不太常见，但有时使用此选项可能会有所帮助。例如，示例应用程序允许人们重新加载应用程序附带的示例数据。重新加载样本数据会从持久存储中删除所有动物类别和动物。
+
+要删除特定模型类型的所有项目，请使用 ModelContext 方法 delete(model:where:includeSubclasses:) 。例如，以下代码在重新加载示例数据之前删除所有动物类别：
+
+```swift
+static func reloadSampleData(modelContext: ModelContext) {
+    do {
+        try modelContext.delete(model: AnimalCategory.self)
+        insertSampleData(modelContext: modelContext)
+    } catch {
+        fatalError(error.localizedDescription)
+    }
+}
+```
+
+删除所有动物类别时，SwiftData 还会删除这些类别内的所有动物。 SwiftData 知道执行此级联删除，因为 AnimalCategory 和 Animal 之间的关系使用 Schema.Relationship.DeleteRule.cascade 删除规则。 （有关删除规则的完整列表，请参阅 Schema.Relationship.DeleteRule 。）
+
+```swift
+import SwiftData
+
+@Model
+final class AnimalCategory {
+    @Attribute(.unique) var name: String
+    // Cascade deletes all animals contained in the category when deleting it.
+    @Relationship(deleteRule: .cascade, inverse: \Animal.category)
+    var animals = [Animal]()
+
+    init(name: String) {
+        self.name = name
+    }
+}
+```
+
+要从应用程序中删除所有持久数据而不仅仅是特定模型类型的数据，请使用 ModelContainer 方法 deleteAllData() 。

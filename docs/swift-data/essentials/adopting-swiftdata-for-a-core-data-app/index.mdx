@@ -1,0 +1,147 @@
+# 采用 SwiftData 作为 Core Data 应用程序
+
+<ToBePolishedAfterTranslation />
+
+<OriginalSource
+  title="Adopting SwiftData for a Core Data app"
+  url="https://developer.apple.com/documentation/coredata/adopting_swiftdata_for_a_core_data_app"
+  summary="使用 Swift 本机持久性框架直观地将数据保留在应用程序中"
+/>
+
+## 概述
+
+## 概述 in page link
+
+此示例项目旨在帮助您了解如何在现有 Core Data 应用程序中采用 SwiftData。 SampleTrips 应用程序从商店中获取并显示所有即将到来的旅行，并允许人们创建或删除旅行，以及在每次旅行的行程中添加、更新或删除信息。这个应用程序有三个版本：
+
+演示 Core Data 最佳实践的 Core Data 版本。
+
+SwiftData 版本，显示从 Core Data 到 SwiftData 的完整应用程序转换。
+
+共存版本，其中示例应用程序使用 Core Data，并添加使用 SwiftData 的小部件扩展。此版本涵盖了您可能希望逐步采用 SwiftData 或应用程序的某些部分的场景。
+
+## 配置示例代码项目 in page link
+
+在 Xcode 中打开示例代码项目。在构建之前，请执行以下操作：
+
+将所有目标的开发团队设置为您的团队，以便 Xcode 自动管理配置文件。有关详细信息，请参阅将项目分配给团队。
+
+将应用程序组容器标识符 — group.com.example.apple-samplecode.SampleTrips — 替换为整个项目团队特有的标识符。该标识符指向应用程序和小部件用于共享数据的应用程序组容器。您可以使用 Xcode 中的查找导航器搜索 group.com.example.apple-samplecode.SampleTrips ，然后更改所有出现的位置（ README 文件中的出现位置除外）。有关更多信息，请参阅配置应用程序组。
+
+## 采用 SwiftDatain page link
+
+SwiftData 示例使用符合 PersistentModel 协议的 Swift 类型设置架构，该架构捕获有关应用程序类型的信息，包括属性和关系。每个模型文件对应于一个单独的实体，其实体名称、属性和关系与其对应的核心数据相同。
+
+此示例中的每个模型文件都使用 Model() 宏为 PersistentModel 和 Observable 协议添加必要的一致性：
+
+```swift
+@Model final class Trip {
+    var destination: String
+    var endDate: Date
+    var name: String
+    var startDate: Date
+
+    @Relationship(deleteRule: .cascade, inverse: \BucketListItem.trip)
+    var bucketList: [BucketListItem] = [BucketListItem]()
+
+    @Relationship(deleteRule: .cascade, inverse: \LivingAccommodation.trip)
+    var livingAccommodation: LivingAccommodation?
+}
+```
+
+此外，应用程序使用 ModelContainer 设置容器，以确保所有视图访问相同的 ModelContainer 。
+
+```swift
+.modelContainer(for: Trip.self)
+```
+
+设置 ModelContainer 还会在环境中创建并设置默认的 ModelContext 。应用程序可以使用环境属性从任何场景或视图访问 ModelContext 。
+
+```swift
+@Environment(\.modelContext) private var modelContext
+```
+
+## 创建持久数据对象 in page link
+
+此应用程序创建一个新的旅行实例并将其插入 ModelContext 中以实现持久化：
+
+```swift
+let newTrip = Trip(name: name, destination: destination, startDate: startDate, endDate: endDate)
+modelContext.insert(newTrip)
+```
+
+## 保留数据 in page link
+
+该应用程序使用 SwiftData 隐式保存功能来保存数据。这种隐式保存发生在 UI 生命周期事件上以及上下文更改后的计时器上。有关启用自动保存的详细信息，请参阅 autosaveEnabled 属性。
+
+应用程序调用 ModelContext 上的 delete(\_:) 来删除实例。
+
+```swift
+modelContext.delete(trip)
+```
+
+## 获取持久数据 in page link
+
+此示例应用程序通过将旅行数组包装在 Query 中来获取即将到来的旅行的完整列表，该数组从容器中获取 Trip 对象。
+
+```swift
+@Query(sort: \Trip.startDate, order: .forward)
+var trips: [Trip]
+```
+
+此示例还通过在 ModelContext 上调用 fetch(\_:) 并传入 FetchDescriptor 来获取数据，该 FetchDescriptor 指定要从中检索数据的实体以及相应的 Predicate 指定获取对象的条件。
+
+```swift
+var descriptor = FetchDescriptor<BucketListItem>()
+let tripName = trip.name
+descriptor.predicate = #Predicate { item in
+    item.title.contains(searchText) && tripName == item.trip?.name
+}
+let filteredList = try? modelContext.fetch(descriptor)
+```
+
+## Core Data 和 SwiftData 共存 in page link
+
+该应用程序的共存版本有两个持久性堆栈：用于主机应用程序的 Core Data 持久性堆栈和用于小部件扩展的 SwiftData 持久性堆栈。两个堆栈都写入同一个存储文件。
+
+## 命名空间模型 in page link
+
+共存示例中的命名空间使用预先存在的基于 NSManagedObject 的实体子类，这样它们就不会与 SwiftData 类发生冲突。请注意，此考虑是指类名称，而不是实体名称。
+
+```swift
+class CDTrip: NSManagedObject {
+    // ...
+}
+```
+
+然后，当在 Core Data 主机应用程序中访问该实体时，该示例将该实体引用为 CDTrip 。例如，添加新的 Trip 时：
+
+```swift
+let newTrip = CDTrip(context: viewContext)
+```
+
+## 共享同一个商店文件 in page link
+
+此示例通过设置容器描述的持久性存储 URL 来确保 Core Data 和 SwiftData 持久性堆栈写入同一存储文件：
+
+```swift
+if let description = container.persistentStoreDescriptions.first {
+    description.url = url
+    // ...
+}
+```
+
+此外，共存示例必须设置 NSPersistentHistoryTrackingKey 。虽然 SwiftData 自动启用持久历史记录跟踪，但 Core Data 不会，因此应用程序手动启用持久历史记录。
+
+```swift
+description.setOption(true as NSNumber, forKey: NSPersistentHistoryTrackingKey)
+```
+
+默认情况下，SwiftData 在确定数据保存位置时按以下方式运行：
+
+- 它将数据存储到应用程序的应用程序支持目录中。
+- 此示例应用程序使用应用程序组来访问共享容器并在 SwiftData 小部件扩展和 Core Data 主机应用程序之间共享数据。对于具有 App Groups Entitlement 的应用程序，它将数据存储持久到应用程序组容器的根目录。对于从没有任何应用程序组容器的版本演变为具有应用程序组容器的版本的应用程序，SwiftData 会将现有存储复制到应用程序组容器。
+
+在此示例中，主应用程序和小部件通过应用程序组容器共享同一商店，并且该商店位于应用程序组容器中的默认位置。为了确保 SwiftData 访问同一个存储，主应用程序和小部件都共享 ModelContainer 。
+
+此示例中的小部件不会写入 SwiftData 存储，但一般来说，应用程序及其扩展可以同时安全地读取和写入同一 SwiftData 存储。

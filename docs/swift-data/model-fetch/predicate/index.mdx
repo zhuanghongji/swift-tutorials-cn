@@ -1,0 +1,50 @@
+# Predicate
+
+<ToBePolishedAfterTranslation />
+
+<OriginalSource
+  title="Predicate"
+  url="https://developer.apple.com/documentation/foundation/predicate"
+  summary="用于测试一组输入值以进行搜索或过滤的逻辑条件"
+/>
+
+## 概述
+
+谓词是计算结果为布尔值（真或假）的逻辑条件。您可以使用谓词进行过滤集合或搜索匹配元素等操作。
+
+要创建谓词，请使用 Predicate(\_:) 宏。例如：
+
+```swift
+let messagePredicate = #Predicate<Message> { message in
+    message.length < 100 && message.sender == "Jeremy"
+}
+```
+
+- 算术（ + 、 - 、 \* 、 / 、 % ）
+- 一元减号 ( - )
+- 范围（ ... ， ..< ）
+- 比较（ < 、 <= 、 > 、 >= 、 == 、 != ）
+- 三元条件 ( ?: )
+- 条件表达式
+- 布尔逻辑（ && 、 || 、 ! ）
+- Swift 可选（ ? 、 ?? 、 ! 、 flatMap(\_:) 、 if - let 表达式）
+- 类型（ as 、 as? 、 as! 、 is ）
+- 序列操作（ allSatisfy() 、 filter() 、 contains() 、 contains(where:) 、 starts(with:) 、 max() ， min() ）
+- 下标和成员访问（ [] 、 . ）
+- 字符串比较（ contains(_:) 、 localizedStandardContains(_:) 、 caseInsensitiveCompare(_:) 、 localizedCompare(_:) ）
+
+谓词不能包含任何嵌套声明、使用任何流控制（例如 for 循环）或修改其封闭范围中的变量。但是，它可以引用范围内的常量。
+
+要表达更复杂的查询，您可以在谓词中嵌套表达式：
+
+```swift
+let messagePredicate = #Predicate<Message> { message in
+    message.recipients.contains {
+        $0.firstName == message.sender.firstName
+    }
+}
+```
+
+您可以安全地对谓词进行编码和解码、跨并发边界传递谓词以及从文件加载谓词。要定义读取存档谓词时允许的类型和关键路径列表，请使用 PredicateCodableConfiguration 。
+
+您可以使用 expression 属性将谓词转换为另一种表示形式 - 例如，以另一种查询语言表示谓词，或创建修改后的谓词。

@@ -1,0 +1,170 @@
+# 过滤和排序持久数据
+
+<ToBePolishedAfterTranslation />
+
+<OriginalSource
+  title="Filtering and sorting persistent data"
+  url="https://developer.apple.com/documentation/swiftdata/filtering-and-sorting-persistent-data"
+  summary="使用谓词和动态查询管理数据存储表示"
+/>
+
+## 概述
+
+此示例应用程序显示地震列表，显示每次地震的时间、位置和大小。为了帮助人们可视化列表，该应用程序还在地图上精确定位了每次地震。您可以在列表中选择地震以在地图上突出显示它。
+
+该应用程序使用 SwiftData 来存储和管理地震数据，并依靠动态查询以不同的方式呈现数据。例如，人们可以选择显示哪一天的地震，按震级或时间正向或反向对地震进行排序，并按位置名称进行过滤。
+
+<Screenshots
+  data={[
+    require("./image_1.png"),
+    require("./image_3.png"),
+    require("./image_3.png"),
+  ]}
+  size={220}
+/>
+
+:::note
+
+要了解应用程序如何检索和存储地震数据，请参阅维护服务器数据的本地副本。
+
+:::
+
+## 通过简单的查询读取整个集合 in page link
+
+该应用的 ContentView 通过将 Query() 宏应用于其 quakes 属性来获取完整的地震列表：
+
+```swift
+@Query private var quakes: [Quake]
+```
+
+查询宏注入代码，使地震实例数组与数据存储中的项目保持同步。该视图使用此地震列表来根据所选地震配置导航栏。例如，它在 macOS 中设置标题和副标题：
+
+```swift
+.navigationTitle(quakes[selectedId]?.location.name ?? "Earthquakes")
+.navigationSubtitle(quakes[selectedId]?.fullDate ?? "")
+```
+
+上面的代码依赖于应用程序在 Array 扩展中定义的下标方法：
+
+```swift
+extension Array where Element: Quake {
+    subscript(id: Quake.ID?) -> Quake? {
+        first { $0.id == id }
+    }
+}
+```
+
+下标定义依赖于这样一个事实：模型对象（由 Model() 宏赋予的类型，如 Quake ）自动符合 Identifiable 协议，这意味着每个地震实例具有唯一的 id 参数。当有人在列表或地图视图中选择地震时，应用程序会将 selectedId 设置为所选地震的标识符。
+
+## 添加排序参数以排序数据 in page link
+
+地图视图绘制圆圈来表示特定位置的地震，并使用与地震震级相对应的圆圈大小。为了在多个重叠时保持圆圈可见， MapView 按大小对其查询进行排序，以便地图在较小的圆圈后面绘制较大的圆圈。
+
+<Figure src={require("./image_4.png")} size={220} />
+
+它通过向查询宏添加参数来引入排序：
+
+```swift
+@Query(sort: \Quake.magnitude, order: .reverse)
+private var quakes: [Quake]
+```
+
+此查询的输出驱动地图内容构建器的 QuakeMarker 实例的生成，并且始终以所需的顺序出现：
+
+```swift
+Map(selection: $selectedIdMap) {
+    ForEach(quakes) { quake in
+        QuakeMarker(
+            quake: quake,
+            selected: quake.id == selectedId)
+    }
+}
+```
+
+:::note
+
+应用程序将 selectedIdMap 绑定到地图的选择输入，并手动将其与代码中其他地方使用的主要 selectedId 值同步。保留单独的选择值使应用程序能够检测从地图驱动的更改，然后滚动列表以匹配。
+
+:::
+
+## 使用谓词定义过滤器 in page link
+
+为了确保应用程序的界面保持平易近人，该应用程序根据以下条件限制其显示的地震数量：
+
+- 日期：为了避免地图上出现太多标记，该应用程序一次仅显示一天的地震量。人们可以选择观看哪一天。
+- 位置名称：为了使人们能够关注特定的地震，人们可以在应用程序与地震位置名称相匹配的搜索字段中输入文本。
+
+为了实现此过滤，应用程序定义了一个静态方法，该方法返回考虑搜索日期和搜索文本的 Predicate ：
+
+```swift
+static func predicate(
+    searchText: String,
+    searchDate: Date
+) -> Predicate<Quake> {
+    let calendar = Calendar.autoupdatingCurrent
+    let start = calendar.startOfDay(for: searchDate)
+    let end = calendar.date(byAdding: .init(day: 1), to: start) ?? start
+
+
+    return #Predicate<Quake> { quake in
+        (searchText.isEmpty || quake.location.name.contains(searchText))
+        &&
+        (quake.time > start && quake.time < end)
+    }
+}
+```
+
+应用程序将此谓词应用于它动态创建的查询，如下一节所述。通过在中心位置定义一次谓词，多个视图中的查询就可以使用它。当视图具有不同的查询时，这使得同步相关视图（例如列表视图和地图视图）变得容易。
+
+## 动态更新查询 in page link
+
+当有人选择新日期或更改搜索文本时，应用程序需要更新查询以匹配。地图视图通过提供带有 searchDate 和 searchText 输入的初始值设定项并使用这些值重建存储的查询来实现此目的：
+
+```swift
+init(
+    selectedId: Binding<Quake.ID?>,
+    selectedIdMap: Binding<Quake.ID?>,
+    searchDate: Date = .now,
+    searchText: String = ""
+) {
+    _selectedId = selectedId
+    _selectedIdMap = selectedIdMap
+
+
+    _quakes = Query(
+        filter: Quake.predicate(
+            searchText: searchText,
+            searchDate: searchDate),
+        sort: \.magnitude,
+        order: .reverse
+    )
+}
+```
+
+由于这些值是视图初始化程序的输入，因此每当任一值发生更改时，SwiftUI 都会重新评估初始化程序以生成新的查询。这反过来会更新视图的外观。
+
+地震列表视图执行类似的操作，尽管在本例中它也采用排序配置输入：
+
+```swift
+init(
+    selectedId: Binding<Quake.ID?>,
+    selectedIdMap: Binding<Quake.ID?>,
+
+    searchText: String = "",
+    searchDate: Date = .now,
+    sortParameter: SortParameter = .time,
+    sortOrder: SortOrder = .reverse
+) {
+    _selectedId = selectedId
+    _selectedIdMap = selectedIdMap
+
+
+    let predicate = Quake.predicate(searchText: searchText, searchDate: searchDate)
+    switch sortParameter {
+    case .time: _quakes = Query(filter: predicate, sort: \.time, order: sortOrder)
+    case .magnitude: _quakes = Query(filter: predicate, sort: \.magnitude, order: sortOrder)
+    }
+}
+```
+
+这两个初始化器具有不同的排序约束来匹配各自外观的需要，但它们使用相同的谓词来确保列表中出现的地震集始终与地图上出现的地震集相匹配。
