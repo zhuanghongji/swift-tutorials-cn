@@ -8,4 +8,58 @@
   summary="描述 SwiftData 错误的类型"
 />
 
-## 概述
+```swift
+@available(swift 5.9)
+@available(macOS 14, iOS 17, tvOS 17, watchOS 10, *)
+public struct SwiftDataError : Error, Hashable {
+    // ...
+}
+```
+
+## 获取错误
+
+```swift
+public static let includePendingChangesWithBatchSize: SwiftDataError
+
+public static let sortingPendingChangesWithIdentifiers: SwiftDataError
+
+public static let unsupportedKeyPath: SwiftDataError
+
+public static let unsupportedPredicate: SwiftDataError
+
+public static let unsupportedSortDescriptor: SwiftDataError
+```
+
+## 配置错误
+
+```swift
+public static let configurationFileNameContainsInvalidCharacters: SwiftDataError
+
+public static let configurationFileNameTooLong: SwiftDataError
+
+public static let configurationSchemaNotFoundInContainerSchema: SwiftDataError
+
+public static let duplicateConfiguration: SwiftDataError
+```
+
+## 容器错误
+
+```swift
+public static let loadIssueModelContainer: SwiftDataError
+```
+
+## 上下文错误
+
+```swift
+public static let modelValidationFailure: SwiftDataError
+
+public static let missingModelContext: SwiftDataError
+```
+
+### 迁移错误
+
+```swift
+public static let backwardMigration: SwiftDataError
+
+public static let unknownSchema: SwiftDataError
+```

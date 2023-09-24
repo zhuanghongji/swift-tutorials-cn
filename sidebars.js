@@ -428,6 +428,12 @@ const swiftdataSidebar = [
           "swift-data/protocols/serial-model-executor/index",
         ],
       },
+      {
+        type: "category",
+        label: "Macros",
+        collapsed: false,
+        items: ["swift-data/macros/macros/index"],
+      },
     ],
   },
 ];

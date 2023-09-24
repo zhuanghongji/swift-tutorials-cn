@@ -8,4 +8,48 @@
   summary="用于提供对一致模型的属性的互斥访问的接口"
 />
 
-## 概述
+```swift
+@available(swift 5.9)
+@available(macOS 14, iOS 17, tvOS 17, watchOS 10, *)
+public protocol ModelActor : Actor {
+    // ...
+}
+```
+
+## 访问执行者
+
+### unownedExecutor
+
+```swift
+// 对模型参与者执行者的优化的、无主的引用
+nonisolated public var unownedExecutor: UnownedSerialExecutor { get }
+```
+
+## 实例属性
+
+### modelContainer
+
+```swift
+// ModelActor 的 ModelContainer 管理应用程序的架构和模型存储配置的容器
+nonisolated var modelContainer: ModelContainer { get }
+```
+
+### modelContext
+
+```swift
+// 序列化在模型参与者上运行的任何代码的上下文
+public var modelContext: ModelContext { get }
+```
+
+### modelExecutor
+
+```swift
+// 协调对模型参与者的访问的执行器
+nonisolated var modelExecutor: ModelExecutor { get }
+```
+
+:::caution
+
+不要使用执行器访问模型上下文。请改用 `context` 属性。
+
+:::

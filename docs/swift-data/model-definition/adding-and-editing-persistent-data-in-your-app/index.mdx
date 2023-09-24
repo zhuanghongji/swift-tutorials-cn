@@ -15,7 +15,7 @@ import TabItem from "@theme/TabItem";
 
 添加和编辑数据是数据驱动应用程序的基本功能，但应用程序如何提供这些功能对于应用程序来说是独一无二的。此示例展示了一种方法，即使用带有 SwiftData 的数据输入表单，让人们可以添加、编辑和存储有关动物的数据。
 
-## 定义数据模型 in page link
+## 定义数据模型
 
 在 SwiftData 可以存储应用程序中的数据之前，应用程序必须定义表示数据的数据模型。 SwiftData 使用模型类来构建数据模型的架构。例如，示例应用程序存储有关动物的数据，并将这些动物分组。为了定义此数据模型的架构，该示例定义了两个模型类： Animal 和 AnimalCategory 。
 
@@ -126,11 +126,11 @@ var body: some View {
 }
 ```
 
-## 设置默认值 in page link
+## 设置默认值
 
 AnimalEditor 视图使用新动物的默认值声明其状态变量，将 name 设置为空字符串，将 diet 设置为 herbivorous ，并将类别保留为 nil 。但编辑器也支持编辑现有的动物。如果有人编辑动物，编辑器需要显示传入动物的值，而不是新动物的默认值。
 
-为了显示传入动物的值，编辑器应用 onAppear(perform:) 修饰符并将可编辑值从 animal 复制到状态变量：
+为了显示传入动物的值，编辑器应用 onAppear(perform:) 修饰器并将可编辑值从 animal 复制到状态变量：
 
 ```swift
 .onAppear {
@@ -143,7 +143,7 @@ AnimalEditor 视图使用新动物的默认值声明其状态变量，将 name �
 }
 ```
 
-## 保存更改 in page link
+## 保存更改
 
 为了保存更改，编辑器在工具栏中提供了一个“保存”按钮：
 
@@ -198,7 +198,7 @@ AnimalEditor 视图通过使用 @Environment(\.modelContext) private var modelCo
 
 :::
 
-## 放弃更改 in page link
+## 放弃更改
 
 为了放弃某人所做的更改，编辑器在工具栏中提供了一个“取消”按钮：
 

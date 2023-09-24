@@ -8,4 +8,18 @@
   summary="用于使用隔离的模型上下文执行存储相关任务的接口"
 />
 
-## 概述
+```swift
+@available(swift 5.9)
+@available(macOS 14, iOS 17, tvOS 17, watchOS 10, *)
+public protocol ModelExecutor : Executor {
+    // ...
+}
+```
+
+## 实例属性
+
+### modelContext
+
+```swift
+var modelContext: ModelContext { get }
+```

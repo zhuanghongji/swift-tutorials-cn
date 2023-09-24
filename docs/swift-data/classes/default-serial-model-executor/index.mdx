@@ -8,4 +8,26 @@
   summary="使用隔离的模型上下文安全地执行存储相关任务的对象"
 />
 
-## 概述
+```swift
+@available(swift 5.9)
+@available(macOS 14, iOS 17, tvOS 17, watchOS 10, *)
+public class DefaultSerialModelExecutor : @unchecked Sendable, SerialModelExecutor {
+    // ...
+}
+```
+
+## 初始化器
+
+### init(modelContext:)
+
+```swift
+public init(modelContext: ModelContext)
+```
+
+## 实例属性
+
+### modelContext
+
+```swift
+final public let modelContext: ModelContext
+```

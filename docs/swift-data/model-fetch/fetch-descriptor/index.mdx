@@ -8,4 +8,64 @@
   summary="描述执行提取时要使用的条件、排序顺序和任何其他配置的类型"
 />
 
-## 概述
+```swift
+@available(swift 5.9)
+@available(macOS 14, iOS 17, tvOS 17, watchOS 10, *)
+public struct FetchDescriptor<T> where T : PersistentModel {
+    // ...
+}
+```
+
+## 创建获取描述符
+
+### init(predicate:sortBy:)
+
+```swift
+public init(predicate: Predicate<T>? = nil, sortBy: [SortDescriptor<T>] = [])
+```
+
+## 约束获取
+
+### predicate
+
+```swift
+public var predicate: Predicate<T>?
+```
+
+### sortBy
+
+```swift
+public var sortBy: [SortDescriptor<T>]
+```
+
+### fetchLimit
+
+```swift
+public var fetchLimit: Int?
+```
+
+### fetchOffset
+
+```swift
+public var fetchOffset: Int?
+```
+
+### includePendingChanges
+
+```swift
+public var includePendingChanges: Bool
+```
+
+## 指定获取的属性
+
+### relationshipKeyPathsForPrefetching
+
+```swift
+public var relationshipKeyPathsForPrefetching: [PartialKeyPath<T>]
+```
+
+### propertiesToFetch
+
+```swift
+public var propertiesToFetch: [PartialKeyPath<T>]
+```

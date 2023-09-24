@@ -1,0 +1,208 @@
+# 宏
+
+## Query
+
+```swift
+// Available when SwiftUI is imported with SwiftData
+@available(iOS 17.0, macOS 14.0, tvOS 17.0, watchOS 10.0, *)
+@attached(accessor)
+@attached(peer, names: prefixed(`_`))
+public macro Query() = #externalMacro(module: "SwiftDataMacros",
+                                      type: "QueryMacro")
+```
+
+```swift
+// Available when SwiftUI is imported with SwiftData
+@available(iOS 17.0, macOS 14.0, tvOS 17.0, watchOS 10.0, *)
+@attached(accessor)
+@attached(peer, names: prefixed(`_`))
+public macro Query<Value, Element>(filter: Predicate<Element>? = nil,
+                                   sort keyPath: KeyPath<Element, Value>,
+                                   order: SortOrder = .forward,
+                                   transaction: Transaction? = nil
+) = #externalMacro(module: "SwiftDataMacros",
+                   type: "QueryMacro"
+) where Value : Comparable, Element : PersistentModel
+```
+
+```swift
+// Available when SwiftUI is imported with SwiftData
+@available(iOS 17.0, macOS 14.0, tvOS 17.0, watchOS 10.0, *)
+@attached(accessor)
+@attached(peer, names: prefixed(`_`))
+public macro Query<Value, Element>(filter: Predicate<Element>? = nil,
+                                   sort keyPath: KeyPath<Element, Value?>,
+                                   order: SortOrder = .forward,
+                                   transaction: Transaction? = nil
+) = #externalMacro(module: "SwiftDataMacros",
+                   type: "QueryMacro"
+) where Value : Comparable, Element : PersistentModel
+```
+
+```swift
+// Available when SwiftUI is imported with SwiftData
+@available(iOS 17.0, macOS 14.0, tvOS 17.0, watchOS 10.0, *)
+@attached(accessor)
+@attached(peer, names: prefixed(`_`))
+public macro Query<Element>(filter: Predicate<Element>? = nil,
+                            sort descriptors: [SortDescriptor<Element>] = [],
+                            animation: Animation
+) = #externalMacro(module: "SwiftDataMacros",
+                   type: "QueryMacro"
+) where Element : PersistentModel
+```
+
+```swift
+// Available when SwiftUI is imported with SwiftData
+@available(iOS 17.0, macOS 14.0, tvOS 17.0, watchOS 10.0, *)
+@attached(accessor)
+@attached(peer, names: prefixed(`_`))
+public macro Query<Value, Element>(filter: Predicate<Element>? = nil,
+                                   sort keyPath: KeyPath<Element, Value>,
+                                   order: SortOrder = .forward,
+                                   animation: Animation
+) = #externalMacro(module: "SwiftDataMacros",
+                   type: "QueryMacro"
+) where Value : Comparable, Element : PersistentModel
+```
+
+```swift
+// Available when SwiftUI is imported with SwiftData
+@available(iOS 17.0, macOS 14.0, tvOS 17.0, watchOS 10.0, *)
+@attached(accessor)
+@attached(peer, names: prefixed(`_`))
+public macro Query<Value, Element>(filter: Predicate<Element>? = nil,
+                                   sort keyPath: KeyPath<Element, Value?>,
+                                   order: SortOrder = .forward,
+                                   animation: Animation
+) = #externalMacro(module: "SwiftDataMacros",
+                   type: "QueryMacro"
+) where Value : Comparable, Element : PersistentModel
+```
+
+```swift
+// Available when SwiftUI is imported with SwiftData
+@available(iOS 17.0, macOS 14.0, tvOS 17.0, watchOS 10.0, *)
+@attached(accessor)
+@attached(peer, names: prefixed(`_`))
+public macro Query<Element>(filter: Predicate<Element>? = nil,
+                            sort descriptors: [SortDescriptor<Element>] = [],
+                            transaction: Transaction? = nil
+) = #externalMacro(module: "SwiftDataMacros",
+                   type: "QueryMacro"
+) where Element : PersistentModel
+```
+
+```swift
+// Available when SwiftUI is imported with SwiftData
+@available(iOS 17.0, macOS 14.0, tvOS 17.0, watchOS 10.0, *)
+@attached(accessor)
+@attached(peer, names: prefixed(`_`))
+public macro Query<Element>(_ descriptor: FetchDescriptor<Element>,
+                            transaction: Transaction? = nil
+) = #externalMacro(module: "SwiftDataMacros",
+                   type: "QueryMacro"
+) where Element : PersistentModel
+```
+
+```swift
+// Available when SwiftUI is imported with SwiftData
+@available(iOS 17.0, macOS 14.0, tvOS 17.0, watchOS 10.0, *)
+@attached(accessor)
+@attached(peer, names: prefixed(`_`))
+public macro Query<Element>(_ descriptor: FetchDescriptor<Element>,
+                            animation: Animation
+) = #externalMacro(module: "SwiftDataMacros",
+                   type: "QueryMacro"
+) where Element : PersistentModel
+```
+
+```swift
+// Available when SwiftUI is imported with SwiftData
+@available(iOS 17.0, macOS 14.0, tvOS 17.0, watchOS 10.0, *)
+@attached(accessor)
+@attached(peer, names: prefixed(`_`))
+public macro Query(
+    animation: Animation
+) = #externalMacro(module: "SwiftDataMacros",
+                   type: "QueryMacro")
+```
+
+```swift
+// Available when SwiftUI is imported with SwiftData
+@available(iOS 17.0, macOS 14.0, tvOS 17.0, watchOS 10.0, *)
+@attached(accessor)
+@attached(peer, names: prefixed(`_`))
+public macro Query(
+    transaction: Transaction
+) = #externalMacro(module: "SwiftDataMacros",
+                   type: "QueryMacro")
+```
+
+## Else
+
+### ModelActor()
+
+```swift
+// 将 Swift 类转换为由 SwiftData 管理的存储模型
+@available(swift 5.9)
+@available(macOS 14, iOS 17, tvOS 17, watchOS 10, *)
+@attached(member,
+          names: named(modelExecutor),
+                 named(modelContainer),
+                 named(init)
+         )
+@attached(extension, conformances: ModelActor)
+public macro ModelActor() = #externalMacro(module: "SwiftDataMacros",
+                                           type: "PersistentModelActorMacro")
+```
+
+### Query(filter:sort:order:animation:)
+
+```swift
+// Available when SwiftUI is imported with SwiftData
+@available(iOS 17.0, macOS 14.0, tvOS 17.0, watchOS 10.0, *)
+@attached(accessor)
+@attached(peer, names: prefixed(`_`))
+public macro Query<Value, Element>(filter: Predicate<Element>? = nil,
+                                   sort keyPath: KeyPath<Element, Value>,
+                                   order: SortOrder = .forward,
+                                   animation: Animation
+) = #externalMacro(module: "SwiftDataMacros",
+                   type: "QueryMacro"
+) where Value : Comparable, Element : PersistentModel
+```
+
+### Query(filter:sort:order:animation:)
+
+```swift
+// Available when SwiftUI is imported with SwiftData
+@available(iOS 17.0, macOS 14.0, tvOS 17.0, watchOS 10.0, *)
+@attached(accessor)
+@attached(peer, names: prefixed(`_`))
+public macro Query<Value, Element>(filter: Predicate<Element>? = nil,
+                                   sort keyPath: KeyPath<Element, Value?>,
+                                   order: SortOrder = .forward,
+                                   animation: Animation
+) = #externalMacro(module: "SwiftDataMacros",
+                   type: "QueryMacro"
+) where Value : Comparable, Element : PersistentModel
+```
+
+### Relationship(\_:deleteRule:minimumModelCount:maximumModelCount:originalName:inverse:hashModifier:)
+
+```swift
+// 指定 SwiftData 将带注释的属性管理为两个模型之间的关系所需的选项
+@available(swift 5.9)
+@available(macOS 14, iOS 17, tvOS 17, watchOS 10, *)
+@attached(peer)
+public macro Relationship(_ options: Schema.Relationship.Option...,
+                          deleteRule: Schema.Relationship.DeleteRule = .nullify,
+                          minimumModelCount: Int? = 0,
+                          maximumModelCount: Int? = 0,
+                          originalName: String? = nil,
+                          inverse: AnyKeyPath? = nil,
+                          hashModifier: String? = nil
+) = #externalMacro(module: "SwiftDataMacros",
+                   type: "RelationshipPropertyMacro")
+```

@@ -8,4 +8,58 @@
   summary="一个接口，使 SwiftData 能够将 Swift 类作为存储模型进行管理"
 />
 
-## 概述
+```swift
+@available(swift 5.9)
+@available(macOS 14, iOS 17, tvOS 17, watchOS 10, *)
+public protocol PersistentModel : AnyObject, Observable, Hashable, Identifiable {
+    // ...
+}
+```
+
+## 创建持久模型
+
+### init(backingData:)
+
+```swift
+init(backingData: BackingData<Self>)
+```
+
+## 识别模型实例
+
+### persistentBackingData
+
+```swift
+var persistentBackingData: BackingData<Self> { get set }
+```
+
+### PersistentIdentifier
+
+```swift
+// 描述 SwiftData 模型聚合标识的类型
+@available(macOS 13, iOS 16, tvOS 16, watchOS 9, *)
+public struct PersistentIdentifier : Hashable, Identifiable, Equatable, Comparable, Codable, Sendable {
+    // ...
+
+    // 唯一标识包含存储中的关联模型的值
+    public let id: PersistentIdentifier.ID
+
+    // 关联模型的实体名称
+    public var entityName: String { get }
+
+    // 包含关联模型的商店的标识符
+    public var storeIdentifier: String? { get }
+
+    // 通过从给定解码器进行解码来创建新实例
+    //
+    // 如果从解码器读取失败，或者读取的数据已损坏或无效，则此初始化程序将引发错误
+    //
+    // - decoder: 从中读取数据的解码器
+    public init(from decoder: Decoder) throws
+}
+```
+
+## 获取补充信息
+
+```swift
+static var schemaMetadata: [Schema.PropertyMetadata] { get }
+```

@@ -8,4 +8,299 @@
   summary="一个属性包装器，用于获取一组模型并使这些模型与底层数据保持同步"
 />
 
-## 概述
+```swift
+@available(iOS 17.0, macOS 14.0, tvOS 17.0, watchOS 10.0, *)
+public struct Query<Element, Result> : DynamicProperty where Element : PersistentModel {
+    // ...
+}
+```
+
+## 创建查询
+
+### init(\_:transaction:)
+
+```swift
+// 使用 SwiftData 获取描述符创建查询
+//
+// - descriptor: 一个 `SwiftData.FetchDescriptor`
+// - transaction: 用于因获取结果的更改而导致的用户界面更改的事务。
+public init(_ descriptor: FetchDescriptor<Element>,
+            transaction: Transaction? = nil
+) where Result == [Element]
+```
+
+### init(filter:sort:transaction:)
+
+```swift
+// 使用谓词和排序描述符列表创建查询
+//
+// - filter: Element 上的谓词
+// - descriptors: 对结果进行排序
+// - transaction: 用于因获取结果的更改而导致的用户界面更改的事务
+public init(filter: Predicate<Element>? = nil,
+            sort descriptors: [SortDescriptor<Element>] = [],
+            transaction: Transaction? = nil
+) where Result == [Element]
+```
+
+通过包装查询结果的变量，在视图中使用 `Query`：
+
+```swift
+struct RecipeList: View {
+    // Favorite recipes sorted by date of creation
+    @Query(
+        filter: #Predicate { $0.isFavorite == true },
+        sort: [SortDescriptor(\.dateCreated)]
+    )
+    var favoriteRecipes: [Recipe]
+
+    var body: some View {
+        List(favoriteRecipes) { RecipeDetails($0) }
+    }
+}
+```
+
+### init(filter:sort:order:transaction:)
+
+```swift
+// 使用谓词、用于排序的属性的键路径以及排序顺序创建查询
+//
+// - filter: Element 上的谓词
+// - sort: 用于排序的属性的键路径
+// - order: 是否按正序或倒序排序
+// - transaction: 用于因获取结果的更改而导致的用户界面更改的事务
+public init<Value>(filter: Predicate<Element>? = nil,
+                   sort keyPath: KeyPath<Element, Value>,
+                   order: SortOrder = .forward,
+                   transaction: Transaction? = nil
+) where Result == [Element], Value : Comparable
+```
+
+通过包装查询结果的变量，在视图中使用 `Query`：
+
+```swift
+struct RecipeList: View {
+    // Recipes sorted by date of creation
+    @Query(sort: \.dateCreated)
+    var favoriteRecipes: [Recipe]
+
+    var body: some View {
+        List(favoriteRecipes) { RecipeDetails($0) }
+    }
+}
+```
+
+### init(filter:sort:order:transaction:)
+
+```swift
+// 使用谓词、用于排序的属性的关键路径以及排序顺序创建查询
+//
+// - filter: Element 上的谓词
+// - sort: 用于排序的属性的键路径
+// - order: 是否按正序或倒序排序
+// - transaction: 用于因获取结果的更改而导致的用户界面更改的事务
+public init<Value>(filter: Predicate<Element>? = nil,
+                   sort keyPath: KeyPath<Element, Value?>,
+                   order: SortOrder = .forward,
+                   transaction: Transaction? = nil
+) where Result == [Element], Value : Comparable
+```
+
+通过包装查询结果的变量，在视图中使用 `Query`：
+
+```swift
+struct RecipeList: View {
+    // Recipes sorted by date of creation
+    @Query(sort: \.dateCreated)
+    var favoriteRecipes: [Recipe]
+
+    var body: some View {
+        List(favoriteRecipes) { RecipeDetails($0) }
+    }
+}
+```
+
+### init(\_:animation:)
+
+```swift
+// 使用 SwiftData 获取描述符创建查询
+//
+// - descriptor: 一个 `SwiftData.FetchDescriptor`
+// - animation: 用于因获取结果的更改而导致的用户界面更改的动画
+public init(_ descriptor: FetchDescriptor<Element>,
+            animation: Animation
+) where Result == [Element]
+```
+
+### init(filter:sort:animation:)
+
+```swift
+// 使用谓词和排序描述符列表创建查询
+//
+// - filter: Element 上的谓词
+// - descriptors: 对结果进行排序
+// - animation: 用于因获取结果的更改而导致的用户界面更改的动画
+public init(filter: Predicate<Element>? = nil,
+            sort descriptors: [SortDescriptor<Element>] = [],
+            animation: Animation
+) where Result == [Element]
+```
+
+通过包装查询结果的变量，在视图中使用 `Query`：
+
+```swift
+struct RecipeList: View {
+    // Favorite recipes sorted by date of creation
+    @Query(
+        filter: #Predicate { $0.isFavorite == true },
+        sort: [SortDescriptor(\.dateCreated)]
+    )
+    var favoriteRecipes: [Recipe]
+
+    var body: some View {
+        List(favoriteRecipes) { RecipeDetails($0) }
+    }
+}
+```
+
+### init(filter:sort:order:animation:)
+
+```swift
+// 创建一个带有谓词、用于排序的属性的关键路径以及排序依据的查询
+//
+// - filter: Element 上的谓词
+// - sort: 用于排序的属性的键路径
+// - order: 是否按正序或倒序排序
+// - animation: 用于因获取结果的更改而导致的用户界面更改的动画
+public init<Value>(filter: Predicate<Element>? = nil,
+                   sort keyPath: KeyPath<Element, Value>,
+                   order: SortOrder = .forward,
+                   animation: Animation
+) where Result == [Element], Value : Comparable
+```
+
+通过包装查询结果的变量，在视图中使用 `Query`：
+
+```swift
+struct RecipeList: View {
+    // Recipes sorted by date of creation
+    @Query(sort: \.dateCreated)
+    var favoriteRecipes: [Recipe]
+
+    var body: some View {
+        List(favoriteRecipes) { RecipeDetails($0) }
+    }
+}
+```
+
+### init(filter:sort:order:animation:)
+
+```swift
+// 创建一个带有谓词、用于排序的属性的关键路径以及排序依据的查询
+//
+// - filter: Element 上的谓词
+// - sort: 用于排序的属性的键路径
+// - order: 是否按正序或倒序排序
+// - animation: 用于因获取结果的更改而导致的用户界面更改的动画
+public init<Value>(filter: Predicate<Element>? = nil,
+                   sort keyPath: KeyPath<Element, Value?>,
+                   order: SortOrder = .forward,
+                   animation: Animation
+) where Result == [Element], Value : Comparable
+```
+
+## 获取查询配置
+
+### modelContext
+
+```swift
+// 当前模型上下文 Query 与之交互
+public var modelContext: ModelContext { get }
+```
+
+从 `Query` 属性包装器的存储属性访问此值：
+
+```swift
+struct RecipeList: View {
+    @Query var recipes: [Recipe]
+    var body: some View {
+        ChangesIndicator(
+            hasChanges: _recipes.modelContext.hasChanges)
+    }
+}
+```
+
+仅在视图的 `body` 属性内访问此属性，否则其值可能无效。
+
+### fetchError
+
+```swift
+// 最近尝试获取数据期间遇到错误
+//
+// This value is `nil` unless an fetch attempt failed. It contains the
+// latest error from SwiftData. Access it from Query's stored property:
+//
+//     struct RecipeList: View {
+//         @Query var recipes: [Recipe]
+//         var body: some View {
+//             ErrorIndicatorView(_recipes.fetchError)
+//         }
+//     }
+//
+// > Note: Only access this property within of a view's `body` property,
+// otherwise its value may be invalid.
+//
+// > Note: When an fetch error occurs, `wrappedValue` retains results from
+// the last successful fetch. Its value will update once a new fetch
+// succeeds.
+public var fetchError: (Error)? { get }
+```
+
+除非获取尝试失败，否则该值为 `nil`。它包含来自 SwiftData 的最新错误。从 `Query` 的存储属性访问它：
+
+```swift
+struct RecipeList: View {
+    @Query var recipes: [Recipe]
+    var body: some View {
+        ErrorIndicatorView(_recipes.fetchError)
+    }
+}
+```
+
+:::note
+
+仅在视图的 `body` 属性内访问此属性，否则其值可能无效。
+
+:::
+
+:::note
+
+当发生提取错误时，`wrappedValue` 保留上次成功提取的结果。一旦新的获取成功，它的值就会更新。
+
+:::
+
+## 访问值
+
+### wrappedValue
+
+```swift
+// 从查询中获取的最新结果
+public var wrappedValue: Result { get }
+```
+
+:::note
+
+当发生提取错误时，`wrappedValue` 保留上次成功提取的结果。一旦新的获取成功，它的值就会更新。
+
+:::
+
+## 更新值
+
+### update()
+
+```swift
+// 更新存储值的基础值
+public func update()
+```
+
+SwiftUI 在渲染视图的 `View/body-swift.property` 之前调用此函数，以确保视图具有最新值。

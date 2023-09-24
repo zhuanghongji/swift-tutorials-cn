@@ -8,4 +8,97 @@
   summary="有效提供已完成提取结果的集合"
 />
 
-## 概述
+```swift
+@available(swift 5.9)
+@available(macOS 14, iOS 17, tvOS 17, watchOS 10, *)
+public struct FetchResultsCollection<Element> : RandomAccessCollection {
+    // ...
+}
+```
+
+## 访问特定结果
+
+### subscript(Int) -> Element
+
+```swift
+// 访问指定位置的元素
+//
+// - position: 要访问的元素的位置。 position 必须是不等于 endIndex 属性的集合的有效索引
+public subscript(position: Int) -> Element { get }
+```
+
+以下示例通过下标访问数组的元素以打印其值：
+
+```swift
+var streets = ["Adams", "Bryant", "Channing", "Douglas", "Evarts"]
+print(streets[1])
+// Prints "Bryant"
+```
+
+你可以使用除集合结束索引之外的任何有效索引来为集合添加下标。结束索引指的是集合中最后一个元素之后的位置，因此它与元素不对应。
+
+## 访问索引
+
+### startIndex
+
+```swift
+// 非空集合中第一个元素的位置
+public var startIndex: Int { get }
+```
+
+如果集合为空，则 `startIndex` 等于 `endIndex`。
+
+### endIndex
+
+```swift
+// 集合的 "超过末尾" 位置，即比最后一个有效下标参数大 1 的位置
+public var endIndex: Int { get }
+```
+
+当你需要包含集合最后一个元素的范围时，请将半开范围运算符（`..<`）与 `endIndex` 结合使用。 `..<` 运算符创建一个不包含上限的范围，因此与 `endIndex` 一起使用始终是安全的。例如：
+
+```swift
+let numbers = [10, 20, 30, 40, 50]
+if let index = numbers.firstIndex(of: 30) {
+    print(numbers[index ..< numbers.endIndex])
+}
+// Prints "[30, 40, 50]"
+```
+
+如果集合为空，则 `endIndex` 等于 `startIndex`。
+
+## 类型别名
+
+### Index
+
+```swift
+// 表示集合中位置的类型
+public typealias Index = Int
+```
+
+有效索引由每个元素的位置和“超过末尾”的位置组成，该位置不能用作下标参数。
+
+### Indices
+
+```swift
+// 一种类型，表示对集合下标有效的索引（按升序排列）
+public typealias Indices = Range<Int>
+```
+
+### Iterator
+
+```swift
+// 提供集合迭代接口并封装其迭代状态的类型
+//
+// 默认情况下，集合通过提供 IndexingIterator 作为其关联的 Iterator 类型来遵守 Sequence 协议
+public typealias Iterator = IndexingIterator<FetchResultsCollection<Element>>
+```
+
+### SubSequence
+
+```swift
+// 表示该集合元素的连续子范围的集合。子序列与原始集合共享索引
+public typealias SubSequence = Slice<FetchResultsCollection<Element>>
+```
+
+未定义自己的集合的默认子序列类型是 `Slice`。

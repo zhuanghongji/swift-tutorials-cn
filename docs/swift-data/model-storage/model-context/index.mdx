@@ -5,7 +5,321 @@
 <OriginalSource
   title="ModelContext"
   url="https://developer.apple.com/documentation/swiftdata/modelcontext"
-  summary="一个对象，使您能够获取、插入和删除模型，并将任何更改保存到磁盘"
+  summary="一个对象，使你能够获取、插入和删除模型，并将任何更改保存到磁盘"
 />
 
-## 概述
+```swift
+@available(swift 5.9)
+@available(macOS 14, iOS 17, tvOS 17, watchOS 10, *)
+public class ModelContext : Equatable {
+    // ...
+}
+```
+
+## 创建模型上下文
+
+### init(\_:)
+
+```swift
+public init(_ container: ModelContainer)
+```
+
+## 获取模型
+
+### fetch(\_:)
+
+```swift
+public func fetch<T>(_ descriptor: FetchDescriptor<T>) throws -> [T] where T : PersistentModel
+```
+
+### fetchCount(\_:)
+
+```swift
+public func fetchCount<T>(_ descriptor: FetchDescriptor<T>) throws -> Int where T : PersistentModel
+```
+
+### fetch(\_:batchSize:)
+
+```swift
+public func fetch<T>(_ descriptor: FetchDescriptor<T>,
+                     batchSize: Int
+) throws -> FetchResultsCollection<T> where T : PersistentModel
+```
+
+### enumerate(\_:batchSize:allowEscapingMutations:block:)
+
+```swift
+public func enumerate<T>(_ fetch: FetchDescriptor<T>,
+                         batchSize: Int = 5000,
+                         allowEscapingMutations: Bool = false,
+                         block: (_ model: T) throws -> Void
+) throws where T : PersistentModel
+```
+
+### model(for:)
+
+```swift
+public func model(for persistentModelID: PersistentIdentifier) -> PersistentModel
+```
+
+### registeredModel(for:)
+
+```swift
+public func registeredModel<T>(for persistentModelID: PersistentIdentifier)
+        -> T? where T : PersistentModel
+```
+
+## 插入模型
+
+### insertedModelsArray
+
+```swift
+public var insertedModelsArray: [PersistentModel] { get }
+```
+
+### insert(\_:)
+
+```swift
+public func insert<T>(_ model: T) where T : PersistentModel
+```
+
+## 修改模型
+
+### hasChanges
+
+```swift
+public var hasChanges: Bool { get }
+```
+
+### changedModelsArray
+
+```swift
+public var changedModelsArray: [PersistentModel] { get }
+```
+
+## 删除模型
+
+### deletedModelsArray
+
+```swift
+public var deletedModelsArray: [PersistentModel] { get }
+```
+
+### delete(model:where:includeSubclasses:)
+
+```swift
+public func delete<T>(model: T.Type, where predicate: Predicate<T>? = nil, includeSubclasses: Bool = true) throws where T : PersistentModel
+```
+
+### delete(\_:)
+
+```swift
+public func delete<T>(_ model: T) where T : PersistentModel
+```
+
+## 持久化未保存的更改
+
+### autosaveEnabled
+
+```swift
+public var autosaveEnabled: Bool
+```
+
+### save()
+
+```swift
+public func save() throws
+```
+
+### transaction(block:)
+
+```swift
+public func transaction(block: () throws -> Void) throws
+```
+
+### rollback()
+
+```swift
+public func rollback()
+```
+
+## 仅获取模型标识符
+
+### fetchIdentifiers(\_:)
+
+```swift
+public func fetchIdentifiers<T>(_ descriptor: FetchDescriptor<T>)
+        throws -> [PersistentIdentifier] where T : PersistentModel
+```
+
+### fetchIdentifiers(\_:batchSize:)
+
+```swift
+public func fetchIdentifiers<T>(_ descriptor: FetchDescriptor<T>,
+                                batchSize: Int
+) throws -> FetchResultsCollection<PersistentIdentifier> where T : PersistentModel
+```
+
+## 访问容器
+
+### container
+
+```swift
+public var container: ModelContainer { get }
+```
+
+## 执行撤消和重做
+
+### undoManager
+
+```swift
+public var undoManager: UndoManager?
+```
+
+### processPendingChanges()
+
+```swift
+public func processPendingChanges()
+```
+
+## 注册通知
+
+### willSave
+
+```swift
+public static let willSave: Notification.Name
+```
+
+### didSave
+
+```swift
+public static let didSave: Notification.Name
+```
+
+### NotificationKey
+
+描述模型上下文发送的通知的用户信息字典中的数据。
+
+```swift
+public enum NotificationKey : String {
+    // ...
+
+    // 指示 SwiftData 正在使用哪一代模型存储的令牌
+    case queryGeneration
+
+    // 一组标识上下文无效模型的值
+    case invalidatedAllIdentifiers
+
+    // 一组标识上下文插入模型的值
+    case insertedIdentifiers
+
+    // 一组标识上下文更新模型的值
+    case updatedIdentifiers
+
+    // 一组标识上下文已删除模型的值
+    case deletedIdentifiers
+
+    // Creates a new instance with the specified raw value.
+    //
+    // If there is no value of the type that corresponds with the specified raw
+    // value, this initializer returns `nil`. For example:
+    //
+    //     enum PaperSize: String {
+    //         case A4, A5, Letter, Legal
+    //     }
+    //
+    //     print(PaperSize(rawValue: "Legal"))
+    //     // Prints "Optional("PaperSize.Legal")"
+    //
+    //     print(PaperSize(rawValue: "Tabloid"))
+    //     // Prints "nil"
+    //
+    // - Parameter rawValue: The raw value to use for the new instance.
+
+
+    // The raw type that can be used to represent all values of the conforming
+    // type.
+    //
+    // Every distinct value of the conforming type has a corresponding unique
+    // value of the `RawValue` type, but there may be values of the `RawValue`
+    // type that don't have a corresponding value of the conforming type.
+    public typealias RawValue = String
+
+    // The corresponding value of the raw type.
+    //
+    // A new instance initialized with `rawValue` will be equivalent to this
+    // instance. For example:
+    //
+    //     enum PaperSize: String {
+    //         case A4, A5, Letter, Legal
+    //     }
+    //
+    //     let selectedSize = PaperSize.Letter
+    //     print(selectedSize.rawValue)
+    //     // Prints "Letter"
+    //
+    //     print(selectedSize == PaperSize(rawValue: selectedSize.rawValue)!)
+    //     // Prints "true"
+    public var rawValue: String { get }
+}
+```
+
+#### 创建通知
+
+##### init(rawValue:)
+
+```swift
+// 使用指定的原始值创建一个新实例
+//
+// - rawValue: 用于新实例的原始值
+public init?(rawValue: String)
+```
+
+如果没有与指定原始值对应的类型值，则此初始值设定项返回 nil 。例如：
+
+```swift
+enum PaperSize: String {
+    case A4, A5, Letter, Legal
+}
+
+print(PaperSize(rawValue: "Legal"))
+// Prints "Optional("PaperSize.Legal")"
+
+print(PaperSize(rawValue: "Tabloid"))
+// Prints "nil"
+```
+
+#### 实例属性
+
+##### rawValue
+
+```swift
+// 原始类型对应的值
+public var rawValue: String { get }
+```
+
+用 `rawValue` 初始化的新实例将与此实例等效。例如：
+
+```swift
+enum PaperSize: String {
+    case A4, A5, Letter, Legal
+}
+
+let selectedSize = PaperSize.Letter
+print(selectedSize.rawValue)
+// Prints "Letter"
+
+print(selectedSize == PaperSize(rawValue: selectedSize.rawValue)!)
+// Prints "true"
+```
+
+#### 类型别名
+
+##### RawValue
+
+```swift
+// 可用于表示符合类型的所有值的原始类型
+public typealias RawValue = String
+```
+
+一致类型的每个不同值都有一个对应的 RawValue 类型的唯一值，但可能有 RawValue 类型的值没有一致类型的对应值。

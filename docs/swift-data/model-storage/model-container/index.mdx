@@ -8,4 +8,151 @@
   summary="管理应用程序的架构和模型存储配置的对象"
 />
 
-## 概述
+```swift
+@available(swift 5.9)
+@available(macOS 14, iOS 17, tvOS 17, watchOS 10, *)
+public class ModelContainer : Equatable, @unchecked Sendable {
+    // ...
+}
+```
+
+## 创建模型容器
+
+### ModelConfiguration
+
+```swift
+// 描述应用程序架构或特定模型组配置的类型
+@available(swift 5.9)
+@available(macOS 14, iOS 17, tvOS 17, watchOS 10, *)
+public struct ModelConfiguration : Identifiable, Hashable {
+    // ...
+
+    public let url: URL
+
+    public let name: String
+
+    // 描述可能的 CloudKit 发现方法的类型
+    @available(swift 5.9)
+    @available(macOS 14, iOS 17, tvOS 17, watchOS 10, *)
+    public struct CloudKitDatabase {
+
+        public static var automatic: ModelConfiguration.CloudKitDatabase { get }
+
+        public static var none: ModelConfiguration.CloudKitDatabase { get }
+
+        public static func `private`(_ privateDBName: String) -> ModelConfiguration.CloudKitDatabase
+    }
+
+    // 描述可能的组容器发现方法的类型
+    @available(swift 5.9)
+    @available(macOS 14, iOS 17, tvOS 17, watchOS 10, *)
+    public struct GroupContainer {
+
+        public static var automatic: ModelConfiguration.GroupContainer { get }
+
+        public static var none: ModelConfiguration.GroupContainer { get }
+
+        public static func identifier(_ groupName: String) -> ModelConfiguration.GroupContainer
+    }
+}
+```
+
+### Schema
+
+```swift
+// 将模型类映射到模型存储中的数据的对象，并帮助在版本之间迁移该数据
+@available(swift 5.9)
+@available(macOS 14, iOS 17, tvOS 17, watchOS 10, *)
+final public class Schema : Codable, Hashable {
+    // ...
+
+    public static let schemaEncodingVersion: Schema.Version
+
+    final public let encodingVersion: Schema.Version
+
+    final public let version: Schema.Version
+
+    final public let entities: [Schema.Entity]
+
+    final public let entitiesByName: [String : Schema.Entity]
+}
+```
+
+### SchemaMigrationPlan
+
+```swift
+// 用于描述模式演变以及如何在特定版本之间迁移的接口
+@available(swift 5.9)
+@available(macOS 14, iOS 17, tvOS 17, watchOS 10, *)
+public protocol SchemaMigrationPlan {
+
+    static var schemas: [VersionedSchema.Type] { get }
+
+    static var stages: [MigrationStage] { get }
+}
+```
+
+## 管理架构和配置详细信息
+
+### schema
+
+```swift
+final public let schema: Schema
+```
+
+### configurations
+
+```swift
+public var configurations: Set<ModelConfiguration>
+```
+
+### migrationPlan
+
+```swift
+final public let migrationPlan: (SchemaMigrationPlan.Type)?
+```
+
+## Accessing the context 访问上下文
+
+### mainContext
+
+```swift
+@MainActor public var mainContext: ModelContext { get }
+```
+
+## 删除容器
+
+### deleteAllData
+
+```swift
+public func deleteAllData()
+```
+
+## 初始化器
+
+### init(for:migrationPlan:configurations:)
+
+```swift
+public init(for givenSchema: Schema,
+            migrationPlan: (SchemaMigrationPlan.Type)? = nil,
+            configurations: [ModelConfiguration]
+) throws
+```
+
+### init(for:migrationPlan:configurations:)
+
+```swift
+public convenience init(for givenSchema: Schema,
+                        migrationPlan: (SchemaMigrationPlan.Type)? = nil,
+                        configurations: ModelConfiguration...
+) throws
+```
+
+### init(for:migrationPlan:configurations:)
+
+```swift
+public convenience init(for forTypes: PersistentModel.Type...,
+                        migrationPlan: (SchemaMigrationPlan.Type)? = nil,
+                        configurations: ModelConfiguration...
+) throws
+```

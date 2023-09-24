@@ -10,25 +10,25 @@
 
 ## 概述
 
-## 概述 in page link
+## 概述
 
-此示例项目旨在帮助您了解如何在现有 Core Data 应用程序中采用 SwiftData。 SampleTrips 应用程序从商店中获取并显示所有即将到来的旅行，并允许人们创建或删除旅行，以及在每次旅行的行程中添加、更新或删除信息。这个应用程序有三个版本：
+此示例项目旨在帮助你了解如何在现有 Core Data 应用程序中采用 SwiftData。 SampleTrips 应用程序从商店中获取并显示所有即将到来的旅行，并允许人们创建或删除旅行，以及在每次旅行的行程中添加、更新或删除信息。这个应用程序有三个版本：
 
 演示 Core Data 最佳实践的 Core Data 版本。
 
 SwiftData 版本，显示从 Core Data 到 SwiftData 的完整应用程序转换。
 
-共存版本，其中示例应用程序使用 Core Data，并添加使用 SwiftData 的小部件扩展。此版本涵盖了您可能希望逐步采用 SwiftData 或应用程序的某些部分的场景。
+共存版本，其中示例应用程序使用 Core Data，并添加使用 SwiftData 的小部件扩展。此版本涵盖了你可能希望逐步采用 SwiftData 或应用程序的某些部分的场景。
 
-## 配置示例代码项目 in page link
+## 配置示例代码项目
 
 在 Xcode 中打开示例代码项目。在构建之前，请执行以下操作：
 
-将所有目标的开发团队设置为您的团队，以便 Xcode 自动管理配置文件。有关详细信息，请参阅将项目分配给团队。
+将所有目标的开发团队设置为你的团队，以便 Xcode 自动管理配置文件。有关详细信息，请参阅将项目分配给团队。
 
-将应用程序组容器标识符 — group.com.example.apple-samplecode.SampleTrips — 替换为整个项目团队特有的标识符。该标识符指向应用程序和小部件用于共享数据的应用程序组容器。您可以使用 Xcode 中的查找导航器搜索 group.com.example.apple-samplecode.SampleTrips ，然后更改所有出现的位置（ README 文件中的出现位置除外）。有关更多信息，请参阅配置应用程序组。
+将应用程序组容器标识符 — group.com.example.apple-samplecode.SampleTrips — 替换为整个项目团队特有的标识符。该标识符指向应用程序和小部件用于共享数据的应用程序组容器。你可以使用 Xcode 中的查找导航器搜索 group.com.example.apple-samplecode.SampleTrips ，然后更改所有出现的位置（ README 文件中的出现位置除外）。有关更多信息，请参阅配置应用程序组。
 
-## 采用 SwiftDatain page link
+## 采用 SwiftData
 
 SwiftData 示例使用符合 PersistentModel 协议的 Swift 类型设置架构，该架构捕获有关应用程序类型的信息，包括属性和关系。每个模型文件对应于一个单独的实体，其实体名称、属性和关系与其对应的核心数据相同。
 
@@ -61,7 +61,7 @@ SwiftData 示例使用符合 PersistentModel 协议的 Swift 类型设置架构�
 @Environment(\.modelContext) private var modelContext
 ```
 
-## 创建持久数据对象 in page link
+## 创建持久数据对象
 
 此应用程序创建一个新的旅行实例并将其插入 ModelContext 中以实现持久化：
 
@@ -70,7 +70,7 @@ let newTrip = Trip(name: name, destination: destination, startDate: startDate, e
 modelContext.insert(newTrip)
 ```
 
-## 保留数据 in page link
+## 保留数据
 
 该应用程序使用 SwiftData 隐式保存功能来保存数据。这种隐式保存发生在 UI 生命周期事件上以及上下文更改后的计时器上。有关启用自动保存的详细信息，请参阅 autosaveEnabled 属性。
 
@@ -80,7 +80,7 @@ modelContext.insert(newTrip)
 modelContext.delete(trip)
 ```
 
-## 获取持久数据 in page link
+## 获取持久数据
 
 此示例应用程序通过将旅行数组包装在 Query 中来获取即将到来的旅行的完整列表，该数组从容器中获取 Trip 对象。
 
@@ -100,11 +100,11 @@ descriptor.predicate = #Predicate { item in
 let filteredList = try? modelContext.fetch(descriptor)
 ```
 
-## Core Data 和 SwiftData 共存 in page link
+## Core Data 和 SwiftData 共存
 
 该应用程序的共存版本有两个持久性堆栈：用于主机应用程序的 Core Data 持久性堆栈和用于小部件扩展的 SwiftData 持久性堆栈。两个堆栈都写入同一个存储文件。
 
-## 命名空间模型 in page link
+## 命名空间模型
 
 共存示例中的命名空间使用预先存在的基于 NSManagedObject 的实体子类，这样它们就不会与 SwiftData 类发生冲突。请注意，此考虑是指类名称，而不是实体名称。
 
@@ -120,7 +120,7 @@ class CDTrip: NSManagedObject {
 let newTrip = CDTrip(context: viewContext)
 ```
 
-## 共享同一个商店文件 in page link
+## 共享同一个商店文件
 
 此示例通过设置容器描述的持久性存储 URL 来确保 Core Data 和 SwiftData 持久性堆栈写入同一存储文件：
 
