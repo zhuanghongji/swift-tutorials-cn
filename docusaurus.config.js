@@ -113,14 +113,14 @@ const config = {
           },
           {
             type: "docSidebar",
-            label: "SwiftCharts",
-            sidebarId: "swiftchartsSidebar",
+            label: "SwiftData",
+            sidebarId: "swiftdataSidebar",
             position: "right",
           },
           {
             type: "docSidebar",
-            label: "SwiftData",
-            sidebarId: "swiftdataSidebar",
+            label: "Charts",
+            sidebarId: "chartsSidebar",
             position: "right",
           },
           {

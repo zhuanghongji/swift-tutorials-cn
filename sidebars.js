@@ -190,164 +190,6 @@ const swiftuiSidebar = [
 ];
 
 /** @type {import('@docusaurus/plugin-content-docs').SidebarsConfig['']} */
-const swiftchartsSidebar = [
-  {
-    type: "category",
-    label: "Swift Charts",
-    collapsible: false,
-    items: [
-      {
-        type: "category",
-        label: "Essentials",
-        collapsed: false,
-        items: ["swift-charts/essentials/about/index"],
-      },
-      {
-        type: "category",
-        label: "Charts",
-        collapsed: false,
-        items: [
-          "swift-charts/charts/creating-a-chart-using-swift-charts/index",
-          "swift-charts/charts/chart/index",
-          "swift-charts/charts/chart-content/index",
-          "swift-charts/charts/chart-content-builder/index",
-          "swift-charts/charts/plot/index",
-        ],
-      },
-      {
-        type: "category",
-        label: "Marks",
-        collapsed: false,
-        items: [
-          "swift-charts/marks/area-mark/index",
-          "swift-charts/marks/line-mark/index",
-          "swift-charts/marks/point-mark/index",
-          "swift-charts/marks/rectangle-mark/index",
-          "swift-charts/marks/rule-mark/index",
-          "swift-charts/marks/bar-mark/index",
-        ],
-      },
-      {
-        type: "category",
-        label: "Mark configuration",
-        collapsed: false,
-        items: [
-          "swift-charts/mark-configuration/mark-stacking-method/index",
-          "swift-charts/mark-configuration/mark-dimension/index",
-          "swift-charts/mark-configuration/interpolation-method/index",
-          "swift-charts/mark-configuration/chart-symbol-shape/index",
-          "swift-charts/mark-configuration/any-chart-symbol-shape/index",
-        ],
-      },
-      {
-        type: "category",
-        label: "Labeled data",
-        collapsed: false,
-        items: [
-          "swift-charts/labeled-data/plottable-value/index",
-          "swift-charts/labeled-data/plottable/index",
-        ],
-      },
-      {
-        type: "category",
-        label: "Scales",
-        collapsed: false,
-        items: [
-          "swift-charts/scales/scale-range/index",
-          "swift-charts/scales/position-scale-range/index",
-          "swift-charts/scales/plot-dimension-scale-range/index",
-          "swift-charts/scales/scale-domain/index",
-          "swift-charts/scales/automatic-scale-domain/index",
-          "swift-charts/scales/scale-type/index",
-        ],
-      },
-      {
-        type: "category",
-        label: "Axes",
-        collapsed: false,
-        items: [
-          "swift-charts/axes/customizing-axes-in-swift-charts/index",
-          "swift-charts/axes/axis-content/index",
-          "swift-charts/axes/axis-marks/index",
-          "swift-charts/axes/any-axis-content/index",
-          "swift-charts/axes/axis-content-builder/index",
-        ],
-      },
-      {
-        type: "category",
-        label: "Axis Marks",
-        collapsed: false,
-        items: [
-          "swift-charts/axis-marks/axis-mark/index",
-          "swift-charts/axis-marks/axis-tick/index",
-          "swift-charts/axis-marks/axis-grid-line/index",
-          "swift-charts/axis-marks/axis-value-label/index",
-          "swift-charts/axis-marks/axis-value/index",
-          "swift-charts/axis-marks/any-axis-mark/index",
-          "swift-charts/axis-marks/axis-mark-builder/index",
-        ],
-      },
-      {
-        type: "category",
-        label: "Annotations",
-        collapsed: false,
-        items: [
-          "swift-charts/annotations/annotation-context/index",
-          "swift-charts/annotations/annotation-position/index",
-        ],
-      },
-      {
-        type: "category",
-        label: "Data bins",
-        collapsed: false,
-        items: [
-          "swift-charts/data-bins/number-bins/index",
-          "swift-charts/data-bins/date-bins/index",
-        ],
-      },
-      {
-        type: "category",
-        label: "Chart management",
-        collapsed: false,
-        items: [
-          "swift-charts/chart-management/chart-plot-content/index",
-          "swift-charts/chart-management/chart-proxy/index",
-        ],
-      },
-      {
-        type: "category",
-        label: "Protocols",
-        collapsed: false,
-        items: [
-          "swift-charts/protocols/chart-scroll-target-behavior/index",
-          "swift-charts/protocols/primitive-plottable-protocol/index",
-        ],
-      },
-      {
-        type: "category",
-        label: "Structures",
-        collapsed: false,
-        items: [
-          "swift-charts/structures/annotation-overflow-resolution/index",
-          "swift-charts/structures/any-chart-content/index",
-          "swift-charts/structures/axis-mark-position/index",
-          "swift-charts/structures/axis-mark-preset/index",
-          "swift-charts/structures/axis-mark-values/index",
-          "swift-charts/structures/axis-value-label-collision-resolution/index",
-          "swift-charts/structures/axis-value-label-orientation/index",
-          "swift-charts/structures/basic-chart-symbol-shape/index",
-          "swift-charts/structures/chart-scroll-target-behavior-context/index",
-          "swift-charts/structures/major-value-alignment/index",
-          "swift-charts/structures/sector-mark/index",
-          "swift-charts/structures/value-aligned-chart-scroll-target-behavior/index",
-          "swift-charts/structures/value-aligned-limit-behavior/index",
-        ],
-      },
-    ],
-  },
-];
-
-/** @type {import('@docusaurus/plugin-content-docs').SidebarsConfig['']} */
 const swiftdataSidebar = [
   {
     type: "category",
@@ -452,6 +294,164 @@ const coregraphicsSidebar = [
       "core-graphics/working-with-pdf-documents/index",
       "core-graphics/utility-and-support-classes/index",
       "core-graphics/services/index",
+    ],
+  },
+];
+
+/** @type {import('@docusaurus/plugin-content-docs').SidebarsConfig['']} */
+const chartsSidebar = [
+  {
+    type: "category",
+    label: "Swift Charts",
+    collapsible: false,
+    items: [
+      {
+        type: "category",
+        label: "Essentials",
+        collapsed: false,
+        items: ["charts/essentials/about/index"],
+      },
+      {
+        type: "category",
+        label: "Charts",
+        collapsed: false,
+        items: [
+          "charts/charts/creating-a-chart-using-swift-charts/index",
+          "charts/charts/chart/index",
+          "charts/charts/chart-content/index",
+          "charts/charts/chart-content-builder/index",
+          "charts/charts/plot/index",
+        ],
+      },
+      {
+        type: "category",
+        label: "Marks",
+        collapsed: false,
+        items: [
+          "charts/marks/area-mark/index",
+          "charts/marks/line-mark/index",
+          "charts/marks/point-mark/index",
+          "charts/marks/rectangle-mark/index",
+          "charts/marks/rule-mark/index",
+          "charts/marks/bar-mark/index",
+        ],
+      },
+      {
+        type: "category",
+        label: "Mark configuration",
+        collapsed: false,
+        items: [
+          "charts/mark-configuration/mark-stacking-method/index",
+          "charts/mark-configuration/mark-dimension/index",
+          "charts/mark-configuration/interpolation-method/index",
+          "charts/mark-configuration/chart-symbol-shape/index",
+          "charts/mark-configuration/any-chart-symbol-shape/index",
+        ],
+      },
+      {
+        type: "category",
+        label: "Labeled data",
+        collapsed: false,
+        items: [
+          "charts/labeled-data/plottable-value/index",
+          "charts/labeled-data/plottable/index",
+        ],
+      },
+      {
+        type: "category",
+        label: "Scales",
+        collapsed: false,
+        items: [
+          "charts/scales/scale-range/index",
+          "charts/scales/position-scale-range/index",
+          "charts/scales/plot-dimension-scale-range/index",
+          "charts/scales/scale-domain/index",
+          "charts/scales/automatic-scale-domain/index",
+          "charts/scales/scale-type/index",
+        ],
+      },
+      {
+        type: "category",
+        label: "Axes",
+        collapsed: false,
+        items: [
+          "charts/axes/customizing-axes-in-swift-charts/index",
+          "charts/axes/axis-content/index",
+          "charts/axes/axis-marks/index",
+          "charts/axes/any-axis-content/index",
+          "charts/axes/axis-content-builder/index",
+        ],
+      },
+      {
+        type: "category",
+        label: "Axis Marks",
+        collapsed: false,
+        items: [
+          "charts/axis-marks/axis-mark/index",
+          "charts/axis-marks/axis-tick/index",
+          "charts/axis-marks/axis-grid-line/index",
+          "charts/axis-marks/axis-value-label/index",
+          "charts/axis-marks/axis-value/index",
+          "charts/axis-marks/any-axis-mark/index",
+          "charts/axis-marks/axis-mark-builder/index",
+        ],
+      },
+      {
+        type: "category",
+        label: "Annotations",
+        collapsed: false,
+        items: [
+          "charts/annotations/annotation-context/index",
+          "charts/annotations/annotation-position/index",
+        ],
+      },
+      {
+        type: "category",
+        label: "Data bins",
+        collapsed: false,
+        items: [
+          "charts/data-bins/number-bins/index",
+          "charts/data-bins/date-bins/index",
+        ],
+      },
+      {
+        type: "category",
+        label: "Chart management",
+        collapsed: false,
+        items: [
+          "charts/chart-management/chart-plot-content/index",
+          "charts/chart-management/chart-proxy/index",
+        ],
+      },
+      {
+        type: "category",
+        label: "Protocols",
+        collapsed: false,
+        items: [
+          "charts/protocols/chart-scroll-target-behavior/index",
+          "charts/protocols/primitive-plottable-protocol/index",
+        ],
+      },
+      {
+        type: "category",
+        label: "Structures",
+        collapsed: false,
+        items: [
+          "charts/structures/annotation-overflow-resolution/index",
+          "charts/structures/any-chart-content/index",
+          "charts/structures/axis-mark-position/index",
+          "charts/structures/axis-mark-preset/index",
+          "charts/structures/axis-mark-values/index",
+          "charts/structures/axis-value-label-collision-resolution/index",
+          "charts/structures/axis-value-label-orientation/index",
+          "charts/structures/basic-chart-symbol-shape/index",
+          "charts/structures/chart-scroll-target-behavior-context/index",
+          "charts/structures/major-value-alignment/index",
+          "charts/structures/sector-mark/index",
+          "charts/structures/value-aligned-chart-scroll-target-behavior/index",
+          "charts/structures/value-aligned-limit-behavior/index",
+        ],
+      },
     ],
   },
 ];
@@ -704,9 +704,9 @@ const sidebars = {
   // But you can create a sidebar manually
   swiftSidebar,
   swiftuiSidebar,
-  swiftchartsSidebar,
   swiftdataSidebar,
   coregraphicsSidebar,
+  chartsSidebar,
   metalSidebar,
   metalkitSidebar,
   metalprogrammingguideSidebar,
