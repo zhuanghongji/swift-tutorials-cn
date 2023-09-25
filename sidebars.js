@@ -696,6 +696,46 @@ const metalshadinglanguagespecificationSidebar = [
   },
 ];
 
+/** @type {import('@docusaurus/plugin-content-docs').SidebarsConfig['']} */
+const audiotoolboxSidebar = [
+  {
+    type: "category",
+    label: "Audio Toolbox",
+    collapsible: false,
+    items: [
+      {
+        type: "category",
+        label: "Esseentials",
+        collapsed: false,
+        items: [
+          "audio-toolbox/esseentials/about/index",
+          "audio-toolbox/esseentials/porting-your-audio-code-to-apple-silicon/index",
+        ],
+      },
+      {
+        type: "category",
+        label: "Audio Units",
+        collapsed: false,
+        items: [
+          "audio-toolbox/audio-units/generating-spatial-audio-from-a-multichannel-audio-stream/index",
+          "audio-toolbox/audio-units/migrating-your-audio-unit-host-to-the-auv3-api/index",
+          "audio-toolbox/audio-units/hosting-audio-unit-extensions-using-the-auv2-api/index",
+          "audio-toolbox/audio-units/incorporating-audio-effects-and-instruments/index",
+          "audio-toolbox/audio-units/au-audio-unit/index",
+          "audio-toolbox/audio-units/au-audio-unit-bus/index",
+          "audio-toolbox/audio-units/au-audio-unit-bus-array/index",
+          "audio-toolbox/audio-units/au-audio-unit-v2-bridge/index",
+          "audio-toolbox/audio-units/au-audio-unit-factory/index",
+          "audio-toolbox/audio-units/au-parameter/index",
+          "audio-toolbox/audio-units/au-parameter-group/index",
+          "audio-toolbox/audio-units/au-parameter-node/index",
+          "audio-toolbox/audio-units/au-parameter-tree/index",
+        ],
+      },
+    ],
+  },
+];
+
 /** @type {import('@docusaurus/plugin-content-docs').SidebarsConfig} */
 const sidebars = {
   // By default, Docusaurus generates a sidebar from the docs folder structure
@@ -709,6 +749,7 @@ const sidebars = {
   chartsSidebar,
   metalSidebar,
   metalkitSidebar,
+  audiotoolboxSidebar,
   metalprogrammingguideSidebar,
   metalshadinglanguagespecificationSidebar,
 };

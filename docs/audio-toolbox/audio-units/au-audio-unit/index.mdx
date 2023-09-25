@@ -1,0 +1,31 @@
+# AUAudioUnit
+
+<ToBePolishedAfterTranslation />
+
+<OriginalSource
+  title="AUAudioUnit"
+  url="https://developer.apple.com/documentation/audiotoolbox/auaudiounit"
+  summary="AUAudioUnit 类定义主机与音频单元的接口"
+/>
+
+## 概述
+
+主机可以使用此类实例化版本 3 或版本 2 音频单元，并在某种程度上控制音频单元是在进程内实例化还是在单独的扩展进程中实例化。
+
+版本 3 音频单元应继承 AUAudioUnit 类。版本 3 音频单元组件可以通过以下方式注册：
+
+- 将组件打包到包含 AudioComponents Info.plist 条目的应用扩展中。主类必须符合 AUAudioUnitFactory 协议，该协议通常会实例化 AUAudioUnit 子类。
+- 调用 registerSubclass(\_:as:name:version:) 方法将组件描述与 AUAudioUnit 子类关联。命名音频单元组件时，请使用约定 `<制造商名称>: <音频单元名称>`。
+
+版本 2 音频单元应改为 AUAudioUnitV2Bridge 类的子类。版本 2 音频单元组件可以通过以下方式注册：
+
+- 将组件打包到包含 AudioComponents Info.plist 条目的组件包中，引用 AudioComponentFactoryFunction 函数。
+- 调用 AudioComponentRegister 函数将组件描述与 AudioComponentFactoryFunction 函数关联。
+
+主机不需要知道正在实例化的具体 AUAudioUnit 子类。 init(componentDescription:options:) 方法确保使用正确的子类。
+
+:::caution
+
+当将 AUAudioUnit 类与版本 2 音频单元一起使用，或将 C AudioComponent 和 AudioUnit API 与版本 3 音频单元一起使用时，所有主要功能都是在两个 API 之间架起桥梁。如果适用，本文档引用每个版本 3 方法或属性的版本 2 API 等效项。
+
+:::

@@ -1,0 +1,21 @@
+# AUAudioUnitBusArray
+
+<ToBePolishedAfterTranslation />
+
+<OriginalSource
+  title="AUAudioUnitBusArray"
+  url="https://developer.apple.com/documentation/audiotoolbox/auaudiounitbusarray"
+  summary="AUAudioUnitBusArray 类定义音频单元输入或输出总线的容器"
+/>
+
+## 概述
+
+主机可以通过在总线数组对象上使用 KVO 来观察所有总线上的总线属性，而不必在每个单独的总线上观察它。一些音频单元（例如混音器）通过子类化支持可变数量的总线。当总线计数发生变化时，会根据情况在音频单元的 inputBusses 或 outputBusses 属性上发送 KVO 通知。
+
+此版本 3 类桥接到版本 2 kAudioUnitProperty_ElementCount API。
+
+:::note
+
+您可以向各个总线添加侦听器，但这意味着您必须观察总线计数变化并添加或删除侦听器作为响应。此外， addObserver(\_:toObjectsAt:forKeyPath:options:context:) 方法是有问题的；它不会让各个对象覆盖观察请求，因此在扩展进程中代理总线的总线不会收到消息。
+
+:::

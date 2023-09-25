@@ -118,10 +118,16 @@ const config = {
             position: "right",
           },
           {
-            type: "docSidebar",
-            label: "Charts",
-            sidebarId: "chartsSidebar",
+            type: "dropdown",
+            label: "Media",
             position: "right",
+            items: [
+              {
+                type: "docSidebar",
+                label: "Audio Toolbox",
+                sidebarId: "audiotoolboxSidebar",
+              },
+            ],
           },
           {
             type: "dropdown",
@@ -132,6 +138,11 @@ const config = {
                 type: "docSidebar",
                 label: "Core Graphics",
                 sidebarId: "coregraphicsSidebar",
+              },
+              {
+                type: "docSidebar",
+                label: "Charts",
+                sidebarId: "chartsSidebar",
               },
               {
                 type: "docSidebar",

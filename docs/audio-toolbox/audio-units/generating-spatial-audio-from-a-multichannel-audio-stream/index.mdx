@@ -1,0 +1,87 @@
+# 从多通道音频流生成空间音频
+
+<ToBePolishedAfterTranslation />
+
+<OriginalSource
+  title="Generating spatial audio from a multichannel audio stream"
+  url="https://developer.apple.com/documentation/audiotoolbox/generating_spatial_audio_from_a_multichannel_audio_stream"
+  summary="使用空间混合器音频单元将 8 通道音频转换为 2 通道空间音频"
+/>
+
+## 概述
+
+空间音频让声音看起来像是来自您周围的四面八方。要从多通道音频流生成空间化音频，您可以使用空间混合器音频单元。音频流可以来自游戏引擎、视频播放器或音频文件的输出。
+
+示例应用程序向您展示如何创建空间混合器，以及如何配置其通道布局和流格式。它从音频文件流式传输多通道输入，并将其混音为 2 通道空间音频。
+
+## 创建音频单元空间混音器 in page link
+
+该示例使用拉模型从内存中的文件流处理器获取输入。 OutputAU 类从管理空间混合器的 AudioKernel 中提取输入。空间混合器从 AudioFileReader 提取音频以获取输入。在 macOS 上，输出单元使用 kAudioUnitSubType_HALOutput 与音频设备连接。在 iOS 上，接口配置为 kAudioUnitSubType_RemoteIO 。
+
+为了开始设置空间混频器，该示例使用 kAudioUnitSubType_SpatialMixer 子类型初始化混频器。
+
+```swift
+AudioComponentDescription auDescription = {kAudioUnitType_Mixer,
+                                           kAudioUnitSubType_SpatialMixer,
+                                           kAudioUnitManufacturer_Apple,
+                                           0,
+                                           0};
+AudioComponent comp = AudioComponentFindNext(NULL, &auDescription);
+assert(comp);
+
+
+OSStatus err = AudioComponentInstanceNew(comp, &mAU);
+assert(err == noErr);
+```
+
+初始化空间混合器后，该示例调用便利函数来配置立体声音频的输出流格式和通道布局。
+
+```swift
+err = setStreamFormatAndACL(inOutputSampleRate, kAudioChannelLayoutTag_Stereo, kAudioUnitScope_Output, 0);
+assert(err == noErr);
+```
+
+然后，该示例配置输入流格式并将通道布局设置为 8 通道音频的 kAudioChannelLayoutTag_MPEG_7_1_A 。
+
+```swift
+err = setStreamFormatAndACL(inInputSampleRate,
+                            kAudioChannelLayoutTag_Atmos_7_1_4,
+                            kAudioUnitScope_Input,
+                            elem);
+assert(err == noErr);
+```
+
+## 配置空间音频 in page link
+
+该示例将空间化算法设置为 AUSpatializationAlgorithm.spatializationAlgorithm_UseOutputType ，以便在不同硬件上实现最高质量的空间渲染。
+
+```swift
+UInt32 renderingAlgorithm = kSpatializationAlgorithm_UseOutputType;
+err = AudioUnitSetProperty(mAU,
+                           kAudioUnitProperty_SpatializationAlgorithm,
+                           kAudioUnitScope_Input,
+                           elem,
+                           &renderingAlgorithm,
+                           sizeof(renderingAlgorithm));
+assert(err == noErr);
+```
+
+输入通道作为远场源围绕收听者进行空间化。通道布局指定各个通道的相对方向。方位角和仰角参数控制音频旋转。该示例将源模式配置为 AUSpatialMixerSourceMode.spatialMixerSourceMode_AmbienceBed 。使用 AUSpatialMixerSourceMode.spatialMixerSourceMode_PointSource 对象将输入信号渲染为单个源，除非使用 AUSpatialMixerPointSourceInHeadMode.spatialMixerPointSourceInHeadMode_Bypass 在头部渲染。
+
+```swift
+UInt32 sourceMode = kSpatialMixerSourceMode_AmbienceBed;
+err = AudioUnitSetProperty(mAU, kAudioUnitProperty_SpatialMixerSourceMode, kAudioUnitScope_Input, elem, &sourceMode, sizeof(sourceMode));
+assert(err == noErr);
+```
+
+空间音频包括支持它的应用程序的动态头部跟踪。要配置头部跟踪，请设置 kAudioUnitProperty_SpatialMixerEnableHeadTracking 。有关支持的设备的更多信息，请参阅聆听 AirPods 和 Beats 的空间音频。
+
+```swift
+UInt32 ht = 1;
+err = AudioUnitSetProperty(mAU,
+                           kAudioUnitProperty_SpatialMixerEnableHeadTracking,
+                           kAudioUnitScope_Global,
+                           0,
+                           &ht,
+                           sizeof(UInt32));
+```

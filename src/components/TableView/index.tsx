@@ -5,12 +5,13 @@ type TableViewProps = {
   title: string
   headers: string[]
   datasList: string[][]
+  size?: string | number
 }
 
 /**
  * 表格视图
  */
-export default function TableView({ num, title, headers, datasList  }: TableViewProps) {
+export default function TableView({ num, title, headers, datasList , size = '90%' }: TableViewProps) {
   
   return (
     <div style={{ display: 'flex', flexDirection: 'column', width: '100%', justifyContent: 'center', alignItems: 'center' }}>
@@ -18,7 +19,7 @@ export default function TableView({ num, title, headers, datasList  }: TableView
         <div><strong>{`Table ${num} - ${title}`}</strong></div>
       ) : null}
       <br/>
-      <center style={{ maxWidth: '90%' }}>
+      <center style={{ maxWidth: size }}>
         <table>
           <thead>
             {

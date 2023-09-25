@@ -1,0 +1,15 @@
+# AUAudioUnitV2Bridge
+
+<ToBePolishedAfterTranslation />
+
+<OriginalSource
+  title="AUAudioUnitV2Bridge"
+  url="https://developer.apple.com/documentation/audiotoolbox/auaudiounitv2bridge"
+  summary="AUAudioUnitV2Bridge 类将版本 2 音频单元包装在 AUAudioUnit 子类中"
+/>
+
+## 概述
+
+版本 3 音频单元可以对 AUAudioUnitV2Bridge 类进行子类化。如果是这样，音频单元的组件描述应引用使用工厂函数实现版本 2 的注册组件。该桥将通过工厂函数实例化版本 2 音频单元，并使用版本 2 音频单元 API 与其进行通信。
+
+主机不应访问此类；如果需要，它会在创建音频单元时被实例化。

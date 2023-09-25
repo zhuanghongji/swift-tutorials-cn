@@ -5,25 +5,37 @@ const INPUT_LINE_NUM = 3
 
 // 在一行中要进行换行，用 \t 代替，解析时会自动替换成 \n
 const INPUT_TEXT = `
-Convert From 
-To 
-Conversion Rule 
+AUv2 API
+AUv3 API
+描述
 
-32-bit signed integer 
-8-bit signed integer 
-result = convert_char_saturate(val) 
+AudioUnitInitialize(_:)
+audioUnit.allocateRenderResources()
+分配音频单元所需的资源。
 
-32-bit signed integer 
-16-bit signed integer 
-result = convert_short_saturate(val) 
+AudioUnitUninitialize(_:)
+audioUnit.deallocateRenderResources()
+释放音频单元的渲染资源。
 
-32-bit unsigned integer 
-8-bit unsigned integer 
-result = convert_uchar_saturate(val) 
+AudioUnitRender(_:_:_:_:_:_:)
+audioUnit.renderBlock
+在实时上下文中渲染音频样本。
 
-32-bit unsigned integer 
-16-bit unsigned integer 
-result = convert_ushort_saturate(val) 
+AudioUnitReset(_:_:_:)
+audioUnit.reset()
+重置音频单元的状态。
+
+AudioUnitScheduleParameters(_:_:_:)
+audioUnit.scheduleParameterBlock
+安排对音频单元参数值的更改。
+
+AudioUnitGetProperty(_:_:_:_:_:_:)\tAudioUnitSetProperty(_:_:_:_:_:_:)
+audioUnit.propertyName
+修改音频单元属性值。
+
+AudioUnitGetParameter(_:_:_:_:_:)\tAudioUnitSetParameter(_:_:_:_:_:_:)
+audioUnit.parameterTree
+访问用于获取和设置参数值的参数树对象。
 `
 
 /**
