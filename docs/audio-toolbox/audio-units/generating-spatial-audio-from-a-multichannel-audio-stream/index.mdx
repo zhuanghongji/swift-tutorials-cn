@@ -10,11 +10,11 @@
 
 ## 概述
 
-空间音频让声音看起来像是来自您周围的四面八方。要从多通道音频流生成空间化音频，您可以使用空间混合器音频单元。音频流可以来自游戏引擎、视频播放器或音频文件的输出。
+空间音频让声音看起来像是来自你周围的四面八方。要从多通道音频流生成空间化音频，你可以使用空间混合器音频单元。音频流可以来自游戏引擎、视频播放器或音频文件的输出。
 
-示例应用程序向您展示如何创建空间混合器，以及如何配置其通道布局和流格式。它从音频文件流式传输多通道输入，并将其混音为 2 通道空间音频。
+示例应用程序向你展示如何创建空间混合器，以及如何配置其通道布局和流格式。它从音频文件流式传输多通道输入，并将其混音为 2 通道空间音频。
 
-## 创建音频单元空间混音器 in page link
+## 创建音频单元空间混音器
 
 该示例使用拉模型从内存中的文件流处理器获取输入。 OutputAU 类从管理空间混合器的 AudioKernel 中提取输入。空间混合器从 AudioFileReader 提取音频以获取输入。在 macOS 上，输出单元使用 kAudioUnitSubType_HALOutput 与音频设备连接。在 iOS 上，接口配置为 kAudioUnitSubType_RemoteIO 。
 
@@ -51,7 +51,7 @@ err = setStreamFormatAndACL(inInputSampleRate,
 assert(err == noErr);
 ```
 
-## 配置空间音频 in page link
+## 配置空间音频
 
 该示例将空间化算法设置为 AUSpatializationAlgorithm.spatializationAlgorithm_UseOutputType ，以便在不同硬件上实现最高质量的空间渲染。
 

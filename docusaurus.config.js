@@ -127,6 +127,11 @@ const config = {
                 label: "Audio Toolbox",
                 sidebarId: "audiotoolboxSidebar",
               },
+              {
+                type: "docSidebar",
+                label: "AVFAudio",
+                sidebarId: "avfaudioSidebar",
+              },
             ],
           },
           {

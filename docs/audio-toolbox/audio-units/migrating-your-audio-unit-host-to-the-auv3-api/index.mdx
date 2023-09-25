@@ -5,22 +5,22 @@
 <OriginalSource
   title="Migrating Your Audio Unit Host to the AUv3 API"
   url="https://developer.apple.com/documentation/audiotoolbox/audio_unit_v3_plug-ins/migrating_your_audio_unit_host_to_the_auv3_api"
-  summary="更新您的音频单元 (AU) 主机应用程序以利用 AUv3 的新特性和功能"
+  summary="更新你的音频单元 (AU) 主机应用程序以利用 AUv3 的新特性和功能"
 />
 
 ## 概述
 
 最新的音频单元标准 AUv3 提供了基于应用程序扩展的强大插件模型。此模型为托管应用程序提供了多种好处，包括更高的安全性和稳定性、多视图配置以及对共享用户预设的支持。
 
-您可以采用新的 API，同时仍然保留托管 AUv2 音频单元的能力。该框架的桥接层通过自动将 AUv3 调用转换为其 AUv2 等效项来实现此功能，这意味着您可以使用单个 API 并使用新的和旧的音频单元。
+你可以采用新的 API，同时仍然保留托管 AUv2 音频单元的能力。该框架的桥接层通过自动将 AUv3 调用转换为其 AUv2 等效项来实现此功能，这意味着你可以使用单个 API 并使用新的和旧的音频单元。
 
 <Figure src={require("./image_1.png")} size={320} edge="white" />
 
 有关使用 AUv3 API 核心功能的可下载示例应用程序，请参阅合并音频效果和乐器。
 
-## 查找音频单元 in page link
+## 查找音频单元
 
-AVFoundation 框架的 AVAudioUnitComponentManager 类提供了一种查找在主机系统中注册的音频组件的便捷方法。您可以使用它通过描述、谓词或测试用例搜索音频单元，并且组件管理器返回与您的搜索条件匹配的 AVAudioUnitComponent 对象数组。以下代码示例展示了如何使用每种方法来查找系统上可用的所有音频效果。
+AVFoundation 框架的 AVAudioUnitComponentManager 类提供了一种查找在主机系统中注册的音频组件的便捷方法。你可以使用它通过描述、谓词或测试用例搜索音频单元，并且组件管理器返回与你的搜索条件匹配的 AVAudioUnitComponent 对象数组。以下代码示例展示了如何使用每种方法来查找系统上可用的所有音频效果。
 
 ```swift
 // Access the singleton AVAudioUnitComponentManager instance.
@@ -44,9 +44,9 @@ let componentsByTest = manager.components { component, _ in
 }
 ```
 
-## 实例化音频单元 in page link
+## 实例化音频单元
 
-找到可用音频组件的列表后，下一步就是实例化您要使用的组件。要实例化音频单元，请使用 AVAudioUnit 类的 instantiate(with:options:completionHandler:) 方法，如下所示。
+找到可用音频组件的列表后，下一步就是实例化你要使用的组件。要实例化音频单元，请使用 AVAudioUnit 类的 instantiate(with:options:completionHandler:) 方法，如下所示。
 
 ```swift
 func selectAudioUnit(at index: Int) {
@@ -67,13 +67,13 @@ func selectAudioUnit(at index: Int) {
 
 :::caution
 
-两个音频单元 API 版本之间的主要区别在于 AUv2 音频单元加载到主机进程中，而 AUv3 音频单元默认加载到进程外。仅在 macOS 中，如果 AUv3 音频单元支持，您可以通过在 options 参数中传递 loadInProcess 选项来请求在进程中加载 ​​ 它。要验证音频单元是否已在进程中成功加载，请查询其 isLoadedInProcess 属性。
+两个音频单元 API 版本之间的主要区别在于 AUv2 音频单元加载到主机进程中，而 AUv3 音频单元默认加载到进程外。仅在 macOS 中，如果 AUv3 音频单元支持，你可以通过在 options 参数中传递 loadInProcess 选项来请求在进程中加载 ​​ 它。要验证音频单元是否已在进程中成功加载，请查询其 isLoadedInProcess 属性。
 
 :::
 
-## 与音频单元交互 in page link
+## 与音频单元交互
 
-使用 AUv3 API 与音频单元交互的方式不同于使用 AUv2 API 的方式。在 AUv2 中，您使用 C 函数来操作音频单元。例如，以下代码设置使用 AUv2 API 渲染的最大帧数。
+使用 AUv3 API 与音频单元交互的方式不同于使用 AUv2 API 的方式。在 AUv2 中，你使用 C 函数来操作音频单元。例如，以下代码设置使用 AUv2 API 渲染的最大帧数。
 
 ```swift
 // Get the underlying AudioUnit instance.
@@ -89,7 +89,7 @@ AudioUnitSetProperty(audioUnit,
                      UInt32(MemoryLayout<UInt32>.size))
 ```
 
-相比之下，AUv3 API 提供了更自然的接口，使您能够通过调用音频单元实例的属性和方法来直接与音频单元实例交互。使用 AUv3 API，您可以设置要渲染的最大帧数，如下所示。
+相比之下，AUv3 API 提供了更自然的接口，使你能够通过调用音频单元实例的属性和方法来直接与音频单元实例交互。使用 AUv3 API，你可以设置要渲染的最大帧数，如下所示。
 
 ```swift
 // Get the underlying AUAudioUnit instance.
@@ -137,9 +137,9 @@ audioUnit.maximumFramesToRender = 4096
   ]}
 />
 
-## 展示音频单元的用户界面 in page link
+## 展示音频单元的用户界面
 
-要显示音频单元的用户界面，请调用其 requestViewController(completionHandler:) 方法。此方法异步检索音频单元的视图控制器实例并在回调闭包中返回它。回调是在后台线程上调用的，因此您需要在将音频单元的用户界面添加到应用程序的视图层次结构之前将控制分派回主队列。
+要显示音频单元的用户界面，请调用其 requestViewController(completionHandler:) 方法。此方法异步检索音频单元的视图控制器实例并在回调闭包中返回它。回调是在后台线程上调用的，因此你需要在将音频单元的用户界面添加到应用程序的视图层次结构之前将控制分派回主队列。
 
 ```swift
 audioUnit.requestViewController { viewController in

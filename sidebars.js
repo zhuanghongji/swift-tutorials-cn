@@ -736,6 +736,36 @@ const audiotoolboxSidebar = [
   },
 ];
 
+/** @type {import('@docusaurus/plugin-content-docs').SidebarsConfig['']} */
+const avfaudioSidebar = [
+  {
+    type: "category",
+    label: "AVFAudio",
+    collapsible: false,
+    items: [
+      {
+        type: "category",
+        label: "Esseentials",
+        collapsed: false,
+        items: ["avf-audio/esseentials/about/index"],
+      },
+      {
+        type: "category",
+        label: "System audio",
+        collapsed: false,
+        items: [
+          "avf-audio/system-audio/handling-audio-interruptions/index",
+          "avf-audio/system-audio/responding-to-audio-route-changes/index",
+          "avf-audio/system-audio/capturing-stereo-audio-from-built-in-microphones/index",
+          "avf-audio/system-audio/av-audio-session/index",
+          "avf-audio/system-audio/av-audio-application/index",
+          "avf-audio/system-audio/av-audio-routing-arbiter/index",
+        ],
+      },
+    ],
+  },
+];
+
 /** @type {import('@docusaurus/plugin-content-docs').SidebarsConfig} */
 const sidebars = {
   // By default, Docusaurus generates a sidebar from the docs folder structure
@@ -750,6 +780,7 @@ const sidebars = {
   metalSidebar,
   metalkitSidebar,
   audiotoolboxSidebar,
+  avfaudioSidebar,
   metalprogrammingguideSidebar,
   metalshadinglanguagespecificationSidebar,
 };

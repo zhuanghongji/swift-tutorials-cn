@@ -1,0 +1,79 @@
+# 响应音频路由变化
+
+<ToBePolishedAfterTranslation />
+
+<OriginalSource
+  title="Responding to audio route changes"
+  url="https://developer.apple.com/documentation/avfaudio/responding_to_audio_route_changes"
+  summary="观察音频会话通知，以确保你的应用程序对路由更改做出适当响应"
+/>
+
+## 概述
+
+AVAudioSession 的一个重要职责是管理音频路由更改。当系统添加或删除音频输入或输出时，会发生路由更改。发生路由更改的原因有多种，包括用户插入耳机、连接蓝牙 LE 耳机或拔出 USB 音频接口。当这些更改发生时，音频会话会相应地重新路由音频信号，并向任何注册的观察者广播包含更改详细信息的通知。
+
+当用户插入或移除一副耳机时，会发生与路线更改相关的重要行为（请参阅 iOS 人机界面指南中的音频）。当用户连接一副有线或无线耳机时，他们会隐式指示音频播放应该继续，但要私下进行。他们希望当前正在播放媒体的应用能够继续播放而不会暂停。然而，当用户断开耳机时，他们不想自动与其他人分享他们正在收听的内容。应用程序应尊重这种隐含的隐私请求，并在用户断开耳机时自动暂停播放。
+
+:::note
+
+AVPlayer 监视应用程序的音频会话并对路由更改做出适当响应。当用户连接耳机时，播放将按预期继续。当他们断开耳机时，播放会自动暂停。要观察此播放器行为，请键值观察播放器的 rate 属性，以便你可以在播放器暂停播放时更新用户界面。
+
+:::
+
+## 观察路线变化
+
+你可以直接观察音频会话发布的路线变更通知。如果你希望系统在用户连接耳机时通知你，以便你可以在播放器界面中显示图标或消息，这可能很有用。
+
+要观察音频路由更改，请首先注册观察 routeChangeNotification 类型的通知。
+
+```swift
+func setupNotifications() {
+    // Get the default notification center instance.
+    let nc = NotificationCenter.default
+    nc.addObserver(self,
+                   selector: #selector(handleRouteChange),
+                   name: AVAudioSession.routeChangeNotification,
+                   object: nil)
+}
+
+@objc func handleRouteChange(notification: Notification) {
+    // To be implemented.
+}
+```
+
+## 响应路线变化
+
+发布的 Notification 对象包含一个填充的用户信息字典，提供路线更改的详细信息。通过从字典中检索 AVAudioSession.RouteChangeReason 值来确定此更改的原因。当用户连接新设备时，原因为 AVAudioSession.RouteChangeReason.newDeviceAvailable ，当用户删除设备时，原因为 AVAudioSession.RouteChangeReason.oldDeviceUnavailable 。
+
+当新设备可用时，你可以向音频会话询问其 currentRoute 以确定音频输出当前路由的位置。此查询返回一个 AVAudioSessionRouteDescription 对象，其中列出了音频会话的所有输入和输出。当用户删除设备时，你可以从用户信息字典中检索先前路线的路线描述。在这两种情况下，你都会查询其输出的路由描述，这会返回提供音频输出路由详细信息的端口描述对象数组。
+
+```swift
+@objc func handleRouteChange(notification: Notification) {
+    guard let userInfo = notification.userInfo,
+        let reasonValue = userInfo[AVAudioSessionRouteChangeReasonKey] as? UInt,
+        let reason = AVAudioSession.RouteChangeReason(rawValue: reasonValue) else {
+            return
+    }
+
+    // Switch over the route change reason.
+    switch reason {
+
+    case .newDeviceAvailable: // New device found.
+        let session = AVAudioSession.sharedInstance()
+        headphonesConnected = hasHeadphones(in: session.currentRoute)
+
+    case .oldDeviceUnavailable: // Old device removed.
+        if let previousRoute =
+            userInfo[AVAudioSessionRouteChangePreviousRouteKey] as? AVAudioSessionRouteDescription {
+            headphonesConnected = hasHeadphones(in: previousRoute)
+        }
+
+    default: ()
+    }
+}
+
+func hasHeadphones(in routeDescription: AVAudioSessionRouteDescription) -> Bool {
+    // Filter the outputs to only those with a port type of headphones.
+    return !routeDescription.outputs.filter({$0.portType == .headphones}).isEmpty
+}
+```

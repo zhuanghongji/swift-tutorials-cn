@@ -5,12 +5,12 @@
 <OriginalSource
   title="Incorporating audio effects and instruments"
   url="https://developer.apple.com/documentation/audiotoolbox/audio_unit_v3_plug-ins/incorporating_audio_effects_and_instruments"
-  summary="通过托管音频单元 (AU) 插件，将自定义音频处理和 MIDI 乐器添加到您的应用程序中"
+  summary="通过托管音频单元 (AU) 插件，将自定义音频处理和 MIDI 乐器添加到你的应用程序中"
 />
 
 ## 概述
 
-此示例应用程序向您展示如何在 iOS 和 macOS 应用程序中使用 AU 插件。您查找并实例化插件，将其用户界面合并到应用程序的界面中，并使用其预设。
+此示例应用程序向你展示如何在 iOS 和 macOS 应用程序中使用 AU 插件。你查找并实例化插件，将其用户界面合并到应用程序的界面中，并使用其预设。
 
 示例应用程序有针对 iOS 和 macOS 的目标。两个版本都有三个主要类。
 
@@ -18,9 +18,9 @@
 - AudioUnitManager 管理与效果和乐器插件的交互。
 - SimplePlayEngine 使用 AVAudioEngine 播放音频样本和 MIDI 数据。
 
-## 查找音频单元 in page link
+## 查找音频单元
 
-您可以通过创建定义搜索条件的 AudioComponentDescription 来查找在主机系统中注册的音频单元。示例应用程序搜索组件类型，音频效果 ( kAudioUnitType_Effect ) 或 MIDI 乐器 ( kAudioUnitType_MusicDevice )。您还可以传递 AudioComponentDescription 的其他字段的值，或传递 0 作为匹配所有值的通配符。获取 AVAudioUnitComponentManager 的共享实例并调用其 components(matching:) 方法来查找与您的搜索条件匹配的组件。
+你可以通过创建定义搜索条件的 AudioComponentDescription 来查找在主机系统中注册的音频单元。示例应用程序搜索组件类型，音频效果 ( kAudioUnitType_Effect ) 或 MIDI 乐器 ( kAudioUnitType_MusicDevice )。你还可以传递 AudioComponentDescription 的其他字段的值，或传递 0 作为匹配所有值的通配符。获取 AVAudioUnitComponentManager 的共享实例并调用其 components(matching:) 方法来查找与你的搜索条件匹配的组件。
 
 ```swift
 let componentType = type == .effect ? kAudioUnitType_Effect : kAudioUnitType_MusicDevice
@@ -35,15 +35,15 @@ let description = AudioComponentDescription(componentType: componentType,
 let components = AVAudioUnitComponentManager.shared().components(matching: description)
 ```
 
-此方法返回与组件描述匹配的 AVAudioUnitComponent 对象数组，如果未找到匹配项，则返回空数组。您可以访问组件的属性来确定其功能并查找标识值，例如其名称和制造商，以显示在用户界面中。
+此方法返回与组件描述匹配的 AVAudioUnitComponent 对象数组，如果未找到匹配项，则返回空数组。你可以访问组件的属性来确定其功能并查找标识值，例如其名称和制造商，以显示在用户界面中。
 
-## 实例化音频单元 in page link
+## 实例化音频单元
 
-当用户在用户界面中选择音频单元时，您的应用程序需要找到该组件并实例化它。
+当用户在用户界面中选择音频单元时，你的应用程序需要找到该组件并实例化它。
 
 iOS 支持使用最新音频单元标准 (AUv3) 构建的第三方插件，该标准基于应用程序扩展模型。与 iOS 中的所有应用程序扩展一样，AUv3 插件在进程外运行，这意味着它们在应用程序外部的专用进程中运行，并且与扩展程序的通信是通过进程间通信 (IPC) 完成的。
 
-您可以通过调用 instantiate(with:options:completionHandler:) 方法并向其传递组件描述来实例化 AU。如果进程失败，此方法会异步返回实例化的 AVAudioUnit 或 Error 。实例化音频单元时，必须避免阻塞应用程序的主线程。
+你可以通过调用 instantiate(with:options:completionHandler:) 方法并向其传递组件描述来实例化 AU。如果进程失败，此方法会异步返回实例化的 AVAudioUnit 或 Error 。实例化音频单元时，必须避免阻塞应用程序的主线程。
 
 ```swift
 // Instantiate the Audio Unit
@@ -52,7 +52,7 @@ AVAudioUnit.instantiate(with: description) { avAudioUnit, error in
 }
 ```
 
-在 macOS 中，AUv3 插件也默认在进程外运行。以这种方式运行音频单元更加安全，因为行为不当的插件不会损坏或崩溃您的应用程序。然而，该模型所需的进程间通信增加了一些小但可能显着的开销。这在使用多个音频单元的专业音频环境中可能会出现问题，特别是在以较小的音频 I/O 缓冲区大小进行渲染时。为了解决这个问题，AU 作者可以将他们的插件打包以在进程中运行。仅在 macOS 中，您可以通过将该实例化选项传递给 instantiate 方法来加载适当打包的插件，如下所示。
+在 macOS 中，AUv3 插件也默认在进程外运行。以这种方式运行音频单元更加安全，因为行为不当的插件不会损坏或崩溃你的应用程序。然而，该模型所需的进程间通信增加了一些小但可能显着的开销。这在使用多个音频单元的专业音频环境中可能会出现问题，特别是在以较小的音频 I/O 缓冲区大小进行渲染时。为了解决这个问题，AU 作者可以将他们的插件打包以在进程中运行。仅在 macOS 中，你可以通过将该实例化选项传递给 instantiate 方法来加载适当打包的插件，如下所示。
 
 ```swift
 let options: AudioComponentInstantiationOptions = .loadInProcess
@@ -69,9 +69,9 @@ iOS 和 macOS 支持使用现有的 AUv2 插件。 iOS 仅支持操作系统提�
 
 :::
 
-## 呈现音频单元的自定义视图 in page link
+## 呈现音频单元的自定义视图
 
-插件可以提供自定义用户界面来控制其参数。您可以通过向插件询问其视图控制器来获取自定义视图，该控制器返回 AUViewController 的实例，如果不提供自定义视图，则返回 nil 的实例。您可以使用适合您平台的方法将视图控制器的视图添加到您的用户界面。
+插件可以提供自定义用户界面来控制其参数。你可以通过向插件询问其视图控制器来获取自定义视图，该控制器返回 AUViewController 的实例，如果不提供自定义视图，则返回 nil 的实例。你可以使用适合你平台的方法将视图控制器的视图添加到你的用户界面。
 
 ```swift
 func loadAudioUnitViewController(completion: @escaping (ViewController?) -> Void) {
@@ -87,9 +87,9 @@ func loadAudioUnitViewController(completion: @escaping (ViewController?) -> Void
 }
 ```
 
-## 选择替代视图配置 in page link
+## 选择替代视图配置
 
-所有 AU 插件都可以提供自定义用户界面，但 AUv3 插件也可能提供替代视图。主机应用程序可以支持多个视图配置。例如，iOS 应用程序可能会提供紧凑视图和扩展视图，并根据设备大小或方向在它们之间切换。您可以使用 AUAudioUnitViewConfiguration 类定义一个或多个受支持的视图配置。
+所有 AU 插件都可以提供自定义用户界面，但 AUv3 插件也可能提供替代视图。主机应用程序可以支持多个视图配置。例如，iOS 应用程序可能会提供紧凑视图和扩展视图，并根据设备大小或方向在它们之间切换。你可以使用 AUAudioUnitViewConfiguration 类定义一个或多个受支持的视图配置。
 
 ```swift
 private var currentViewConfigurationIndex = 1
@@ -125,9 +125,9 @@ func toggleViewMode() {
 }
 ```
 
-## 加载工厂预设 in page link
+## 加载工厂预设
 
-插件作者可以选择提供一个或多个预设来定义插件参数值的特定配置。您可以通过 factoryPresets 属性访问 AUAudioUnit 对象的预设，该属性返回 AUAudioUnitPreset 实例的数组，如果没有定义，则返回一个空数组。
+插件作者可以选择提供一个或多个预设来定义插件参数值的特定配置。你可以通过 factoryPresets 属性访问 AUAudioUnit 对象的预设，该属性返回 AUAudioUnitPreset 实例的数组，如果没有定义，则返回一个空数组。
 
 ```swift
 /// Gets the audio unit's factory presets.
@@ -139,9 +139,9 @@ public var factoryPresets: [Preset] {
 
 示例应用程序使用名为 Preset 的简单包装类型来传递到用户界面层。视图控制器使用这些对象来构建应用程序的预设选择界面。
 
-## 管理用户预设 in page link
+## 管理用户预设
 
-插件还可以支持用户预设，即用户配置的参数设置。您查询音频单元的 supportsUserPresets 属性以确定它是否支持保存用户预设。
+插件还可以支持用户预设，即用户配置的参数设置。你查询音频单元的 supportsUserPresets 属性以确定它是否支持保存用户预设。
 
 ```swift
 var supportsUserPresets: Bool {
@@ -149,7 +149,7 @@ var supportsUserPresets: Bool {
 }
 ```
 
-如果插件支持用户预设，您可以通过查询其 userPresets 属性来获取当前保存的预设。
+如果插件支持用户预设，你可以通过查询其 userPresets 属性来获取当前保存的预设。
 
 ```swift
 /// Gets the audio unit's user presets.
@@ -159,7 +159,7 @@ public var userPresets: [Preset] {
 }
 ```
 
-要收到音频单元用户预设更改的通知，您可以向 userPresets 属性添加一个键值观察器。通过观察此属性的更改，您将在添加或删除预设时收到回调。
+要收到音频单元用户预设更改的通知，你可以向 userPresets 属性添加一个键值观察器。通过观察此属性的更改，你将在添加或删除预设时收到回调。
 
 ```swift
 // Add key-value observer to the userPresets property.
@@ -183,9 +183,9 @@ do {
 }
 ```
 
-如果用户决定删除此或另一个用户预设，您可以调用 deleteUserPreset(\_:) 将其删除。
+如果用户决定删除此或另一个用户预设，你可以调用 deleteUserPreset(\_:) 将其删除。
 
-## 选择工厂和用户预设 in page link
+## 选择工厂和用户预设
 
 要选择工厂或用户预设，请将其设置为音频单元的 currentPreset 属性。这会将插件的参数状态恢复为使用指定预设存储的值。
 

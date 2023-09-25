@@ -1,0 +1,112 @@
+# 从内置麦克风捕获立体声音频
+
+<ToBePolishedAfterTranslation />
+
+<OriginalSource
+  title="Capturing stereo audio from built-in microphones"
+  url="https://developer.apple.com/documentation/avfaudio/capturing_stereo_audio_from_built-in_microphones"
+  summary="配置 iOS 设备的内置麦克风以向你的应用程序添加立体声录音功能"
+/>
+
+## 概述
+
+立体声音频使用两个声道来创造多方向声音的幻觉，这为你的音频增加了更大的深度和维度，并带来身临其境的聆听体验。 iOS 提供了多种从内置麦克风录制音频的方法，但在 iOS 14 之前，你只能录制单声道音频。在 iOS 14 及更高版本中，你可以使用支持的设备上的内置麦克风捕获立体声音频。
+
+由于用户可以通过多种方式握住 iOS 设备，因此你需要指定立体声场中左右声道的方向。你可以通过配置以下内容来设置内置麦克风的方向性：
+
+- 极地图案：该系统将各个设备麦克风和使用多个麦克风的波束形成器表示为数据源。选择正面或背面数据源并将其极坐标模式设置为 .stereo 。
+- 输入方向：录制视频时，设置输入方向以匹配视频方向。仅录制音频时，将输入方向设置为与用户界面方向匹配。在这两种情况下，请勿在录制期间改变方向。
+
+此示例代码项目展示了如何配置你的应用程序以录制立体声音频，并帮助你可视化输入方向和数据源选择的更改。
+
+:::note
+
+你需要在运行 iOS 14 或更高版本的受支持物理设备上运行示例应用程序。要确定设备是否支持立体声录音，请查询音频会话的选定数据源以查看其 supportedPolarPatterns 数组是否包含 stereo 极性模式。
+
+:::
+
+## 配置音频会话类别
+
+录制立体声音频需要应用程序的音频会话使用 record 或 playAndRecord 类别。示例应用程序使用 playAndRecord 类别，因此它可以同时执行这两项操作。它还通过 defaultToSpeaker 和 allowBluetooth 选项将音频路由到扬声器而不是接收器以及蓝牙耳机。
+
+```swift
+func setupAudioSession() {
+    do {
+        let session = AVAudioSession.sharedInstance()
+        try session.setCategory(.playAndRecord, options: [.defaultToSpeaker, .allowBluetooth])
+        try session.setActive(true)
+    } catch {
+        fatalError("Failed to configure and activate session.")
+    }
+}
+```
+
+## 选择并配置内置麦克风
+
+iOS 设备的内置麦克风输入由一系列物理麦克风和波束形成器组成，每个都表示为 AVAudioSessionDataSourceDescription 的一个实例。示例应用程序通过查询端口类型等于内置麦克风的可用输入来查找内置麦克风输入，并将其设置为首选输入。
+
+```swift
+private func enableBuiltInMic() {
+    // Get the shared audio session.
+    let session = AVAudioSession.sharedInstance()
+
+    // Find the built-in microphone input.
+    guard let availableInputs = session.availableInputs,
+          let builtInMicInput = availableInputs.first(where: { $0.portType == .builtInMic }) else {
+        print("The device must have a built-in microphone.")
+        return
+    }
+
+    // Make the built-in microphone input the preferred input.
+    do {
+        try session.setPreferredInput(builtInMicInput)
+    } catch {
+        print("Unable to set the built-in mic as the preferred input.")
+    }
+}
+```
+
+## 配置麦克风输入的方向性
+
+为了配置麦克风输入的方向性，示例应用程序设置其数据源的首选极性模式和会话的输入方向。它在其 selectRecordingOption(\_:orientation:completion:) 方法中执行此配置，每当用户旋转设备或更改录制选项选择时都会调用该方法。
+
+```swift
+func selectRecordingOption(_ option: RecordingOption, orientation: Orientation, completion: (StereoLayout) -> Void) {
+
+    // Get the shared audio session.
+    let session = AVAudioSession.sharedInstance()
+
+    // Find the built-in microphone input's data sources,
+    // and select the one that matches the specified name.
+    guard let preferredInput = session.preferredInput,
+          let dataSources = preferredInput.dataSources,
+          let newDataSource = dataSources.first(where: { $0.dataSourceName == option.dataSourceName }),
+          let supportedPolarPatterns = newDataSource.supportedPolarPatterns else {
+        completion(.none)
+        return
+    }
+
+    do {
+        isStereoSupported = supportedPolarPatterns.contains(.stereo)
+        // If the data source supports stereo, set it as the preferred polar pattern.
+        if isStereoSupported {
+            // Set the preferred polar pattern to stereo.
+            try newDataSource.setPreferredPolarPattern(.stereo)
+        }
+
+        // Set the preferred data source and polar pattern.
+        try preferredInput.setPreferredDataSource(newDataSource)
+
+        // Update the input orientation to match the current user interface orientation.
+        try session.setPreferredInputOrientation(orientation.inputOrientation)
+    } catch {
+        fatalError("Unable to select the \(option.dataSourceName) data source.")
+    }
+
+    // Call the completion handler with the updated stereo layout.
+    completion(StereoLayout(orientation: newDataSource.orientation!,
+                            stereoOrientation: session.inputOrientation))
+}
+```
+
+selectRecordingOption(\_:orientation:completion:) 查找具有所选名称的数据源，将其首选极坐标模式设置为 .stereo ，然后将其设置为输入的首选数据源。最后，它设置首选输入方向以匹配设备的用户界面方向。

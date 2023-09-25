@@ -1,0 +1,77 @@
+# 处理音频中断
+
+<ToBePolishedAfterTranslation />
+
+<OriginalSource
+  title="Handling audio interruptions"
+  url="https://developer.apple.com/documentation/avfaudio/handling_audio_interruptions"
+  summary="观察音频会话通知以确保你的应用程序对中断做出适当的响应"
+/>
+
+## 概述
+
+中断是 iOS 和 watchOS 用户体验的常见部分。例如，考虑一下当你在 iPhone 上的电视应用程序中观看电影时接到电话的场景。在这种情况下，电影的音频会淡出，播放会暂停，并且通话铃声会淡入。如果你拒绝通话，控制权将返回到 TV 应用程序，并且随着电影的音频淡入，播放会再次开始。
+
+此行为的核心是应用程序的音频会话。当中断开始和结束时，音频会话会通知所有注册的观察者，以便他们采取适当的行动。例如， AVPlayer 监视应用程序的音频会话并自动暂停播放以响应中断事件。你可以通过观察播放器的 timeControlStatus 属性的键值来监视这些更改，并在播放器暂停和恢复播放时根据需要更新用户界面。
+
+## 自定义中断行为
+
+大多数应用程序依赖于系统的默认中断行为。但是， AVAudioSession 提供了自定义默认行为的方法，以更好地满足你的应用的需求：
+
+最新的 iPad 型号提供了一项功能，当用户关闭设备的 Smart Folio 保护盖时，可以在硬件级别将内置麦克风静音。如果你的应用程序播放并录制音频，即使系统将麦克风静音，你也可能希望继续播放。你可以在配置音频会话时通过设置 overrideMutedMicrophoneInterruption 选项来禁用默认中断行为。
+
+系统警报（例如收到来电）会中断活动的音频会话。如果你希望系统在这些情况下不中断应用的音频会话，你可以通过设置 setPrefersNoInterruptionsFromSystemAlerts(\_:) 方法的值来指示此首选项。
+
+## 观察音频会话中断
+
+你可以直接观察 AVAudioSession 发布的中断通知。如果你想知道系统何时由于中断或其他原因（例如路线更改）而暂停播放，这可能很有用。要观察音频中断，请首先注册观察 interruptionNotification 类型的通知。
+
+```swift
+func setupNotifications() {
+    // Get the default notification center instance.
+    let nc = NotificationCenter.default
+    nc.addObserver(self,
+                   selector: #selector(handleInterruption),
+                   name: AVAudioSession.interruptionNotification,
+                   object: AVAudioSession.sharedInstance())
+}
+
+@objc func handleInterruption(notification: Notification) {
+    // To implement.
+}
+```
+
+## 处理音频会话中断
+
+发布的 Notification 对象包含一个填充的用户信息字典，提供中断的详细信息。你可以通过从 userInfo 字典中检索 AVAudioSession.InterruptionType 值来确定中断类型。中断类型指示中断是开始还是结束。
+
+```swift
+@objc func handleInterruption(notification: Notification) {
+    guard let userInfo = notification.userInfo,
+        let typeValue = userInfo[AVAudioSessionInterruptionTypeKey] as? UInt,
+        let type = AVAudioSession.InterruptionType(rawValue: typeValue) else {
+            return
+    }
+
+    // Switch over the interruption type.
+    switch type {
+
+    case .began:
+        // An interruption began. Update the UI as necessary.
+
+    case .ended:
+       // An interruption ended. Resume playback, if appropriate.
+        guard let optionsValue = userInfo[AVAudioSessionInterruptionOptionKey] as? UInt else { return }
+        let options = AVAudioSession.InterruptionOptions(rawValue: optionsValue)
+        if options.contains(.shouldResume) {
+            // An interruption ended. Resume playback.
+        } else {
+            // An interruption ended. Don't resume playback.
+        }
+
+    default: ()
+    }
+}
+```
+
+如果中断类型为 AVAudioSession.InterruptionType.ended ，则 userInfo 字典包含 AVAudioSession.InterruptionOptions 值，你可以使用该值确定播放是否自动恢复。

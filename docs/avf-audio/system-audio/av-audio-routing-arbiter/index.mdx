@@ -1,0 +1,35 @@
+# AVAudioRoutingArbiter
+
+<ToBePolishedAfterTranslation />
+
+<OriginalSource
+  title="AVAudioRoutingArbiter"
+  url="https://developer.apple.com/documentation/avfaudio/avaudioroutingarbiter"
+  summary="用于配置 macOS 应用程序以参与 AirPods 自动切换的对象"
+/>
+
+## 概述
+
+AirPods 自动切换是 Apple 操作系统的一项功能，可在多设备环境中将无线耳机智能连接到最合适的音频设备。例如，如果用户在 iPad 上播放电影，然后锁定设备并开始在 iPhone 上播放音乐，系统会自动将源音频设备从 iPad 切换到 iPhone。
+
+iOS 应用程序自动参与 AirPods 自动切换。要使您的 macOS 应用参与此行为，请使用 AVAudioRoutingArbiter 指示您的应用何时开始以及完成播放或录制音频。例如，IP 语音 (VoIP) 应用程序可能会在开始呼叫之前请求仲裁，并在仲裁完成后开始 VoIP 会话。同样，当通话结束时，应用程序将结束 VoIP 会话并离开仲裁。
+
+```swift
+func startCall() {
+    let arbiter = AVAudioRoutingArbiter.shared
+    arbiter.begin(category: .playAndRecordVoice) { deviceChanged, error in
+        // Start VoIP session.
+    }
+}
+
+func endCall() {
+    // End VoIP session.
+    AVAudioRoutingArbiter.shared.leave()
+}
+```
+
+:::caution
+
+只有某些 Apple 和 Beats 无线耳机支持此功能。
+
+:::

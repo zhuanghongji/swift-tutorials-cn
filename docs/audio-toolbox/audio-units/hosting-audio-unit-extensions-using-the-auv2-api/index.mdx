@@ -12,19 +12,19 @@
 
 最新的音频单元标准 AUv3 提供了基于应用程序扩展的强大插件模型。此模型为托管应用程序提供了多种好处，包括更高的安全性和稳定性、多视图配置以及对共享用户预设的支持。
 
-只需对现有 AUv2 主机应用程序进行少量修改，您就可以加载音频单元扩展并与之交互。该框架提供了一个桥接层，可以自动将 AUv2 调用转换为其 AUv3 等效项，反之亦然。这种桥接对于您的应用程序来说基本上是透明的，您只需对实例化组件和访问其用户界面的方式进行微小的更改。
+只需对现有 AUv2 主机应用程序进行少量修改，你就可以加载音频单元扩展并与之交互。该框架提供了一个桥接层，可以自动将 AUv2 调用转换为其 AUv3 等效项，反之亦然。这种桥接对于你的应用程序来说基本上是透明的，你只需对实例化组件和访问其用户界面的方式进行微小的更改。
 
 <Figure src={require("./image_1.png")} size={720} edge="white" />
 
 :::note
 
-AUv2 处于维护模式，建议您采用 AUv3 API 进行新的开发。
+AUv2 处于维护模式，建议你采用 AUv3 API 进行新的开发。
 
 :::
 
-## 异步实例化音频单元 in page link
+## 异步实例化音频单元
 
-提供用户界面的 AUv3 扩展要求您异步实例化它们。尝试使用同步 AudioComponentInstanceNew(_:_:) 函数实例化它们失败。相反，检查 requiresAsyncInstantiation 组件标志是否存在。如果存在，请使用新的 AudioComponentInstantiate(_:_:\_:) 函数异步实例化组件，如以下代码示例所示。
+提供用户界面的 AUv3 扩展要求你异步实例化它们。尝试使用同步 AudioComponentInstanceNew(_:_:) 函数实例化它们失败。相反，检查 requiresAsyncInstantiation 组件标志是否存在。如果存在，请使用新的 AudioComponentInstantiate(_:_:\_:) 函数异步实例化组件，如以下代码示例所示。
 
 ```swift
 AudioComponent component = ...
@@ -61,9 +61,9 @@ if (requiresAsync) {
 
 :::
 
-## 呈现音频单元的用户界面 in page link
+## 呈现音频单元的用户界面
 
-您可以通过检索 AUv2 插件的 kAudioUnitProperty_CocoaUI 属性来访问其用户界面。此属性不与 AUv3 插件一起使用；您可以使用 kAudioUnitProperty_RequestViewController 属性来检索用户界面。您可以通过设置一个回调块来实现这一点，该回调块在框架加载用户界面时调用。回调提供对音频单元用户界面的引用，您可以将其显示在主机的界面中。
+你可以通过检索 AUv2 插件的 kAudioUnitProperty_CocoaUI 属性来访问其用户界面。此属性不与 AUv3 插件一起使用；你可以使用 kAudioUnitProperty_RequestViewController 属性来检索用户界面。你可以通过设置一个回调块来实现这一点，该回调块在框架加载用户界面时调用。回调提供对音频单元用户界面的引用，你可以将其显示在主机的界面中。
 
 ```swift
 AudioComponent component = ...
