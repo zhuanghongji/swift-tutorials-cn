@@ -1,0 +1,15 @@
+# AVFragmentedAsset
+
+<ToBePolishedAfterTranslation />
+
+<OriginalSource
+  title="AVFragmentedAsset"
+  url="https://developer.apple.com/documentation/avfoundation/avfragmentedasset"
+  summary="系统可以在不修改现有媒体数据的情况下延长持续时间的资产"
+/>
+
+## 概述
+
+通过在 moov 框中使用 mvex 框，QuickTime 电影文件和 MPEG-4 文件可以指示它们容纳附加片段。要确定碎片资产是否可以监控碎片的添加，请检查其 canContainFragments 属性的值。
+
+将分段资产与 AVFragmentedAssetMinder 实例相关联，以了解系统何时附加新片段。当它具有关联的资产管理器时， AVFragmentedAssetTrack 每当检测到新片段时都会发布 AVAssetDurationDidChange 通知。正如这些通知的文档所解释的那样，它还可能发布 AVAssetContainsFragmentsDidChange 和 AVAssetWasDefragmented 。

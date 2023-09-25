@@ -132,6 +132,11 @@ const config = {
                 label: "AVFAudio",
                 sidebarId: "avfaudioSidebar",
               },
+              {
+                type: "docSidebar",
+                label: "AVFoundation",
+                sidebarId: "avfoundationSidebar",
+              },
             ],
           },
           {

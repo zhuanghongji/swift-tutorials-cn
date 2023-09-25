@@ -1,0 +1,194 @@
+# 使用视频颜色信息标记媒体
+
+<ToBePolishedAfterTranslation />
+
+<OriginalSource
+  title="Tagging Media with Video Color Information"
+  url="https://developer.apple.com/documentation/avfoundation/media_reading_and_writing/tagging_media_with_video_color_information"
+  summary="在写入和转码媒体时检查和设置视频色彩空间信息。"
+/>
+
+## 概述
+
+媒体文件可以包含描述视频媒体的视频色彩空间信息标签。系统的颜色管理使用这些视频颜色标签来确保所有环境中颜色外观的一致性。你可以检索和检查媒体中的颜色信息标签，并在写入和转码媒体时指定新标签。你还可以检测宽颜色介质，以防止将介质限制在较小的色域颜色空间。
+
+## 视频标签描述关键视频参数 in page link
+
+由于历史原因，色彩科学家定义了广播视频色彩空间的许多排列。因此，你应该使用描述视频媒体的颜色信息来标记媒体文件。如果不这样做，未标记的媒体内容可能会在客户遇到的所有不同配置和环境中与你的意图不符。
+
+:::note
+
+术语“标记”是指描述内容的媒体中的可选色彩空间信息参数。这些标签以简化的方式描述视频比色法。
+
+:::
+
+这种颜色信息标记机制支持三个关键视频参数：
+
+- 原色：指定白点和红、绿、蓝原色的 CIE 1931 xy 色度坐标的表索引。原色表指定视频系统的白点以及红、绿和蓝原色点。
+- 转换功能：定义表中的索引，指定在 RGB 颜色空间值和 `Y'CbCr` 值之间转换的非线性传递函数系数。传递函数系数表指定了在存储的 `Y'CbCr` 值和视频捕获或显示系统之间转换的非线性函数系数。
+- 转换矩阵：表中的索引，指定在 RGB 颜色空间值和 `Y'CbCr` 值之间转换的变换矩阵系数。矩阵表指定用于平移的矩阵。
+
+:::note
+
+每个代表指数，而不是实际值。 QuickTime 文件格式和 QuickTime 文件中的未压缩 Y´CbCr 视频在类型 ‘nclc’ 的 ‘colr’ 扩展名中描述了这些索引。
+
+:::
+
+ColorSync 使用这些视频参数生成以下视频色彩空间之一：
+
+- 标清 (SMPTE-C)
+- 高清（建议 709）
+- P3（D65）
+- 超高清（建议 2020）
+
+ISO/IEC 23001-8:2016，与编码无关的代码点定义了这些标准标签号。
+
+## 使用 Asset Writer 标记你的视频 in page link
+
+初始化 AVAssetWriterInput 对象时，你可以选择指定一个字典，其中包含对附加到输出的媒体进行编码的设置。 AVVideoColorPropertiesKey 是一个字典，其中包含指定视频颜色的属性（有关详细信息，请参阅设置特定分辨率的颜色属性）。在 AVAssetWriterInput 输出设置字典中设置此键可覆盖视频中颜色属性的标记。
+
+如果输出设置中存在视频颜色属性键，则编写器将输出标记如下：
+
+- 如果源缓冲区没有颜色属性标签，资产编写器将根据视频颜色属性标记输出。
+- 如果源缓冲区也有颜色属性标签，则编写器（如有必要）会对源缓冲区进行颜色转换以匹配视频颜色属性。作者还根据视频颜色属性标记输出。
+
+如果你不打算覆盖视频中的颜色属性标签，请不要为视频颜色属性键设置值。如果输出设置中不存在视频颜色属性键，框架将按如下方式标记输出：
+
+- 如果源缓冲区具有颜色属性标记，则编写器根据源缓冲区颜色属性标记输出。
+- 如果源缓冲区没有颜色属性标签，则编写器不会使用任何颜色属性来标记输出。
+
+以下示例代码指定了 Rec。 709 输出颜色空间为视频颜色属性关键在输出设置：
+
+```swift
+let writer = <# Your AVAssetWriter object #>
+
+let colorPropertySettings = [
+    AVVideoColorPrimariesKey: AVVideoColorPrimaries_ITU_R_709_2,
+    AVVideoYCbCrMatrixKey: AVVideoTransferFunction_ITU_R_709_2,
+    AVVideoTransferFunctionKey: AVVideoYCbCrMatrix_ITU_R_709_2
+]
+let compressionSettings: [String : Any] = [
+    AVVideoCodecKey : AVVideoCodecType.h264,
+    AVVideoWidthKey : 1920,
+    AVVideoHeightKey : 1080,
+    AVVideoColorPropertiesKey: colorPropertySettings
+]
+
+let input = AVAssetWriterInput(mediaType: .video, outputSettings: compressionSettings)
+
+writer.add(input)
+```
+
+## 指定视频合成的色彩空间信息 in page link
+
+你可以使用类似的属性通过色彩空间信息配置视频合成。
+
+你可以使用 colorPrimaries 属性为整个视频合成指定工作色彩空间。使用 colorTransferFunction 键设置传递函数，使用 colorYCbCrMatrix 键设置 Y'CbCr 矩阵。分别指定适合 AVVideoColorPrimariesKey 、 AVVideoTransferFunctionKey 和 AVVideoYCbCrMatrixKey 键的值。
+
+这是一个代码示例：
+
+```swift
+let videoComposition = AVMutableVideoComposition()
+videoComposition.colorPrimaries = AVVideoColorPrimaries_P3_D65
+videoComposition.colorTransferFunction = AVVideoTransferFunction_ITU_R_709_2
+videoComposition.colorYCbCrMatrix = AVVideoYCbCrMatrix_ITU_R_709_2
+```
+
+:::note
+
+上述属性的默认值为 nil 。当属性的值为 nil 时，系统采用并传播源的值。
+
+:::
+
+## 使用色彩空间信息标记你的核心视频缓冲区 in page link
+
+如果你生成用于渲染的 Core Video 源缓冲区（例如，在 Metal 中使用像素缓冲池），则应该使用颜色信息标记它们。
+
+你在缓冲区附件字典中显式设置颜色空间标签，如下例所示：
+
+```swift
+CVBufferSetAttachment(pixelBuffer, kCVImageBufferColorPrimariesKey, kCVImageBufferColorPrimaries_P3_D65, kCVAttachmentMode_ShouldPropagate)
+CVBufferSetAttachment(pixelBuffer, kCVImageBufferTransferFunctionKey, kCVImageBufferTransferFunction_ITU_R_709_2, kCVAttachmentMode_ShouldPropagate)
+CVBufferSetAttachment(pixelBuffer, kCVImageBufferYCbCrMatrixKey, kCVImageBufferYCbCrMatrix_ITU_R_709_2, kCVAttachmentMode_ShouldPropagate)
+writerAdaptor.append(pixelBuffer, withPresentationTime: PTS)
+```
+
+## 获取你的媒体的色彩空间信息 in page link
+
+你可以使用 CMFormatDescription 访问有关资产视频轨道媒体的低级详细信息。 CMFormatDescriptionRef 对象描述特定类型的媒体（音频、视频等）。你可以使用 AVAssetTrack formatDescriptions 属性获取资产轨道的媒体样本引用的格式描述。查看定义媒体颜色属性的 kCVImageBufferColorPrimariesKey 扩展键的格式说明。 CMFormatDescription.h 标头定义颜色主键值。
+
+以下是检查 kCVImageBufferColorPrimariesKey 扩展中的 kCMFormatDescriptionColorPrimaries_ITU_R_709_2 颜色主键值的示例：
+
+```swift
+let asset = <# Your AVAsset #>
+self.asset.tracks(withMediaType: .video).forEach { assetTracks in
+
+    let formatDescriptions =  assetTracks.formatDescriptions as! [CMFormatDescription]
+    for (_, formatDesc) in formatDescriptions.enumerated() {
+
+        guard let colorPrimaries =
+            CMFormatDescriptionGetExtension(formatDesc, extensionKey: kCMFormatDescriptionExtension_ColorPrimaries) else {
+                return
+        }
+
+        if CFGetTypeID(colorPrimaries) == CFStringGetTypeID() {
+
+            let result =
+                CFStringCompareWithOptions((colorPrimaries as! CFString),
+                    kCMFormatDescriptionColorPrimaries_ITU_R_709_2,
+                    CFRangeMake(0, CFStringGetLength((colorPrimaries as! CFString))),
+                    CFStringCompareFlags.compareCaseInsensitive)
+            // Is the color primary Rec. 709?
+            if result == CFComparisonResult.compareEqualTo {
+                // Your code here to process Rec. 709.
+            }
+        }
+    }
+}
+```
+
+## 查看介质的颜色信息 in page link
+
+你可以使用 macOS QuickTime Player 应用程序中的“显示影片检查器”命令来查看文件中视频媒体的色彩空间信息。在应用程序中打开文件，然后选择“窗口”>“显示影片检查器”。检查器窗口显示颜色信息和有关视频媒体的其他详细信息。
+
+<Figure src={require("./image_1.png")} size={420} />
+
+Finder 获取信息命令还显示文件中视频媒体的颜色信息。在 Finder 中选择一个文件，然后选择“文件”>“获取信息”。更多信息部分包含颜色配置文件信息。
+
+<Figure src={require("./image_2.png")} size={320} />
+
+## 检测媒体中的宽色标签 in page link
+
+usesWideGamutColorSpace 媒体特征表示视频轨道包含比 Rec. 更宽的原色。 709 系统无法准确表示。宽色彩空间（例如 P3 D65）包含额外的动态范围，在工作流程中进行合成时可能会受益于特殊处理。你应该小心避免将颜色限制回 Rec。 709 空间。如果不这样做，通常最好留在 Rec 内。 709 空间供你处理。
+
+这是一个例子：
+
+```swift
+let asset = <# Your AVAsset #>
+let wideGamutTracks = asset.tracks(withMediaCharacteristic: .usesWideGamutColorSpace)
+if wideGamutTracks.count > 0 {
+    // Use wide color aware processing.
+} else {
+    // Use Rec 709 processing.
+}
+```
+
+## 在你的媒体中保留广色域 in page link
+
+将 AVAssetReaderOutput AVVideoAllowWideColorKey 属性设置为 true 以接收原始颜色空间中的缓冲区。默认值 ( false ) 允许隐式颜色转换为非宽色域颜色空间。
+
+```swift
+let allowWideColorSettings = [AVVideoAllowWideColorKey: true]
+let readerOutput = AVAssetReaderOutput(outputSettings: allowWideColorSettings)
+```
+
+## 支持自定义视频合成器中的宽色 in page link
+
+你实现可选的 supportsWideColorSourceFrames 属性并返回 true 以指示你的自定义视频合成器处理包含宽颜色属性的帧。在这种情况下，合成器会检查并尊重每个源帧缓冲区上的颜色空间标签。
+
+```swift
+class MyCustomVideoCompositor : AVVideoCompositing {
+   // ...
+   var supportsWideColorSourceFrames: Boolean  { return true }
+}
+```

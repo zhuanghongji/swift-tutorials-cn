@@ -1,0 +1,23 @@
+# AVAssetReaderTrackOutput
+
+<ToBePolishedAfterTranslation />
+
+<OriginalSource
+  title="AVAssetReaderTrackOutput"
+  url="https://developer.apple.com/documentation/avfoundation/avassetreadertrackoutput"
+  summary="从资产的单个轨道读取媒体数据的对象"
+/>
+
+## 概述
+
+通过将轨道输出添加到资产读取器来读取资产轨道的媒体数据。你可以以其存储的格式读取媒体样本，也可以将它们转换为替代格式。
+
+轨道输出产生未压缩的输出。对于音频输出设置，这意味着 AVFormatIDKey 必须是 kAudioFormatLinearPCM 。对于视频输出设置，这意味着字典必须包含未压缩视频输出的值，如 Video Settings 中所定义。轨道输出不支持 AVSampleRateConverterAudioQualityKey 音频设置键或以下视频设置键： AVVideoCleanApertureKey 、 AVVideoPixelAspectRatioKey 和 AVVideoScalingModeKey 。
+
+在构建视频输出设置时，像素格式的选择会影响解压缩的性能和质量。为了在解压缩视频时获得最佳性能，请求的像素格式应该是解码器本身支持的格式，以避免不必要的转换。以下是一些建议：
+
+- 对于 H.264，当你知道视频是全范围时，请使用 kCVPixelFormatType_420YpCbCr8BiPlanarVideoRange 或 kCVPixelFormatType_420YpCbCr8BiPlanarFullRange 。
+- 在 iOS 中，使用 kCVPixelFormatType_420YpCbCr8BiPlanarFullRange 进行 JPEG 输出。
+- 在 macOS 中， kCVPixelFormatType_422YpCbCr8 是视频的首选像素格式，通常在解码时提供最佳性能。如果你需要在 RGB 域中工作，请在 iOS 中使用 kCVPixelFormatType_32BGRA ，在 macOS 中使用 kCVPixelFormatType_32ARGB 。
+- ProRes 编码媒体每个通道最多可包含 12 位。对于你希望在解压缩期间保留每个通道超过 8 位的 ProRes 编码源，请使用以下像素格式之一： kCVPixelFormatType_4444AYpCbCr16 、 kCVPixelFormatType_422YpCbCr16 、 kCVPixelFormatType_422YpCbCr10 ，或 kCVPixelFormatType_64ARGB 。 AVAssetReader 不支持使用任何这些高位深度像素格式进行缩放。如果你使用上述像素格式，请不要在 outputSettings 字典中指定 kCVPixelBufferWidthKey 或 kCVPixelBufferHeightKey 。只有 ProRes 编码器支持这些像素格式。
+- ProRes 4444 编码媒体可以包含数学上无损的 Alpha 通道。要在解压缩期间保留 Alpha 通道，请使用带有 Alpha 分量的像素格式，例如 kCVPixelFormatType_4444AYpCbCr16 或 kCVPixelFormatType_64ARGB 。要测试你的源是否包含 Alpha 通道，请检查轨道的格式描述是否具有 kCMFormatDescriptionExtension_Depth 键，其值为 32 。

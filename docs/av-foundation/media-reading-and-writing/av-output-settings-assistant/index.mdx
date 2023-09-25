@@ -1,0 +1,15 @@
+# AVOutputSettingsAssistant
+
+<ToBePolishedAfterTranslation />
+
+<OriginalSource
+  title="AVOutputSettingsAssistant"
+  url="https://developer.apple.com/documentation/avfoundation/avoutputsettingsassistant"
+  summary="构建音频和视频输出设置字典的对象"
+/>
+
+## 概述
+
+使用输出设置助手创建用于配置 AVAssetWriter 和 AVAssetWriterInput 实例的音频和视频设置。你可以创建具有特定预设配置的助手，例如 hevc3840x2160WithAlpha 或 preset1920x1080 。你可以按原样接受设置字典，以生成符合预设暗示的标准的文件。你还可以使用它生成的字典作为基本配置，你可以根据需要进行自定义。
+
+向助手提供有关源媒体的更多详细信息有助于它生成更完整的结果。例如，为其 sourceVideoFormat 属性设置一个值可确保助手生成的设置不会从小尺寸放大视频帧。

@@ -1,0 +1,17 @@
+# AVAssetReaderSampleReferenceOutput
+
+<ToBePolishedAfterTranslation />
+
+<OriginalSource
+  title="AVAssetReaderSampleReferenceOutput"
+  url="https://developer.apple.com/documentation/avfoundation/avassetreadersamplereferenceoutput"
+  summary="从资产轨道读取示例引用的对象"
+/>
+
+## 概述
+
+应用程序可以通过将此类的实例添加到资产读取器来提取有关轨道中样本位置的信息（文件 URL 和偏移量）。读取提取的示例缓冲区上的 kCMSampleBufferAttachmentKey_SampleReferenceURL 和 kCMSampleBufferAttachmentKey_SampleReferenceByteOffset 附件以获取示例数据的位置。
+
+你还可以将使用此类提取的示例缓冲区附加到 AVAssetWriterInput 实例，以创建非独立的电影轨道并引用原始文件中的数据。要编写非独立的轨道，请使用你配置为写入 mov 类型文件的 AVAssetWriter 实例。
+
+由于此输出不返回示例数据，因此它忽略 alwaysCopiesSampleData 属性的值。

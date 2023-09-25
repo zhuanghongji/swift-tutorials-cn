@@ -1,0 +1,17 @@
+# AVAsset
+
+<ToBePolishedAfterTranslation />
+
+<OriginalSource
+  title="AVAsset"
+  url="https://developer.apple.com/documentation/avfoundation/avasset"
+  summary="模拟定时视听媒体的对象"
+/>
+
+## 概述
+
+资产对基于文件的媒体（例如 QuickTime 影片或 MP3 音频文件）以及使用 HTTP Live Streaming (HLS) 进行流式传输的媒体进行建模。资产是一个或多个 AVAssetTrack 实例的容器对象，它对媒体的统一类型轨道进行建模。最常用的轨道类型是音频和视频，但资产也可能包含补充轨道，例如隐藏式字幕、字幕和定时元数据。
+
+<Figure src={require("./image_1.png")} size={420} edge="black" />
+
+你可以通过异步加载资源的 tracks 属性来加载资源的轨道。在某些情况下，你可能希望对资产轨道的子集而不是其完整集合执行操作。对于这些情况，资产提供了根据特定标准（例如标识符、媒体类型或特征）检索轨道子集的方法。

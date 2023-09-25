@@ -1,0 +1,93 @@
+# 异步加载媒体数据
+
+<ToBePolishedAfterTranslation />
+
+<OriginalSource
+  title="Loading media data asynchronously"
+  url="https://developer.apple.com/documentation/avfoundation/media_assets/loading_media_data_asynchronously"
+  summary="通过使用语言级并发功能来高效加载媒体数据来构建响应式应用程序"
+/>
+
+## 概述
+
+AVFoundation 使用 AVAsset 类来建模定时视听媒体。创建资产是一项轻量级操作，因为它会推迟加载其媒体，直到需要数据为止。资产加载数据所需的时间取决于多种因素，包括媒体大小、本地设备功能和远程网络条件。为了避免阻塞调用线程，你必须异步加载媒体数据。
+
+:::caution
+
+从 iOS 16、tvOS 16、MacCatalyst 16 和 macOS 13 开始，AVFoundation 不推荐使用 Swift 的 AVAsset 、 AVAssetTrack 和 AVMetadataItem 的同步属性和方法客户。它还不建议使用 loadValuesAsynchronously(forKeys:completionHandler:) 方法异步加载属性值，而改用下面描述的语法。
+
+:::
+
+## 异步加载属性 in page link
+
+该框架围绕两个关键类型构建其异步属性加载功能： AVAsyncProperty 和 AVAsynchronousKeyValueLoading 。该框架使用 AVAsyncProperty 类为具有需要异步加载的值的属性定义类型安全标识符，并使用 AVAsynchronousKeyValueLoading 协议为对象定义异步加载属性的接口。 AVAsset 、 AVAssetTrack 和 AVMetadataItem 采用此协议，为它们提供了一个具有以下签名的异步 load(\_:) 方法：
+
+```swift
+public func load<T>(_ property: AVAsyncProperty<Self, T>) async throws -> T
+```
+
+从异步上下文中调用此方法，并指定 await 关键字以指示执行可以挂起，直到完成加载数据。如果成功加载属性，该方法将返回类型安全值；如果失败，则抛出错误。
+
+```swift
+// A CMTime value.
+let duration = try await asset.load(.duration)
+// An array of AVMetadataItem for the asset.
+let metadata = try await asset.load(.metadata)
+```
+
+如果你事先知道需要加载多个资产属性，则可以使用 load(\_:) 方法的变体，该方法采用多个标识符并以元组形式返回其结果。与加载单个属性值一样，同时加载多个属性也是类型安全的操作。
+
+```swift
+// A CMTime value and an array of AVMetadataItem.
+let (duration, metadata) = try await asset.load(.duration, .metadata)
+```
+
+同时加载多个属性使 AVFoundation 能够通过批量加载请求来优化性能。
+
+## 确定财产状况 in page link
+
+AVAsynchronousKeyValueLoading 还提供了 status(of:) 方法，用于返回属性标识符的状态。它返回一个 AVAsyncProperty.Status 值，该值使用以下示例中所示的情况指示属性值的状态：
+
+```swift
+// Determine the loaded status of the metadata property.
+switch asset.status(of: .metadata) {
+case .notYetLoaded:
+    // The initial state of a property.
+case .loading:
+    // The asset is actively loading the property value.
+case .loaded(let metadata):
+    // The property is ready to use.
+case .failed(let error):
+    // The property value fails to load.
+}
+```
+
+.loaded 和 .failed 情况提供关联值。 .loaded 情况包含先前加载的属性值， .failed 情况包含指示失败原因的错误。通过访问关联值，你可以执行诸如检查属性状态和在一个步骤中访问其值之类的操作。
+
+```swift
+// Verify the metadata property is in a loaded state.
+if case .loaded(let metadata) = asset.status(of: .metadata) {
+    // Process the loaded value.
+    processMetadata(metadata)
+}
+```
+
+## 过滤属性集合 in page link
+
+某些属性提供值数组，例如资产的 tracks 或其 metadata 。在许多情况下，你只对这些值的子集感兴趣。 AVAsset 和 AVAssetTrack 还提供了将其集合过滤为仅包含你需要的值的方法。例如，下面列出的代码确定资产包含的音频采样率。它调用资产的 loadTracks(withMediaType:completionHandler:) 以仅检索其音轨。它迭代每个轨道并异步加载轨道的格式描述。最后，它从流描述中检索采样率并对结果进行排序。
+
+```swift
+// Load the asset's audio tracks asynchronously.
+let audioTracks = try await asset.loadTracks(withMediaType: .audio)
+var allDescriptions = [CMFormatDescription]()
+for track in audioTracks {
+    // Load each audio track's format descriptions asynchronously.
+    allDescriptions.append(contentsOf: try await track.load(.formatDescriptions))
+}
+// Collect the unique sample rates, and sort them from highest to lowest.
+let sampleRates = Set(allDescriptions).map {
+    Float($0.audioStreamBasicDescription?.mSampleRate ?? 0)
+}.sorted(by: { $0 > $1 })
+```
+
+使用 Swift 并发和 AVFoundation 异步 API 使得执行高级检查（如上所示）变得简单、直线操作。

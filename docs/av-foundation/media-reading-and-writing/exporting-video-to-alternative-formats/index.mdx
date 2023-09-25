@@ -1,0 +1,70 @@
+# 将视频导出为其他格式
+
+<ToBePolishedAfterTranslation />
+
+<OriginalSource
+  title="Exporting video to alternative formats"
+  url="https://developer.apple.com/documentation/avfoundation/media_reading_and_writing/exporting_video_to_alternative_formats"
+  summary="将现有电影文件转换为不同的格式"
+/>
+
+## 概述
+
+要将现有电影文件转换为与其他设备兼容的格式，你需要根据现有文件的内容生成新的电影文件。虽然你无法更改已保存视频的格式，但你可以按照本文概述的步骤创建所需格式的新文件。
+
+:::note
+
+如果你的应用可以直接从视频捕获中保存影片，则按照以替代格式录制影片中的步骤更改捕获期间的默认格式会更有效。
+
+:::
+
+## 将新视频导出为所需格式 in page link
+
+要将视频导出为其他格式，请从 AVAsset 影片文件开始并执行以下步骤：
+
+1. 从导出预设列表中选择导出预设。
+2. 从 AVFileType 预设列表中选择导出文件类型。
+3. 验证 AVAssetExportSession 是否可以将影片从输入格式转换为你想要的输出格式。
+4. 创建并配置 AVAssetExportSession 实例，然后使用它来执行导出。
+
+以下示例定义一个方法，然后使用它来执行以下步骤：
+
+```swift
+func export(video: AVAsset,
+            withPreset preset: String = AVAssetExportPresetHighestQuality,
+            toFileType outputFileType: AVFileType = .mov,
+            atURL outputURL: URL) async {
+
+    // Check the compatibility of the preset to export the video to the output file type.
+    guard await AVAssetExportSession.compatibility(ofExportPreset: preset,
+                                                   with: video,
+                                                   outputFileType: outputFileType) else {
+        print("The preset can't export the video to the output file type.")
+        return
+    }
+
+    // Create and configure the export session.
+    guard let exportSession = AVAssetExportSession(asset: video,
+                                                   presetName: preset) else {
+        print("Failed to create export session.")
+        return
+    }
+    exportSession.outputFileType = outputFileType
+    exportSession.outputURL = outputURL
+
+    // Convert the video to the output file type and export it to the output URL.
+    await exportSession.export()
+}
+
+let video = // Your source AVAsset video. //
+let outputURL = // The destination URL for your exported video. //
+
+// Use a preset that encodes to H.264 to convert a video to the .mov file type,
+// and asynchronously perform the export.
+Task {
+    await export(video: video,
+                 withPreset: AVAssetExportPresetHighestQuality,
+                 toFileType: .mov,
+                 atURL: outputURL)
+}
+```

@@ -1,0 +1,85 @@
+# 从视频资源创建图像
+
+<ToBePolishedAfterTranslation />
+
+<OriginalSource
+  title="Creating images from a video asset"
+  url="https://developer.apple.com/documentation/avfoundation/media_reading_and_writing/creating_images_from_a_video_asset"
+  summary="通过从视频帧生成图像，在媒体时间轴内显示特定时间的图像"
+/>
+
+## 概述
+
+构建视频应用程序时的一个常见要求是显示视频内容的图像。你可能希望在列表中的视频旁边显示单个缩略图，或者显示跨越视频持续时间的多个图像，用于构建视觉擦除或选择用户界面。 AVFoundation 使用 AVAssetImageGenerator 可以轻松地从应用程序的视频内容生成图像。
+
+<Figure src={require("./image_1.png")} size={720} />
+
+AVAssetImageGenerator 是一个实用程序类，它从包含一个或多个视频轨道的资源创建图像。你可以使用它来生成单个时间点的图像，或者通过传递一个时间数组来生成一系列图像。
+
+## 配置图像生成器 in page link
+
+通过向 AVAssetImageGenerator 传递要从中检索图像的视频资源来创建它的实例。生成器支持从本地和远程基于文件的媒体以及仅提供 I 帧再现的 HTTP 直播流 (HLS) 视频创建图像。
+
+```swift
+let asset: AVAsset = // A video asset.
+let generator = AVAssetImageGenerator(asset: asset)
+```
+
+:::note
+
+你可以从 HLS 流生成图像，该流提供带有 EXT-X-I-FRAMES-ONLY 标记的媒体播放列表。播放列表在 I 帧之间指定的持续时间决定了图像生成请求的时间分辨率。
+
+:::
+
+图像生成器在你创建时就已准备好生成图像，但它还提供可配置的属性，你可以使用这些属性来自定义其行为。你通常设置的一个属性是其 maximumSize 。默认情况下，生成器以视频的原始分辨率生成图像，该分辨率通常大于所需的分辨率，并且可能会占用大量 CPU 和内存。相反，为其 maximumSize 属性设置一个值以限制其输出的大小。例如，你可以将宽度限制为特定值，并通过设置最大尺寸来指定 0 按比例缩放高度，如下所示。
+
+```swift
+// Generate the equivalent of a 150-pixel-wide @2x image.
+generator.maximumSize = CGSize(width: 300, height: 0)
+```
+
+## 指定时间精度 in page link
+
+默认情况下，图像生成器会在你请求的时间附近创建图像，但出于效率考虑，其实际时间可能会稍早或稍晚。要更改允许生成器偏离请求时间的时间量，请设置其 requestedTimeToleranceBefore 和 requestedTimeToleranceAfter 属性的值。例如，要允许在不早于你请求的时间且不晚于请求时间后两秒的时间范围内生成图像，请按如下所示设置其容差值。
+
+```swift
+// Configure the generator's time tolerance values.
+generator.requestedTimeToleranceBefore = .zero
+generator.requestedTimeToleranceAfter = CMTime(seconds: 2, preferredTimescale: 600)
+```
+
+你可以通过将前后容差的值设置为 zero 来请求生成帧精确的图像。然而，以这种方式配置生成器需要执行额外的帧解码，这会影响其图像生成速度。
+
+## 生成图像 in page link
+
+检索和解码生成器生成图像所需的媒体数据需要花费未知的时间。同步执行图像生成并不安全，因为它会阻塞调用线程，这可能会降低应用程序的用户体验，甚至可能导致崩溃。相反，异步执行图像生成。
+
+要从视频时间线创建单个图像，请调用异步 image(at:) 方法，并向其传递你请求的时间。以下示例演示如何为视频中的第一帧创建图像。
+
+```swift
+// Generate an image at time zero.
+let (image, actualTime) = try await generator.image(at: .zero)
+```
+
+由于创建图像的时间可能与你请求的时间不同，因此该方法会返回实际图像生成时间以及元组中的图像。如果你不需要此信息，你可以更简洁地检索图像，如下所示。
+
+```swift
+// Generate an image at time zero. Access the image alone.
+let image = try await generator.image(at: .zero).image
+```
+
+你还可以使用图像生成器从视频时间线创建图像序列。要从视频资源生成多个图像，请调用异步 images(for:) 方法，如下所示。
+
+```swift
+let times: [CMTime] = // An array of times at which to create images.
+for await result in generator.images(for: times) {
+    switch result {
+    case .success(requestedTime: let requested, image: let image, actualTime: let actual):
+        // Process the image for the requested time.
+    case .failed(requestedTime: let requested, error: let error):
+        // Handle the failure for the requested time.
+    }
+}
+```
+
+此方法返回类型为 AVAssetImageGenerator.Images 的异步序列，你可以对其进行迭代并等待结果。如果请求时间的图像生成成功，结果将提供图像以及请求的图像生成时间和实际的图像生成时间。如果请求的时间失败，结果将提供时间和描述失败的错误。

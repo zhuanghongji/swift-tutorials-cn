@@ -1,0 +1,15 @@
+# AVAssetTrack
+
+<ToBePolishedAfterTranslation />
+
+<OriginalSource
+  title="AVAssetTrack"
+  url="https://developer.apple.com/documentation/avfoundation/avassettrack"
+  summary="对资产所包含的媒体轨道进行建模的对象"
+/>
+
+## 概述
+
+资产包含框架使用 AVAssetTrack 类建模的一个或多个媒体轨道。轨道对象保存资产提供的统一类型的媒体，例如音频、视频或隐藏式字幕。
+
+轨道（如包含 AVAsset 的轨道）在创建时不会加载其所有媒体。相反，它会推迟加载其数据，直到你执行需要它的操作为止。由于加载数据可能需要时间，因此资产跟踪采用 AVAsynchronousKeyValueLoading 协议，因此你可以通过调用 load(\_:) 方法异步加载其属性值。

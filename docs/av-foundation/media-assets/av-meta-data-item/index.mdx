@@ -1,0 +1,22 @@
+# AVMetadataItem
+
+<ToBePolishedAfterTranslation />
+
+<OriginalSource
+  title="AVMetadataItem"
+  url="https://developer.apple.com/documentation/avfoundation/avmetadataitem"
+  summary="视听资产或其轨道之一的元数据项"
+/>
+
+## 概述
+
+为了有效地使用 AVMetadataItem ，你需要了解 AVFoundation 如何组织元数据。为了简化元数据项的查找和过滤，框架将相关元数据分组到关键空间中：
+
+- 特定于格式的键空间。该框架定义了几个特定于格式的密钥空间。它们大致与特定容器或文件格式相关，例如 QuickTime（QuickTime 元数据和用户数据）或 MP3 (ID3)。然而，单个资产可能包含跨多个键空间的元数据值。要检索资产的特定于格式的元数据的完整集合，你可以使用其 metadata 属性。
+- 公共键空间。有几个常见的元数据值，例如电影的创建日期或描述，可以存在于多个键空间中。为了帮助标准化对此公共元数据的访问，该框架提供了一个公共密钥空间，可以访问多个密钥空间公共的一组有限的元数据值。这使得检索常用元数据变得容易，而无需关心特定格式。要检索资产的公共元数据集合，你可以使用其 commonMetadata 属性。
+
+元数据项的键符合从中提取元数据的容器格式的规范。 AVFoundation 支持的元数据格式、元数据键和元数据键空间的完整详细信息可在 AVMetadataKeySpace 和 AVMetadataKey 中找到。
+
+要在第一次访问元数据项时加载元数据项的值，请使用 AVAsynchronousKeyValueLoading 协议中的方法。 AVAsset 类和其他类依次根据需要提供其元数据，以便你可以从这些数组中获取对象，而不会产生不检查的项目的开销。
+
+要过滤元数据项的数组，你可以使用此类的方法。例如，你可以按键和键空间、区域设置以及首选语言进行过滤。

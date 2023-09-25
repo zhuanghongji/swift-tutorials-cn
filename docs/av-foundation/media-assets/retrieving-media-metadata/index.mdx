@@ -1,0 +1,59 @@
+# 检索媒体元数据
+
+<ToBePolishedAfterTranslation />
+
+<OriginalSource
+  title="Retrieving media metadata"
+  url="https://developer.apple.com/documentation/avfoundation/media_assets/retrieving_media_metadata"
+  summary="加载媒体资产及其轨道的描述性元数据"
+/>
+
+## 概述
+
+媒体容器格式提供描述其内容的元数据。你可以检索它以访问有关媒体的信息，例如标题、插图和创建日期。 AVFoundation 使用 AVMetadataItem 类对元数据值进行建模。元数据项代表单个值，例如电影的描述或海报图像。此类提供了一个简单、一致的接口来处理元数据，无论底层容器和元数据格式如何。
+
+## 加载资产的元数据 in page link
+
+AVAsset 提供了多种访问其元数据的方法。你可以通过加载其 metadata 属性的值来检索其所有元数据。或者，你可以通过加载其 commonMetadata 属性的值来检索它所保存的所有元数据格式所共有的项目子集。
+
+要检索特定于格式的元数据集合（例如 iTunesMetadata 或 quickTimeMetadata ），请调用资产的 loadMetadata(for:completionHandler:) 方法，并将特定的 AVMetadataFormat 传递给加载。下面的示例迭代资产包含的 availableMetadataFormats ，并加载每种格式的元数据项来处理它们的值。
+
+```swift
+let asset: AVAsset = // An asset object to inspect.
+for format in try await asset.load(.availableMetadataFormats) {
+    let metadata = try await asset.loadMetadata(for: format)
+    // Process the format-specific metadata collection.
+}
+```
+
+## 过滤元数据集合 in page link
+
+加载元数据集合后，你可以使用 AVMetadataItem 的类方法将其过滤为特定值。下面的示例演示如何使用 metadataItems(from:filteredByIdentifier:) 方法查找标识符为 commonIdentifierTitle 的项目。
+
+```swift
+// Load the asset's metadata.
+let metadata = try await asset.load(.metadata)
+// Find the title in the common key space.
+let titleItems = AVMetadataItem.metadataItems(from: metadata,
+                                              filteredByIdentifier: .commonIdentifierTitle)
+guard let item = titleItems.first else { return }
+// Process the title item.
+```
+
+元数据项的过滤方法返回项目集合而不是单个实例。在许多情况下，返回的集合包含单个元素，但如果媒体包含本地化元数据，或者如果你从公共键空间检索数据并且多个键空间中存在相同的值，则该项目将为每个元素返回一个不同的值。
+
+## 查找特定值 in page link
+
+通过加载元数据项的 value 属性来检索元数据项所保存的数据，该属性是采用 NSCopying 和 NSObjectProtocol 协议的对象。你可以手动将值转换为适当的类型，但使用元数据项的类型转换属性更安全、更方便。不要加载 value 属性，而是根据需要加载其 stringValue 、 numberValue 、 dateValue 或 dataValue 属性将其转换为特定类型。例如，下面的代码清单显示了如何检索与 iTunes 音乐曲目关联的插图作为数据值：
+
+```swift
+// The collection of iTunes metadata.
+let iTunesMetadata = try await asset.loadMetadata(for: .iTunesMetadata)
+
+// Filter metadata to find the asset's artwork.
+guard let artworkItem = AVMetadataItem.metadataItems(from: iTunesMetadata,
+                                                     filteredByIdentifier: .iTunesMetadataCoverArt).first else { return }
+
+// Retrieve a Data object that contains the image data.
+guard let imageData = try await artworkItem.load(.dataValue) else { return }
+```

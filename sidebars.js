@@ -766,6 +766,81 @@ const avfaudioSidebar = [
   },
 ];
 
+/** @type {import('@docusaurus/plugin-content-docs').SidebarsConfig['']} */
+const avfoundationSidebar = [
+  {
+    type: "category",
+    label: "AVFoundation",
+    collapsible: false,
+    items: [
+      {
+        type: "category",
+        label: "Esseentials",
+        collapsed: false,
+        items: ["av-foundation/esseentials/about/index"],
+      },
+      {
+        type: "category",
+        label: "Media assets",
+        collapsed: true,
+        items: [
+          "av-foundation/media-assets/loading-media-data-asynchronously/index",
+          "av-foundation/media-assets/av-asset/index",
+          "av-foundation/media-assets/av-url-asset/index",
+          "av-foundation/media-assets/av-asset-track/index",
+          "av-foundation/media-assets/av-asset-track-segment/index",
+          "av-foundation/media-assets/av-asset-track-group/index",
+          "av-foundation/media-assets/retrieving-media-metadata/index",
+          "av-foundation/media-assets/av-meta-data-item/index",
+          "av-foundation/media-assets/av-mutable-meta-data-item/index",
+          "av-foundation/media-assets/av-meta-data-key/index",
+          "av-foundation/media-assets/av-meta-data-key-space/index",
+          "av-foundation/media-assets/av-meta-data-extra-attribute-key/index",
+          "av-foundation/media-assets/av-meta-data-format/index",
+          "av-foundation/media-assets/av-meta-data-item-filter/index",
+          "av-foundation/media-assets/av-asynchronous-key-value-loading/index",
+          "av-foundation/media-assets/av-async-property/index",
+          "av-foundation/media-assets/av-partial-async-property/index",
+          "av-foundation/media-assets/av-any-async-property/index",
+          "av-foundation/media-assets/av-fragmented-asset/index",
+          "av-foundation/media-assets/av-fragmented-asset-track/index",
+          "av-foundation/media-assets/av-fragmented-asset-minder/index",
+          "av-foundation/media-assets/av-fragment-minding/index",
+        ],
+      },
+      {
+        type: "category",
+        label: "Media reading and writing",
+        collapsed: false,
+        items: [
+          "av-foundation/media-reading-and-writing/exporting-video-to-alternative-formats/index",
+          "av-foundation/media-reading-and-writing/av-asset-export-session/index",
+          "av-foundation/media-reading-and-writing/creating-images-from-a-video-asset/index",
+          "av-foundation/media-reading-and-writing/av-asset-image-generator/index",
+          "av-foundation/media-reading-and-writing/av-asset-reader/index",
+          "av-foundation/media-reading-and-writing/av-asset-reader-output/index",
+          "av-foundation/media-reading-and-writing/av-asset-reader-track-output/index",
+          "av-foundation/media-reading-and-writing/av-asset-reader-audio-mix-output/index",
+          "av-foundation/media-reading-and-writing/av-asset-reader-video-composition-output/index",
+          "av-foundation/media-reading-and-writing/av-asset-reader-sample-reference-output/index",
+          "av-foundation/media-reading-and-writing/av-asset-reader-output-meta-data-adaptor/index",
+          "av-foundation/media-reading-and-writing/writing-fragmented-mpeg-4-files-for-http-live-streaming/index",
+          "av-foundation/media-reading-and-writing/tagging-media-with-video-color-information/index",
+          "av-foundation/media-reading-and-writing/evaluating-an-app-s-video-color/index",
+          "av-foundation/media-reading-and-writing/av-output-settings-assistant/index",
+          "av-foundation/media-reading-and-writing/av-asset-writer/index",
+          "av-foundation/media-reading-and-writing/av-asset-writer-input/index",
+          "av-foundation/media-reading-and-writing/av-asset-writer-input-pixel-buffer-adaptor/index",
+          "av-foundation/media-reading-and-writing/av-asset-writer-input-tagged-pixel-buffer-group-adaptor/index",
+          "av-foundation/media-reading-and-writing/av-asset-writer-input-meta-data-adaptor/index",
+          "av-foundation/media-reading-and-writing/av-asset-writer-input-group/index",
+          "av-foundation/media-reading-and-writing/caption-authoring/index",
+        ],
+      },
+    ],
+  },
+];
+
 /** @type {import('@docusaurus/plugin-content-docs').SidebarsConfig} */
 const sidebars = {
   // By default, Docusaurus generates a sidebar from the docs folder structure
@@ -781,6 +856,7 @@ const sidebars = {
   metalkitSidebar,
   audiotoolboxSidebar,
   avfaudioSidebar,
+  avfoundationSidebar,
   metalprogrammingguideSidebar,
   metalshadinglanguagespecificationSidebar,
 };
