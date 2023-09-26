@@ -1,0 +1,69 @@
+# 选择字幕和替代音轨
+
+<ToBePolishedAfterTranslation />
+
+<OriginalSource
+  title="Selecting Subtitles and Alternative Audio Tracks"
+  url="https://developer.apple.com/documentation/avfoundation/media_playback/selecting_subtitles_and_alternative_audio_tracks"
+  summary="通过以用户的母语添加字幕和替代音轨来扩大应用程序对用户的吸引力"
+/>
+
+## 概述
+
+作为开发人员，你希望让尽可能广泛的受众可以访问你的应用程序。扩大应用程序覆盖范围的一种方法是，以用户的母语向用户提供该应用程序，并为有听力障碍或有其他辅助功能需求的用户提供支持。 AVKit 和 AVFoundation 通过提供对显示字幕和隐藏式字幕以及选择替代音频和视频轨道的内置支持，简化了这些问题的处理。如果你正在构建自己的自定义播放器或想要呈现自己的媒体选择界面，请使用 AVFoundation 的 AVMediaSelectionGroup 和 AVMediaSelectionOption 类提供的功能。
+
+## 检索可用的媒体选项 in page link
+
+AVMediaSelectionOption 对源媒体中包含的替代音频、视频或文本轨道进行建模。媒体选项用于选择替代摄像机角度、呈现以用户母语配音的音频或显示字幕和隐藏式字幕。你可以通过异步加载和调用资源的 availableMediaCharacteristicsWithMediaSelectionOptions 属性来确定哪些替代媒体演示可用，该属性返回一个指示可用媒体特征的字符串数组。返回的可能值有 audible （替代音轨）、 visual （替代视频轨道）和 legible （字幕和隐藏式字幕）。
+
+检索到可用选项数组后，调用资产的 mediaSelectionGroup(forMediaCharacteristic:) 方法，向其传递所需的特征。此方法返回关联的 AVMediaSelectionGroup 对象，如果不存在指定特征的组，则返回 nil 对象。
+
+AVMediaSelectionGroup 充当互斥 AVMediaSelectionOption 对象集合的容器。以下示例显示如何检索资产的媒体选择组并显示其可用选项：
+
+```swift
+for characteristic in asset.availableMediaCharacteristicsWithMediaSelectionOptions {
+    print("\(characteristic)")
+
+    // Retrieve the AVMediaSelectionGroup for the specified characteristic.
+    if let group = asset.mediaSelectionGroup(forMediaCharacteristic: characteristic) {
+        // Print its options.
+        for option in group.options {
+            print("  Option: \(option.displayName)")
+        }
+    }
+}
+```
+
+包含音频和字幕媒体选项的资产的输出类似于以下内容：
+
+```
+[AVMediaCharacteristicAudible]
+  Option: English
+  Option: Spanish
+
+[AVMediaCharacteristicLegible]
+  Option: English
+  Option: German
+  Option: Spanish
+  Option: French
+```
+
+## 选择所需的媒体选项 in page link
+
+在检索特定媒体特征的 AVMediaSelectionGroup 对象并识别所需的 AVMediaSelectionOption 对象后，下一步是选择它。你可以通过在活动的 AVPlayerItem 上调用 select(\_:in:) 来选择媒体选项。例如，要显示资产的西班牙语字幕选项，你可以按如下方式选择它：
+
+```swift
+if let group = asset.mediaSelectionGroup(forMediaCharacteristic: AVMediaCharacteristicLegible) {
+    let locale = Locale(identifier: "es-ES")
+    let options =
+        AVMediaSelectionGroup.mediaSelectionOptions(from: group.options, with: locale)
+    if let option = options.first {
+        // Select Spanish-language subtitle option
+        playerItem.select(option, in: group)
+    }
+}
+```
+
+选择媒体选项后即可立即进行演示。选择字幕或隐藏式字幕选项会在 AVPlayerViewController 、 AVPlayerView 和 AVPlayerLayer 提供的视频显示中显示关联文本。选择替代音频或视频选项会将当前呈现的媒体替换为新选择的媒体。
+
+AVPlayer 根据用户的系统首选项自动选择媒体作为其默认行为。要控制何时进行媒体选择，请通过将播放器的 appliesMediaSelectionCriteriaAutomatically 值设置为 false 来禁用默认行为。

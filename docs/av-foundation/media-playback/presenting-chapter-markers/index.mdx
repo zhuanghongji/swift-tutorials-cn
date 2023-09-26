@@ -1,0 +1,67 @@
+# Presenting Chapter Markers
+
+<ToBePolishedAfterTranslation />
+
+<OriginalSource
+  title="Presenting Chapter Markers"
+  url="https://developer.apple.com/documentation/avfoundation/media_playback/presenting_chapter_markers"
+  summary="添加章节标记以使用户能够快速导航你的内容"
+/>
+
+## 概述
+
+章节标记使用户能够快速导航你的内容。 AVPlayerViewController 如果在当前播放的资源中找到章节标记，则会自动呈现章节选择界面。每当你想要创建自己的自定义章节选择界面时，你也可以直接检索此数据。
+
+## 检索定时元数据 in page link
+
+章节标记是一种定时元数据，仅适用于资产时间线内的时间范围。你可以使用 chapterMetadataGroups(bestMatchingPreferredLanguages:) 或 chapterMetadataGroups(withTitleLocale:containingItemsWithCommonKeys:) 方法检索资产的章节元数据。当你异步加载资源的 availableChapterLocales 键的值后，这些方法就可以无阻塞地调用。
+
+```swift
+let asset = AVAsset(url: <# Asset URL #>)
+let chapterLocalesKey = "availableChapterLocales"
+
+asset.loadValuesAsynchronously(forKeys: [chapterLocalesKey]) {
+    var error: NSError?
+    let status = asset.statusOfValue(forKey: chapterLocalesKey, error: &error)
+    if status == .loaded {
+        let languages = Locale.preferredLanguages
+        let chapterMetadata = asset.chapterMetadataGroups(bestMatchingPreferredLanguages: languages)
+        // Process chapter metadata.
+    }
+    else {
+        // Handle other status cases.
+    }
+}
+```
+
+## 将定时元数据转换为章节数据 in page link
+
+上述方法返回的值是一个 AVTimedMetadataGroup 对象数组，每个对象代表一个单独的章节标记。 AVTimedMetadataGroup 对象包含一个 CMTimeRange ，定义其元数据应用的时间范围，表示章节标题的 AVMetadataItem 对象数组，以及可选的缩略图图像。以下示例演示如何将 AVTimedMetadataGroup 数据转换为自定义模型对象数组（称为 Chapter ），以传递到应用程序的视图层。
+
+```swift
+func convertTimedMetadataGroupsToChapters(groups: [AVTimedMetadataGroup]) -> [Chapter] {
+    return groups.map { group in
+        // Retrieve the title metadata items.
+        let titleItems = AVMetadataItem.metadataItems(from: group.items,
+                                                      filteredByIdentifier: .commonIdentifierTitle)
+
+        // Retrieve the artwork metadata items.
+        let artworkItems = AVMetadataItem.metadataItems(from: group.items,
+                                                        filteredByIdentifier: .commonIdentifierArtwork)
+
+        var title = "Default Title"
+        var image = UIImage(named: "placeholder")!
+
+        if let titleValue = titleItems.first?.stringValue {
+            title = titleValue
+        }
+
+        if let imgData = artworkItems.first?.dataValue, let imageValue = UIImage(data: imgData) {
+            image = imageValue
+        }
+        return Chapter(time: group.timeRange.start, title: title, image: image)
+    }
+}
+```
+
+转换完相关数据后，你可以构建一个章节选择接口，并使用章节对象的时间值通过 AVPlayer 对象的 seek(to:) 方法来查找当前呈现。

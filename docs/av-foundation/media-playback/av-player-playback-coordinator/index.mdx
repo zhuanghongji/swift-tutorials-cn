@@ -1,0 +1,25 @@
+# AVPlayerPlaybackCoordinator
+
+<ToBePolishedAfterTranslation />
+
+<OriginalSource
+  title="AVPlayerPlaybackCoordinator"
+  url="https://developer.apple.com/documentation/avfoundation/avplayerplaybackcoordinator"
+  summary="播放协调器子类，用于协调连接组中播放器对象的播放"
+/>
+
+## 概述
+
+该对象协调 AVPlayer 对象的状态。你不创建协调器的实例，而是通过其 playbackCoordinator 属性访问玩家的实例。
+
+使用 AVPlayer 的标准接口来控制应用程序中的播放。协调器自动拦截影响传输控制状态的调用，例如 setRate(\_:time:atHostTime:) 、 pause() 和 seek(to:completionHandler:) ，并在适当的时候将它们传播给组中的其他参与者。同样，协调员观察其他参与者的速率和时间变化，并将其强加给玩家。如果发生这种情况，播放器项目会发布识别原始参与者的通知。
+
+<Figure src={require("./image_1.png")} size={720} />
+
+当系统状态更改导致播放器的 timeControlStatus 值从播放状态更改为等待或暂停状态时，此对象可以自动暂停协调播放。由于播放器因网络停顿或间隙播放等事件进入等待状态而开始的暂停，在播放器完成等待时自动结束。但是，如果系统由于系统状态更改（例如音频会话中断）而暂停播放，则只有在播放器速率变回非零之后，暂停才会结束。
+
+:::caution
+
+播放协调器不管理已连接播放器的播放队列。你需要实现自定义逻辑以将相同的项目排列在所有连接的玩家之间。
+
+:::

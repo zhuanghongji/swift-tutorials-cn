@@ -1,0 +1,36 @@
+# AVMediaCharacteristic
+
+<ToBePolishedAfterTranslation />
+
+<OriginalSource
+  title="AVMediaCharacteristic"
+  url="https://developer.apple.com/documentation/avfoundation/avmediacharacteristic"
+  summary="定义媒体数据特征的结构"
+/>
+
+## 概述
+
+QuickTime 电影和 MPEG-4 视频文件可能包含提供标记媒体特征的轨道，以指示轨道媒体的用途、特征或功能。例如，将原始节目内容与视觉动作的附加叙述性描述混合在一起的音轨可能具有媒体特征 public.accessibility.describes-video ，以将其与存储在同一文件中的不包含附加叙述的其他音轨区分开来。
+
+你可以检查轨道的标记媒体特征，如下所示：
+
+```swift
+// Retrieve the track's QuickTime User Data and filter the results.
+let userDataItems = assetTrack.metadata(forFormat: .quickTimeUserData)
+let characteristicMetadata = AVMetadataItem.metadataItems(from: userDataItems,
+                                          filteredByIdentifier: .quickTimeUserDataTaggedCharacteristic)
+// Retrieve the tagged characteristic values from the metadata items.
+let characteristics = characteristicMetadata.compactMap { $0.stringValue }
+```
+
+你可以使用 AVAssetWriter 实例将标记的媒体特征写入 mov 和 m4v 类型的文件。你可以通过在关联的资产编写器输入上设置元数据来指示轨道的标记特征，如下所示：
+
+```swift
+// Create a mutable metadata item.
+let taggedCharacteristic = AVMutableMetadataItem()
+// Set the identifier and value.
+taggedCharacteristic.identifier = .quickTimeUserDataTaggedCharacteristic
+taggedCharacteristic.value = "com.example.custom-tag" as NSCopying & NSObjectProtocol
+// Set the metadata on the asset writer input instance.
+assetWriterInput.metadata = [taggedCharacteristic]
+```

@@ -1,0 +1,115 @@
+# 控制播放器的传播行为
+
+<ToBePolishedAfterTranslation />
+
+<OriginalSource
+  title="Controlling the transport behavior of a player"
+  url="https://developer.apple.com/documentation/avfoundation/media_playback/controlling_the_transport_behavior_of_a_player"
+  summary="通过媒体演示进行播放、暂停和搜索"
+/>
+
+## 概述
+
+AVFoundation 为播放媒体资产提供全面支持，包括本地和远程基于文件的媒体以及通过 HTTP Live Streaming 传输的媒体。该框架使用 AVAsset 类对其媒体资产进行建模，该类提供一致的接口来加载和检查媒体，无论其类型或位置如何。使用 AVPlayer 对象以 AVPlayerItem 对象的形式播放媒体资产，该对象对资产的动态状态进行建模，例如其 currentTime() 。
+
+对于构建自定义播放器 UI 或需要以编程方式控制播放的任何人来说，了解如何有效使用 AVPlayer 至关重要。
+
+## 观察播放准备情况 in page link
+
+当你创建播放器项目时，它以 AVPlayerItem.Status.unknown 状态开始，这意味着系统尚未尝试加载其媒体进行播放。仅当你将项目与 AVPlayer 对象关联时，系统才会开始加载资产的媒体。
+
+要了解播放器项目何时准备好播放，请观察其 status 属性的值。在调用播放器的 replaceCurrentItem(with:) 方法之前添加此观察，因为将播放器项目与播放器关联是系统加载项目媒体的提示：
+
+```swift
+func playMedia(at url: URL) {
+    let asset = AVAsset(url: url)
+    let playerItem = AVPlayerItem(
+        asset: asset,
+        automaticallyLoadedAssetKeys: [.tracks, .duration, .commonMetadata]
+    )
+    // Register to observe the status property before associating with player.
+    playerItem.publisher(for: \.status)
+        .removeDuplicates()
+        .receive(on: DispatchQueue.main)
+        .sink { [weak self] status in
+            guard let self else { return }
+            switch status {
+            case .readyToPlay:
+                // Ready to play. Present playback UI.
+            case .failed:
+                // A failure while loading media occurred.
+            default:
+                break
+            }
+        }
+        .store(in: &subscriptions)
+
+    // Set the item as the player's current item.
+    player.replaceCurrentItem(with: playerItem)
+}
+```
+
+当播放器项目达到 AVPlayerItem.Status.readyToPlay 状态时，呈现或启用你的播放 UI。或者，如果发生故障，请在播放器中显示适当的状态。
+
+## 控制播放速率 in page link
+
+播放器提供 play() 和 pause() 方法作为控制播放速率的主要方法。当播放器项目准备好播放时，调用播放器的 play() 方法来请求从 defaultRate 开始播放，该播放器的初始值为 1.0 （自然率）。默认情况下，播放器会自动等待开始播放，直到有足够的媒体数据可用以最大程度地减少停顿。你可以通过观察播放器的 timeControlStatus 值来确定播放器是否处于暂停、等待播放或播放状态：
+
+```swift
+@Published var isPlaying = false
+
+private func observePlayingState() {
+    player.publisher(for: \.timeControlStatus)
+        .receive(on: DispatchQueue.main)
+        .map { $0 == .playing }
+        .assign(to: &$isPlaying)
+}
+```
+
+通过观察 rateDidChangeNotification 类型的通知来观察 rate 属性的更改。观察此通知类似于键值观察 rate 属性，但提供了有关费率更改原因的附加信息。使用 rateDidChangeReasonKey 常量从通知的 userInfo 字典中检索原因：
+
+```swift
+// Observe changes to the playback rate asynchronously.
+private func observeRateChanges() async {
+    let name = AVPlayer.rateDidChangeNotification
+    for await notification in NotificationCenter.default.notifications(named: name) {
+        guard let reason = notification.userInfo?[AVPlayer.rateDidChangeReasonKey] as? AVPlayer.RateDidChangeReason else {
+            continue
+        }
+        switch reason {
+        case .appBackgrounded:
+            // The app transitioned to the background.
+        case .audioSessionInterrupted:
+            // The system interrupts the app’s audio session.
+        case .setRateCalled:
+            // The app set the player’s rate.
+        case .setRateFailed:
+            // An attempt to change the player’s rate failed.
+        default:
+            break
+        }
+    }
+}
+```
+
+## 寻找媒体时间线 in page link
+
+你可以使用 AVPlayer 和 AVPlayerItem 方法以多种方式搜索媒体时间线。最常见的方法是使用播放器的 seek(to:) 方法，向其传递目标 CMTime 值。在异步上下文中调用此方法：
+
+```swift
+// Handle time update request from user interface.
+func seek(to timeInterval: TimeInterval) async {
+    // Create a CMTime value for the passed in time interval.
+    let time = CMTime(seconds: timeInterval, preferredTimescale: 600)
+    await avPlayer.seek(to: time)
+}
+```
+
+你可以单次调用此方法来查找位置，但也可以连续调用它，例如当你使用 Slider 视图时。
+
+seek(to:) 方法是快速搜索演示文稿的便捷方法，但它针对的是速度而不是精度。这意味着玩家寻求的实际时间可能与你请求的时间略有不同。如果你需要实现精确的搜索行为，请使用 seek(to:toleranceBefore:toleranceAfter:) 方法，该方法可让你指示与目标时间（之前和之后）的容许偏差量。例如，如果你需要提供样本精确的搜索行为，请将容差值指定为零：
+
+```swift
+// Seek precisely to the specified time.
+await avPlayer.seek(to: time, toleranceBefore: .zero, toleranceAfter: .zero)
+```

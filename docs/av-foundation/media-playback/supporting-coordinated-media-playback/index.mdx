@@ -1,0 +1,192 @@
+# 支持协调媒体播放
+
+<ToBePolishedAfterTranslation />
+
+<OriginalSource
+  title="Supporting Coordinated Media Playback"
+  url="https://developer.apple.com/documentation/avfoundation/media_playback/supporting_coordinated_media_playback"
+  summary="创建同步媒体体验，使用户能够跨设备观看和收听"
+/>
+
+## 概述
+
+与朋友和家人一起看电视、电影、听音乐会更有趣。然而，亲自聚会并不总是一种选择。从 iOS 15、tvOS 15 和 macOS 12 开始，你可以创建媒体应用程序，让人们无论身在何处都可以一起观看和收听。使用 AVFoundation 和新的 GroupActivities 框架可以实现此功能。
+
+AVFoundation 引入了一个新类 AVPlayerPlaybackCoordinator ，它可以跨设备同步 AVPlayer 对象的时间。应用程序使用 GroupActivities 框架通过 GroupSession 对象连接播放协调器。
+
+<Figure src={require("./image_1.png")} size={720} />
+
+此示例应用程序向你展示如何向你的应用程序添加协调的媒体播放支持。它提供了一个简单的电影播放应用程序，用户可以从库中选择电影并在标准播放器用户界面中播放。
+
+## 配置示例代码项目 in page link
+
+- 你必须使用 Xcode 13 和 Swift 5.5 构建示例。
+- 你必须在装有 iOS 15 或更高版本的物理设备上运行该示例。
+
+要体验协调播放，你需要在两台或多台具有唯一 Apple ID 的设备上安装该应用程序。在设备之间启动 FaceTime 通话，然后从其中一台设备的库中选择一个项目。系统会提示你选择本地播放还是群组播放。选择与群组一起播放，在一台设备上开始播放时，也会在另一台设备上开始播放。系统自动将速率和时间更改传播到所有播放协调器，以保持组播放同步。
+
+## 创建活动 in page link
+
+示例应用程序播放电影，它用 Movie 结构来表示，该结构定义了有关其库中项目的基本数据。
+
+```swift
+struct Movie: Hashable, Codable {
+    var url: URL
+    var title: String
+    var description: String
+}
+```
+
+为了使观看电影成为一种集体体验，该示例创建了一个名为 MovieWatchingActivity 的结构，该结构采用 GroupActivity 协议。该协议定义了应用程序中的可共享体验。该活动存储要与组共享的电影，并提供系统在用户共享活动时显示的支持元数据。
+
+```swift
+// A group activity to watch a movie together.
+struct MovieWatchingActivity: GroupActivity {
+
+    // The movie to watch.
+    let movie: Movie
+
+    // Metadata that the system displays to participants.
+    var metadata: GroupActivityMetadata {
+        var metadata = GroupActivityMetadata()
+        metadata.type = .watchTogether
+        metadata.fallbackURL = movie.url
+        metadata.title = movie.title
+        return metadata
+    }
+}
+```
+
+:::note
+
+GroupActivity 扩展了 Codable ，因此活动存储的任何数据也必须符合 Codable 。
+
+:::
+
+## 分享活动 in page link
+
+当用户选择一部电影时，该示例会确定是否需要仅为当前用户播放该电影，还是与群组共享。它通过调用活动的异步 prepareForActivation() 方法来做出此决定，该方法使系统能够呈现一个界面，供用户选择他们喜欢的操作。
+
+```swift
+// Create a new activity for the selected movie.
+let activity = MovieWatchingActivity(movie: selectedMovie)
+
+
+// Await the result of the preparation call.
+switch await activity.prepareForActivation() {
+
+case .activationDisabled:
+    // Playback coordination isn't active, or the user prefers to play the
+    // movie apart from the group. Enqueue the movie for local playback only.
+    self.enqueuedMovie = selectedMovie
+
+case .activationPreferred:
+    // The user prefers to share this activity with the group.
+    // The app enqueues the movie for playback when the activity starts.
+    do {
+        _ = try await activity.activate()
+    } catch {
+        print("Unable to activate the activity: \(error)")
+    }
+
+case .cancelled:
+    // The user cancels the operation. Do nothing.
+    break
+
+default: ()
+}
+```
+
+该调用返回一个结果，指示要采取的适当操作。 GroupActivityActivationResult.activationDisabled 的结果表示群组播放未激活，或者用户选择仅在本地播放电影。在本例中，应用程序将电影设置为 enqueuedMovie ，将其排入队列以供本地播放。 GroupActivityActivationResult.activationPreferred 的结果表示可以进行群组播放，并且用户想要开始群组活动。发生这种情况时，示例会调用活动的 activate() 方法，该方法启动组会话并与组共享活动。该示例不会立即将影片排入队列进行播放，而是等到组会话通知所有参与者新活动。
+
+## 等待小组会议 in page link
+
+当示例激活 MovieWatchingActivity 时，系统会创建一个组会话。它通过调用 sessions() 方法来访问会话，该方法以异步序列的形式返回活动的会话。
+
+```swift
+// Await new sessions to watch movies together.
+for await groupSession in MovieWatchingActivity.sessions() {
+    // Set the app's active group session.
+    self.groupSession = groupSession
+
+    // Remove previous subscriptions.
+    subscriptions.removeAll()
+
+    // Observe changes to the session state.
+    groupSession.$state.sink { [weak self] state in
+        if case .invalidated = state {
+            // Set the groupSession to nil to publish
+            // the invalidated session state.
+            self?.groupSession = nil
+            self?.subscriptions.removeAll()
+        }
+    }.store(in: &subscriptions)
+
+    // Join the session to participate in playback coordination.
+    groupSession.join()
+
+    // Observe when the local user or a remote participant starts an activity.
+    groupSession.$activity.sink { [weak self] activity in
+        // Set the movie to enqueue it in the player.
+        self?.enqueuedMovie = activity.movie
+    }.store(in: &subscriptions)
+}
+```
+
+当示例收到新会话时，会将其设置为活动组会话，然后加入该会话，这使得应用程序有资格参与该会话。然后，它订阅会话的活动发布者，当它收到新值时，它会将活动的电影排入队列以供播放。
+
+## 准备协调播放 in page link
+
+该示例启用群组播放的最后一步是访问播放器的协调器并将其与群组会话连接。它通过调用协调器对象的 coordinateWithSession(\_:) 方法来实现此目的，该方法将其与会话中其他参与者的协调器连接起来。
+
+```swift
+// The group session to coordinate playback with.
+private var groupSession: GroupSession<MovieWatchingActivity>? {
+    didSet {
+        guard let session = groupSession else {
+            // Stop playback if a session terminates.
+            player.rate = 0
+            return
+        }
+        // Coordinate playback with the active session.
+        player.playbackCoordinator.coordinateWithSession(session)
+    }
+}
+```
+
+样本建立此连接后，系统会协调参与玩家之间的速率和时间变化。该应用程序继续以典型方式对电影进行排队，并使用播放器的标准传输方法（如 play() 、 pause() 和 seek(to:completionHandler:) ）控制播放。协调器拦截这些更改并根据需要将它们传达给其他协调器。同样，它还响应其他参与者的速率和时间变化，并将它们设置在本地播放器上。
+
+## 暂停参与协调播放 in page link
+
+在大多数情况下，样本会与组保持播放同步。然而，有时需要防止本地中断影响其他参与者。在这些情况下，它会通过发出播放暂停来暂时断开与组的连接。 AVPlayerPlaybackCoordinator 自动针对常见系统事件（例如网络停滞和音频会话中断）发出播放暂停。应用程序还可以定义自定义暂停。
+
+该示例提供了一项功能，可让观看者快速赶上他们错过的内容。此操作不会影响该组，因此应用程序开始自定义播放暂停。它在 AVCoordinatedPlaybackSuspension.Reason 上创建一个扩展，定义新的 whatHappened 暂停原因。
+
+```swift
+extension AVCoordinatedPlaybackSuspension.Reason {
+    static var whatHappened = AVCoordinatedPlaybackSuspension.Reason(rawValue: "com.example.groupwatching.suspension.what-happened")
+}
+```
+
+当用户点击用户界面中的功能按钮时，示例将调用其 performWhatHappened() 方法。在此方法中，它启动自定义暂停，快退 10 秒，然后以双倍速度播放，直到播放赶上该组。
+
+```swift
+func performWhatHappened() {
+
+    // Rewind 10 seconds.
+    let rewindDuration = CMTime(value: 10, timescale: 1)
+    let rewindTime = player.currentTime() - rewindDuration
+
+    // Start a custom suspension.
+    let suspension = player.playbackCoordinator.beginSuspension(for: .whatHappened)
+    player.seek(to: rewindTime)
+    player.rate = 2.0
+
+    DispatchQueue.main.asyncAfter(deadline: .now() + rewindDuration.seconds) {
+        // End the suspension and resume playback with the group.
+        suspension.end()
+    }
+}
+```
+
+本地设备赶上群组播放后，样本结束暂停。虽然它在开始暂停后将播放器的速率设置为 2.0 ，但它不必在结束时显式地将其设置回原始速率，因为协调器会在播放器重新加入组播放时自动设置它。

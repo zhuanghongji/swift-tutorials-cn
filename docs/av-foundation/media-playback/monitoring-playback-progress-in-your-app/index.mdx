@@ -1,0 +1,85 @@
+# 监控应用程序中的播放进度
+
+<ToBePolishedAfterTranslation />
+
+<OriginalSource
+  title="Monitoring playback progress in your app"
+  url="https://developer.apple.com/documentation/avfoundation/media_playback/monitoring_playback_progress_in_your_app"
+  summary="观察媒体资产的播放以更新应用程序的用户界面状态"
+/>
+
+## 概述
+
+媒体播放应用程序通常需要监视播放进度以驱动播放器 UI 的状态或执行其他操作。监视此状态需要比键值观察所能提供的更高级别的时间精度，因此 AVPlayer 提供了特定的 API 来观察播放时间。本文介绍了如何定期观察此状态或在播放跨越特定时间边界时观察此状态。
+
+## 定期观察当前播放时间 in page link
+
+观察玩家当前时间的最常见方法是定期观察。当驱动玩家用户界面中的时间显示状态时，以这种方式观察它非常有用。
+
+要定期观察玩家的当前时间，请调用其 addPeriodicTimeObserver(forInterval:queue:using:) 方法。此方法采用一个 CMTime 值（表示观察时间的间隔）、串行调度队列以及玩家在指定时间间隔调用的回调。以下示例添加了一个观察者，播放器在正常播放期间每半秒调用一次：
+
+```swift
+@Published private(set) var duration: TimeInterval = 0.0
+@Published private(set) var currentTime: TimeInterval = 0.0
+
+private let player = AVPlayer()
+private var timeObserver: Any?
+
+/// Adds an observer of the player timing.
+private func addPeriodicTimeObserver() {
+    // Create a 0.5 second interval time.
+    let interval = CMTime(value: 1, timescale: 2)
+    timeObserver = player.addPeriodicTimeObserver(forInterval: interval,
+                                                  queue: .main) { [weak self] time in
+        guard let self else { return }
+        // Update the published currentTime and duration values.
+        currentTime = time.seconds
+        duration = player.currentItem?.duration.seconds ?? 0.0
+    }
+}
+
+/// Removes the time observer from the player.
+private func removePeriodicTimeObserver() {
+    guard let timeObserver else { return }
+    player.removeTimeObserver(timeObserver)
+    self.timeObserver = nil
+}
+```
+
+当你完成状态监控时，始终将对播放器的 addPeriodicTimeObserver(forInterval:queue:using:) 方法的调用与对 removeTimeObserver(\_:) 的调用配对。不遵守此规则会导致未定义的行为。
+
+## 观察媒体演示中特定时间的播放 in page link
+
+观察播放器的另一种方法是播放器在播放过程中何时跨越特定时间边界。你可以通过更新播放器 UI 或执行其他操作来应对这些时间的流逝。
+
+要让播放器在穿过媒体时间轴中的特定点时通知你的应用，请调用播放器的 addBoundaryTimeObserver(forTimes:queue:using:) 方法。此方法采用一个 NSValue 对象数组，这些对象包装了定义边界时间的 CMTime 值、串行调度队列和回调闭包。以下示例显示如何定义每个季度播放的边界时间：
+
+```swift
+/// Adds an observer of the player traversing specific times during standard playback.
+private func addBoundaryTimeObserver() async throws {
+
+    // Asynchronously load the duration of the asset.
+    let duration = try await asset.load(.duration)
+
+    // Divide the asset's duration into quarters.
+    let quarterDuration = CMTimeMultiplyByRatio(duration,
+                                                multiplier: 1,
+                                                divisor: 4)
+
+    var currentTime = CMTime.zero
+    var times = [NSValue]()
+
+    // Calculate boundary times.
+    while currentTime < duration {
+        currentTime = currentTime + quarterDuration
+        times.append(NSValue(time:currentTime))
+    }
+
+    timeObserver = player.addBoundaryTimeObserver(forTimes: times,
+                                                  queue: .main) { [weak self] in
+        // Update the percentage complete in the user interface.
+    }
+}
+```
+
+如果添加周期或边界时间观察器，则需要在完成时通过调用 removeTimeObserver(\_:) 来删除观察。

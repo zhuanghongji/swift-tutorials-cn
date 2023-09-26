@@ -1,0 +1,71 @@
+# 配置你的应用程序以进行媒体播放
+
+<ToBePolishedAfterTranslation />
+
+<OriginalSource
+  title="Configuring your app for media playback"
+  url="https://developer.apple.com/documentation/avfoundation/media_playback/configuring_your_app_for_media_playback"
+  summary="配置应用程序以启用标准媒体播放行为"
+/>
+
+## 概述
+
+当你为 iOS、tvOS 和 VisionOS 构建媒体播放应用程序时，你需要进行额外的配置才能实现预期的播放行为。配置音频体验和后台操作有助于确保应用程序的音频按预期工作。它还可以在支持的平台上启用 AirPlay 流媒体和画中画播放等高级功能。
+
+## 配置音频会话 in page link
+
+除了主要将控制权交给应用程序的 macOS 之外，Apple 平台提供由操作系统管理的音频体验。这使得操作系统能够在人们在应用程序之间切换并接收高优先级音频请求（例如电话或 FaceTime 通话）时为他们提供无缝的音频体验。
+
+你的应用程序使用 AVAudioSession 在语义上配置其音频行为，例如具有播放或录制的主要目的。你将这些细节的管理委托给音频会话，这确保操作系统可以最好地管理一个人的音频体验。
+
+你的应用程序会自动具有系统配置的音频会话，默认行为如下：
+
+- 应用程序中的音频播放会使其他背景音频静音
+- 支持音频播放，但不支持录音
+- 在 iOS 中将响铃/静音开关设置为静音模式会使应用程序音频静音
+- iOS 中锁定的设备会使应用程序音频静音
+
+默认音频会话提供有用的行为，但通常不提供构建播放应用程序时所需的体验和功能。要添加所需的行为，请配置应用程序的音频会话类别。
+
+音频会话类别定义了你的应用程序所需的一般音频行为。 AVFoundation 定义了多种你可以使用的音频会话类别，但与媒体播放应用程序最相关的类别是 playback 。此类别表明媒体播放是你应用程序的核心功能。当你指定此类别时，当有人将响铃/静音开关设置为静音模式（仅在 iOS 中）时，系统不会使应用程序的音频静音。启用此类别意味着如果你使用音频、AirPlay 和画中画背景模式，你的应用程序可以播放背景音频，如下节所述。
+
+使用 AVAudioSession 对象来配置应用程序的音频会话。音频会话是一个单例对象，用于设置音频会话 category 、 mode 和其他设置。要配置音频会话以优化电影播放：
+
+```swift
+class PlayerModel: ObservableObject {
+
+    func configureAudioSession() {
+        do {
+            let session = AVAudioSession.sharedInstance()
+            // Configure the app for playback of long-form movies.
+            try session.setCategory(.playback, mode: .moviePlayback)
+        } catch {
+            // Handle error.
+        }
+    }
+}
+```
+
+要启用此类别，请使用 setActive(\_:options:) 方法激活音频会话。
+
+:::note
+
+你可以在设置其类别后随时激活音频会话，但建议推迟此调用，直到你的应用程序开始音频播放。推迟通话可确保你不会过早中断可能正在进行的任何其他背景音频。
+
+:::
+
+设置类别是与音频会话的最小交互，但其他配置选项和功能也可用。例如，在 visionOS 中，你可以通过配置音频会话来自定义用户的空间音频体验。有关详细信息，请参阅 AVAudioSession 。
+
+## 配置后台模式 in page link
+
+系统要求你启用某些功能来执行某些后台操作。播放应用程序需要的一个常见功能是播放背景音频。启用此功能后，当人们切换到另一个应用程序或锁定其 iOS 设备时，你的应用程序的音频将继续。你的应用程序还需要此功能才能在支持的平台上启用高级播放功能，例如 AirPlay 流和画中画播放。
+
+使用 Xcode 配置此功能：
+
+1. 在 Xcode 中选择应用程序的目标，然后选择“签名和功能”选项卡。
+2. 单击“+ 功能”按钮并将“背景模式”功能添加到项目中。
+3. 在“背景模式”界面中，在背景模式列表下选择“音频”、“AirPlay”和“画中画”选项。
+
+<Figure src={require("./image_1.png")} size={520} />
+
+启用此模式并配置音频会话后，你的应用程序就可以播放背景音频了。在 iOS 中，当你启用此选项时，你的应用程序可以通过 AirPlay 流式传输其内容，并且在 iOS 和 tvOS 中，它可以使用画中画播放。

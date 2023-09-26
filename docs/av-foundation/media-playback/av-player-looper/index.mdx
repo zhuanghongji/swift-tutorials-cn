@@ -1,0 +1,24 @@
+# AVPlayerLooper
+
+<ToBePolishedAfterTranslation />
+
+<OriginalSource
+  title="AVPlayerLooper"
+  url="https://developer.apple.com/documentation/avfoundation/avplayerlooper"
+  summary="使用队列播放器循环媒体内容的对象"
+/>
+
+## 概述
+
+你可以使用 AVQueuePlayer 在应用中手动实现循环播放，但 AVPlayerLooper 提供了一个更简单的界面来循环单个 AVPlayerItem 。你可以通过向播放器循环器传递对 AVQueuePlayer 的引用和模板 AVPlayerItem 来创建播放器循环器，循环器会自动管理此内容的循环播放（请参阅示例）。
+
+```swift
+let asset = // AVAsset with its 'duration' property value loaded
+let playerItem = AVPlayerItem(asset: asset)
+
+// Create a new player looper with the queue player and template item
+playerLooper = AVPlayerLooper(player: queuePlayer, templateItem: playerItem)
+
+// Begin looping playback
+queuePlayer.play()
+```
