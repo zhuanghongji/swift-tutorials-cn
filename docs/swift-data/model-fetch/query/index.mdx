@@ -20,7 +20,7 @@ public struct Query<Element, Result> : DynamicProperty where Element : Persisten
 ### init(\_:transaction:)
 
 ```swift
-// 使用 SwiftData 获取描述符创建查询
+// 使用 SwiftData 获取描述器创建查询
 //
 // - descriptor: 一个 `SwiftData.FetchDescriptor`
 // - transaction: 用于因获取结果的更改而导致的用户界面更改的事务。
@@ -32,7 +32,7 @@ public init(_ descriptor: FetchDescriptor<Element>,
 ### init(filter:sort:transaction:)
 
 ```swift
-// 使用谓词和排序描述符列表创建查询
+// 使用谓词和排序描述器列表创建查询
 //
 // - filter: Element 上的谓词
 // - descriptors: 对结果进行排序
@@ -123,7 +123,7 @@ struct RecipeList: View {
 ### init(\_:animation:)
 
 ```swift
-// 使用 SwiftData 获取描述符创建查询
+// 使用 SwiftData 获取描述器创建查询
 //
 // - descriptor: 一个 `SwiftData.FetchDescriptor`
 // - animation: 用于因获取结果的更改而导致的用户界面更改的动画
@@ -135,7 +135,7 @@ public init(_ descriptor: FetchDescriptor<Element>,
 ### init(filter:sort:animation:)
 
 ```swift
-// 使用谓词和排序描述符列表创建查询
+// 使用谓词和排序描述器列表创建查询
 //
 // - filter: Element 上的谓词
 // - descriptors: 对结果进行排序

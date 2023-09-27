@@ -17,7 +17,7 @@ import TabItem from "@theme/TabItem";
 
 ## 定义数据模型
 
-在 SwiftData 可以存储应用程序中的数据之前，应用程序必须定义表示数据的数据模型。 SwiftData 使用模型类来构建数据模型的架构。例如，示例应用程序存储有关动物的数据，并将这些动物分组。为了定义此数据模型的架构，该示例定义了两个模型类： Animal 和 AnimalCategory 。
+在 SwiftData 可以存储应用程序中的数据之前，应用程序必须定义表示数据的数据模型。SwiftData 使用模型类来构建数据模型的架构。例如，示例应用程序存储有关动物的数据，并将这些动物分组。为了定义此数据模型的架构，该示例定义了两个模型类： Animal 和 AnimalCategory 。
 
 Animal 模型类存储有关动物的信息，例如其名称和饮食。为了持久保存 Animal 的实例，类定义应用 Model() 宏。该宏在编译时生成代码，确保类符合 PersistentModel 协议，并使 SwiftData 能够将动物数据保存到模型容器中。
 

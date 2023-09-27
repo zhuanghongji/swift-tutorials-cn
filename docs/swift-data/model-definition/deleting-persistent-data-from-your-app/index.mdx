@@ -55,7 +55,7 @@ private func removeAnimals(at indexSet: IndexSet) {
 }
 ```
 
-但是，使用此示例的人可能会删除选定的动物，因此 removeAnimals 方法需要在删除动物之前取消选择该动物。 removeAnimals 的更新版本使用 persistentModelID 来确定要删除的动物是否也是所选动物。如果是，该方法将选定的动物设置为 nil 。
+但是，使用此示例的人可能会删除选定的动物，因此 removeAnimals 方法需要在删除动物之前取消选择该动物。removeAnimals 的更新版本使用 persistentModelID 来确定要删除的动物是否也是所选动物。如果是，该方法将选定的动物设置为 nil 。
 
 ```swift
 private func removeAnimals(at indexSet: IndexSet) {
@@ -173,7 +173,7 @@ static func reloadSampleData(modelContext: ModelContext) {
 }
 ```
 
-删除所有动物类别时，SwiftData 还会删除这些类别内的所有动物。 SwiftData 知道执行此级联删除，因为 AnimalCategory 和 Animal 之间的关系使用 Schema.Relationship.DeleteRule.cascade 删除规则。 （有关删除规则的完整列表，请参阅 Schema.Relationship.DeleteRule 。）
+删除所有动物类别时，SwiftData 还会删除这些类别内的所有动物。SwiftData 知道执行此级联删除，因为 AnimalCategory 和 Animal 之间的关系使用 Schema.Relationship.DeleteRule.cascade 删除规则。（有关删除规则的完整列表，请参阅 Schema.Relationship.DeleteRule 。）
 
 ```swift
 import SwiftData

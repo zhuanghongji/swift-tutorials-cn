@@ -1,29 +1,27 @@
 # 关于
 
-<ToBePolishedAfterTranslation />
-
 <OriginalSource
   title="SwiftData"
   url="https://developer.apple.com/documentation/swiftdata"
-  summary="以声明方式编写模型代码以添加托管持久性和自动 iCloud 同步"
+  summary="以声明方式编写模型代码以添加托管持久性（managed persistence）和自动 iCloud 同步"
 />
 
 ## 概述
 
-SwiftData 结合了 Core Data 经过验证的持久性技术和 Swift 的现代并发功能，使你能够快速向应用程序添加持久性，并且只需最少的代码且无需外部依赖项。使用宏等现代语言功能，SwiftData 使你能够编写快速、高效且安全的代码，使你能够描述应用程序的整个模型层（或对象图）。该框架负责存储底层模型数据，并可选择跨多个设备同步该数据。
+SwiftData 结合了 Core Data 验证过的（proven）持久性技术和 Swift 的现代并发功能，使你能够快速向应用程序添加持久性，并且只需最少的代码且无需外部依赖项。使用宏（macro）等现代语言功能，SwiftData 使你能够编写快速、高效且安全的代码，使你能够描述应用程序的整个模型层或对象图（object graph）。该框架负责存储底层模型数据，并可选择跨多个设备同步该数据。
 
 SwiftData 的用途不仅仅是持久保存本地创建的内容。例如，从远程 Web 服务获取数据的应用程序可能会使用 SwiftData 来实现轻量级缓存机制并提供有限的离线功能。
 
 <Figure src={require("./image_1.png")} size={620} />
 
-SwiftData 在设计上是非侵入性的，并且补充了应用程序的现有模型类。将 Model() 宏附加到任何模型类以使其可持久化。使用 Attribute(_:originalName:hashModifier:) 和 Relationship(_:\_:originalName:inverse:hashModifier:) 宏自定义该模型属性的行为。使用 ModelContext 类插入、更新和删除该模型的实例，并将未保存的更改写入磁盘。
+SwiftData 在设计上是非侵入性的（unintrusive），并且补充了应用程序的现有模型类。将 [Model()](<https://developer.apple.com/documentation/swiftdata/model()>) 宏附加到任何模型类以使其可持久化。使用 [Attribute(\_:originalName:hashModifier:)](<https://developer.apple.com/documentation/swiftdata/attribute(_:originalname:hashmodifier:)>) 和 `Relationship(\_:\_:originalName:inverse:hashModifier:)` 宏自定义该模型属性的行为。使用 [ModelContext](https://developer.apple.com/documentation/swiftdata/modelcontext) 类插入、更新和删除该模型的实例，并将未保存的更改写入磁盘。
 
-要在 SwiftUI 视图中显示模型，请使用 Query 属性包装器并指定谓词或获取描述符。 SwiftData 在视图出现时执行提取，并告知 SwiftUI 所提取模型的任何后续更改，以便视图可以相应更新。你可以使用 modelContext 环境值访问任何 SwiftUI 视图中的模型上下文，并使用 modelContainer(_:) 和 modelContext(_:) 为视图指定特定的模型容器或上下文视图修饰器。
+要在 SwiftUI 视图中显示模型，请使用 [Query](https://developer.apple.com/documentation/swiftdata/query) 属性包装器并指定谓词（predicate）或 fetch 描述器（descriptor）。SwiftData 在视图出现时执行 fetch，并告知 SwiftUI 所获取模型的任何后续（subsequent）更改，以便视图可以相应更新。你可以使用 [modelContext](https://developer.apple.com/documentation/SwiftUI/EnvironmentValues/modelContext) 环境值访问任何 SwiftUI 视图中的模型上下文，并使用 [modelContainer(\_:)](<https://developer.apple.com/documentation/SwiftUI/View/modelContainer(_:)>) 和 [modelContext(\_:)](<https://developer.apple.com/documentation/SwiftUI/View/modelContext(_:)>) 为视图指定特定的模型容器或上下文视图修饰器。
 
-随着应用程序模型层的发展，SwiftData 会自动迁移底层模型数据，使其保持一致的状态。如果模型层两个版本之间的聚合更改超出了自动迁移的能力，请使用 Schema 和 SchemaMigrationPlan 参与这些迁移并帮助它们成功完成。
+随着应用程序模型层的发展（evolves），SwiftData 会自动迁移底层模型数据，使其保持一致的状态。如果模型层两个版本之间的聚合更改（aggregate changes）超出了自动迁移的能力，请使用 [Schema](https://developer.apple.com/documentation/swiftdata/schema) 和 [SchemaMigrationPlan](https://developer.apple.com/documentation/swiftdata/schemamigrationplan) 参与这些迁移并帮助它们成功完成。
 
 :::note
 
-为了提供自动 iCloud 同步，SwiftData 需要 CloudKit 权利和 iCloud 容器。有关更多信息，请参阅配置 iCloud 服务。
+要提供自动 iCloud 同步，SwiftData 需要 CloudKit 权利和 iCloud 容器。有关更多信息，请参阅 [配置 iCloud 服务](https://developer.apple.com/documentation/Xcode/configuring-icloud-services)。
 
 :::

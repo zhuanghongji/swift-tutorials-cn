@@ -23,7 +23,7 @@ public struct FetchResultsCollection<Element> : RandomAccessCollection {
 ```swift
 // 访问指定位置的元素
 //
-// - position: 要访问的元素的位置。 position 必须是不等于 endIndex 属性的集合的有效索引
+// - position: 要访问的元素的位置。position 必须是不等于 endIndex 属性的集合的有效索引
 public subscript(position: Int) -> Element { get }
 ```
 
@@ -55,7 +55,7 @@ public var startIndex: Int { get }
 public var endIndex: Int { get }
 ```
 
-当你需要包含集合最后一个元素的范围时，请将半开范围运算符（`..<`）与 `endIndex` 结合使用。 `..<` 运算符创建一个不包含上限的范围，因此与 `endIndex` 一起使用始终是安全的。例如：
+当你需要包含集合最后一个元素的范围时，请将半开范围运算符（`..<`）与 `endIndex` 结合使用。`..<` 运算符创建一个不包含上限的范围，因此与 `endIndex` 一起使用始终是安全的。例如：
 
 ```swift
 let numbers = [10, 20, 30, 40, 50]
