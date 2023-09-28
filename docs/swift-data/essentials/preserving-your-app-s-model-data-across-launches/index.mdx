@@ -45,7 +45,7 @@ class Trip {
 @Attribute(.unique) var name: String
 ```
 
-除了强制执行唯一约束之外， `@Attribute` 还支持保留已删除的值、Spotlight 索引和加密等功能。如果你想在底层模型数据中保留原始名称，你还可以使用 `@Attribute` 宏来正确处理重命名的属性。
+除了强制执行唯一约束之外，`@Attribute` 还支持保留已删除的值、Spotlight 索引和加密等功能。如果你想在底层模型数据中保留原始名称，你还可以使用 `@Attribute` 宏来正确处理重命名的属性。
 
 当模型包含其类型也是模型（或模型集合）的属性时，SwiftData 会隐式地为你管理这些模型之间的关系。默认情况下，在删除相关模型实例后，框架将关系属性设置为 `nil`。要指定不同的删除规则，请使用 `Relationship(_:_:originalName:inverse:hashModifier:)` 宏注解该属性。例如，你可能希望在删除行程（trip）时删除所有相关住宿（accommodations）。有关删除规则的更多信息，请参阅 "Relationship/DeleteRule-swift.enum"。
 
