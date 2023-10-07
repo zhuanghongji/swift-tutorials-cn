@@ -51,7 +51,7 @@ public struct PersistentIdentifier : Hashable, Identifiable, Equatable, Comparab
 
     // 通过从给定解码器进行解码来创建新实例
     //
-    // 如果从解码器读取失败，或者读取的数据已损坏或无效，则此初始化程序将引发错误
+    // 如果从解码器读取失败，或者读取的数据已损坏或无效，则此初始化器将引发错误
     //
     // - decoder: 从中读取数据的解码器
     public init(from decoder: Decoder) throws

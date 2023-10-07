@@ -32,9 +32,9 @@ public init(_ descriptor: FetchDescriptor<Element>,
 ### init(filter:sort:transaction:)
 
 ```swift
-// 使用谓词和排序描述器列表创建查询
+// 使用断言和排序描述器列表创建查询
 //
-// - filter: Element 上的谓词
+// - filter: Element 上的断言
 // - descriptors: 对结果进行排序
 // - transaction: 用于因获取结果的更改而导致的用户界面更改的事务
 public init(filter: Predicate<Element>? = nil,
@@ -63,9 +63,9 @@ struct RecipeList: View {
 ### init(filter:sort:order:transaction:)
 
 ```swift
-// 使用谓词、用于排序的属性的键路径以及排序顺序创建查询
+// 使用断言、用于排序的属性的键路径以及排序顺序创建查询
 //
-// - filter: Element 上的谓词
+// - filter: Element 上的断言
 // - sort: 用于排序的属性的键路径
 // - order: 是否按正序或倒序排序
 // - transaction: 用于因获取结果的更改而导致的用户界面更改的事务
@@ -93,9 +93,9 @@ struct RecipeList: View {
 ### init(filter:sort:order:transaction:)
 
 ```swift
-// 使用谓词、用于排序的属性的关键路径以及排序顺序创建查询
+// 使用断言、用于排序的属性的关键路径以及排序顺序创建查询
 //
-// - filter: Element 上的谓词
+// - filter: Element 上的断言
 // - sort: 用于排序的属性的键路径
 // - order: 是否按正序或倒序排序
 // - transaction: 用于因获取结果的更改而导致的用户界面更改的事务
@@ -135,9 +135,9 @@ public init(_ descriptor: FetchDescriptor<Element>,
 ### init(filter:sort:animation:)
 
 ```swift
-// 使用谓词和排序描述器列表创建查询
+// 使用断言和排序描述器列表创建查询
 //
-// - filter: Element 上的谓词
+// - filter: Element 上的断言
 // - descriptors: 对结果进行排序
 // - animation: 用于因获取结果的更改而导致的用户界面更改的动画
 public init(filter: Predicate<Element>? = nil,
@@ -166,9 +166,9 @@ struct RecipeList: View {
 ### init(filter:sort:order:animation:)
 
 ```swift
-// 创建一个带有谓词、用于排序的属性的关键路径以及排序依据的查询
+// 创建一个带有断言、用于排序的属性的关键路径以及排序依据的查询
 //
-// - filter: Element 上的谓词
+// - filter: Element 上的断言
 // - sort: 用于排序的属性的键路径
 // - order: 是否按正序或倒序排序
 // - animation: 用于因获取结果的更改而导致的用户界面更改的动画
@@ -196,9 +196,9 @@ struct RecipeList: View {
 ### init(filter:sort:order:animation:)
 
 ```swift
-// 创建一个带有谓词、用于排序的属性的关键路径以及排序依据的查询
+// 创建一个带有断言、用于排序的属性的关键路径以及排序依据的查询
 //
-// - filter: Element 上的谓词
+// - filter: Element 上的断言
 // - sort: 用于排序的属性的键路径
 // - order: 是否按正序或倒序排序
 // - animation: 用于因获取结果的更改而导致的用户界面更改的动画

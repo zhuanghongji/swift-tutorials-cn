@@ -1,7 +1,5 @@
 # 维护服务器数据的本地副本
 
-<ToBePolishedAfterTranslation />
-
 <OriginalSource
   title="Maintaining a local copy of server data"
   url="https://developer.apple.com/documentation/swiftdata/maintaining-a-local-copy-of-server-data"
@@ -10,7 +8,7 @@
 
 ## 概述
 
-此示例应用程序显示一个列表，其中包含一天发生的地震，并显示地震的时间、位置和大小。为了帮助人们可视化列表，该应用程序还在地图上精确定位了每次地震。你可以在列表中选择地震以在地图上突出显示它。
+此示例应用程序显示一个列表，其中包含一天发生的地震（earthquakes），并显示地震的时间、位置和大小。为了帮助人们可视化列表，该应用程序还在地图上精确定位了（pinpoints）每次地震。你可以在列表中选择地震以在地图上突出显示它。
 
 <Figure src={require("./image_1.png")} size={720} />
 
@@ -24,13 +22,13 @@
 
 :::note
 
-要了解应用程序如何通过查询和谓词管理数据呈现，请参阅过滤和排序持久数据。
+要了解应用程序如何通过查询和断言（predicate）管理数据呈现，请参阅 [过滤和排序持久数据](https://developer.apple.com/documentation/swiftdata/filtering-and-sorting-persistent-data)。
 
 :::
 
 ## 定义应用程序的数据模型
 
-应用程序通过定义 Quake 类来表示其界面所需的信息。类定义包含 Model() 宏，告诉系统使用 SwiftData 持久存储数据：
+应用程序通过定义 `Quake` 类来表示其界面所需的信息。类定义包含 [Model()](<https://developer.apple.com/documentation/swiftdata/model()>) 宏，告诉系统使用 SwiftData 持久存储数据：
 
 ```swift
 import SwiftData
@@ -46,10 +44,10 @@ class Quake {
 
 该模型包括以下字段：
 
-- 独特的代码：通过将 Attribute(\_:originalName:hashModifier:) 宏与 unique 属性选项包含在一起，应用程序可确保 SwiftData 仅存储一次具有该字段特定值的地震。
-- 震级：地震的大小。
-- 时间戳：地震发生的时刻，存储为 Date 实例。
-- 位置：包含位置名称和地图坐标的自定义 Location 实例：
+- 唯一编码 `code`：通过包含（including）具有 [unique](https://developer.apple.com/documentation/swiftdata/schema/attribute/option/unique) 属性选项的 [Attribute(\_:originalName:hashModifier:)](<https://developer.apple.com/documentation/swiftdata/attribute(_:originalname:hashmodifier:)>) 宏，应用程序可确保 SwiftData 仅存储一次具有该字段特定值的地震。
+- 震级 `magnitude`：地震的大小。
+- 时间戳 `timestamp`：地震发生的时刻，存储为 [Date](https://developer.apple.com/documentation/foundation/date) 实例。
+- 位置 `location`：包含位置名称和地图坐标的自定义 `Location` 实例：
 
 ```swift
 struct Location: Codable {
@@ -59,11 +57,11 @@ struct Location: Codable {
 }
 ```
 
-Quake 模型可以嵌入位置实例，因为 Location 结构符合 Codable 协议。
+`Quake` 模型可以嵌入 `location` 实例，因为 `Location` 结构体符合 [Codable](https://developer.apple.com/documentation/Swift/Codable) 协议。
 
 ## 对服务器数据建模
 
-该应用程序从美国地质调查局 (USGS) 服务器加载数据，该服务器提供 GeoJSON 格式的地震数据。为了解释此数据，应用程序定义了一个 GeoFeatureCollection 结构，其属性名称与相关 JSON 属性的名称相匹配：
+该应用程序从美国地质调查局（USGS）服务器加载数据，该服务器提供 [GeoJSON](https://earthquake.usgs.gov/earthquakes/feed/v1.0/geojson.php) 格式的地震数据。为了解释此数据，应用程序定义了一个 `GeoFeatureCollection` 结构体，其属性名称与相关 JSON 属性的名称相匹配：
 
 ```swift
 struct GeoFeatureCollection: Decodable {
@@ -87,11 +85,11 @@ struct GeoFeatureCollection: Decodable {
 }
 ```
 
-该结构及其子结构包括与该应用程序相关的元素，即幅度、时间和位置信息。它们省略了服务器提供的许多其它字段，因为应用程序不需要它们。该结构也符合 Decodable 协议，因此应用程序可以使用该结构来解码下载的数据。
+该结构体及其子结构体包含与该应用程序相关的元素，即震级（magnitude）、时间和位置信息。它们省略了服务器提供的许多其它字段，因为应用程序不需要它们。该结构体也符合 [Decodable](https://developer.apple.com/documentation/Swift/Decodable) 协议，因此应用程序可以使用该结构体来解码下载的数据。
 
 ## 从服务器下载数据
 
-为了检索数据，应用程序定义了一个 fetchFeatures() 方法，该方法使用 URLSession 将地震 JSON 存储在 data 属性中：
+为了检索数据，应用程序定义了一个 `fetchFeatures()` 方法，该方法使用 [URLSession](https://developer.apple.com/documentation/foundation/urlsession) 将地震 JSON 存储在 `data` 属性中：
 
 ```swift
 let session = URLSession.shared
@@ -103,7 +101,7 @@ else {
 }
 ```
 
-然后，该方法根据可解码的 GeoFeatureCollection 结构提供的定义，使用 JSONDecoder 实例解析数据：
+然后，该方法根据可解码的 `GeoFeatureCollection` 结构体提供的定义，使用 [JSONDecoder](https://developer.apple.com/documentation/foundation/jsondecoder) 实例解析数据：
 
 ```swift
 do {
@@ -115,11 +113,11 @@ do {
 }
 ```
 
-有关解码 JSON 数据的其它示例，请参阅将 JSON 与自定义类型结合使用。
+有关解码 JSON 数据的其它示例，请参阅 [将 JSON 与自定义类型结合使用](https://developer.apple.com/documentation/foundation/archives_and_serialization/using_json_with_custom_types)。
 
 ## 将服务器数据转换为模型数据
 
-检索特征集合后，应用程序将每个特征解释为地震。Quake 类定义了一个方便的初始化器，用于从要素实例创建新的地震：
+检索特征集合后，应用程序将每个特征解释（interprets）为地震。`Quake` 类定义了一个便捷初始化器，用于从要素实例创建新的地震：
 
 ```swift
 convenience init(from feature: GeoFeatureCollection.Feature) {
@@ -134,11 +132,11 @@ convenience init(from feature: GeoFeatureCollection.Feature) {
 }
 ```
 
-这使得应用程序能够将数据从服务器提供的格式转换为应用程序方便的格式。例如，初始化程序将要素 geometry.coordinates 数组中显示为匿名元素的经度和纬度坐标转换为命名参数。
+这使得应用程序能够将数据从「服务器提供的格式」转换为「应用程序方便的格式」。例如，初始化器将要素 `geometry.coordinates` 数组中显示为匿名元素的经度和纬度坐标转换为命名参数。
 
 ## 插入或更新新的地震数据
 
-当应用程序创建新的地震实例时，它会通过为每个实例调用模型上下文的 insert(\_:) 方法来持久存储震级大于零的任何地震实例：
+当应用程序创建新的地震实例时，它会通过为每个实例调用模型上下文的 [insert(\_:)](<https://developer.apple.com/documentation/swiftdata/modelcontext/insert(_:)>) 方法来持久存储震级大于零的任何地震实例：
 
 ```swift
 for feature in featureCollection.features {
@@ -150,6 +148,1106 @@ for feature in featureCollection.features {
 }
 ```
 
-应用程序针对初始下载和稍后的刷新操作运行此循环。当应用程序保存更改时（在本例中会自动发生，因为上下文的 autosaveEnabled 属性具有默认值 true ）- SwiftData 检查指定的地震是否为 code 参数与商店中已有的地震代码相匹配。如果是，框架将使用指定参数中的值更新存储的地震的其它参数。否则，框架会向存储添加新的地震。
+应用程序针对 "初始下载" 和 "稍后的刷新操作" 运行此循环。当应用程序保存更改时（在本例中会自动发生，因为上下文的 `autosaveEnabled` 属性具有默认值 true ）- SwiftData 检查 "指定的地震 code 参数" 是否与 "存储中已有的地震编码" 相匹配。如果是，框架将使用指定参数中的值更新存储的地震的其它参数。否则，框架会向存储添加新的地震。
 
-insert 方法适用于创建和更新地震模型实例，因为模型指示 code 参数是唯一的。这依赖于服务器确保每个地震事件都有唯一、稳定的代码这一事实。
+`insert` 方法适用于创建和更新地震模型实例，因为模型指示 code 参数是唯一的。这依赖于服务器确保每个地震事件都有唯一、稳定的代码这一事实。
+
+## 完整示例代码
+
+### DataCacheApp.swift
+
+```swift
+// Abstract:
+// The main entry point of the DataCache app.
+
+import SwiftUI
+import SwiftData
+
+/// The main entry point of the DataCache app.
+@main
+struct DataCacheApp: App {
+    @State private var viewModel = ViewModel()
+
+    var body: some Scene {
+        WindowGroup {
+            ContentView()
+                .environment(viewModel)
+        }
+        .modelContainer(for: Quake.self)
+    }
+}
+```
+
+### Navigation
+
+#### ContentView.swift
+
+```swift
+// Abstract:
+// The app's top level navigation split view.
+
+import SwiftUI
+import SwiftData
+
+/// The app's top level navigation split view.
+struct ContentView: View {
+    @Environment(ViewModel.self) private var viewModel
+    @Environment(\.modelContext) private var modelContext
+    @Environment(\.scenePhase) private var scenePhase
+
+    @Query private var quakes: [Quake]
+
+    /// The identifier of the selected earthquake.
+    ///
+    /// The list controls this value through a binding, and most of the app's
+    /// interface relies on this value, with one exception: the map view binds
+    /// to a separate selection value. The app synchronizes these selections,
+    /// but using separate values enables the app to detect when someone taps
+    /// on the map so that it can scroll the list to match.
+    @State private var selectedId: Quake.ID? = nil
+
+    /// The identifier of the earthquake that the map highlights.
+    ///
+    /// This distinct map selection state enables the app to use
+    /// changes in map selection to drive scroll changes in the list.
+    @State private var selectedIdMap: Quake.ID? = nil
+
+    var body: some View {
+        @Bindable var viewModel = viewModel
+
+        NavigationSplitView {
+            QuakeList(
+                selectedId: $selectedId,
+                selectedIdMap: $selectedIdMap,
+                searchText: viewModel.searchText,
+                searchDate: viewModel.searchDate,
+                sortParameter: viewModel.sortParameter,
+                sortOrder: viewModel.sortOrder
+            )
+            .searchable(text: $viewModel.searchText)
+            .toolbar {
+                // In iOS, the refreshable modifier provides pull-to-refresh.
+                // In macOS, add a refresh button to the toolbar instead.
+                #if os(macOS)
+                RefreshButton()
+                #endif
+
+                DeleteButton(selectedId: $selectedId)
+                SortButton()
+            }
+
+            // This modifier creates a pull-to-refresh in iOS, but also sets
+            // the refresh action in the environment, which the custom macOS
+            // RefreshButton uses.
+            .refreshable {
+                await GeoFeatureCollection.refresh(modelContext: modelContext)
+                viewModel.update(modelContext: modelContext)
+            }
+            .navigationTitle("Earthquakes")
+        } detail: {
+            MapView(
+                selectedId: $selectedId,
+                selectedIdMap: $selectedIdMap,
+                searchDate: viewModel.searchDate,
+                searchText: viewModel.searchText
+            )
+            #if os(macOS)
+            .navigationTitle(quakes[selectedId]?.location.name ?? "Earthquakes")
+            .navigationSubtitle(quakes[selectedId]?.fullDate ?? "")
+            #else
+            .navigationTitle(quakes[selectedId]?.location.name ?? "")
+            .navigationBarTitleDisplayMode(.inline)
+            #endif
+        }
+        .onChange(of: scenePhase) { _, scenePhase in
+            if scenePhase == .active {
+                viewModel.update(modelContext: modelContext)
+            }
+        }
+    }
+}
+
+#Preview {
+    ContentView()
+        .environment(ViewModel())
+        .modelContainer(for: Quake.self, inMemory: true)
+}
+```
+
+#### SortButton.swift
+
+```swift
+// Abstract:
+// A button that people can use to set the sort criteria.
+
+import SwiftUI
+
+/// A button that people can use to set the sort criteria.
+struct SortButton: View {
+    @Environment(ViewModel.self) private var viewModel
+
+    var body: some View {
+        @Bindable var viewModel = viewModel
+
+        Menu {
+            Picker("Sort Order", selection: $viewModel.sortOrder) {
+                ForEach([SortOrder.forward, .reverse], id: \.self) { order in
+                    Text(order.name)
+                }
+            }
+            Picker("Sort By", selection: $viewModel.sortParameter) {
+                ForEach(SortParameter.allCases) { parameter in
+                    Text(parameter.name)
+                }
+            }
+        } label: {
+            Label("Sort", systemImage: "arrow.up.arrow.down")
+        }
+        .pickerStyle(.inline)
+    }
+}
+
+extension SortOrder {
+    /// A name for the sort order in the user interface.
+    var name: String {
+        switch self {
+        case .forward: "Forward"
+        case .reverse: "Reverse"
+        }
+    }
+}
+
+/// The characteristics by which the app can sort earthquake data.
+enum SortParameter: String, CaseIterable, Identifiable {
+    case time, magnitude
+    var id: Self { self }
+    var name: String { rawValue.capitalized }
+}
+
+#Preview {
+    SortButton()
+        .environment(ViewModel())
+}
+```
+
+#### RefreshButton.swift
+
+```swift
+// Abstract:
+// A button that initiates the refresh action in the environment.
+
+import SwiftUI
+
+/// A button that initiates the refresh action in the environment.
+///
+/// This button relies on the refresh action, which you can put into the
+/// environment by adding a refreshable modifier to the view hieararchy.
+struct RefreshButton: View {
+    @Environment (\.refresh) private var refresh
+
+    var body: some View {
+        Button {
+            Task {
+                await refresh?()
+            }
+        } label: {
+            Label("Refresh", systemImage: "arrow.clockwise")
+        }
+    }
+}
+
+#Preview {
+    RefreshButton()
+}
+```
+
+#### DeleteButton.swift
+
+```swift
+// Abstract:
+// A button that presents a menu with options to delete one or all quakes.
+
+import SwiftUI
+import SwiftData
+
+/// A button that presents a menu with options to delete one or all quakes.
+struct DeleteButton: View {
+    @Environment(ViewModel.self) private var viewModel
+    @Environment(\.modelContext) private var modelContext
+
+    @Query private var quakes: [Quake]
+    @Binding var selectedId: Quake.ID?
+
+    var body: some View {
+        Menu("Delete", systemImage: "trash") {
+            Button {
+                guard let selectedQuake = quakes[selectedId] else { return }
+                selectedId = nil
+                modelContext.delete(selectedQuake)
+                viewModel.update(modelContext: modelContext)
+            } label: {
+                Text("Delete Selected")
+            }
+            .disabled(selectedId == nil)
+
+            Button {
+                selectedId = nil
+                try? modelContext.delete(model: Quake.self)
+                viewModel.update(modelContext: modelContext)
+            } label: {
+                Text("Delete All")
+            }
+        }
+        .disabled(quakes.isEmpty)
+    }
+}
+
+#Preview {
+    DeleteButton(selectedId: .constant(nil))
+        .environment(ViewModel())
+}
+```
+
+### Sidebar
+
+#### QuakeList.swift
+
+```swift
+// Abstract:
+// The sorted and filtered list of earthquakes that the app stores.
+
+import SwiftUI
+import SwiftData
+
+/// The sorted and filtered list of earthquakes that the app stores.
+struct QuakeList: View {
+    @Environment(ViewModel.self) private var viewModel
+    @Environment(\.modelContext) private var modelContext
+    @Query private var quakes: [Quake]
+
+    @Binding var selectedId: Quake.ID?
+    @Binding var selectedIdMap: Quake.ID?
+
+    init(
+        selectedId: Binding<Quake.ID?>,
+        selectedIdMap: Binding<Quake.ID?>,
+
+        searchText: String = "",
+        searchDate: Date = .now,
+        sortParameter: SortParameter = .time,
+        sortOrder: SortOrder = .reverse
+    ) {
+        _selectedId = selectedId
+        _selectedIdMap = selectedIdMap
+
+        let predicate = Quake.predicate(searchText: searchText, searchDate: searchDate)
+        switch sortParameter {
+        case .time: _quakes = Query(filter: predicate, sort: \.time, order: sortOrder)
+        case .magnitude: _quakes = Query(filter: predicate, sort: \.magnitude, order: sortOrder)
+        }
+    }
+
+    var body: some View {
+        ScrollViewReader { proxy in
+            List(quakes, selection: $selectedId) { quake in
+                QuakeRow(quake: quake)
+            }
+
+#if os(macOS)
+            .safeAreaInset(edge: .bottom) {
+                QuakeListInfo(count: quakes.count)
+                    .padding(.horizontal)
+                    .padding(.bottom, 4)
+            }
+
+#elseif os(iOS)
+            .toolbar {
+                ToolbarItem(placement: .bottomBar) {
+                    QuakeListInfo(count: quakes.count)
+                        .padding(.top)
+                }
+            }
+#endif
+
+            // Synchronize changes from the map back to the main selector.
+            .onChange(of: selectedIdMap) { _, selectedIdMap in
+                guard selectedId != selectedIdMap else { return }
+                selectedId = selectedIdMap
+
+                // When the map selection changes, scroll the list to match.
+                if let id = selectedId {
+                    withAnimation {
+                        proxy.scrollTo(id, anchor: .center)
+                    }
+                }
+            }
+        }
+        .overlay {
+            if viewModel.totalQuakes == 0 {
+                ContentUnavailableView("Refresh to load earthquakes", systemImage: "globe")
+            } else if quakes.isEmpty {
+                ContentUnavailableView.search
+            }
+        }
+   }
+}
+
+#Preview {
+    QuakeList(selectedId: .constant(nil), selectedIdMap: .constant(nil))
+        .environment(ViewModel.preview)
+        .modelContainer(PreviewSampleData.container)
+}
+```
+
+#### QuakeListInfo.swift
+
+```swift
+// Abstract:
+// Information and controls to display at the bottom of the sidebar.
+
+import SwiftUI
+
+/// Information and controls to display at the bottom of the sidebar.
+struct QuakeListInfo: View {
+    @Environment(ViewModel.self) private var viewModel
+
+    var count: Int = 0
+
+    var body: some View {
+        @Bindable var viewModel = viewModel
+
+        HStack {
+            VStack {
+                Text("\(count) earthquakes")
+                Text("\(viewModel.totalQuakes) total")
+                    .foregroundStyle(.secondary)
+            }
+            .fixedSize()
+            Spacer()
+            DatePicker(
+                "Search Date",
+                selection: $viewModel.searchDate,
+                in: viewModel.searchDateRange,
+                displayedComponents: .date
+            )
+            .labelsHidden()
+            .disabled(viewModel.totalQuakes == 0)
+        }
+    }
+}
+
+#Preview {
+    QuakeListInfo(count: 8)
+        .environment(ViewModel.preview)
+}
+```
+
+#### QuakeRow.swift
+
+```swift
+// Abstract:
+// A single row in the list of earthquakes.
+
+import SwiftUI
+
+/// A single row in the list of earthquakes.
+struct QuakeRow: View {
+    var quake: Quake
+
+    var body: some View {
+        HStack {
+            RoundedRectangle(cornerRadius: 8)
+                .fill(.black)
+                .frame(width: 60, height: 40)
+                .overlay {
+                    Text(quake.magnitudeString)
+                        .font(.title)
+                        .bold()
+                        .foregroundStyle(quake.color)
+                }
+
+            VStack(alignment: .leading) {
+                Text(quake.location.name)
+                    .font(.headline)
+                Text("\(quake.time.formatted(.relative(presentation: .named)))")
+                    .foregroundStyle(.secondary)
+            }
+        }
+        .padding(.vertical, 8)
+    }
+}
+
+#Preview {
+    ModelContainerPreview(PreviewSampleData.inMemoryContainer) {
+        VStack {
+            QuakeRow(quake: .xsmall)
+            QuakeRow(quake: .small)
+            QuakeRow(quake: .medium)
+            QuakeRow(quake: .large)
+            QuakeRow(quake: .xlarge)
+        }
+        .padding()
+        .frame(minWidth: 300, alignment: .leading)
+    }
+}
+```
+
+### Detail
+
+#### MapView.swift
+
+```swift
+// Abstract:
+// A detail view that displays a map with an annotation for each stored quake.
+
+import SwiftUI
+import SwiftData
+import MapKit
+import simd
+
+/// A detail view that displays a map with an annotation for each stored quake.
+struct MapView: View {
+    @Environment(\.modelContext) private var modelContext
+    @Query(sort: \Quake.magnitude, order: .reverse) private var quakes: [Quake]
+
+    @Binding var selectedId: Quake.ID?
+    @Binding var selectedIdMap: Quake.ID?
+
+    init(
+        selectedId: Binding<Quake.ID?>,
+        selectedIdMap: Binding<Quake.ID?>,
+        searchDate: Date = .now,
+        searchText: String = ""
+    ) {
+        _selectedId = selectedId
+        _selectedIdMap = selectedIdMap
+
+        _quakes = Query(
+            filter: Quake.predicate(
+                searchText: searchText,
+                searchDate: searchDate),
+            sort: \.magnitude,
+            order: .reverse
+        )
+    }
+
+    var body: some View {
+        Map(selection: $selectedIdMap) {
+            ForEach(quakes) { quake in
+                QuakeMarker(quake: quake, selected: quake.id == selectedId)
+            }
+        }
+        .mapStyle(.standard(
+            elevation: .flat,
+            emphasis: .muted,
+            pointsOfInterest: .excludingAll))
+        .mapCameraKeyframeAnimator(trigger: selectedId) { initialCamera in
+            let start = initialCamera.centerCoordinate
+            let end = quakes[selectedId]?.location.coordinate ?? start
+            let travelDistance = start.distance(to: end)
+
+            let duration = max(min(travelDistance / 30, 5), 1)
+            let finalAltitude = travelDistance > 20 ? 3_000_000 : min(initialCamera.distance, 3_000_000)
+            let middleAltitude = finalAltitude * max(min(travelDistance / 5, 1.5), 1)
+
+            KeyframeTrack(\MapCamera.centerCoordinate) {
+                CubicKeyframe(end, duration: duration)
+            }
+            KeyframeTrack(\MapCamera.distance) {
+                CubicKeyframe(middleAltitude, duration: duration / 2)
+                CubicKeyframe(finalAltitude, duration: duration / 2)
+            }
+        }
+
+        // Synchronize changes from the main selector into the map.
+        .onChange(of: selectedId) { _, selectedId in
+            guard selectedId != selectedIdMap else { return }
+            selectedIdMap = selectedId
+        }
+    }
+}
+
+extension CLLocationCoordinate2D {
+    /// Calculates a value that's proportional to the distance between two points.
+    fileprivate func distance(to coordinate: CLLocationCoordinate2D) -> Double {
+        simd.distance(
+            SIMD2<Double>(x: latitude, y: longitude),
+            SIMD2<Double>(x: coordinate.latitude, y: coordinate.longitude))
+    }
+}
+
+#Preview {
+    MapView(selectedId: .constant(nil), selectedIdMap: .constant(nil))
+}
+```
+
+#### QuakeMarker.swift
+
+```swift
+// Abstract:
+// A map annotation that represents a single earthquake.
+
+import SwiftUI
+import MapKit
+
+/// A map annotation that represents a single earthquake.
+struct QuakeMarker: MapContent {
+    var quake: Quake
+    var selected: Bool
+
+    var body: some MapContent {
+        Annotation(coordinate: quake.location.coordinate) {
+            QuakeCircle(quake: quake, selected: selected)
+        } label: {
+            Text(quake.location.name)
+        }
+        .tag(quake)
+        .annotationTitles(.hidden)
+    }
+}
+
+/// The colorful circle that represents a single earthquake.
+private struct QuakeCircle: View {
+    var quake: Quake
+    var selected: Bool
+
+    var body: some View {
+        Circle()
+            .stroke(
+                selected ? Color.black : .gray,
+                style: .init(lineWidth: selected ? 2 : 1))
+            .fill(quake.color.opacity(selected ? 1 : 0.5))
+            .frame(width: quake.markerSize.width, height: quake.markerSize.width)
+    }
+}
+
+#Preview {
+    ModelContainerPreview(PreviewSampleData.inMemoryContainer) {
+        VStack {
+            QuakeCircle(quake: .xxsmall, selected: false)
+            QuakeCircle(quake: .xsmall, selected: false)
+            QuakeCircle(quake: .medium, selected: false)
+            QuakeCircle(quake: .large, selected: true)
+            QuakeCircle(quake: .xlarge, selected: false)
+            QuakeCircle(quake: .xxlarge, selected: false)
+            QuakeCircle(quake: .xxxlarge, selected: false)
+        }
+    }
+}
+```
+
+### Model
+
+#### Quake.swift
+
+```swift
+// Abstract:
+// A representation of an earthquake.
+
+import SwiftUI
+import SwiftData
+
+/// A representation of an earthquake.
+@Model
+class Quake {
+    /// A unique identifier associated with each earthquake event.
+    @Attribute(.unique) var code: String
+
+    /// The measured strength of the earthquake.
+    var magnitude: Double
+
+    /// When the earthquake happened.
+    var time: Date
+
+    /// Where the earthquake happened.
+    var location: Location
+
+    /// Creates a new earthquake from the specified values.
+    init(
+        code: String,
+        magnitude: Double,
+        time: Date,
+        name: String,
+        longitude: Double,
+        latitude: Double
+    ) {
+        self.code = code
+        self.magnitude = magnitude
+        self.time = time
+        self.location = Location(name: name, longitude: longitude, latitude: latitude)
+    }
+}
+
+// A convenience for accessing a quake in an array by its identifier.
+extension Array where Element: Quake {
+    /// Gets the first quake in the array with the specified ID, if any.
+    subscript(id: Quake.ID?) -> Quake? {
+        first { $0.id == id }
+    }
+}
+
+// Values that the app uses to represent earthquakes in the interface.
+extension Quake {
+    /// A color that represents the quake's magnitude.
+    var color: Color {
+        switch magnitude {
+        case 0..<1:
+            return .green
+        case 1..<2:
+            return .yellow
+        case 2..<3:
+            return .orange
+        case 3..<5:
+            return .red
+        case 5..<7:
+            return .purple
+        case 7..<Double.greatestFiniteMagnitude:
+            return .indigo
+        default:
+            return .gray
+        }
+    }
+
+    /// The size for a marker that represents a quake on a map.
+    var markerSize: CGSize {
+        let value = (magnitude + 3) * 6
+        return CGSize(width: value, height: value)
+    }
+
+    /// The earthquakes magnitude, to one decimal place.
+    var magnitudeString: String {
+        magnitude.formatted(.number.precision(.fractionLength(1)))
+    }
+
+    /// A complete representation of the event's date.
+    var fullDate: String {
+        time.formatted(date: .complete, time: .complete)
+    }
+}
+
+// A string represenation of the quake.
+extension Quake: CustomStringConvertible {
+    var description: String {
+        "\(fullDate) \(magnitudeString) \(location)"
+    }
+}
+
+extension Quake {
+    /// A filter that checks for a date and text in the quake's location name.
+    static func predicate(
+        searchText: String,
+        searchDate: Date
+    ) -> Predicate<Quake> {
+        let calendar = Calendar.autoupdatingCurrent
+        let start = calendar.startOfDay(for: searchDate)
+        let end = calendar.date(byAdding: .init(day: 1), to: start) ?? start
+
+        return #Predicate<Quake> { quake in
+            (searchText.isEmpty || quake.location.name.contains(searchText))
+            &&
+            (quake.time > start && quake.time < end)
+        }
+    }
+
+    /// Report the range of dates over which there are earthquakes.
+    static func dateRange(modelContext: ModelContext) -> ClosedRange<Date> {
+        let descriptor = FetchDescriptor<Quake>(sortBy: [.init(\.time, order: .forward)])
+        guard let quakes = try? modelContext.fetch(descriptor),
+              let first = quakes.first?.time,
+              let last = quakes.last?.time else { return .distantPast ... .distantFuture }
+        return first ... last
+    }
+
+    /// Reports the total number of quakes.
+    static func totalQuakes(modelContext: ModelContext) -> Int {
+        (try? modelContext.fetchCount(FetchDescriptor<Quake>())) ?? 0
+    }
+}
+
+// Ensure that the model's conformance to Identifiable is public.
+extension Quake: Identifiable {}
+```
+
+#### Location.swift
+
+```swift
+// Abstract:
+// A location on Earth.
+
+import CoreLocation
+
+/// A location on Earth.
+struct Location: Codable {
+    /// A string that describes the location.
+    var name: String
+
+    /// The longitude of the location, given in degrees between -180 and 180.
+    var longitude: Double
+
+    /// The latitude of the location, given in degrees between -90 and 90.
+    var latitude: Double
+
+    /// The longitude and latitude collected into a location coordinate.
+    var coordinate: CLLocationCoordinate2D {
+        CLLocationCoordinate2D(latitude: latitude, longitude: longitude)
+    }
+}
+
+// A string represenation of the location.
+extension Location: CustomStringConvertible {
+    /// A string represenation of the location coordinate.
+    var description: String {
+        "["
+        + longitude.formatted(.number.precision(.fractionLength(1)))
+        + ", "
+        + latitude.formatted(.number.precision(.fractionLength(1)))
+        + "] "
+        + name
+    }
+}
+```
+
+#### GeoFeatureCollection.swift
+
+````swift
+// Abstract:
+// A representation of the JSON data served by the USGS server.
+
+import Foundation
+
+/// A container that decodes a feature collection from the server.
+///
+/// This structure decodes JSON with the following layout:
+///
+/// ```json
+/// {
+///    "features": [
+///          {
+///       "properties": {
+///         "mag": 1.9,
+///         "place": "21km ENE of Honaunau-Napoopoo, Hawaii",
+///         "time": 1539187727610,
+///         "code": "70643082"
+///       },
+///       "gemoetry": {
+///         "coordinates": [63.2, -150.9, 5.2]
+///       }
+///     }
+///   ]
+/// }
+/// ```
+///
+struct GeoFeatureCollection: Decodable {
+    let features: [Feature]
+
+    struct Feature: Decodable {
+        let properties: Properties
+        let geometry: Geometry
+
+        struct Properties: Decodable {
+            let mag: Double
+            let place: String
+            let time: Date
+            let code: String
+        }
+
+        struct Geometry: Decodable {
+            let coordinates: [Double]
+        }
+    }
+}
+
+extension GeoFeatureCollection.Feature: CustomStringConvertible {
+    var description: String {
+    """
+    feature: {
+        properties: {
+            mag: \(properties.mag),
+            place: \(properties.place),
+            time: \(properties.time),
+            code: \(properties.code)
+        },
+        geometry: { coordinates: \(geometry.coordinates) }
+    }
+    """
+    }
+}
+
+extension GeoFeatureCollection: CustomStringConvertible {
+    var description: String {
+        var description = "Empty feature collection."
+        if let feature = features.first {
+            description = feature.description
+            if features.count > 1 {
+                description += "\n...and \(features.count - 1) more."
+            }
+        }
+        return description
+    }
+}
+
+// Fetch new data.
+extension GeoFeatureCollection {
+    /// Gets and decodes the latest earthquake data from the server.
+    static func fetchFeatures() async throws -> GeoFeatureCollection {
+        /// Geological data provided by the U.S. Geological Survey (USGS). See ACKNOWLEDGMENTS.txt for additional details.
+        let url = URL(string: "https://earthquake.usgs.gov/earthquakes/feed/v1.0/summary/all_day.geojson")!
+
+        let session = URLSession.shared
+        guard let (data, response) = try? await session.data(from: url),
+              let httpResponse = response as? HTTPURLResponse,
+              httpResponse.statusCode == 200
+        else {
+            throw DownloadError.missingData
+        }
+
+        do {
+            // Decode the GeoJSON into a data model.
+            let jsonDecoder = JSONDecoder()
+            jsonDecoder.dateDecodingStrategy = .millisecondsSince1970
+            return try jsonDecoder.decode(GeoFeatureCollection.self, from: data)
+        } catch {
+            throw DownloadError.wrongDataFormat(error: error)
+        }
+    }
+}
+
+/// The kinds of errors that occur when loading feature data.
+enum DownloadError: Error {
+    case wrongDataFormat(error: Error)
+    case missingData
+}
+````
+
+#### Quake+GeoFeatureCollection.swift
+
+```swift
+// Abstract:
+// Load and parse earthquake data via a feature collection.
+
+import SwiftData
+import OSLog
+
+// A mapping from items in the feature collection to earthquake items.
+extension Quake {
+    /// Creates a new quake instance from a decoded feature.
+    convenience init(from feature: GeoFeatureCollection.Feature) {
+        self.init(
+            code: feature.properties.code,
+            magnitude: feature.properties.mag,
+            time: feature.properties.time,
+            name: feature.properties.place,
+            longitude: feature.geometry.coordinates[0],
+            latitude: feature.geometry.coordinates[1]
+        )
+    }
+}
+
+// Helper methods for loading feature data and storing it as quakes.
+extension GeoFeatureCollection {
+    /// A logger for debugging.
+    fileprivate static let logger = Logger(subsystem: "com.example.apple-samplecode.DataCache", category: "parsing")
+
+    /// Loads new earthquakes and deletes outdated ones.
+    @MainActor
+    static func refresh(modelContext: ModelContext) async {
+        do {
+            // Fetch the latest set of quakes from the server.
+            logger.debug("Refreshing the data store...")
+            let featureCollection = try await fetchFeatures()
+            logger.debug("Loaded feature collection:\n\(featureCollection)")
+
+            // Add the content to the data store.
+            for feature in featureCollection.features {
+                let quake = Quake(from: feature)
+
+                // Ignore anything with a magnitude of zero or less.
+                if quake.magnitude > 0 {
+                    logger.debug("Inserting \(quake)")
+                    modelContext.insert(quake)
+                }
+            }
+
+            logger.debug("Refresh complete.")
+
+        } catch let error {
+            logger.error("\(error.localizedDescription)")
+        }
+    }
+}
+```
+
+#### ViewModel.swift
+
+```swift
+// Abstract:
+// User interface configuration values.
+
+import Foundation
+import SwiftData
+
+/// User interface configuration values.
+@Observable
+class ViewModel {
+    /// The parameter to order quakes by in the list view.
+    var sortParameter: SortParameter = .time
+
+    /// The sort direction for quakes in the list view.
+    var sortOrder: SortOrder = .reverse
+
+    /// A location name to use when filtering quakes.
+    var searchText: String = ""
+
+    /// A date to use when filtering quakes.
+    ///
+    /// Both the list and map views display only the quakes that occur between
+    /// the start and end of the day in the current time zone that contain
+    /// the point in time represented by this date.
+    var searchDate: Date = .now
+
+    /// The range of dates that the date picker offers for filtering quakes.
+    ///
+    /// The app recalculates this range when the list of quakes changes, like
+    /// after loading new quakes or deleting existing ones, to
+    /// include the full range of dates over all the stored quakes.
+    var searchDateRange: ClosedRange<Date> = .distantPast ... .distantFuture
+
+    /// The total number of quakes in the store.
+    var totalQuakes: Int = 0
+
+    /// Updates the search date and search date range based on the current
+    /// set of stored quakes.
+    func update(modelContext: ModelContext) {
+        searchDateRange = Quake.dateRange(modelContext: modelContext)
+        searchDate = min(searchDateRange.upperBound, .now)
+        totalQuakes = Quake.totalQuakes(modelContext: modelContext)
+    }
+}
+```
+
+### Preview Content
+
+#### PreviewSampleData.swift
+
+```swift
+// Abstract:
+// An actor that provides an in-memory model container for previews.
+
+import SwiftData
+import SwiftUI
+
+/// An actor that provides an in-memory model container for previews.
+actor PreviewSampleData {
+    @MainActor
+    static var container: ModelContainer = {
+        return try! inMemoryContainer()
+    }()
+
+    static var inMemoryContainer: () throws -> ModelContainer = {
+        let schema = Schema([Quake.self])
+        let configuration = ModelConfiguration(isStoredInMemoryOnly: true)
+        let container = try! ModelContainer(for: schema, configurations: [configuration])
+        let sampleData: [any PersistentModel] = [
+            Quake.xxsmall,
+            Quake.xsmall,
+            Quake.small,
+            Quake.medium,
+            Quake.large,
+            Quake.xlarge,
+            Quake.xxlarge,
+            Quake.xxxlarge
+        ]
+        Task { @MainActor in
+            sampleData.forEach {
+                container.mainContext.insert($0)
+            }
+        }
+        return container
+    }
+}
+
+// Default quakes for use in previews.
+extension Quake {
+    static var xxsmall: Quake {
+        .init(code: "1", magnitude: 0.5, time: .now, name: "West of California", longitude: -125, latitude: 35)
+    }
+    static var xsmall: Quake {
+        .init(code: "2", magnitude: 1.5, time: .now, name: "West of California", longitude: -125, latitude: 35)
+    }
+    static var small: Quake {
+        .init(code: "3", magnitude: 2.5, time: .now, name: "West of California", longitude: -125, latitude: 35)
+    }
+    static var medium: Quake {
+        .init(code: "4", magnitude: 3.5, time: .now, name: "West of California", longitude: -125, latitude: 35)
+    }
+    static var large: Quake {
+        .init(code: "5", magnitude: 4.5, time: .now, name: "West of California", longitude: -125, latitude: 35)
+    }
+    static var xlarge: Quake {
+        .init(code: "6", magnitude: 5.5, time: .now, name: "West of California", longitude: -125, latitude: 35)
+    }
+    static var xxlarge: Quake {
+        .init(code: "7", magnitude: 6.5, time: .now, name: "West of California", longitude: -125, latitude: 35)
+    }
+    static var xxxlarge: Quake {
+        .init(code: "8", magnitude: 7.5, time: .now, name: "West of California", longitude: -125, latitude: 35)
+    }
+}
+
+extension ViewModel {
+    static var preview: ViewModel {
+        let model = ViewModel()
+        model.totalQuakes = 8
+        return model
+    }
+}
+```
+
+#### ModelContainerPreviews.swift
+
+```swift
+// Abstract:
+// A view that creates a model container before showing preview content.
+
+import SwiftUI
+import SwiftData
+
+/// A view that creates a model container before showing preview content.
+///
+/// Use this view type only for previews, and only when you need
+/// to create a container before showing the view content. As an example
+/// of how to use this view, see the preview for `QuakeRow`.
+struct ModelContainerPreview<Content: View>: View {
+    var content: () -> Content
+    let container: ModelContainer
+
+    /// Creates a view that creates the specified model container before
+    /// displaying the preview content.
+    init(
+        _ modelContainer: @escaping () throws -> ModelContainer,
+        @ViewBuilder content: @escaping () -> Content
+    ) {
+        self.content = content
+        do {
+            self.container = try MainActor.assumeIsolated(modelContainer)
+        } catch {
+            fatalError("Failed to create the model container: \(error.localizedDescription)")
+        }
+    }
+
+    var body: some View {
+        content()
+            .modelContainer(container)
+    }
+}
+```
+
+## 部分示例截图
+
+<Screenshots
+  data={[
+    require("./screenshot_1.png"),
+    require("./screenshot_2.png"),
+    require("./screenshot_3.png"),
+  ]}
+/>
