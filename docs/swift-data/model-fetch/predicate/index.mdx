@@ -1,18 +1,23 @@
 # Predicate
 
-<ToBePolishedAfterTranslation />
-
 <OriginalSource
   title="Predicate"
   url="https://developer.apple.com/documentation/foundation/predicate"
-  summary="用于测试一组输入值以进行搜索或过滤的逻辑条件"
+  summary="一个用于测试一组输入值以进行搜索或过滤的逻辑条件"
 />
+
+```swift
+@available(macOS 14, iOS 17, tvOS 17, watchOS 10, *)
+public struct Predicate<each Input> : Sendable {
+    // ...
+}
+```
 
 ## 概述
 
-断言是计算结果为布尔值（真或假）的逻辑条件。你可以使用断言进行过滤集合或搜索匹配元素等操作。
+断言是计算结果为布尔值（`true` 或 `false`）的逻辑条件。你可以使用断言进行 "过滤集合" 或 "搜索匹配元素" 等操作。
 
-要创建断言，请使用 Predicate(\_:) 宏。例如：
+要创建断言，请使用 `Predicate(_:)` 宏。例如：
 
 ```swift
 let messagePredicate = #Predicate<Message> { message in
@@ -20,20 +25,24 @@ let messagePredicate = #Predicate<Message> { message in
 }
 ```
 
-- 算术（ + 、 - 、 \* 、 / 、 % ）
-- 一元减号 ( - )
-- 范围（ ... ，..< ）
-- 比较（ < 、 <= 、 > 、 >= 、 == 、 != ）
-- 三元条件 ( ?: )
-- 条件表达式
-- 布尔逻辑（ && 、 || 、 ! ）
-- Swift 可选（ ? 、 ?? 、 ! 、 flatMap(\_:) 、 if - let 表达式）
-- 类型（ as 、 as? 、 as! 、 is ）
-- 序列操作（ allSatisfy() 、 filter() 、 contains() 、 contains(where:) 、 starts(with:) 、 max() ，min() ）
-- 下标和成员访问（ [] 、 . ）
-- 字符串比较（ contains(_:) 、 localizedStandardContains(_:) 、 caseInsensitiveCompare(_:) 、 localizedCompare(_:) ）
+在上面的示例中，包含断言条件的闭包采用一个参数：正在测试的值。即使你使用闭包编写断言，宏也会在编译时将该闭包转换为断言。闭包中的代码不作为程序的一部分运行。
 
-断言不能包含任何嵌套声明、使用任何流控制（例如 for 循环）或修改其封闭范围中的变量。但是，它可以引用范围内的常量。
+在断言的定义中，你可以使用以下操作符：
+
+- 算术（`+`、`-`、`*`、`/`、`%`）
+- 一元减号（`-`）
+- 范围（`...`、`..<` ）
+- 比较（`<`、`<=`、`>`、`>=`、`==`、`!=`）
+- 三元条件（`?:`）
+- 条件表达式
+- 布尔逻辑（`&&`、`||`、`!`）
+- Swift 可选（`?`、`??`、`!`、`flatMap(_:)`、`if-let` 表达式）
+- 类型（`as`、`as?`、`as!`、`is`）
+- 序列操作（`allSatisfy()`、`filter()`、`contains()`、`contains(where:)`、`starts(with:)`、`max()`、`min()`）
+- 下标和成员访问（`[]`、`.`）
+- 字符串比较（`contains(_:)`、`localizedStandardContains(_:)`、`caseInsensitiveCompare(_:)`、`localizedCompare(_:)`）
+
+断言不能包含任何嵌套声明、使用任何流控制（例如 `for` 循环）或修改其封闭范围中的变量。但是，它可以引用范围内的常量。
 
 要表达更复杂的查询，你可以在断言中嵌套表达式：
 
@@ -45,9 +54,9 @@ let messagePredicate = #Predicate<Message> { message in
 }
 ```
 
-你可以安全地对断言进行编码和解码、跨并发边界传递断言以及从文件加载断言。要定义读取存档断言时允许的类型和关键路径列表，请使用 PredicateCodableConfiguration 。
+你可以安全地对断言进行编码和解码、跨并发边界传递断言以及从文件加载断言。要定义在读取存档断言（archived predicate）时允许的类型和键路径列表，请使用 [PredicateCodableConfiguration](https://developer.apple.com/documentation/foundation/predicatecodableconfiguration)。
 
-你可以使用 expression 属性将断言转换为另一种表示形式 - 例如，以另一种查询语言表示断言，或创建修改后的断言。
+你可以使用 [expression](https://developer.apple.com/documentation/foundation/predicate/4162327-expression) 属性将断言转换为另一种表示形式 - 例如，以另一种查询语言表示断言，或创建修改后的断言。
 
 ## 编码和解码
 

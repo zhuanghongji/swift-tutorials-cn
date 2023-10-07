@@ -1,7 +1,5 @@
 # Query
 
-<ToBePolishedAfterTranslation />
-
 <OriginalSource
   title="Query"
   url="https://developer.apple.com/documentation/swiftdata/query"
@@ -10,7 +8,8 @@
 
 ```swift
 @available(iOS 17.0, macOS 14.0, tvOS 17.0, watchOS 10.0, *)
-public struct Query<Element, Result> : DynamicProperty where Element : PersistentModel {
+public struct Query<Element, Result> : DynamicProperty
+        where Element : PersistentModel {
     // ...
 }
 ```
@@ -20,10 +19,10 @@ public struct Query<Element, Result> : DynamicProperty where Element : Persisten
 ### init(\_:transaction:)
 
 ```swift
-// 使用 SwiftData 获取描述器创建查询
+// 使用 "SwiftData 获取描述器" 创建查询
 //
 // - descriptor: 一个 `SwiftData.FetchDescriptor`
-// - transaction: 用于因获取结果的更改而导致的用户界面更改的事务。
+// - transaction: 用于因 "获取结果的更改" 而导致的 "用户界面更改" 的事务
 public init(_ descriptor: FetchDescriptor<Element>,
             transaction: Transaction? = nil
 ) where Result == [Element]
@@ -32,7 +31,7 @@ public init(_ descriptor: FetchDescriptor<Element>,
 ### init(filter:sort:transaction:)
 
 ```swift
-// 使用断言和排序描述器列表创建查询
+// 使用 "断言和排序描述器列表" 创建查询
 //
 // - filter: Element 上的断言
 // - descriptors: 对结果进行排序
@@ -63,12 +62,12 @@ struct RecipeList: View {
 ### init(filter:sort:order:transaction:)
 
 ```swift
-// 使用断言、用于排序的属性的键路径以及排序顺序创建查询
+// 使用 "断言、用于排序的属性的键路径以及排序顺序" 创建查询
 //
 // - filter: Element 上的断言
 // - sort: 用于排序的属性的键路径
 // - order: 是否按正序或倒序排序
-// - transaction: 用于因获取结果的更改而导致的用户界面更改的事务
+// - transaction: 用于因 "获取结果的更改" 而导致的 "用户界面更改" 的事务
 public init<Value>(filter: Predicate<Element>? = nil,
                    sort keyPath: KeyPath<Element, Value>,
                    order: SortOrder = .forward,
@@ -93,12 +92,12 @@ struct RecipeList: View {
 ### init(filter:sort:order:transaction:)
 
 ```swift
-// 使用断言、用于排序的属性的关键路径以及排序顺序创建查询
+// 使用 "断言、用于排序的属性的关键路径以及排序顺序" 创建查询
 //
 // - filter: Element 上的断言
 // - sort: 用于排序的属性的键路径
 // - order: 是否按正序或倒序排序
-// - transaction: 用于因获取结果的更改而导致的用户界面更改的事务
+// - transaction: 用于因 "获取结果的更改" 而导致的 "用户界面更改" 的事务
 public init<Value>(filter: Predicate<Element>? = nil,
                    sort keyPath: KeyPath<Element, Value?>,
                    order: SortOrder = .forward,
@@ -123,10 +122,10 @@ struct RecipeList: View {
 ### init(\_:animation:)
 
 ```swift
-// 使用 SwiftData 获取描述器创建查询
+// 使用 "SwiftData 获取描述器" 创建查询
 //
 // - descriptor: 一个 `SwiftData.FetchDescriptor`
-// - animation: 用于因获取结果的更改而导致的用户界面更改的动画
+// - animation: 用于因 "获取结果的更改" 而导致的 "用户界面更改" 的动画
 public init(_ descriptor: FetchDescriptor<Element>,
             animation: Animation
 ) where Result == [Element]
@@ -135,11 +134,11 @@ public init(_ descriptor: FetchDescriptor<Element>,
 ### init(filter:sort:animation:)
 
 ```swift
-// 使用断言和排序描述器列表创建查询
+// 使用 "断言和排序描述器列表" 创建查询
 //
 // - filter: Element 上的断言
 // - descriptors: 对结果进行排序
-// - animation: 用于因获取结果的更改而导致的用户界面更改的动画
+// - animation: 用于因 "获取结果的更改" 而导致的 "用户界面更改" 的动画
 public init(filter: Predicate<Element>? = nil,
             sort descriptors: [SortDescriptor<Element>] = [],
             animation: Animation
@@ -166,12 +165,12 @@ struct RecipeList: View {
 ### init(filter:sort:order:animation:)
 
 ```swift
-// 创建一个带有断言、用于排序的属性的关键路径以及排序依据的查询
+// 创建一个带有 "断言、用于排序的属性的关键路径以及排序依据" 的查询
 //
 // - filter: Element 上的断言
 // - sort: 用于排序的属性的键路径
 // - order: 是否按正序或倒序排序
-// - animation: 用于因获取结果的更改而导致的用户界面更改的动画
+// - animation: 用于因 "获取结果的更改" 而导致的 "用户界面更改" 的动画
 public init<Value>(filter: Predicate<Element>? = nil,
                    sort keyPath: KeyPath<Element, Value>,
                    order: SortOrder = .forward,
@@ -196,12 +195,12 @@ struct RecipeList: View {
 ### init(filter:sort:order:animation:)
 
 ```swift
-// 创建一个带有断言、用于排序的属性的关键路径以及排序依据的查询
+// 创建一个带有 "断言、用于排序的属性的关键路径以及排序依据" 的查询
 //
 // - filter: Element 上的断言
 // - sort: 用于排序的属性的键路径
 // - order: 是否按正序或倒序排序
-// - animation: 用于因获取结果的更改而导致的用户界面更改的动画
+// - animation: 用于因 "获取结果的更改" 而导致的 "用户界面更改" 的动画
 public init<Value>(filter: Predicate<Element>? = nil,
                    sort keyPath: KeyPath<Element, Value?>,
                    order: SortOrder = .forward,
@@ -214,7 +213,7 @@ public init<Value>(filter: Predicate<Element>? = nil,
 ### modelContext
 
 ```swift
-// 当前模型上下文 Query 与之交互
+// 当前 Query 与之交互的模型上下文
 public var modelContext: ModelContext { get }
 ```
 
@@ -236,23 +235,6 @@ struct RecipeList: View {
 
 ```swift
 // 最近尝试获取数据期间遇到错误
-//
-// This value is `nil` unless an fetch attempt failed. It contains the
-// latest error from SwiftData. Access it from Query's stored property:
-//
-//     struct RecipeList: View {
-//         @Query var recipes: [Recipe]
-//         var body: some View {
-//             ErrorIndicatorView(_recipes.fetchError)
-//         }
-//     }
-//
-// > Note: Only access this property within of a view's `body` property,
-// otherwise its value may be invalid.
-//
-// > Note: When an fetch error occurs, `wrappedValue` retains results from
-// the last successful fetch. Its value will update once a new fetch
-// succeeds.
 public var fetchError: (Error)? { get }
 ```
 

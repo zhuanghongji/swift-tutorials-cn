@@ -1,11 +1,9 @@
 # FetchResultsCollection
 
-<ToBePolishedAfterTranslation />
-
 <OriginalSource
   title="FetchResultsCollection"
   url="https://developer.apple.com/documentation/swiftdata/fetchresultscollection"
-  summary="有效提供已完成提取结果的集合"
+  summary="高效地提供已完成获取结果的集合"
 />
 
 ```swift
@@ -23,7 +21,8 @@ public struct FetchResultsCollection<Element> : RandomAccessCollection {
 ```swift
 // 访问指定位置的元素
 //
-// - position: 要访问的元素的位置。position 必须是不等于 endIndex 属性的集合的有效索引
+// - position: 要访问的元素的位置。
+//             position 必须是不等于 endIndex 属性的集合的有效索引
 public subscript(position: Int) -> Element { get }
 ```
 
