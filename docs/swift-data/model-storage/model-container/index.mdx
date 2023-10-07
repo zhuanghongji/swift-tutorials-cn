@@ -1,7 +1,5 @@
 # ModelContainer
 
-<ToBePolishedAfterTranslation />
-
 <OriginalSource
   title="ModelContainer"
   url="https://developer.apple.com/documentation/swiftdata/modelcontainer"
@@ -31,7 +29,7 @@ public struct ModelConfiguration : Identifiable, Hashable {
 
     public let name: String
 
-    // 描述可能的 CloudKit 发现方法的类型
+    // 描述可能的 CloudKit 发现方法（discovery approaches）的类型
     @available(swift 5.9)
     @available(macOS 14, iOS 17, tvOS 17, watchOS 10, *)
     public struct CloudKitDatabase {
@@ -43,7 +41,7 @@ public struct ModelConfiguration : Identifiable, Hashable {
         public static func `private`(_ privateDBName: String) -> ModelConfiguration.CloudKitDatabase
     }
 
-    // 描述可能的组容器发现方法的类型
+    // 描述可能的组容器发现方法（discovery approaches）的类型
     @available(swift 5.9)
     @available(macOS 14, iOS 17, tvOS 17, watchOS 10, *)
     public struct GroupContainer {
@@ -60,7 +58,7 @@ public struct ModelConfiguration : Identifiable, Hashable {
 ### Schema
 
 ```swift
-// 将模型类映射到模型存储中的数据的对象，并帮助在版本之间迁移该数据
+// 将 "模型类" 映射到 "模型存储中的数据"，并帮助在不同版本之间迁移数据的对象
 @available(swift 5.9)
 @available(macOS 14, iOS 17, tvOS 17, watchOS 10, *)
 final public class Schema : Codable, Hashable {
@@ -81,7 +79,7 @@ final public class Schema : Codable, Hashable {
 ### SchemaMigrationPlan
 
 ```swift
-// 用于描述模式演变以及如何在特定版本之间迁移的接口
+// 用于描述架构演变以及如何在特定版本之间迁移的接口
 @available(swift 5.9)
 @available(macOS 14, iOS 17, tvOS 17, watchOS 10, *)
 public protocol SchemaMigrationPlan {
@@ -112,7 +110,7 @@ public var configurations: Set<ModelConfiguration>
 final public let migrationPlan: (SchemaMigrationPlan.Type)?
 ```
 
-## Accessing the context 访问上下文
+## 访问上下文
 
 ### mainContext
 

@@ -1,11 +1,9 @@
 # PersistentModel
 
-<ToBePolishedAfterTranslation />
-
 <OriginalSource
   title="PersistentModel"
   url="https://developer.apple.com/documentation/swiftdata/persistentmodel"
-  summary="一个接口，使 SwiftData 能够将 Swift 类作为存储模型进行管理"
+  summary="一个使得 SwiftData 能够将 Swift 类作为存储模型进行管理的接口"
 />
 
 ```swift
@@ -37,7 +35,8 @@ var persistentBackingData: BackingData<Self> { get set }
 ```swift
 // 描述 SwiftData 模型聚合标识的类型
 @available(macOS 13, iOS 16, tvOS 16, watchOS 9, *)
-public struct PersistentIdentifier : Hashable, Identifiable, Equatable, Comparable, Codable, Sendable {
+public struct PersistentIdentifier : Hashable,
+        Identifiable, Equatable, Comparable, Codable, Sendable {
     // ...
 
     // 唯一标识包含存储中的关联模型的值
@@ -62,4 +61,73 @@ public struct PersistentIdentifier : Hashable, Identifiable, Equatable, Comparab
 
 ```swift
 static var schemaMetadata: [Schema.PropertyMetadata] { get }
+```
+
+## 实例属性
+
+```swift
+public var hasChanges: Bool { get }
+
+public var isDeleted: Bool { get }
+
+public var modelContext: ModelContext? { get }
+
+var persistentBackingData: BackingData<Self> { get set }
+```
+
+## 实例方法
+
+```swift
+public func getValue<Value>(forKey: KeyPath<Self, Value>) -> Value
+    where Value : Decodable
+
+public func getValue<Value>(forKey: KeyPath<Self, Value>) -> Value
+    where Value : PersistentModel
+
+public func getValue<Value>(forKey: KeyPath<Self, Value?>) -> Value?
+    where Value : PersistentModel
+
+public func getValue<Value, OtherModel>(forKey: KeyPath<Self, Value>) -> Value
+    where Value : RelationshipCollection,
+          OtherModel == Value.PersistentElement
+
+public func getValue<Value, OtherModel>(forKey: KeyPath<Self, Value>) -> Value
+    where Value : Decodable,
+          Value : RelationshipCollection,
+          OtherModel == Value.PersistentElement
+
+public func getTransformableValue<Value>(forKey: KeyPath<Self, Value>) -> Value
+
+public func setValue<Value>(forKey: KeyPath<Self, Value>,
+                            to newValue: Value
+) where Value : Encodable
+
+public func setValue<Value>(forKey: KeyPath<Self, Value>,
+                            to newValue: Value
+) where Value : PersistentModel
+
+public func setValue<Value>(forKey: KeyPath<Self, Value?>,
+                            to newValue: Value?
+) where Value : PersistentModel
+
+public func setValue<Value, OtherModel>(forKey: KeyPath<Self, Value>,
+                                        to newValue: Value
+) where Value : RelationshipCollection,
+        OtherModel == Value.PersistentElement
+
+public func setValue<Value, OtherModel>(forKey: KeyPath<Self, Value>,
+                                        to newValue: Value
+) where Value : Encodable,
+        Value : RelationshipCollection,
+        OtherModel == Value.PersistentElement
+
+public func setTransformableValue<Value>(forKey: KeyPath<Self, Value>,
+                                         to newValue: Value)
+```
+
+## 类型方法
+
+```swift
+public static func createBackingData<P>() -> some BackingData<P>
+    where P : PersistentModel
 ```

@@ -1,11 +1,9 @@
 # ModelContext
 
-<ToBePolishedAfterTranslation />
-
 <OriginalSource
   title="ModelContext"
   url="https://developer.apple.com/documentation/swiftdata/modelcontext"
-  summary="一个对象，使你能够获取、插入和删除模型，并将任何更改保存到磁盘"
+  summary="一个使你能够获取、插入和删除模型，并将任何更改保存到磁盘的对象"
 />
 
 ```swift
@@ -29,13 +27,15 @@ public init(_ container: ModelContainer)
 ### fetch(\_:)
 
 ```swift
-public func fetch<T>(_ descriptor: FetchDescriptor<T>) throws -> [T] where T : PersistentModel
+public func fetch<T>(_ descriptor: FetchDescriptor<T>)
+        throws -> [T] where T : PersistentModel
 ```
 
 ### fetchCount(\_:)
 
 ```swift
-public func fetchCount<T>(_ descriptor: FetchDescriptor<T>) throws -> Int where T : PersistentModel
+public func fetchCount<T>(_ descriptor: FetchDescriptor<T>)
+        throws -> Int where T : PersistentModel
 ```
 
 ### fetch(\_:batchSize:)
@@ -65,8 +65,8 @@ public func model(for persistentModelID: PersistentIdentifier) -> PersistentMode
 ### registeredModel(for:)
 
 ```swift
-public func registeredModel<T>(for persistentModelID: PersistentIdentifier)
-        -> T? where T : PersistentModel
+public func registeredModel<T>(for persistentModelID: PersistentIdentifier) -> T?
+        where T : PersistentModel
 ```
 
 ## 插入模型
@@ -108,7 +108,10 @@ public var deletedModelsArray: [PersistentModel] { get }
 ### delete(model:where:includeSubclasses:)
 
 ```swift
-public func delete<T>(model: T.Type, where predicate: Predicate<T>? = nil, includeSubclasses: Bool = true) throws where T : PersistentModel
+public func delete<T>(model: T.Type,
+                      where predicate: Predicate<T>? = nil,
+                      includeSubclasses: Bool = true
+) throws where T : PersistentModel
 ```
 
 ### delete(\_:)
@@ -219,47 +222,8 @@ public enum NotificationKey : String {
     // 一组标识上下文已删除模型的值
     case deletedIdentifiers
 
-    // Creates a new instance with the specified raw value.
-    //
-    // If there is no value of the type that corresponds with the specified raw
-    // value, this initializer returns `nil`. For example:
-    //
-    //     enum PaperSize: String {
-    //         case A4, A5, Letter, Legal
-    //     }
-    //
-    //     print(PaperSize(rawValue: "Legal"))
-    //     // Prints "Optional("PaperSize.Legal")"
-    //
-    //     print(PaperSize(rawValue: "Tabloid"))
-    //     // Prints "nil"
-    //
-    // - Parameter rawValue: The raw value to use for the new instance.
-
-
-    // The raw type that can be used to represent all values of the conforming
-    // type.
-    //
-    // Every distinct value of the conforming type has a corresponding unique
-    // value of the `RawValue` type, but there may be values of the `RawValue`
-    // type that don't have a corresponding value of the conforming type.
     public typealias RawValue = String
 
-    // The corresponding value of the raw type.
-    //
-    // A new instance initialized with `rawValue` will be equivalent to this
-    // instance. For example:
-    //
-    //     enum PaperSize: String {
-    //         case A4, A5, Letter, Legal
-    //     }
-    //
-    //     let selectedSize = PaperSize.Letter
-    //     print(selectedSize.rawValue)
-    //     // Prints "Letter"
-    //
-    //     print(selectedSize == PaperSize(rawValue: selectedSize.rawValue)!)
-    //     // Prints "true"
     public var rawValue: String { get }
 }
 ```
@@ -322,4 +286,4 @@ print(selectedSize == PaperSize(rawValue: selectedSize.rawValue)!)
 public typealias RawValue = String
 ```
 
-一致类型的每个不同值都有一个对应的 RawValue 类型的唯一值，但可能有 RawValue 类型的值没有一致类型的对应值。
+一致类型的每个不同值都有一个对应的 `RawValue` 类型的唯一值，但可能有 `RawValue` 类型的值没有一致类型的对应值。
