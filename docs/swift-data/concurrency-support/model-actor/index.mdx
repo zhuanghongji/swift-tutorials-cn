@@ -1,11 +1,9 @@
 # ModelActor
 
-<ToBePolishedAfterTranslation />
-
 <OriginalSource
   title="ModelActor"
   url="https://developer.apple.com/documentation/swiftdata/modelactor"
-  summary="用于提供对一致模型的属性的互斥访问的接口"
+  summary="用于提供对一致模型（conforming model）的属性的互斥（mutually-exclusive）访问的接口"
 />
 
 ```swift
@@ -21,7 +19,7 @@ public protocol ModelActor : Actor {
 ### unownedExecutor
 
 ```swift
-// 对模型参与者执行者的优化的、无主的引用
+// 对模型 actor 执行者的优化的、无主的（unonwned）引用
 nonisolated public var unownedExecutor: UnownedSerialExecutor { get }
 ```
 
@@ -30,21 +28,21 @@ nonisolated public var unownedExecutor: UnownedSerialExecutor { get }
 ### modelContainer
 
 ```swift
-// ModelActor 的 ModelContainer 管理应用程序的架构和模型存储配置的容器
+// ModelActor 的管理应用程序的架构和模型存储配置的容器
 nonisolated var modelContainer: ModelContainer { get }
 ```
 
 ### modelContext
 
 ```swift
-// 序列化在模型参与者上运行的任何代码的上下文
+// 在模型 actor 上序列化任何运行代码的上下文
 public var modelContext: ModelContext { get }
 ```
 
 ### modelExecutor
 
 ```swift
-// 协调对模型参与者的访问的执行器
+// 协调模型 actor 访问的执行器
 nonisolated var modelExecutor: ModelExecutor { get }
 ```
 
