@@ -204,6 +204,7 @@ const swiftdataSidebar = [
           "swift-data/essentials/about/index",
           "swift-data/essentials/preserving-your-app-s-model-data-across-launches/index",
           "swift-data/essentials/building-a-document-based-app-using-swiftdata/index",
+          "swift-data/essentials/adopting-swiftdata-for-a-core-data-app/index",
         ],
       },
       {
