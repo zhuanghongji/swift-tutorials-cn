@@ -11,7 +11,6 @@
 ```swift
 print("Hello, world!")
 
-// tip-next-line
 // Prints "Hello, world!"
 ```
 
@@ -94,12 +93,10 @@ let fruitSummary = "I have \(apples + oranges) pieces of fruit."
 let a = 1.2
 let b = 1.5
 let sum = "The sum of \(a) and \(b) is \(a + b)"
-// tip-next-line
 // "The sum of 1.2 and 1.5 is 2.7"
 
 let name = "zhuanghongji"
 let greeting = "Hi, my name is \(name)"
-// tip-next-line
 // "Hi, my name is zhuanghongji"
 ```
 
@@ -117,14 +114,12 @@ let quotation = """
         I still have \(apples + oranges) pieces of fruit.
         """
 
-// console-start
 // Even though there's whitespace to the left,
 // the actual lines aren't indented.
 //     Except for this line.
 // Double quotes (") can appear without being escaped.
 //
 // I still have 8 pieces of fruit.
-// console-end
 ```
 
 使用方括号 `[]` 创建数组和字典，并通过在方括号中写入索引或键来访问它们的元素。最后一个元素后允许有逗号。
@@ -146,7 +141,6 @@ occupations["Jayne"] = "Public Relations"
 fruits.append("blueberries")
 print(fruits)
 
-// tip-next-line
 // Prints "["strawberries", "grapes", "tangerines", "blueberries"]"
 ```
 
@@ -180,7 +174,6 @@ for score in individualScores {
 }
 print(teamScore)
 
-// console-next-line
 // Prints "11"
 ```
 
@@ -196,7 +189,6 @@ let scoreDecoration = if teamScore > 10 {
 }
 print("Score:", teamScore, scoreDecoration)
 
-// console-next-line
 // Prints "Score: 11 🎉"
 ```
 
@@ -212,7 +204,6 @@ func getScoreDecoration() -> String {
 let scoreDecoration = getScoreDecoration()
 print("Score:", teamScore, scoreDecoration)
 
-// console-next-line
 // Prints "Score: 11 🎉"
 ```
 
@@ -229,7 +220,6 @@ default:
 }
 print("Score:", teamScore, scoreDecoration)
 
-// console-next-line
 // Prints "Score: 11 🎉"
 ```
 
@@ -246,7 +236,6 @@ func getScoreDecoration() -> String {
 let scoreDecoration = getScoreDecoration()
 print("Score:", teamScore, scoreDecoration)
 
-// console-next-line
 // Prints "Score: 11 🎉"
 ```
 
@@ -258,7 +247,6 @@ print("Score:", teamScore, scoreDecoration)
 var optionalString: String? = "Hello"
 print(optionalString == nil)
 
-// console-next-line
 // Prints "false"
 
 var optionalName: String? = "John Appleseed"
@@ -283,7 +271,6 @@ if let name = optionalName {
 
 print(greeting)
 
-// console-next-line
 // Prints "Oh, it is missing"
 ```
 
@@ -298,7 +285,6 @@ let nickname: String? = nil
 let fullName: String = "John Appleseed"
 let informalGreeting = "Hi \(nickname ?? fullName)"
 
-// tip-next-line
 // The value of informalGreeting is "Hi John Appleseed".
 ```
 
@@ -309,7 +295,6 @@ if let nickname {
     print("Hey, \(nickname)")
 }
 
-// tip-next-line
 // Doesn't print anything, because nickname is nil.
 ```
 
@@ -328,7 +313,6 @@ default:
     print("Everything tastes good in soup.")
 }
 
-// console-next-line
 // Prints "Is it a spicy red pepper?"
 ```
 
@@ -375,7 +359,6 @@ for (_, numbers) in interestingNumbers {
 }
 print(largest)
 
-// console-next-line
 // Prints "25"
 ```
 
@@ -403,7 +386,6 @@ for (kind, numbers) in interestingNumbers {
 
 print("The kind of '\(largestKind)' of number was largest which is \(largest)")
 
-// console-next-line
 // Prints "The kind of 'Square' of number was largest which is 25"
 ```
 
@@ -418,7 +400,6 @@ while n < 100 {
 }
 print(n)
 
-// console-next-line
 // Prints "128"
 
 
@@ -428,7 +409,6 @@ repeat {
 } while m < 100
 print(m)
 
-// console-next-line
 // Prints "128"
 ```
 
@@ -443,7 +423,6 @@ while n < 0 {
 }
 print(n)
 
-// console-next-line
 // Prints "2"
 
 
@@ -453,7 +432,6 @@ repeat {
 } while m < 0
 print(m)
 
-// console-next-line
 // Prints "4"
 ```
 
@@ -468,7 +446,6 @@ for i in 0..<4 {
 }
 print(total)
 
-// console-next-line
 // Prints "6"
 ```
 
@@ -529,13 +506,11 @@ func calculateStatistics(scores: [Int]) -> (min: Int, max: Int, sum: Int) {
 let statistics = calculateStatistics(scores: [5, 3, 100, 3, 9])
 print(statistics.sum)
 
-// console-next-line
 // Prints "120"
 
 
 print(statistics.2)
 
-// console-next-line
 // Prints "120"
 ```
 
@@ -552,7 +527,6 @@ func returnFifteen() -> Int {
 }
 returnFifteen()
 
-// tip-next-line
 // Returns "15"
 ```
 
@@ -568,7 +542,6 @@ func makeIncrementer() -> ((Int) -> Int) {
 var increment = makeIncrementer()
 increment(7)
 
-// tip-next-line
 // Finals "8"
 ```
 
@@ -589,7 +562,6 @@ func lessThanTen(number: Int) -> Bool {
 var numbers = [20, 19, 7, 12]
 hasAnyMatches(list: numbers, condition: lessThanTen)
 
-// tip-next-line
 // Finals "true"
 ```
 
@@ -601,7 +573,6 @@ numbers.map({ (number: Int) -> Int in
     return result
 })
 
-// tip-next-line
 // Results "[60, 57, 21, 36]"
 ```
 
@@ -617,7 +588,6 @@ numbers.map({ (number: Int) -> Int in
     return number
 })
 
-// tip-next-line
 // Results "[20, 0, 0, 12]"
 ```
 
@@ -629,7 +599,6 @@ numbers.map({ (number: Int) -> Int in
 let mappedNumbers = numbers.map({ number in 3 * number })
 print(mappedNumbers)
 
-// console-next-line
 // Prints "[60, 57, 21, 36]"
 ```
 
@@ -639,7 +608,6 @@ print(mappedNumbers)
 let sortedNumbers = numbers.sorted() { $0 > $1 }
 print(sortedNumbers)
 
-// console-next-line
 // Prints "[20, 19, 12, 7]"
 ```
 
@@ -647,7 +615,6 @@ print(sortedNumbers)
 let sortedNumbers = numbers.sorted { $0 > $1 }
 print(sortedNumbers)
 
-// console-next-line
 // Prints "[20, 19, 12, 7]"
 ```
 
@@ -659,7 +626,7 @@ func map<T>(_ transform: (Element) throws -> T) rethrows -> [T]
 func sorted(by areInIncreasingOrder: (Element, Element) throws -> Bool) rethrows -> [Element]
 ```
 
-:::caution
+:::tip
 
 如果你后续有计划学习 SwiftUI，请务必将本小节内容理解透彻。
 
@@ -949,7 +916,6 @@ func isLeftLargerThanRight(left: Rank, right: Rank) -> Bool {
 }
 isLeftLargerThanRight(left: .four, right: .three)
 
-// tip-next-line
 // Results "true"
 ```
 
@@ -962,13 +928,11 @@ isLeftLargerThanRight(left: .four, right: .three)
 ```swift
 if let convertedRank = Rank(rawValue: 3) {
     let threeDescription = convertedRank.simpleDescription()
-    // tip-next-line
     // Values "3"
 }
 
 if let convertedRank2 = Rank(rawValue: 11) {
     let elevenDescription = convertedRank2.simpleDescription()
-    // tip-next-line
     // Values "jack"
 }
 ```
@@ -1100,7 +1064,6 @@ case let .failure(message):
     print("Failure...  \(message)")
 }
 
-// console-next-line
 // Prints "Sunrise is at 6:00 am and sunset is at 8:09 pm."
 ```
 
@@ -1133,7 +1096,6 @@ case .unknown:
 // highlight-end
 }
 
-// console-next-line
 // Prints "Unknow"
 ```
 
@@ -1156,7 +1118,6 @@ struct Card {
 let threeOfSpades = Card(rank: .three, suit: .spades)
 let threeOfSpadesDescription = threeOfSpades.simpleDescription()
 
-// tip-next-line
 // Values "The 3 of spades"
 ```
 
@@ -1179,7 +1140,6 @@ func getFullDeckCards() -> [Card] {
 let cards = getFullDeckCards()
 cards.forEach { print($0.simpleDescription()) }
 
-// console-start
 // The ace of spades
 // The ace of hearts
 // The ace of diamonds
@@ -1232,7 +1192,6 @@ cards.forEach { print($0.simpleDescription()) }
 // The king of hearts
 // The king of diamonds
 // The king of clubs
-// console-end
 ```
 
 </ExperimentBlock>
@@ -1280,7 +1239,6 @@ Task {
     await connectUser(to: "primary")
 }
 
-// console-next-line
 // Prints "Hello Guest, user ID 97"
 ```
 
@@ -1336,7 +1294,6 @@ Task {
     print("After Task connectUser")
 }
 
-// console-start
 // times: 1
 // Before Task connectUser
 // In connectUser, before async let fetchUserID
@@ -1375,7 +1332,6 @@ Task {
 // In connectUser, after await
 // Hello Guest, user ID 97
 // After Task connectUser
-// console-end
 ```
 
 </ExperimentBlock>
@@ -1479,7 +1435,6 @@ extension Int: ExampleProtocol {
  }
 print(7.simpleDescription)
 
-// console-next-line
 // Prints "The number 7"
 ```
 
@@ -1553,7 +1508,6 @@ do {
     print(error)
 }
 
-// console-next-line
 // Prints "Job sent"
 ```
 
@@ -1572,7 +1526,6 @@ do {
     print(error)
 }
 
-// console-next-line
 // Prints "noToner"
 ```
 
@@ -1592,7 +1545,6 @@ do {
     print(error)
 }
 
-// console-next-line
 // Prints "Job sent"
 ```
 
@@ -1615,7 +1567,6 @@ func send(job: Int, toPrinter printerName: String) throws -> String {
     return "Job sent"
 }
 
-// console-next-line
 // Prints "I'll just put this over here, with the rest of the fire."
 ```
 
@@ -1634,7 +1585,6 @@ func send(job: Int, toPrinter printerName: String) throws -> String {
     return "Job sent"
 }
 
-// console-next-line
 // Prints "Printer error: outOfPaper."
 ```
 
@@ -1659,7 +1609,6 @@ func send(job: Int, toPrinter printerName: String) throws -> String {
     return "Job sent"
 }
 
-// console-next-line
 // Prints "message("I am not a PrinterError")"
 ```
 
@@ -1671,7 +1620,6 @@ func send(job: Int, toPrinter printerName: String) throws -> String {
 let printerSuccess = try? send(job: 1884, toPrinter: "Mergenthaler")
 let printerFailure = try? send(job: 1885, toPrinter: "Never Has Toner")
 
-// tip-next-line
 // The type of `printerSuccess` and `printerFailure` both are `String?`
 ```
 
@@ -1693,7 +1641,6 @@ func fridgeContains(_ food: String) -> Bool {
 fridgeContains("banana")
 print(fridgeIsOpen)
 
-// console-next-line
 // Prints "false"
 ```
 
@@ -1711,7 +1658,6 @@ func makeArray<Item>(repeating item: Item, numberOfTimes: Int) -> [Item] {
 }
 makeArray(repeating: "knock", numberOfTimes: 4)
 
-// tip-next-line
 // Finals "["knock", "knock", "knock", "knock"]"
 ```
 
@@ -1755,8 +1701,6 @@ func anyCommonElements<T: Sequence, U: Sequence>(_ lhs: T, _ rhs: U) -> Bool
    return false
 }
 anyCommonElements([1, 2, 3], [3])
-
-// tip-next-line
 // Finals "true"
 
 // 在该示例中，对泛型 T 和 U 作了以下要求：
@@ -1786,7 +1730,6 @@ func anyCommonElements<T: Sequence, U: Sequence>(_ lhs: T, _ rhs: U) -> [T.Eleme
 
 anyCommonElements([1, 2, 3], [2, 3, 4])
 
-// tip-next-line
 // Finals "[2, 3]"
 ```
 

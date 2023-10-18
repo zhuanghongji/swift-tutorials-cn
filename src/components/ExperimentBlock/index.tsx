@@ -6,7 +6,7 @@ type ExperimentBlockProps = PropsWithChildren<{}>
 export default function ExperimentBlock({ children }: ExperimentBlockProps) {
   return (
     <div>
-      <Admonition type="note" title="Experiment">
+      <Admonition type="note" title="实践">
         <details>
           {
              React.Children.map(children, (child, index) => {
