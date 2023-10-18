@@ -1,0 +1,19 @@
+# 版本兼容性
+
+<OriginalSource
+  title="Version Compatibility"
+  url="https://docs.swift.org/swift-book/documentation/the-swift-programming-language/compatibility"
+  summary="了解旧语言模式中可用的功能"
+/>
+
+本书介绍了 Swift 5.9，它是 Xcode 15 中包含的默认 Swift 版本。你可以使用 Xcode 15 构建用 Swift 5.9、Swift 4.2 或 Swift 4 编写的目标（targets）。
+
+当你使用 Xcode 15 构建 Swift 4 和 Swift 4.2 代码时，大多数 Swift 5.9 功能都可用。也就是说，以下更改仅适用于使用 Swift 5.9 或更高版本的代码：
+
+- 返回不透明类型（opaque type）的函数需要 Swift 5.1 运行时。
+- `try?` 表达式不会为 "已经返回可选值的表达式" 引入额外级别的可选性。
+- "大整数字面量（large integer literal）初始化表达式" 被推断为正确的整数类型。例如，`UInt64(0xffff_ffff_ffff_ffff)` 计算出正确的值而不是溢出。
+
+并发（Concurrency）需要 Swift 5.9 或更高版本，以及提供相应并发类型的「Swift 标准库」版本。在 Apple 平台上，至少设置 iOS 13、macOS 10.15、tvOS 13 或 watchOS 6 的部署目标。
+
+用 Swift 5.9 编写的目标可以依赖于用 Swift 4.2 或 Swift 4 编写的目标，反之亦然。这意味着，如果你有一个分为多个框架的大型项目，你可以一次将代码从 Swift 4 迁移到 Swift 5.9。

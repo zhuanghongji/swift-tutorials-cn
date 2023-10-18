@@ -24,6 +24,7 @@ const swiftSidebar = [
         collapsed: false,
         items: [
           "swift/welcome/about/index",
+          "swift/welcome/compatibility/index",
           "swift/welcome/a-swift-tour/index",
         ],
       },
