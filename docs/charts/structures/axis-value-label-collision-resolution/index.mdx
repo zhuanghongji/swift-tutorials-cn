@@ -43,7 +43,7 @@ public static var disabled: AxisValueLabelCollisionResolution { get }
 ### greedy
 
 ```swift
-// 使用贪心算法。如果标签不与其他标签重叠，则显示该标签
+// 使用贪心算法。如果标签不与其它标签重叠，则显示该标签
 public static var greedy: AxisValueLabelCollisionResolution { get }
 ```
 
@@ -59,7 +59,7 @@ public static var truncate: AxisValueLabelCollisionResolution { get }
 ### greedy(priority:minimumSpacing:)
 
 ```swift
-// 使用贪心算法。如果标签不与其他标签重叠，则显示该标签
+// 使用贪心算法。如果标签不与其它标签重叠，则显示该标签
 //
 // - priority: 标签的优先级。贪婪算法将首先放置具有较高优先级的标签
 // - minimumSpacing: 标签与其相邻标签之间的最小间距

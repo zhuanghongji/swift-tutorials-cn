@@ -197,12 +197,12 @@ public protocol MTLDevice : NSObjectProtocol {
 
 你可以通过调用 [MTLCreateSystemDefaultDevice()](https://developer.apple.com/documentation/metal/1433401-mtlcreatesystemdefaultdevice) 在运行时获取默认的 [MTLDevice](https://developer.apple.com/documentation/metal/mtldevice)（请参阅 [获取默认 GPU](https://developer.apple.com/documentation/metal/gpu_devices_and_work_submission/getting_the_default_gpu)）。每个 Metal 设备实例代表一个 GPU，并且是应用程序与其交互的主要起点。使用 Metal 设备实例，你可以检查 GPU 的特性和功能（请参阅 [设备检查](https://developer.apple.com/documentation/metal/mtldevice/device_inspection)）并使用其工厂方法创建辅助类型实例。
 
-- 缓冲区、纹理和其他资源在 GPU 和 CPU 之间存储、同步和传递数据（请参阅 [资源基础知识](https://developer.apple.com/documentation/metal/resource_fundamentals)）。
+- 缓冲区、纹理和其它资源在 GPU 和 CPU 之间存储、同步和传递数据（请参阅 [资源基础知识](https://developer.apple.com/documentation/metal/resource_fundamentals)）。
 - 输入/输出命令队列有效地从文件系统加载资源（请参阅 [资源加载](https://developer.apple.com/documentation/metal/resource_loading)）。
 - 命令队列创建命令编码器并为 GPU 安排工作，包括渲染和计算命令（请参阅 [渲染通道](https://developer.apple.com/documentation/metal/render_passes) 和 [计算通道](https://developer.apple.com/documentation/metal/compute_passes)）。
 - 管道状态存储渲染或计算管道配置（创建成本可能很高），以便你可以重复使用它们，甚至可能多次。
 
-如果你的应用程序使用多个 GPU（请参阅 [多 GPU 系统](https://developer.apple.com/documentation/metal/gpu_devices_and_work_submission/multi-gpu_systems)），请确保这些类型的实例仅与同一设备上的其他实例交互。例如，你的应用程序只能将纹理传递到来自同一 Metal 设备的命令编码器，而不能传递到其他设备。
+如果你的应用程序使用多个 GPU（请参阅 [多 GPU 系统](https://developer.apple.com/documentation/metal/gpu_devices_and_work_submission/multi-gpu_systems)），请确保这些类型的实例仅与同一设备上的其它实例交互。例如，你的应用程序只能将纹理传递到来自同一 Metal 设备的命令编码器，而不能传递到其它设备。
 
 ### 设备检查
 
@@ -1023,7 +1023,7 @@ Metal 应用程序和设备上的 GPU 之间的关系是客户端/服务器模�
 
 将命令放入命令缓冲区、然后排队和提交命令缓冲区的顺序会影响 Metal 执行命令的感知顺序。
 
-以下各节说明如何设置命令结构以产生所需的结果。有些对象你创建一次并在整个应用程序中使用，而其他对象则专门为执行一组命令而创建。
+以下各节说明如何设置命令结构以产生所需的结果。有些对象你创建一次并在整个应用程序中使用，而其它对象则专门为执行一组命令而创建。
 
 ### 在初始化期间创建昂贵的共享对象
 
@@ -1106,7 +1106,7 @@ commandBuffer.commit()
 
 提交缓冲区后你无法重用它，但你可以在 Metal 调度并完成命令时收到通知，或者你可以查询缓冲区的 [status](https://developer.apple.com/documentation/metal/mtlcommandbuffer/1443048-status)。要在此过程中接收回调，请使用 `MTLCommandBuffer` [addScheduledHandler(\_:)](https://developer.apple.com/documentation/metal/mtlcommandbuffer/1442991-addscheduledhandler) 和 [addCompletedHandler(\_:)](https://developer.apple.com/documentation/metal/mtlcommandbuffer/1442997-addcompletedhandler) 方法。
 
-Metal 执行命令的感知顺序尽可能与你订购命令的方式相同。尽管 Metal 可能会在处理某些命令之前对其进行重新排序，但这通常仅在性能提升且没有其他明显影响时才会发生。
+Metal 执行命令的感知顺序尽可能与你订购命令的方式相同。尽管 Metal 可能会在处理某些命令之前对其进行重新排序，但这通常仅在性能提升且没有其它明显影响时才会发生。
 
 ## MTLCommandQueue
 
@@ -1253,7 +1253,7 @@ iOS 和 tvOS 限制后台应用程序对 GPU 的访问，以保证前台应用�
 
 当你的应用程序停用时，请停止向 Metal 发送工作。仅在你的应用程序重新激活后才启用该代码。
 
-系统通知你的应用程序即将停用后，你有一段时间系统会限制你的应用程序使用 Metal。如果这项工作对于准备应用程序处于后台状态至关重要，你可以安排其他命令。同样，如果你的应用程序已经在编码命令中，则你的应用程序通常可以在禁用进一步的工作之前完成当前任务。例如，如果你的应用将动画帧渲染到屏幕上，并且你在为新帧编码命令时收到通知，则可以在禁用渲染代码之前完成该帧的编码。
+系统通知你的应用程序即将停用后，你有一段时间系统会限制你的应用程序使用 Metal。如果这项工作对于准备应用程序处于后台状态至关重要，你可以安排其它命令。同样，如果你的应用程序已经在编码命令中，则你的应用程序通常可以在禁用进一步的工作之前完成当前任务。例如，如果你的应用将动画帧渲染到屏幕上，并且你在为新帧编码命令时收到通知，则可以在禁用渲染代码之前完成该帧的编码。
 
 ### 确保所有先前的工作都已安排执行
 

@@ -137,7 +137,7 @@ for await groupSession in MovieWatchingActivity.sessions() {
 
 ## 准备协调播放 in page link
 
-该示例启用群组播放的最后一步是访问播放器的协调器并将其与群组会话连接。它通过调用协调器对象的 coordinateWithSession(\_:) 方法来实现此目的，该方法将其与会话中其他参与者的协调器连接起来。
+该示例启用群组播放的最后一步是访问播放器的协调器并将其与群组会话连接。它通过调用协调器对象的 coordinateWithSession(\_:) 方法来实现此目的，该方法将其与会话中其它参与者的协调器连接起来。
 
 ```swift
 // The group session to coordinate playback with.
@@ -154,11 +154,11 @@ private var groupSession: GroupSession<MovieWatchingActivity>? {
 }
 ```
 
-样本建立此连接后，系统会协调参与玩家之间的速率和时间变化。该应用程序继续以典型方式对电影进行排队，并使用播放器的标准传输方法（如 play() 、 pause() 和 seek(to:completionHandler:) ）控制播放。协调器拦截这些更改并根据需要将它们传达给其他协调器。同样，它还响应其他参与者的速率和时间变化，并将它们设置在本地播放器上。
+样本建立此连接后，系统会协调参与玩家之间的速率和时间变化。该应用程序继续以典型方式对电影进行排队，并使用播放器的标准传输方法（如 play() 、 pause() 和 seek(to:completionHandler:) ）控制播放。协调器拦截这些更改并根据需要将它们传达给其它协调器。同样，它还响应其它参与者的速率和时间变化，并将它们设置在本地播放器上。
 
 ## 暂停参与协调播放 in page link
 
-在大多数情况下，样本会与组保持播放同步。然而，有时需要防止本地中断影响其他参与者。在这些情况下，它会通过发出播放暂停来暂时断开与组的连接。 AVPlayerPlaybackCoordinator 自动针对常见系统事件（例如网络停滞和音频会话中断）发出播放暂停。应用程序还可以定义自定义暂停。
+在大多数情况下，样本会与组保持播放同步。然而，有时需要防止本地中断影响其它参与者。在这些情况下，它会通过发出播放暂停来暂时断开与组的连接。 AVPlayerPlaybackCoordinator 自动针对常见系统事件（例如网络停滞和音频会话中断）发出播放暂停。应用程序还可以定义自定义暂停。
 
 该示例提供了一项功能，可让观看者快速赶上他们错过的内容。此操作不会影响该组，因此应用程序开始自定义播放暂停。它在 AVCoordinatedPlaybackSuspension.Reason 上创建一个扩展，定义新的 whatHappened 暂停原因。
 

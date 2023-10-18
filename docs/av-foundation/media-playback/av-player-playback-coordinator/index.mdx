@@ -12,7 +12,7 @@
 
 该对象协调 AVPlayer 对象的状态。你不创建协调器的实例，而是通过其 playbackCoordinator 属性访问玩家的实例。
 
-使用 AVPlayer 的标准接口来控制应用程序中的播放。协调器自动拦截影响传输控制状态的调用，例如 setRate(\_:time:atHostTime:) 、 pause() 和 seek(to:completionHandler:) ，并在适当的时候将它们传播给组中的其他参与者。同样，协调员观察其他参与者的速率和时间变化，并将其强加给玩家。如果发生这种情况，播放器项目会发布识别原始参与者的通知。
+使用 AVPlayer 的标准接口来控制应用程序中的播放。协调器自动拦截影响传输控制状态的调用，例如 setRate(\_:time:atHostTime:) 、 pause() 和 seek(to:completionHandler:) ，并在适当的时候将它们传播给组中的其它参与者。同样，协调员观察其它参与者的速率和时间变化，并将其强加给玩家。如果发生这种情况，播放器项目会发布识别原始参与者的通知。
 
 <Figure src={require("./image_1.png")} size={720} />
 

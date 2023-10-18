@@ -54,10 +54,10 @@ kernel void add_arrays(device const float* inA,
 
 首先，该函数添加 `kernel` 关键字，该关键字声明该函数为：
 
-- 公共（public）GPU 函数。公共函数是你的应用程序可以看到的唯一函数。公共函数也不能被其他着色器函数调用。
+- 公共（public）GPU 函数。公共函数是你的应用程序可以看到的唯一函数。公共函数也不能被其它着色器函数调用。
 - 计算函数（compute function），也称为计算核心（compute kernel），使用线程网格（a grid of threads）执行并行计算。
 
-请参阅 [使用渲染管道渲染基元（Using a Render Pipeline to Render Primitives）](https://developer.apple.com/documentation/metal/using_a_render_pipeline_to_render_primitives) 以了解用于声明公共图形函数的其他函数关键字。
+请参阅 [使用渲染管道渲染基元（Using a Render Pipeline to Render Primitives）](https://developer.apple.com/documentation/metal/using_a_render_pipeline_to_render_primitives) 以了解用于声明公共图形函数的其它函数关键字。
 
 上述 `add_arrays` 函数使用 `device` 关键字声明其三个参数，这表示这些指针位于设备地址空间（device address space）中。MSL 为内存定义了多个不相交的地址空间。每当你在 MSL 中声明指针时，都必须提供一个关键字来声明其地址空间。使用设备地址空间声明持久内存以便 GPU 可以读取和写入。
 
@@ -67,7 +67,7 @@ kernel void add_arrays(device const float* inA,
 
 ## 寻找 GPU
 
-在你的应用中，[MTLDevice](https://developer.apple.com/documentation/metal/mtldevice) 对象是 GPU 的精简抽象，你可以使用它与 GPU 进行通信。Metal 为每个 GPU 创建一个 MTLDevice 。你可以通过调用 [MTLCreateSystemDefaultDevice()](https://developer.apple.com/documentation/metal/1433401-mtlcreatesystemdefaultdevice) 获取默认设备对象。在 macOS 中，Mac 可以拥有多个 GPU，Metal 选择其中一个 GPU 作为默认值并返回该 GPU 的设备对象。在 macOS 中，Metal 提供了可用于检索所有设备对象的其他 API，但此示例仅使用默认的。
+在你的应用中，[MTLDevice](https://developer.apple.com/documentation/metal/mtldevice) 对象是 GPU 的精简抽象，你可以使用它与 GPU 进行通信。Metal 为每个 GPU 创建一个 MTLDevice 。你可以通过调用 [MTLCreateSystemDefaultDevice()](https://developer.apple.com/documentation/metal/1433401-mtlcreatesystemdefaultdevice) 获取默认设备对象。在 macOS 中，Mac 可以拥有多个 GPU，Metal 选择其中一个 GPU 作为默认值并返回该 GPU 的设备对象。在 macOS 中，Metal 提供了可用于检索所有设备对象的其它 API，但此示例仅使用默认的。
 
 ```swift
 let device = MTLCreateSystemDefaultDevice()
@@ -75,7 +75,7 @@ let device = MTLCreateSystemDefaultDevice()
 
 ## 初始化 Metal 对象
 
-Metal 将其他与 GPU 相关的实体（entities），比如编译的着色器（compiled shaders）、内存缓冲区（memory buffers）和纹理（textures），表示为对象。要创建这些特定于 GPU 的对象，你可以调用 [MTLDevice](https://developer.apple.com/documentation/metal/mtldevice) 上的方法，或者调用 [MTLDevice](https://developer.apple.com/documentation/metal/mtldevice) 创建的对象上的方法。由设备对象直接或间接创建的所有对象只能与该设备对象一起使用。使用多个 GPU 的应用程序将使用多个设备对象，并为每个设备对象创建类似的 Metal 对象层次结构。
+Metal 将其它与 GPU 相关的实体（entities），比如编译的着色器（compiled shaders）、内存缓冲区（memory buffers）和纹理（textures），表示为对象。要创建这些特定于 GPU 的对象，你可以调用 [MTLDevice](https://developer.apple.com/documentation/metal/mtldevice) 上的方法，或者调用 [MTLDevice](https://developer.apple.com/documentation/metal/mtldevice) 创建的对象上的方法。由设备对象直接或间接创建的所有对象只能与该设备对象一起使用。使用多个 GPU 的应用程序将使用多个设备对象，并为每个设备对象创建类似的 Metal 对象层次结构。
 
 示例应用程序使用自定义 `MetalAdder` 类来管理与 GPU 通信所需的对象。类的初始化器创建这些对象并将它们存储在其属性中。应用程序创建此类的实例，并传入 Metal 设备对象以用于创建辅助对象。`MetalAdder` 对象保持对 Metal 对象的强引用，直到它完成执行。
 
@@ -285,7 +285,7 @@ commandBuffer.commit()
 
 ## 等待计算完成
 
-当 GPU 处理你的命令时，你的应用程序可以执行其他工作。该示例不需要执行任何额外的工作，因此它只是等待命令缓冲区完成。
+当 GPU 处理你的命令时，你的应用程序可以执行其它工作。该示例不需要执行任何额外的工作，因此它只是等待命令缓冲区完成。
 
 ```swift
 commandBuffer.waitUntilCompleted()

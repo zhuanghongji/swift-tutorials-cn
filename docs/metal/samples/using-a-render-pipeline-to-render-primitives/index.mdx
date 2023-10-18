@@ -139,7 +139,7 @@ vector_float2 viewportSize = vector_float2(*viewportSizePointer);
 
 <Figure src={require("./image_4.png")} size={620} edge="white" />
 
-因为这是一个 2D 应用程序，不需要齐次坐标（homogenous coordinates），所以首先将默认值写入输出坐标，将 `w` 值设置为 `1.0` ，将其他坐标设置为 `0.0`。这意味着坐标已经位于标准化设备坐标空间中，并且顶点函数应在该坐标空间中生成 `(x, y)` 坐标。将输入位置除以视口大小的一半以生成标准化的设备坐标。由于该计算是使用 SIMD 类型执行的，因此可以使用一行代码同时划分两个通道。执行除法并将结果放入输出位置的 `x` 和 `y` 通道中。
+因为这是一个 2D 应用程序，不需要齐次坐标（homogenous coordinates），所以首先将默认值写入输出坐标，将 `w` 值设置为 `1.0` ，将其它坐标设置为 `0.0`。这意味着坐标已经位于标准化设备坐标空间中，并且顶点函数应在该坐标空间中生成 `(x, y)` 坐标。将输入位置除以视口大小的一半以生成标准化的设备坐标。由于该计算是使用 SIMD 类型执行的，因此可以使用一行代码同时划分两个通道。执行除法并将结果放入输出位置的 `x` 和 `y` 通道中。
 
 ```cpp
 out.position = vector_float4(0.0, 0.0, 0.0, 1.0);
@@ -275,7 +275,7 @@ renderEncoder.drawPrimitives(type: .triangle, vertexStart: 0, vertexCount: 3)
 float4 color [[flat]];
 ```
 
-再次运行示例。渲染管道在整个三角形上均匀地使用来自第一个顶点（称为激发顶点）的颜色值，并忽略来自其他两个顶点的颜色。你可以混合使用平面阴影和插值，只需在顶点函数的输出上添加或省略 `flat` 限定符即可。[Metal 着色语言规范](https://developer.apple.com/metal/Metal-Shading-Language-Specification.pdf) 定义了其他属性限定符，你也可以使用它们来修改光栅化行为。
+再次运行示例。渲染管道在整个三角形上均匀地使用来自第一个顶点（称为激发顶点）的颜色值，并忽略来自其它两个顶点的颜色。你可以混合使用平面阴影和插值，只需在顶点函数的输出上添加或省略 `flat` 限定符即可。[Metal 着色语言规范](https://developer.apple.com/metal/Metal-Shading-Language-Specification.pdf) 定义了其它属性限定符，你也可以使用它们来修改光栅化行为。
 
 效果如下：
 

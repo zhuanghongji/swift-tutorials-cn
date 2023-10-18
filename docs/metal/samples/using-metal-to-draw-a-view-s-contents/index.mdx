@@ -27,7 +27,7 @@ MetalKit 提供了一个名为 [MTKView](https://developer.apple.com/documentati
 uiView.device = context.coordinator.device
 ```
 
-`MTKView` 上的其他属性允许你控制其行为。要将视图的内容擦除为纯背景色，请设置其 [clearColor](https://developer.apple.com/documentation/metalkit/mtkview/1536036-clearcolor) 属性。你可以使用 [MTLClearColorMake(red:green:blue:alpha:)](https://developer.apple.com/documentation/metal/mtlclearcolor/1515647-init) 函数创建颜色，指定红色、绿色、蓝色和透明度值。
+`MTKView` 上的其它属性允许你控制其行为。要将视图的内容擦除为纯背景色，请设置其 [clearColor](https://developer.apple.com/documentation/metalkit/mtkview/1536036-clearcolor) 属性。你可以使用 [MTLClearColorMake(red:green:blue:alpha:)](https://developer.apple.com/documentation/metal/mtlclearcolor/1515647-init) 函数创建颜色，指定红色、绿色、蓝色和透明度值。
 
 ```swift
 uiView.clearColor = MTLClearColor(red: 0.0, green: 0.5, blue: 1.0, alpha: 1.0)
@@ -66,7 +66,7 @@ guard let renderPassDescriptor = view.currentRenderPassDescriptor else {
 }
 ```
 
-渲染通道描述器描述渲染目标集，以及如何在渲染通道开始和结束时处理它们。渲染通道还定义了渲染的一些其他方面，这些方面不属于本示例的一部分。视图返回一个渲染通道描述器，其中带有指向视图纹理之一的单一颜色附件（a single color attachment），并根据视图的属性配置渲染通道。默认情况下，这意味着在渲染过程开始时，渲染目标将被擦除为与视图的 `clearColor` 属性相匹配的纯色（solid color），并且在渲染过程结束时，所有更改都会存储回到纹理。
+渲染通道描述器描述渲染目标集，以及如何在渲染通道开始和结束时处理它们。渲染通道还定义了渲染的一些其它方面，这些方面不属于本示例的一部分。视图返回一个渲染通道描述器，其中带有指向视图纹理之一的单一颜色附件（a single color attachment），并根据视图的属性配置渲染通道。默认情况下，这意味着在渲染过程开始时，渲染目标将被擦除为与视图的 `clearColor` 属性相匹配的纯色（solid color），并且在渲染过程结束时，所有更改都会存储回到纹理。
 
 由于视图的渲染通道描述器可能是 `nil`，因此你应该在创建渲染通道之前进行测试以确保渲染通道描述器对象不是 `nil`。
 
@@ -100,7 +100,7 @@ view.currentDrawable
 commandBuffer.present(view.currentDrawable!)
 ```
 
-这个方法告诉 Metal，当命令缓冲区被安排执行时，Metal 应该与 Core Animation 协调以在渲染完成后显示纹理。当 Core Animation 呈现纹理时，它就成为视图的新内容。在此示例中，这意味着擦除的纹理将成为视图的新背景。这一变化与 Core Animation 为屏幕用户界面元素所做的任何其他视觉更新一起发生。
+这个方法告诉 Metal，当命令缓冲区被安排执行时，Metal 应该与 Core Animation 协调以在渲染完成后显示纹理。当 Core Animation 呈现纹理时，它就成为视图的新内容。在此示例中，这意味着擦除的纹理将成为视图的新背景。这一变化与 Core Animation 为屏幕用户界面元素所做的任何其它视觉更新一起发生。
 
 ## 提交命令缓冲区
 
