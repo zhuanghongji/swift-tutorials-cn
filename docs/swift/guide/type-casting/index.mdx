@@ -120,11 +120,11 @@ for item in library {
 // Song: Never Gonna Give You Up, by Rick Astley
 ```
 
-该示例首先尝试将 currentitem 向下转换为 Movie. 因为 item 是一个实例，所以它可能是一个；同样，它也可能是一个，甚至只是一个 base 。由于这种不确定性，类型转换运算符的形式在尝试向下转换为子类类型时返回一个可选值。的结果是类型，或“可选”。MediaItemMovieSongMediaItemas?item as? MovieMovie?Movie
+该示例首先尝试将 currentitem 向下转换为 Movie. 因为 item 是一个实例，所以它可能是一个；同样，它也可能是一个，甚至只是一个 base 。由于这种不确定性，类型转换运算符的形式在尝试向下转换为子类类型时返回一个可选值。的结果是类型，或"可选"。MediaItemMovieSongMediaItemas?item as? MovieMovie?Movie
 
-Movie 应用于 Song 库数组中的实例时向下转型失败。为了解决这个问题，上面的示例使用可选绑定来检查可选是否实际 Movie 包含值（即找出向下转换是否成功。）这个可选绑定写为“ if let movie = item as? Movie”，可以读作：
+Movie 应用于 Song 库数组中的实例时向下转型失败。为了解决这个问题，上面的示例使用可选绑定来检查可选是否实际 Movie 包含值（即找出向下转换是否成功。）这个可选绑定写为" if let movie = item as? Movie"，可以读作：
 
-“尝试 item 以 Movie. 如果成功，将一个新的临时常量 called 设置 movie 为存储在返回的 optional 中的值 Movie。”
+"尝试 item 以 Movie. 如果成功，将一个新的临时常量 called 设置 movie 为存储在返回的 optional 中的值 Movie。"
 
 如果向下转型成功，则使用 的属性 movie 打印该 Movie 实例的描述，包括其 director. 类似的原则用于检查实例，并在库中找到时 Song 打印适当的描述（包括名称）。artistSong
 
@@ -156,7 +156,7 @@ things.append(Movie(name: "Ghostbusters", director: "Ivan Reitman"))
 things.append({ (name: String) -> String in "Hello, \(name)" })
 ```
 
-该 things 数组包含两个 Int 值，两个 Double 值，一个 String 值，一个类型的元组(Double, Double)，电影“捉鬼敢死队”，以及一个接受一个 String 值并返回另一个 String 值的闭包表达式。
+该 things 数组包含两个 Int 值，两个 Double 值，一个 String 值，一个类型的元组(Double, Double)，电影"捉鬼敢死队"，以及一个接受一个 String 值并返回另一个 String 值的闭包表达式。
 
 要发现已知仅属于 Anyor 类型的常量或变量的特定类型，你可以在语句的 case 中使用 or 模式。下面的示例遍历数组中的项目并使用语句查询每个项目的类型。几个语句的 case 将它们的匹配值绑定到指定类型的常量以使其值能够被打印：AnyObjectisasswitchthingsswitchswitch
 

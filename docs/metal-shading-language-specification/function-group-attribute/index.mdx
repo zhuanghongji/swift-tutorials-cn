@@ -18,7 +18,7 @@
 ```cpp
 float h(visible_function_table<float(float)> table, float (*fnptr[3])(float))
 {
-    // indirect call to table[0] is restricted to “group1”
+    // indirect call to table[0] is restricted to "group1"
     [[function_groups("group1")]] float x = table[0](1.0f);
 
     // indirect call to `fnptr[0]` can call any function

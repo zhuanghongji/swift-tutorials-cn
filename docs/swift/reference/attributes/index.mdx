@@ -262,7 +262,7 @@ print(wrapper.x)
 
 冻结类型、冻结结构存储属性的类型以及冻结枚举案例的关联值必须是公共的或标有属性。冻结结构的属性不能有属性观察器，并且为存储的实例属性提供初始值的表达式必须遵循与 inlinable 函数相同的限制，如 inlinable 中所述。usableFromInline
 
-要在命令行上启用库进化模式，请将选项传递-enable-library-evolution 给 Swift 编译器。要在 Xcode 中启用它，请将“Build Libraries for Distribution”构建设置 ( ) 设置为 Yes，如 Xcode Help 中所述。BUILD_LIBRARY_FOR_DISTRIBUTION
+要在命令行上启用库进化模式，请将选项传递-enable-library-evolution 给 Swift 编译器。要在 Xcode 中启用它，请将"Build Libraries for Distribution"构建设置 ( ) 设置为 Yes，如 Xcode Help 中所述。BUILD_LIBRARY_FOR_DISTRIBUTION
 
 冻结枚举的 switch 语句不需要 case default，如 Switching Over Enumeration Cases 中所述。在切换冻结枚举时包含 defaultor@unknown default 情况会产生警告，因为该代码永远不会执行。
 
@@ -602,7 +602,7 @@ extension DrawingBuilder {
 
 分支语句变成一系列对和方法的嵌套调用。语句的条件和情况被映射到二叉树的叶节点，并且语句成为对方法的嵌套调用，沿着从根节点到该叶节点的路径。buildEither(first:)buildEither(second:)buildEither
 
-例如，如果你编写包含三种情况的 switch 语句，编译器将使用具有三个叶节点的二叉树。同样，因为从根节点到第二个 case 的路径是“second child”，然后是“first child”，所以那个 case 变成了一个嵌套调用，比如. 以下声明是等效的：buildEither(first: buildEither(second: ... ))
+例如，如果你编写包含三种情况的 switch 语句，编译器将使用具有三个叶节点的二叉树。同样，因为从根节点到第二个 case 的路径是"second child"，然后是"first child"，所以那个 case 变成了一个嵌套调用，比如. 以下声明是等效的：buildEither(first: buildEither(second: ... ))
 
 ```swift
 let someNumber = 19

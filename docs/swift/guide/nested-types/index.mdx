@@ -65,7 +65,7 @@ struct BlackjackCard {
 如上所述，Rank 枚举定义了自己的进一步嵌套结构，称为 Values. 这个结构封装了这样一个事实，即大多数牌都有一个值，但 A 牌有两个值。该 Values 结构定义了两个属性来表示：
 
 - first, 类型 Int
-- second，类型 Int?，或“可选 Int”
+- second，类型 Int?，或"可选 Int"
 
 Rank 还定义了一个计算属性 ，values 它返回 Values 结构的一个实例。此计算属性考虑卡片的等级，并 Values 根据其等级使用适当的值初始化一个新实例。jack 它使用、queen、king 和的特殊值 ace。对于数字卡，它使用等级的原始 Int 值。
 

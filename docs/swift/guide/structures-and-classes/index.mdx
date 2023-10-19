@@ -78,7 +78,7 @@ class VideoMode {
 
 上面的示例定义了一个名为 的新结构 Resolution，用于描述基于像素的显示分辨率。此结构有两个存储属性，称为 width 和 height。存储属性是常量或变量，它们被捆绑起来并存储为结构或类的一部分。Int 这两个属性通过将它们设置为初始整数值来推断为类型 0。
 
-上面的示例还定义了一个名为 的新类，用于描述视频显示的特定视频模式。这个类有四个变量存储属性。第一个是用一个新的结构实例初始化的，它推断出一个属性类型。对于其它三个属性，新实例将使用设置（意思是“非隔行扫描视频”）、播放帧速率和可选值. 该属性被自动赋予默认值，或“无值”，因为它是可选类型。VideoModeresolutionResolutionResolutionVideoModeinterlacedfalse0.0Stringnamenamenilname
+上面的示例还定义了一个名为 的新类，用于描述视频显示的特定视频模式。这个类有四个变量存储属性。第一个是用一个新的结构实例初始化的，它推断出一个属性类型。对于其它三个属性，新实例将使用设置（意思是"非隔行扫描视频"）、播放帧速率和可选值. 该属性被自动赋予默认值，或"无值"，因为它是可选类型。VideoModeresolutionResolutionResolutionVideoModeinterlacedfalse0.0Stringnamenamenilname
 
 ## 结构和类实例
 
@@ -233,7 +233,7 @@ print("The frameRate property of tenEighty is now \(tenEighty.frameRate)")
 
 这个例子还展示了引用类型如何更难推理。如果和在你的程序代码中相距甚远，可能很难找到视频模式更改的所有方式。无论你在哪里使用，你还必须考虑使用 的代码，反之亦然。相比之下，值类型更容易推理，因为与相同值交互的所有代码在源文件中都靠近在一起。tenEightyalsoTenEightytenEightyalsoTenEighty
 
-请注意，和被声明为常量，而不是变量。但是，你仍然可以更改，因为和常量本身的值实际上并没有改变。并且它们自己不“存储”实例——相反，它们都在幕后引用实例。改变的是底层的属性，而不是对那个的常量引用的值。tenEightyalsoTenEightytenEighty.frameRatealsoTenEighty.frameRatetenEightyalsoTenEightytenEightyalsoTenEightyVideoModeVideoModeframeRateVideoModeVideoMode
+请注意，和被声明为常量，而不是变量。但是，你仍然可以更改，因为和常量本身的值实际上并没有改变。并且它们自己不"存储"实例——相反，它们都在幕后引用实例。改变的是底层的属性，而不是对那个的常量引用的值。tenEightyalsoTenEightytenEighty.frameRatealsoTenEighty.frameRatetenEightyalsoTenEightytenEightyalsoTenEightyVideoModeVideoModeframeRateVideoModeVideoMode
 
 ## 身份运营商
 

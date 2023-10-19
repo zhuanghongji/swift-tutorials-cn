@@ -97,7 +97,7 @@ var shoppingList: [String] = ["Eggs", "Milk"]
 // shoppingList has been initialized with two initial items
 ```
 
-该变量被声明为“字符串值数组”，写为. 因为此特定数组指定了 的值类型，所以它只允许存储值。在这里，数组用两个值（和）初始化，写在数组文字中。`shoppingList[String]StringStringshoppingListString"Eggs""Milk"`
+该变量被声明为"字符串值数组"，写为. 因为此特定数组指定了 的值类型，所以它只允许存储值。在这里，数组用两个值（和）初始化，写在数组文字中。`shoppingList[String]StringStringshoppingListString"Eggs""Milk"`
 
 :::note
 该数组被声明为变量（使用介绍人）而不是常量（使用介绍人），因为在下面的示例中，更多项目被添加到购物清单中。shoppingListvarlet
@@ -307,7 +307,7 @@ var favoriteGenres: Set<String> = ["Rock", "Classical", "Hip hop"]
 // favoriteGenres has been initialized with three initial items
 ```
 
-该变量被声明为“一组值”，写为. 由于此特定集合指定了 的值类型，因此它只允许存储值。此处，该集合使用三个值（、和）初始化，写在数组文字中。`favoriteGenresStringSet<String>StringStringfavoriteGenresString"Rock""Classical""Hip hop"`
+该变量被声明为"一组值"，写为. 由于此特定集合指定了 的值类型，因此它只允许存储值。此处，该集合使用三个值（、和）初始化，写在数组文字中。`favoriteGenresStringSet<String>StringStringfavoriteGenresString"Rock""Classical""Hip hop"`
 
 :::note
 该集合被声明为变量（使用介绍人）而不是常量（使用介绍人），因为在下面的示例中添加和删除了项目。favoriteGenresvarlet
@@ -434,7 +434,7 @@ oddDigits.symmetricDifference(singleDigitPrimeNumbers).sorted()
 
 ![](./set-euler-diagram.png)
 
-- 使用“等于”运算符 ( ==) 来确定两个集合是否包含所有相同的值。
+- 使用"等于"运算符 ( ==) 来确定两个集合是否包含所有相同的值。
 - 使用该方法确定一个集合的所有值是否都包含在指定的集合中。`isSubset(of:)`
 - 使用该方法确定一个集合是否包含指定集合中的所有值。`isSuperset(of:)`
 - 使用或方法确定一个集合是子集还是超集，但不等于指定集合。`isStrictSubset(of:)` `isStrictSuperset(of:)`
@@ -509,7 +509,7 @@ namesOfIntegers = [:]
 var airports: [String: String] = ["YYZ": "Toronto Pearson", "DUB": "Dublin"]
 ```
 
-字典 airports 被声明为具有 类型 `[String: String]`，这意味着“一个 Dictionary 其键为 类型 String，其值也为 类型 String”的对象。
+字典 airports 被声明为具有 类型 `[String: String]`，这意味着"一个 Dictionary 其键为 类型 String，其值也为 类型 String"的对象。
 
 :::note
 字典 airports 被声明为变量（使用介绍人 var），而不是常量（使用 let 介绍人），因为在下面的例子中更多的机场被添加到字典中。
@@ -565,7 +565,7 @@ airports["LHR"] = "London Heathrow"
 
 作为下标的替代方法，使用字典的方法来设置或更新特定键的值。与上面的下标示例一样，如果键不存在，则该方法会设置一个值，如果该键已存在，则更新该值。然而，与下标不同的是，该方法在执行更新后返回旧值。这使你能够检查是否发生了更新。`updateValue(_:forKey:)updateValue(_:forKey:)updateValue(_:forKey:)`
 
-该方法返回字典值类型的可选值。例如，对于存储值的字典，该方法返回 type 或“optional ”的值。此可选值包含该键的旧值，如果在更新之前存在，或者如果不存在任何值：`updateValue(_:forKey:)StringString?Stringnil`
+该方法返回字典值类型的可选值。例如，对于存储值的字典，该方法返回 type 或"optional "的值。此可选值包含该键的旧值，如果在更新之前存在，或者如果不存在任何值：`updateValue(_:forKey:)StringString?Stringnil`
 
 ```swift
 if let oldValue = airports.updateValue("Dublin Airport", forKey: "DUB") {

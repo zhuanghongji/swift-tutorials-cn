@@ -84,7 +84,7 @@ var body: some View {
 
 <Figure src={require("./image_2.png")} size={420} />
 
-这会导致图表看起来与“概述”部分中看到的图表相同，因为具有相同部门类别的条形图彼此堆叠在一起。要区分产品类别，请添加 `foregroundStyle(by:)` 修饰器，指定 `productCategory` 的视觉编码：
+这会导致图表看起来与"概述"部分中看到的图表相同，因为具有相同部门类别的条形图彼此堆叠在一起。要区分产品类别，请添加 `foregroundStyle(by:)` 修饰器，指定 `productCategory` 的视觉编码：
 
 ```swift
 Chart(data) {

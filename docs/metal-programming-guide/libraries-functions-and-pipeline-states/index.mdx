@@ -76,7 +76,7 @@ guard let vertexProgram = defaultLibrary.makeFunction(name: "lightingVertex") el
 MTLDevice 有一个装载有命令编码器的命令队列。每个编码器执行特定类型的工作。你不会使用图形编码器进行通用 GPU 编程。到目前为止，你主要遇到了渲染命令编码器，但这只是几个命令编码器之一 Metal 支持以下编码器：
 
 - **MTLRenderCommandEncoder**：该编码器旨在生成单个渲染通道。它访问顶点着色器和片段着色器。
-- **MTLBlitCommandEncoder**：该编码器已在第 6 章“ Metal 资源和内存管理”中讨论。它仅用于在缓冲区和纹理之间复制资源。该编码器的工作不需要使用你编写的任何 `MTLFunction`s。
+- **MTLBlitCommandEncoder**：该编码器已在第 6 章" Metal 资源和内存管理"中讨论。它仅用于在缓冲区和纹理之间复制资源。该编码器的工作不需要使用你编写的任何 `MTLFunction`s。
 - **MTLComputeCommandEncoder**：GPGPU 命令编码器专门访问内核函数。
 - **MTLParallelRenderCommandEncoder**：该编码器采用一个或多个 MTLRenderCommandEncoder 对象。它允许你将每个渲染编码器分配给其自己的线程，以便可以并行执行渲染命令。该编码器不直接访问 MTLLibrary。相反，它是访问 `MTLLibrary` 的编码器的管理对象。
 

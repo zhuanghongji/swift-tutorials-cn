@@ -250,7 +250,7 @@ class SomeSubClass: SomeSuperClass, SomeProtocol {
 
 ## 作为类型的协议
 
-协议本身实际上并不实现任何功能。尽管如此，你可以在代码中将协议用作完全成熟的类型。将协议用作类型有时称为存在类型，它来自短语“存在类型 T，使得 T 符合协议”。
+协议本身实际上并不实现任何功能。尽管如此，你可以在代码中将协议用作完全成熟的类型。将协议用作类型有时称为存在类型，它来自短语"存在类型 T，使得 T 符合协议"。
 
 你可以在许多允许其它类型的地方使用协议，包括：
 
@@ -628,7 +628,7 @@ extension SnakesAndLadders: PrettyTextRepresentable {
 
 - 如果正方形的值大于 0，则它是阶梯的底部，用 表示 ▲。
 - 如果正方形的值小于 0，则为蛇头，用 表示 ▼。
-- 否则，方块的值为 0，它是一个“自由”方块，用 表示 ○。
+- 否则，方块的值为 0，它是一个"自由"方块，用 表示 ○。
 
 该属性现在可用于打印任何实例的漂亮文本描述：prettyTextualDescriptionSnakesAndLadders
 
@@ -683,7 +683,7 @@ wishHappyBirthday(to: birthdayPerson)
 
 在此示例中，协议对名为 的可获取属性 Named 有一个单一要求。该协议对名为 的可获取属性有一个单一要求。这两种协议都被称为.StringnameAgedIntagePerson
 
-该示例还定义了一个函数。参数的类型是，意思是“任何同时符合和协议的类型”。将哪种特定类型传递给函数并不重要，只要它符合两个必需的协议即可。wishHappyBirthday(to:)celebratorNamed & AgedNamedAged
+该示例还定义了一个函数。参数的类型是，意思是"任何同时符合和协议的类型"。将哪种特定类型传递给函数并不重要，只要它符合两个必需的协议即可。wishHappyBirthday(to:)celebratorNamed & AgedNamedAged
 
 然后该示例创建一个新 Person 实例 called 并将这个新实例传递给函数。因为符合这两个协议，这个调用是有效的，函数可以打印它的生日祝福。birthdayPersonwishHappyBirthday(to:)PersonwishHappyBirthday(to:)
 
@@ -714,7 +714,7 @@ beginConcert(in: seattle)
 // Prints "Hello, Seattle!"
 ```
 
-该函数采用 type 的参数，这意味着“任何类型的子类并且符合协议。” 在这种情况下，满足这两个要求。beginConcert(in:)Location & NamedLocationNamedCity
+该函数采用 type 的参数，这意味着"任何类型的子类并且符合协议。" 在这种情况下，满足这两个要求。beginConcert(in:)Location & NamedLocationNamedCity
 
 传递给函数无效，因为不是 的子类。同样，如果你创建了不符合协议的子类，则使用该类型的实例进行调用也是无效的。birthdayPersonbeginConcert(in:)PersonLocationLocationNamedbeginConcert(in:)
 

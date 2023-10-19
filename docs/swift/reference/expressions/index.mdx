@@ -1137,7 +1137,7 @@ someFunction { return $0 + 100 }  // Ambiguous
 someFunction { return $0 } secondClosure: { return $0 }  // Prints "10 20"
 ```
 
-在上面的示例中，标记为“Ambiguous”的函数调用打印“- 120”并在 Swift 5.3 上产生编译器警告。Swift 的未来版本将打印“110 -”。
+在上面的示例中，标记为"Ambiguous"的函数调用打印"- 120"并在 Swift 5.3 上产生编译器警告。Swift 的未来版本将打印"110 -"。
 
 类、结构或枚举类型可以通过声明几种方法之一来启用函数调用语法的语法糖，如具有特殊名称的方法中所述。
 

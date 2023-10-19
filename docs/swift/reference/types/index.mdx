@@ -203,7 +203,7 @@ func takesTwoFunctions(first: (() -> Void) -> Void, second: (() -> Void) -> Void
 
 在上面的代码中，to 的两个参数都是函数。两个参数都没有标记，因此它们都是非转义的。takesTwoFunctions(first:second:)@escaping
 
-上面示例中标记为“错误”的四个函数调用会导致编译器错误。因为 first 和 second 参数是非转义函数，所以它们不能作为参数传递给另一个非转义函数参数。相反，标记为“OK”的两个函数调用不会导致编译器错误。这些函数调用不违反限制，因为 external 不是 的参数之一。takesTwoFunctions(first:second:)
+上面示例中标记为"错误"的四个函数调用会导致编译器错误。因为 first 和 second 参数是非转义函数，所以它们不能作为参数传递给另一个非转义函数参数。相反，标记为"OK"的两个函数调用不会导致编译器错误。这些函数调用不违反限制，因为 external 不是 的参数之一。takesTwoFunctions(first:second:)
 
 如果你需要避免此限制，请将其中一个参数标记为转义，或使用函数将其中一个非转义函数参数临时转换为转义函数。有关避免内存访问冲突的信息，请参阅内存安全。withoutActuallyEscaping(\_:do:)
 

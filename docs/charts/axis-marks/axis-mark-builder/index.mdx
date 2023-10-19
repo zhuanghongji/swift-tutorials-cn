@@ -33,7 +33,7 @@ public static func buildEither<T1, T2>(first: T1) -> BuilderConditional<T1, T2> 
 ### buildEither(second:)
 
 ```swift
-// 为多语句闭包中的“if-else”语句提供支持，为“else”分支生成条件内容
+// 为多语句闭包中的"if-else"语句提供支持，为"else"分支生成条件内容
 public static func buildEither<T1, T2>(second: T2) -> BuilderConditional<T1, T2> where T1 : AxisMark, T2 : AxisMark
 ```
 
@@ -46,14 +46,14 @@ public static func buildExpression<Content>(_ content: Content) -> Content where
 ### buildIf(\_:)
 
 ```swift
-// 为多语句闭包中的“if”语句提供支持，生成仅当条件计算为 true 时才可见的可选轴内容
+// 为多语句闭包中的"if"语句提供支持，生成仅当条件计算为 true 时才可见的可选轴内容
 public static func buildIf<T>(_ content: T?) -> T? where T : AxisMark
 ```
 
 ### buildLimitedAvailability(\_:)
 
 ```swift
-// 为多语句闭包中带有 #available() 子句的“if”语句提供支持，为“then”分支（即有条件可用的分支）生成条件内容
+// 为多语句闭包中带有 #available() 子句的"if"语句提供支持，为"then"分支（即有条件可用的分支）生成条件内容
 public static func buildLimitedAvailability<Content>(_ content: Content) -> some AxisMark where Content : AxisMark
 ```
 
