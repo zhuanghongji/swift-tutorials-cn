@@ -1,0 +1,267 @@
+# Media assets
+
+<ToBePolishedAfterTranslation />
+
+<OriginalSource
+  title="Media assets"
+  url="https://developer.apple.com/documentation/avfoundation/media_assets"
+  summary="从文件和流加载媒体资产以检查其属性、轨道和嵌入的元数据"
+/>
+
+## Assets
+
+### AVAsset
+
+```swift
+// 模拟定时视听媒体的对象
+open class AVAsset : NSObject, NSCopying, AVAsynchronousKeyValueLoading {
+    // ...
+
+    public convenience init(url URL: URL)
+}
+```
+
+资产对基于文件的媒体（例如 QuickTime 影片或 MP3 音频文件）以及使用 HTTP Live Streaming (HLS) 进行流式传输的媒体进行建模。资产是一个或多个 AVAssetTrack 实例的容器对象，它对媒体的统一类型轨道进行建模。最常用的轨道类型是音频和视频，但资产也可能包含补充轨道，例如隐藏式字幕、字幕和定时元数据。
+
+<Figure src={require("./image_1.png")} size={420} edge="black" />
+
+你可以通过异步加载资源的 tracks 属性来加载资源的轨道。在某些情况下，你可能希望对资产轨道的子集而不是其完整集合执行操作。对于这些情况，资产提供了根据特定标准（例如标识符、媒体类型或特征）检索轨道子集的方法。
+
+### AVURLAsset
+
+```swift
+// 表示本地或远程 URL 处的媒体的资产
+open class AVURLAsset : AVAsset {
+    // ...
+}
+```
+
+该类是 AVAsset 的具体子类。当你创建如下所示的资产时，系统会创建并返回 AVURLAsset 的实例。
+
+```swift
+let url: URL = // A local or remote asset URL.
+let asset = AVAsset(url: url)
+```
+
+在许多情况下，这是创建资产实例的适当方法。但是，当你需要对其初始化进行更细粒度的控制时，你也可以直接实例化 AVURLAsset 。 AVURLAsset 的初始化程序接受一个选项字典，你可以使用该字典根据你的特定目的自定义资产的初始化。例如，如果你正在为 HLS 流创建资产，你可能希望阻止它在通过蜂窝网络连接时检索其媒体。你可以通过提供初始化选项和值来完成此操作，如下所示。
+
+```swift
+let url: URL = // A remote asset URL.
+let options = [AVURLAssetAllowsCellularAccessKey: false]
+let asset = AVURLAsset(url: url, options: options)
+```
+
+### AVAssetTrack
+
+```swift
+// 对资产所包含的媒体轨道进行建模的对象
+open class AVAssetTrack : NSObject, NSCopying, AVAsynchronousKeyValueLoading {
+    // ...
+}
+```
+
+资产包含框架使用 AVAssetTrack 类建模的一个或多个媒体轨道。轨道对象保存资产提供的统一类型的媒体，例如音频、视频或隐藏式字幕。
+
+轨道（如包含 AVAsset 的轨道）在创建时不会加载其所有媒体。相反，它会推迟加载其数据，直到你执行需要它的操作为止。由于加载数据可能需要时间，因此资产跟踪采用 AVAsynchronousKeyValueLoading 协议，因此你可以通过调用 `load(_:)` 方法异步加载其属性值。
+
+### AVAssetTrackSegment
+
+```swift
+// 表示资产轨道的时间范围段的对象
+open class AVAssetTrackSegment : NSObject, @unchecked Sendable {
+    // ...
+}
+```
+
+### AVAssetTrackGroup
+
+```swift
+// 资产中的一组相关曲目
+open class AVAssetTrackGroup : NSObject, NSCopying, @unchecked Sendable {
+    // ...
+}
+```
+
+曲目组描述一组相关的替代曲目，一次只能播放其中一个。替代曲目组通常包含相同内容的变体，例如多个翻译的字幕。
+
+你可以通过加载资产的 `trackGroups` 属性值来检查资产的轨道组。
+
+## Metadata
+
+### AVMetadataItem
+
+```swift
+// 视听资产或其轨道之一的元数据项
+open class AVMetadataItem : NSObject, AVAsynchronousKeyValueLoading, NSCopying, NSMutableCopying {
+    // ...
+}
+```
+
+为了有效地使用 `AVMetadataItem` ，你需要了解 AVFoundation 如何组织元数据。为了简化元数据项的查找和过滤，框架将相关元数据分组到关键空间中：
+
+- 特定于格式的键空间。该框架定义了几个特定于格式的密钥空间。它们大致与特定容器或文件格式相关，例如 QuickTime（QuickTime 元数据和用户数据）或 MP3 (ID3)。然而，单个资产可能包含跨多个键空间的元数据值。要检索资产的特定于格式的元数据的完整集合，你可以使用其 metadata 属性。
+- 公共键空间。有几个常见的元数据值，例如电影的创建日期或描述，可以存在于多个键空间中。为了帮助标准化对此公共元数据的访问，该框架提供了一个公共密钥空间，可以访问多个密钥空间公共的一组有限的元数据值。这使得检索常用元数据变得容易，而无需关心特定格式。要检索资产的公共元数据集合，你可以使用其 commonMetadata 属性。
+
+元数据项的键符合从中提取元数据的容器格式的规范。 AVFoundation 支持的元数据格式、元数据键和元数据键空间的完整详细信息可在 AVMetadataKeySpace 和 AVMetadataKey 中找到。
+
+要在第一次访问元数据项时加载元数据项的值，请使用 AVAsynchronousKeyValueLoading 协议中的方法。 AVAsset 类和其它类依次根据需要提供其元数据，以便你可以从这些数组中获取对象，而不会产生不检查的项目的开销。
+
+要过滤元数据项的数组，你可以使用该类的方法。例如，你可以按键和键空间、区域设置以及首选语言进行过滤。
+
+### AVMutableMetadataItem
+
+```swift
+// 视听资产或其轨道之一的可变元数据项
+open class AVMutableMetadataItem : AVMetadataItem {
+    // ...
+}
+```
+
+你可以从现有 `AVMetadataItem` 对象或使用元数据项的一个或多个基本属性来初始化可变元数据项：键、键空间、区域设置和值。
+
+### AVMetadataIdentifier
+
+```swift
+// 定义元数据格式标识符的结构
+public struct AVMetadataIdentifier : Hashable, Equatable, RawRepresentable, @unchecked Sendable {
+    // ...
+}
+```
+
+### AVMetadataKey
+
+```swift
+// 定义元数据键的结构体
+public struct AVMetadataKey : Hashable, Equatable, RawRepresentable, @unchecked Sendable {
+    // ...
+}
+```
+
+### AVMetadataKeySpace
+
+```swift
+// 定义元数据键空间的结构
+public struct AVMetadataKeySpace : Hashable, Equatable, RawRepresentable, @unchecked Sendable {
+    // ...
+}
+```
+
+### AVMetadataExtraAttributeKey
+
+```swift
+// 定义额外元数据属性键的结构
+public struct AVMetadataExtraAttributeKey : Hashable, Equatable, RawRepresentable, @unchecked Sendable {
+    // ...
+}
+```
+
+### AVMetadataFormat
+
+```swift
+// 定义元数据格式的结构
+public struct AVMetadataFormat : Hashable, Equatable, RawRepresentable, @unchecked Sendable {
+    public init(rawValue: String)
+}
+```
+
+### AVMetadataItemFilter
+
+```swift
+// 从元数据项中过滤选定信息的对象
+open class AVMetadataItemFilter : NSObject, @unchecked Sendable {
+    /* Provides an instance of an AVMetadataItemFilter useful for sharing assets.  Removes many user-identifying metadata items, such as location information, leaving only playback-, copyright- and commercial-related metadata (such as the purchaser's Apple ID), along with metadata either derivable from the media itself or necessary for its proper behavior.  */
+    open class func forSharing() -> AVMetadataItemFilter
+}
+```
+
+过滤器实例是不透明、不可修改的对象，由你使用 `forSharing()` 类方法创建。
+
+## Property loading
+
+### AVAsynchronousKeyValueLoading
+
+```swift
+// 定义异步加载媒体数据的接口的协议
+public protocol AVAsynchronousKeyValueLoading {
+    // ...
+}
+```
+
+加载媒体数据所需的时间取决于媒体大小、位置、设备功能、网络条件等因素。为了优化性能， AVAsset 会推迟加载其媒体数据，直到你查询其属性或执行需要它的操作。这意味着从同步上下文执行这些操作会在未知的时间内阻塞调用线程，这会导致糟糕的用户体验，甚至可能导致你的应用程序崩溃。因此，你必须异步加载媒体数据。
+
+调用异步 `load(_:)` 方法来检索媒体属性的值，或通过调用 `status(of:)` 方法确定属性的加载状态。有关详细信息，请参阅异步加载媒体数据。
+
+### AVAsyncProperty
+
+```swift
+// 限制其类型和值的异步属性
+public class AVAsyncProperty<Root, Value> : AVPartialAsyncProperty<Root> {
+}
+```
+
+该类是 `AVPartialAsyncProperty` 的子类，以提供对属性值的类型约束。
+
+### AVPartialAsyncProperty
+
+```swift
+// 限制其类型的异步属性
+public class AVPartialAsyncProperty<Root> : AVAnyAsyncProperty {
+    // ...
+}
+```
+
+该类定义各种 AVFoundation 类型的 AVAsyncProperty 常量，包括 AVAsset 、 AVAssetTrack 和 AVMetadataItem 。
+
+### AVAnyAsyncProperty
+
+```swift
+// 异步属性的基类
+public class AVAnyAsyncProperty : CustomStringConvertible, @unchecked Sendable {
+    // ...
+}
+```
+
+该类定义属性标识符的基类。
+
+## Fragmented assets
+
+### AVFragmentedAsset
+
+```swift
+// 系统可以在不修改现有媒体数据的情况下延长持续时间的资产
+open class AVFragmentedAsset : AVURLAsset, AVFragmentMinding {
+}
+```
+
+通过在 moov 框中使用 mvex 框，QuickTime 电影文件和 MPEG-4 文件可以指示它们容纳附加片段。要确定碎片资产是否可以监控碎片的添加，请检查其 canContainFragments 属性的值。
+
+将分段资产与 AVFragmentedAssetMinder 实例相关联，以了解系统何时附加新片段。当它具有关联的资产管理器时， AVFragmentedAssetTrack 每当检测到新片段时都会发布 AVAssetDurationDidChange 通知。正如这些通知的文档所解释的那样，它还可能发布 AVAssetContainsFragmentsDidChange 和 AVAssetWasDefragmented 。
+
+### AVFragmentedAssetTrack
+
+```swift
+// 提供轨道级接口来检查碎片资产的媒体轨道的对象
+open class AVFragmentedAssetTrack : AVAssetTrack {
+    // ...
+}
+```
+
+该类是 `AVAssetTrack` 的子类。它没有自己的方法或属性。
+
+### AVFragmentedAssetMinder
+
+```swift
+// 定期检查系统是否向碎片资产添加新碎片的对象
+open class AVFragmentedAssetMinder : NSObject {
+    // ...
+}
+```
+
+### AVFragmentMinding
+
+```swift
+// 定义资产是否支持碎片管理的协议
+public protocol AVFragmentMinding {
+    // ...
+}
+```

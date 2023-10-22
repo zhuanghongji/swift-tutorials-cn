@@ -16,7 +16,7 @@
 
 AVAssetImageGenerator 是一个实用程序类，它从包含一个或多个视频轨道的资源创建图像。你可以使用它来生成单个时间点的图像，或者通过传递一个时间数组来生成一系列图像。
 
-## 配置图像生成器 in page link
+## 配置图像生成器
 
 通过向 AVAssetImageGenerator 传递要从中检索图像的视频资源来创建它的实例。生成器支持从本地和远程基于文件的媒体以及仅提供 I 帧再现的 HTTP 直播流 (HLS) 视频创建图像。
 
@@ -38,7 +38,7 @@ let generator = AVAssetImageGenerator(asset: asset)
 generator.maximumSize = CGSize(width: 300, height: 0)
 ```
 
-## 指定时间精度 in page link
+## 指定时间精度
 
 默认情况下，图像生成器会在你请求的时间附近创建图像，但出于效率考虑，其实际时间可能会稍早或稍晚。要更改允许生成器偏离请求时间的时间量，请设置其 requestedTimeToleranceBefore 和 requestedTimeToleranceAfter 属性的值。例如，要允许在不早于你请求的时间且不晚于请求时间后两秒的时间范围内生成图像，请按如下所示设置其容差值。
 
@@ -50,7 +50,7 @@ generator.requestedTimeToleranceAfter = CMTime(seconds: 2, preferredTimescale: 6
 
 你可以通过将前后容差的值设置为 zero 来请求生成帧精确的图像。然而，以这种方式配置生成器需要执行额外的帧解码，这会影响其图像生成速度。
 
-## 生成图像 in page link
+## 生成图像
 
 检索和解码生成器生成图像所需的媒体数据需要花费未知的时间。同步执行图像生成并不安全，因为它会阻塞调用线程，这可能会降低应用程序的用户体验，甚至可能导致崩溃。相反，异步执行图像生成。
 

@@ -12,7 +12,7 @@
 
 章节标记使用户能够快速导航你的内容。 AVPlayerViewController 如果在当前播放的资源中找到章节标记，则会自动呈现章节选择界面。每当你想要创建自己的自定义章节选择界面时，你也可以直接检索此数据。
 
-## 检索定时元数据 in page link
+## 检索定时元数据
 
 章节标记是一种定时元数据，仅适用于资产时间线内的时间范围。你可以使用 chapterMetadataGroups(bestMatchingPreferredLanguages:) 或 chapterMetadataGroups(withTitleLocale:containingItemsWithCommonKeys:) 方法检索资产的章节元数据。当你异步加载资源的 availableChapterLocales 键的值后，这些方法就可以无阻塞地调用。
 
@@ -34,7 +34,7 @@ asset.loadValuesAsynchronously(forKeys: [chapterLocalesKey]) {
 }
 ```
 
-## 将定时元数据转换为章节数据 in page link
+## 将定时元数据转换为章节数据
 
 上述方法返回的值是一个 AVTimedMetadataGroup 对象数组，每个对象代表一个单独的章节标记。 AVTimedMetadataGroup 对象包含一个 CMTimeRange ，定义其元数据应用的时间范围，表示章节标题的 AVMetadataItem 对象数组，以及可选的缩略图图像。以下示例演示如何将 AVTimedMetadataGroup 数据转换为自定义模型对象数组（称为 Chapter ），以传递到应用程序的视图层。
 

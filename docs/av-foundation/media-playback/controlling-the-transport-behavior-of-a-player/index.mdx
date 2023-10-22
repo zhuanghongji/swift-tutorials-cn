@@ -14,7 +14,7 @@ AVFoundation 为播放媒体资产提供全面支持，包括本地和远程基�
 
 对于构建自定义播放器 UI 或需要以编程方式控制播放的任何人来说，了解如何有效使用 AVPlayer 至关重要。
 
-## 观察播放准备情况 in page link
+## 观察播放准备情况
 
 当你创建播放器项目时，它以 AVPlayerItem.Status.unknown 状态开始，这意味着系统尚未尝试加载其媒体进行播放。仅当你将项目与 AVPlayer 对象关联时，系统才会开始加载资产的媒体。
 
@@ -51,7 +51,7 @@ func playMedia(at url: URL) {
 
 当播放器项目达到 AVPlayerItem.Status.readyToPlay 状态时，呈现或启用你的播放 UI。或者，如果发生故障，请在播放器中显示适当的状态。
 
-## 控制播放速率 in page link
+## 控制播放速率
 
 播放器提供 play() 和 pause() 方法作为控制播放速率的主要方法。当播放器项目准备好播放时，调用播放器的 play() 方法来请求从 defaultRate 开始播放，该播放器的初始值为 1.0 （自然率）。默认情况下，播放器会自动等待开始播放，直到有足够的媒体数据可用以最大程度地减少停顿。你可以通过观察播放器的 timeControlStatus 值来确定播放器是否处于暂停、等待播放或播放状态：
 
@@ -92,7 +92,7 @@ private func observeRateChanges() async {
 }
 ```
 
-## 寻找媒体时间线 in page link
+## 寻找媒体时间线
 
 你可以使用 AVPlayer 和 AVPlayerItem 方法以多种方式搜索媒体时间线。最常见的方法是使用播放器的 seek(to:) 方法，向其传递目标 CMTime 值。在异步上下文中调用该方法：
 

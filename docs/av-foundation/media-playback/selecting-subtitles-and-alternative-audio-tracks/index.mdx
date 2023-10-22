@@ -12,7 +12,7 @@
 
 作为开发人员，你希望让尽可能广泛的受众可以访问你的应用程序。扩大应用程序覆盖范围的一种方法是，以用户的母语向用户提供该应用程序，并为有听力障碍或有其它辅助功能需求的用户提供支持。 AVKit 和 AVFoundation 通过提供对显示字幕和隐藏式字幕以及选择替代音频和视频轨道的内置支持，简化了这些问题的处理。如果你正在构建自己的自定义播放器或想要呈现自己的媒体选择界面，请使用 AVFoundation 的 AVMediaSelectionGroup 和 AVMediaSelectionOption 类提供的功能。
 
-## 检索可用的媒体选项 in page link
+## 检索可用的媒体选项
 
 AVMediaSelectionOption 对源媒体中包含的替代音频、视频或文本轨道进行建模。媒体选项用于选择替代摄像机角度、呈现以用户母语配音的音频或显示字幕和隐藏式字幕。你可以通过异步加载和调用资源的 availableMediaCharacteristicsWithMediaSelectionOptions 属性来确定哪些替代媒体演示可用，该属性返回一个指示可用媒体特征的字符串数组。返回的可能值有 audible （替代音轨）、 visual （替代视频轨道）和 legible （字幕和隐藏式字幕）。
 
@@ -48,7 +48,7 @@ for characteristic in asset.availableMediaCharacteristicsWithMediaSelectionOptio
   Option: French
 ```
 
-## 选择所需的媒体选项 in page link
+## 选择所需的媒体选项
 
 在检索特定媒体特征的 AVMediaSelectionGroup 对象并识别所需的 AVMediaSelectionOption 对象后，下一步是选择它。你可以通过在活动的 AVPlayerItem 上调用 select(\_:in:) 来选择媒体选项。例如，要显示资产的西班牙语字幕选项，你可以按如下方式选择它：
 
