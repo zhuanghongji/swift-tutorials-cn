@@ -1,6 +1,4 @@
-# Speech synthesis
-
-<ToBePolishedAfterTranslation />
+# 语音合成
 
 <OriginalSource
   title="Speech synthesis"
@@ -12,7 +10,7 @@
 
 语音合成框架管理语音和语音合成，需要两个主要任务：
 
-创建一个包含要朗读的文本的 [AVSpeechUtterance](https://developer.apple.com/documentation/avfaudio/avspeechutterance) 实例。可选地，为每个话语配置语音参数，例如语音和速率。
+1、创建一个包含要朗读的文本的 [AVSpeechUtterance](https://developer.apple.com/documentation/avfaudio/avspeechutterance) 实例。可选地，为每个话语（utterance）配置语音参数，例如语音（voice）和速率（rate）。
 
 ```swift
 // Create an utterance.
@@ -31,7 +29,7 @@ let voice = AVSpeechSynthesisVoice(language: "en-GB")
 utterance.voice = voice
 ```
 
-将话语传递给 [AVSpeechSynthesizer](https://developer.apple.com/documentation/avfaudio/avspeechsynthesizer) 实例以生成语音。
+2、将 `utterance` 传递给 [AVSpeechSynthesizer](https://developer.apple.com/documentation/avfaudio/avspeechsynthesizer) 实例以生成语音。
 
 ```swift
 // Create a speech synthesizer.
@@ -41,49 +39,235 @@ let synthesizer = AVSpeechSynthesizer()
 synthesizer.speak(utterance)
 ```
 
-可选地，使用语音合成器实例来控制或响应正在进行的语音；例如，指定其 [delegate](https://developer.apple.com/documentation/avfaudio/avspeechsynthesizer/1619709-delegate) 来接收语音事件通知。
+可选地，使用语音合成器实例来控制或响应正在进行的语音。例如，指定其 [delegate](https://developer.apple.com/documentation/avfaudio/avspeechsynthesizer/1619709-delegate) 来接收语音事件通知。
 
-## 口语文本属性
+## 朗读文本属性
 
 ### AVSpeechUtterance
 
 ```swift
-// 封装用于语音合成的文本和影响语音的参数的对象
+// 封装 "用于语音合成的文本" 和 "影响语音的参数" 的对象
+open class AVSpeechUtterance : NSObject, NSCopying, NSSecureCoding {
+    // ...
+}
 ```
 
 `AVSpeechUtterance` 是语音合成的基本单位。
 
-要合成语音，请使用你希望语音合成器朗读的文本创建一个 AVSpeechUtterance 实例。可选地，更改 `voice`、`pitchMultiplier`、`volume`、`rate`、`preUtteranceDelay` 或 `postUtteranceDelay` 实例以开始语音，或者如果合成器已经在说话，则将话语排队以便稍后说话。
+要合成语音，请使用你希望语音合成器（speech synthesizer）朗读的文本创建一个 `AVSpeechUtterance` 实例。可选地，更改 `utterance` 的 `voice`、`pitchMultiplier`、`volume`、`rate`、`preUtteranceDelay` 或 `postUtteranceDelay` 参数。
+将 `utterance` 传递给 [https://developer.apple.com/documentation/avfaudio/avspeechsynthesizer](https://developer.apple.com/documentation/avfaudio/avspeechsynthesizer) 的实例以开始语音，或者将其插入队列以稍后朗读，如果合成器已经在朗读的话。
 
-如果要应用不同的语音参数，请将文本正文拆分为多个话语。例如，你可以通过增加音调并降低相对于其他句子的语速来强调一个句子，或者你可以通过将每个句子放入具有前导或尾随延迟的话语中来在句子之间引入停顿。
+如果要应用不同的朗读参数，请将文本正文拆分为多个话语（uptterances）。例如，你可以通过增加音调（pitch）并降低相对于其他句子的语速（rate）来强调（emphasize）一个句子，或者你可以通过 "将每个句子放入具有前导或尾随延迟的话语中" 来在句子之间引入停顿。
 
-设置并使用 [AVSpeechSynthesizerDelegate](https://developer.apple.com/documentation/avfaudio/avspeechsynthesizerdelegate) 在合成器开始或结束说出话语时接收通知。如果你希望在语音进行时收到通知，请为文本正文中的每个有意义的单元创建一个话语。
+设置并使用 [AVSpeechSynthesizerDelegate](https://developer.apple.com/documentation/avfaudio/avspeechsynthesizerdelegate) 在合成器开始或结束话语时接收通知。如果你希望在语音进行时收到通知，请为文本正文中的每个有意义的单元创建一个话语。
+
+#### 创建话语
+
+```swift
+// 使用你为 "语音合成器" 指定的 "文本字符串" 创建话语
+public convenience init(string: String)
+
+// 使用你为 "语音合成器" 指定的 "属性文本字符串" 创建话语
+public convenience init(attributedString string: NSAttributedString)
+
+// 使用语音合成标记语言 (SSML) 字符串创建朗读话语
+public convenience init?(ssmlRepresentation string: String)
+```
+
+### 配置话语
+
+```swift
+// 语音合成器在朗读话语时使用的声音
+//
+// 如果你不指定一个声音，语音合成器将使用系统的默认声音来朗读话语
+open var voice: AVSpeechSynthesisVoice?
+
+// 语音合成器在朗读话语时使用的基线音调（baseline pitch）
+//
+// 在对话语进行排队之前，请将此属性设置为 0.5（较低音调）到 2.0（较高音调）范围内的值。默认值为 1.0 。
+// 在对话语进行排队后设置此项没有任何效果。
+open var pitchMultiplier: Float
+
+// 语音合成器在朗读话语时使用的音量
+//
+// 在对话语进行排队之前，请将此属性设置为 0.0（静音）到 1.0（最大音量）范围内的值。默认值为 1.0 。
+// 在对话语进行排队后设置此项没有任何效果。
+open var volume: Float
+
+// 一个布尔值，指定 "辅助技术设置（assistive technology settings）" 是否优先于该话语的属性值
+//
+// 如果此属性为 true ，但未启用 VoiceOver 等辅助技术，则语音合成器将使用话语属性值。
+open var prefersAssistiveTechnologySettings: Bool
+```
+
+#### 配置话语计时
+
+```swift
+// 语音合成器在朗读话语时使用的速率
+//
+// 语速是 AVSpeechUtteranceMinimumSpeechRate 和 AVSpeechUtteranceMaximumSpeechRate 范围内的十进制表示。
+// 较低的值对应于较慢的语音，较高的值对应于较快的语音。默认值为 AVSpeechUtteranceDefaultSpeechRate 。
+// 在对话语进行排队之前设置此属性，因为之后设置它不会产生任何效果。
+open var rate: Float
+
+// 语音合成器在朗读话语之前暂停的时间量。默认为 0。
+//
+// 当队列中存在多个话语时，语音合成器暂停的最短时间等于当前话语的 postUtteranceDelay 和
+// 下一个话语的 preUtteranceDelay 之和。
+open var preUtteranceDelay: TimeInterval
+
+// 语音合成器在 "朗读一个话语后" 在 "处理队列中的下一个话语之前" 暂停的时间量。默认为 0。
+//
+// 当队列中存在多个话语时，语音合成器暂停的最短时间等于当前话语的 postUtteranceDelay 和
+// 下一个话语的 preUtteranceDelay 之和。
+open var postUtteranceDelay: TimeInterval
+```
+
+```swift
+// 语音合成器在朗读话语时使用的最小速率
+public let AVSpeechUtteranceMinimumSpeechRate: Float
+
+// 语音合成器在朗读话语时使用的最大速率
+public let AVSpeechUtteranceMaximumSpeechRate: Float
+
+// 语音合成器在朗读话语时使用的默认速率
+public let AVSpeechUtteranceDefaultSpeechRate: Float
+```
+
+#### 检查话语文本
+
+```swift
+// 包含语音合成文本的 "字符串"
+//
+// 初始化后你无法更改话语的文本。如果你希望语音合成器朗读不同的文本，请创建一个新的话语。
+open var speechString: String { get }
+
+// 包含语音合成文本的 "属性字符串"
+//
+// 初始化后你无法更改话语的文本。如果你希望语音合成器朗读不同的文本，请创建一个新的话语。
+open var attributedSpeechString: NSAttributedString { get }
+```
 
 ### AVSpeechSynthesisVoice
 
 ```swift
 // 用于语音合成的独特声音
+open class AVSpeechSynthesisVoice : NSObject, NSSecureCoding {
+    // ...
+}
 ```
 
-语音合成中区分语音的主要因素是语言、区域设置和质量。创建 `AVSpeechSynthesisVoice` 的实例以选择适合文本和语言的语音，并将其设置为 [AVSpeechUtterance](https://developer.apple.com/documentation/avfaudio/avspeechutterance) 实例上的 [voice](https://developer.apple.com/documentation/avfaudio/avspeechutterance/1619710-voice) 属性的值。语音可以选择性地反映语言的本地变体，例如澳大利亚英语或南非英语。有关支持的语言的完整列表，请参阅 [VoiceOver 支持的语言](https://support.apple.com/en-us/HT206175)。
+语音合成中区分语音的主要因素是语言（language）、区域（locale）和质量（quality）。创建 `AVSpeechSynthesisVoice` 的实例以选择适合文本和语言的语音，并将其设置为 [AVSpeechUtterance](https://developer.apple.com/documentation/avfaudio/avspeechutterance) 实例上的 [voice](https://developer.apple.com/documentation/avfaudio/avspeechutterance/1619710-voice) 属性的值。Voice 可以选择性地反映语言的本地变体，例如澳大利亚英语或南非英语。有关支持的语言的完整列表，请参阅 [VoiceOver 支持的语言](https://support.apple.com/en-us/HT206175)。
 
-## 语音合成控制
+#### 获取声音
+
+```swift
+// 检索你指定的标识符的声音
+//
+// - identifier: 声音的唯一标识符
+//
+// return: 如果标识符有效并且声音在设备上可用，则针对指定标识符的声音；否则，nil
+public init?(identifier: String)
+
+// 检索你指定的 BCP 47 代码语言代码的声音
+//
+// 将 nil 传递给 languageCode 以接收系统语言和区域的默认声音
+//
+// - language: 用于标识声音的语言和区域设置的 BCP 47 代码
+//
+// return: 指定语言和区域设置代码的声音（如果该代码有效）；否则， nil
+public init?(language languageCode: String?)
+
+// 检索设备上所有可用的声音
+//
+// 使用 language 属性通过语言和区域设置来识别每个语音
+//
+// return: 声音数组
+open class func speechVoices() -> [AVSpeechSynthesisVoice]
+```
+
+```swift
+// 系统识别为 Alex 的声音
+//
+// Alex 声音仅适用于 en-US 语言代码
+public let AVSpeechSynthesisVoiceIdentifierAlex: String
+```
+
+#### 检查声音
+
+```swift
+// 声音的唯一标识符
+open var identifier: String { get }
+
+// 声音的名字
+open var name: String { get }
+
+// 声音的朗读质量
+open var quality: AVSpeechSynthesisVoiceQuality { get }
+
+// 声音的性别
+open var gender: AVSpeechSynthesisVoiceGender { get }
+
+// 声音的特征
+open var voiceTraits: AVSpeechSynthesisVoice.Traits { get }
+
+// 包含音频文件设置的字典
+open var audioFileSettings: [String : Any] { get }
+```
+
+```swift
+// 声音的性别
+public enum AVSpeechSynthesisVoiceGender : Int, @unchecked Sendable {
+    case unspecified = 0
+
+    case male = 1
+
+    case female = 2
+}
+
+// 描述声音的特征
+public struct Traits : OptionSet, @unchecked Sendable {
+    // 使用你指定的相应整数创建语音特征
+    public init(rawValue: UInt)
+
+    // 表示声音的特征是新奇的声音
+    public static var isNoveltyVoice: AVSpeechSynthesisVoice.Traits { get }
+
+    // 表明声音的特征是个人声音
+    public static var isPersonalVoice: AVSpeechSynthesisVoice.Traits { get }
+}
+```
+
+#### 使用语言代码
+
+```swift
+// 包含语音语言和区域设置的 BCP 47 代码
+open var language: String { get }
+
+// 返回用户当前区域设置的语言和区域设置代码
+open class func currentLanguageCode() -> String
+```
+
+## 朗读合成控制
 
 ### AVSpeechSynthesizer
 
 ```swift
-// 从文本话语生成合成语音并能够监视或控制正在进行的语音的对象
+// 从文本话语生成 "合成语音" 并能够监视或控制正在进行的语音的对象
+open class AVSpeechSynthesizer : NSObject {
+    // ...
+}
 ```
 
-要说出某些文本，请创建一个包含文本的 [AVSpeechUtterance](https://developer.apple.com/documentation/avfaudio/avspeechutterance) 实例，并将其传递给语音合成器实例上的 [speak(\_:)](https://developer.apple.com/documentation/avfaudio/avspeechsynthesizer/1619686-speak)。你还可以选择检索 [AVSpeechSynthesisVoice](https://developer.apple.com/documentation/avfaudio/avspeechsynthesisvoice) 并将其设置在话语的 [voice](https://developer.apple.com/documentation/avfaudio/avspeechutterance/1619710-voice) 属性上，以使语音合成器在说出话语文本时使用该语音。
+要朗读某些文本，请创建一个包含文本的 [AVSpeechUtterance](https://developer.apple.com/documentation/avfaudio/avspeechutterance) 实例，并将其传递给语音合成器实例上的 [speak(\_:)](https://developer.apple.com/documentation/avfaudio/avspeechsynthesizer/1619686-speak)。你还可以选择检索 [AVSpeechSynthesisVoice](https://developer.apple.com/documentation/avfaudio/avspeechsynthesisvoice) 并将其设置在话语的 [voice](https://developer.apple.com/documentation/avfaudio/avspeechutterance/1619710-voice) 属性上，以使语音合成器在朗读话语文本时使用该语音。
 
-语音合成器维护它所说的话语队列。如果合成器没有说话，则调用 `speak(_:)` 会立即开始说出该话语，或者在必要时暂停 [preUtteranceDelay](https://developer.apple.com/documentation/avfaudio/avspeechutterance/1619679-preutterancedelay) 后开始说出该话语。如果合成器正在说话，合成器会将话语添加到队列中，并按照接收顺序说出它们。
+语音合成器维护它所说的话语队列。如果合成器没有说话，则调用 `speak(_:)` 会立即开始朗读该话语，或者在必要时暂停 [preUtteranceDelay](https://developer.apple.com/documentation/avfaudio/avspeechutterance/1619679-preutterancedelay) 后开始朗读该话语。如果合成器正在说话，合成器会将话语添加到队列中，并按照接收顺序朗读它们。
 
-语音开始后，你可以使用合成器对象来暂停或停止语音。暂停后，你可以从暂停点恢复演讲，也可以完全停止演讲并删除队列中所有剩余的话语。
+语音开始后，你可以使用合成器对象来暂停或停止语音。暂停后，你可以从暂停点恢复朗读，也可以完全停止朗读并删除队列中所有剩余的话语。
 
-你可以通过检查其 [isSpeaking](https://developer.apple.com/documentation/avfaudio/avspeechsynthesizer/1619680-isspeaking) 和 [isPaused](https://developer.apple.com/documentation/avfaudio/avspeechsynthesizer/1619692-ispaused) 属性或通过设置符合 [AVSpeechSynthesizerDelegate](https://developer.apple.com/documentation/avfaudio/avspeechsynthesizerdelegate) 的委托来监视语音合成器。代表会接收语音合成期间发生的重要事件。
+你可以通过检查其 [isSpeaking](https://developer.apple.com/documentation/avfaudio/avspeechsynthesizer/1619680-isspeaking) 和 [isPaused](https://developer.apple.com/documentation/avfaudio/avspeechsynthesizer/1619692-ispaused) 属性或通过设置符合 [AVSpeechSynthesizerDelegate](https://developer.apple.com/documentation/avfaudio/avspeechsynthesizerdelegate) 的委托来监视语音合成器。代理会接收语音合成期间发生的重要事件。
 
-`AVSpeechSynthesizer` 还控制语音播放的路线。有关更多信息，请参阅 [Directing speech output](https://developer.apple.com/documentation/avfaudio/avspeechsynthesizer#3616560)。
+`AVSpeechSynthesizer` 还控制语音播放的方式（route）。有关更多信息，请参阅 [Directing speech output](https://developer.apple.com/documentation/avfaudio/avspeechsynthesizer#3616560)。
 
 :::note
 
@@ -91,22 +275,186 @@ synthesizer.speak(utterance)
 
 :::
 
+#### 控制朗读
+
+```swift
+// 你指定的话语添加到语音合成器的队列中
+//
+// 尝试多次将相同的话语放入队列会引发异常。
+//
+// - utterance: 包含要朗读的文本的 AVSpeechUtterance 实例
+open func speak(_ utterance: AVSpeechUtterance)
+
+// 从暂停点继续朗读
+//
+// 该方法仅在语音合成器处于暂停状态时有效。
+//
+// return: true 如果朗读继续；否则，false
+open func continueSpeaking() -> Bool
+
+// 在你指定的边界处暂停朗读
+//
+// boundary 参数还会影响语音合成器在暂停并调用 continueSpeaking() 后如何恢复朗读文本。
+// 如果边界是 AVSpeechBoundary.immediate ，语音会从暂停的确切位置继续，即使该点发生在说话的中间。
+// 如果边界是 AVSpeechBoundary.word ，则语音将从最后一个朗读的单词后面暂停的单词处恢复。
+//
+// - boundary: 描述是否立即暂停语音或仅在合成器讲完当前单词后暂停语音的枚举
+//
+// return: true 如果讲话暂停；否则，false
+open func pauseSpeaking(at boundary: AVSpeechBoundary) -> Bool
+
+
+// 在你指定的边界处停止朗读
+//
+// 与暂停语音合成器（暂停后可以恢复）不同，
+// 停止合成器会立即取消朗读并从合成器队列中删除所有未朗读的话语。
+//
+// - boundary: 描述是否立即停止语音或仅在合成器讲完当前单词后停止语音的枚举
+//
+// return: true 如果讲话暂停；否则，false
+open func stopSpeaking(at boundary: AVSpeechBoundary) -> Bool
+```
+
+```swift
+// 指定何时暂停或停止朗读
+public enum AVSpeechBoundary : Int, @unchecked Sendable {
+    // 表示立即暂停或停止朗读
+    case immediate = 0
+
+    // 表示在合成器讲完当前单词后暂停或停止朗读
+    case word = 1
+}
+```
+
+#### 检查语音合成器
+
+```swift
+// 一个布尔值，指示语音合成器是否正在朗读，或处于暂停状态并且有要朗读的话语
+open var isSpeaking: Bool { get }
+
+// 指示语音合成器是否处于暂停状态的布尔值
+open var isPaused: Bool { get }
+```
+
+#### 管理代理
+
+```swift
+// 语音合成器的委托对象
+weak open var delegate: AVSpeechSynthesizerDelegate?
+```
+
+```swift
+// 委托协议，其中包含你可以实现的可选方法，以响应语音合成期间发生的事件
+//
+// 语音合成器向其委托发送三类事件的消息：
+// - 合成器开始或结束朗读一个话语。
+// - 讲话暂停或继续。
+// - 合成器产生每个单独的语音单元，通常是一个单词。
+public protocol AVSpeechSynthesizerDelegate : NSObjectProtocol {
+
+  // 告诉代理合成器何时开始朗读话语
+  //
+  // 如果话语的 preUtteranceDelay 属性大于零，系统会在延迟完成且语音开始后调用此方法。
+  //
+  // - synthesizer: 开始朗读话语的语音合成器
+  // - utterance: 语音合成器开始朗读的话语
+  optional func speechSynthesizer(_ synthesizer: AVSpeechSynthesizer,
+                                  didStart utterance: AVSpeechUtterance)
+
+  // 告诉代理合成器当朗读完一个话语时
+  //
+  // 系统会忽略最后一句话的 postUtteranceDelay ，并在语音结束时立即调用此方法。
+  optional func speechSynthesizer(_ synthesizer: AVSpeechSynthesizer,
+                                  didFinish utterance: AVSpeechUtterance)
+
+  // 当合成器在朗读话语暂停时告知代理
+  //
+  // 仅当语音合成器正在朗读话语并且系统调用其 pauseSpeaking(at:) 方法时，系统才会调用此方法。
+  // 如果朗读暂停时合成器处于朗读之间的延迟，系统不会调用此方法。
+  optional func speechSynthesizer(_ synthesizer: AVSpeechSynthesizer,
+                                  didPause utterance: AVSpeechUtterance)
+
+  // 告诉代理合成器在暂停后恢复时朗读话语
+  //
+  // 仅当语音合成器暂停朗读并且系统调用其 pauseSpeaking(at:) 方法时，系统才会调用此方法。
+  // 如果合成器在话语之间的延迟期间暂停，系统不会调用此方法。
+  optional func speechSynthesizer(_ synthesizer: AVSpeechSynthesizer,
+                                  didContinue utterance: AVSpeechUtterance)
+
+  // 当合成器取消朗读某个话语时通知代理
+  //
+  // 仅当语音合成器正在朗读话语并且系统调用其 stopSpeaking(at:) 方法时，系统才会调用此方法。
+  // 如果语音停止时合成器处于话语之间的延迟，则系统不会调用此方法，并且对于未朗读的话语也不会调用此方法。
+  optional func speechSynthesizer(_ synthesizer: AVSpeechSynthesizer,
+                                  didCancel utterance: AVSpeechUtterance)
+
+  // 告诉代理合成器当将朗读话语文本的一部分时
+  //
+  // - characterRange: 话语 speechString 中与合成器即将朗读的语音单元相对应的字符范围
+  optional func speechSynthesizer(_ synthesizer: AVSpeechSynthesizer,
+                                  willSpeakRangeOfSpeechString characterRange: NSRange,
+                                  utterance: AVSpeechUtterance)
+
+  // 告诉代理合成器当将朗读话语文本的标记
+  // - marker: 语音合成器即将朗读的合成音频
+  optional func speechSynthesizer(_ synthesizer: AVSpeechSynthesizer,
+                                  willSpeak marker: AVSpeechSynthesisMarker,
+                                  utterance: AVSpeechUtterance)
+}
+```
+
 ## 语音合成音频单元
 
 ### AVSpeechSynthesisProviderAudioUnit
 
 ```swift
 // 从文本生成语音的对象
+open class AVSpeechSynthesisProviderAudioUnit : AUAudioUnit {
+    // ...
+}
 ```
 
-使用语音合成器音频单元生成包含给定语音和语音标记的语音的音频缓冲区。音频单元接收 [AVSpeechSynthesisProviderRequest](https://developer.apple.com/documentation/avfaudio/avspeechsynthesisproviderrequest) 作为输入，并通过渲染块提取音频缓冲区。
+使用 "语音合成器音频单元" 生成包含给定声音（given voice）和语音标记（speech markup）的语音的音频缓冲区。音频单元接收 [AVSpeechSynthesisProviderRequest](https://developer.apple.com/documentation/avfaudio/avspeechsynthesisproviderrequest) 作为输入，并通过渲染块提取音频缓冲区。
 
 使用 [speechSynthesisOutputMetadataBlock](https://developer.apple.com/documentation/avfaudio/avspeechsynthesisprovideraudiounit/3566312-speechsynthesisoutputmetadatablo) 以 [AVSpeechSynthesisMarker](https://developer.apple.com/documentation/avfaudio/avspeechsynthesismarker) 数组的形式提供元数据。
 
-系统扫描并加载此类音频单元扩展的语音，并且它提供的语音可用于 [AVSpeechSynthesizer](https://developer.apple.com/documentation/avfaudio/avspeechsynthesizer) 以及 `VoiceOver` 和 `Speak Screen` 等辅助技术。
+系统扫描并加载此类音频单元扩展的声音（voices），并且它提供的声音可用于 [AVSpeechSynthesizer](https://developer.apple.com/documentation/avfaudio/avspeechsynthesizer) 以及 `VoiceOver` 和 `Speak Screen` 等辅助技术。
 
 <ImportantBlock>
 
 语音合成器不允许网络访问。
 
 </ImportantBlock>
+
+#### 渲染语音
+
+```swift
+// 设置要合成的文本和要使用的声音
+//
+// 当合成器完成为语音请求生成音频缓冲区时，使用 AUInternalRenderBlock 报告 offlineUnitRenderAction_Complete 。
+//
+// - speechRequest: 要合成的语音请求
+open func synthesizeSpeechRequest(_ speechRequest: AVSpeechSynthesisProviderRequest)
+```
+
+```swift
+// 代表要合成的文本和要使用的声音的对象
+open class AVSpeechSynthesisProviderRequest : NSObject, NSSecureCoding, NSCopying {
+    // 要合成的文本的描述
+    open var ssmlRepresentation: String { get }
+
+    // 语音请求中使用的声音
+    open var voice: AVSpeechSynthesisProviderVoice { get }
+
+    // 创建带有语音和描述的请求
+    public init(ssmlRepresentation text: String,
+                voice: AVSpeechSynthesisProviderVoice)
+}
+```
+
+#### 获取和设置声音
+
+```swift
+// 音频单元向系统提供的声音列表
+open var speechVoices: [AVSpeechSynthesisProviderVoice]
+```
