@@ -1,0 +1,177 @@
+# Media reading and writing
+
+<ToBePolishedAfterTranslation />
+
+<OriginalSource
+  title="Media reading and writing"
+  url="https://developer.apple.com/documentation/avfoundation/media_reading_and_writing"
+  summary="从视频中读取图像、导出为替代格式以及执行媒体数据的样本级读写"
+/>
+
+## Media export
+
+## AVAssetExportSession
+
+```swift
+// 以你使用导出预设指定的格式导出资源的对象
+```
+
+你可以通过设置导出预设、输出文件类型和输出 URL 来配置此对象以导出 AVAsset 的实例。
+
+## Image generation
+
+### AVAssetImageGenerator
+
+```swift
+// 使用图像生成器从视频资源中提取时间线内特定时间的图像
+```
+
+使用图像生成器从视频资源中提取时间线内特定时间的图像。
+
+## Media reading
+
+### AVAssetReader
+
+```swift
+// 从资产读取媒体数据的对象
+```
+
+使用资产读取器从 `AVAsset` 实例读取媒体数据。你读取的资源可能代表基于文件的媒体，例如 QuickTime 影片或 MPEG-4 文件，或者你使用 `AVComposition` 从多个源编写的媒体。
+
+### AVAssetReaderOutput
+
+```swift
+// 一个抽象类，定义从资产读取器读取媒体样本的接口
+```
+
+你可以将具体的输出实例（例如 `AVAssetReaderTrackOutput` 或 `AVAssetReaderVideoCompositionOutput`）添加到资产读取器以执行特定任务。
+
+:::caution
+
+如果你不需要就地修改示例数据，请将 `alwaysCopiesSampleData` 属性的值设置为 `false` 以防止输出进行不必要的复制。
+
+:::
+
+### AVAssetReaderTrackOutput
+
+```swift
+// 从资产的单个轨道读取媒体数据的对象
+```
+
+通过将轨道输出添加到资产读取器来读取资产轨道的媒体数据。你可以以其存储的格式读取媒体样本，也可以将它们转换为替代格式。
+
+轨道输出产生未压缩的输出。对于音频输出设置，这意味着 AVFormatIDKey 必须是 kAudioFormatLinearPCM 。对于视频输出设置，这意味着字典必须包含未压缩视频输出的值，如 Video Settings 中所定义。轨道输出不支持 AVSampleRateConverterAudioQualityKey 音频设置键或以下视频设置键： AVVideoCleanApertureKey 、 AVVideoPixelAspectRatioKey 和 AVVideoScalingModeKey 。
+
+在构建视频输出设置时，像素格式的选择会影响解压缩的性能和质量。为了在解压缩视频时获得最佳性能，请求的像素格式应该是解码器本身支持的格式，以避免不必要的转换。以下是一些建议：
+
+- 对于 H.264，当你知道视频是全范围时，请使用 kCVPixelFormatType_420YpCbCr8BiPlanarVideoRange 或 kCVPixelFormatType_420YpCbCr8BiPlanarFullRange 。
+- 在 iOS 中，使用 kCVPixelFormatType_420YpCbCr8BiPlanarFullRange 进行 JPEG 输出。
+- 在 macOS 中， kCVPixelFormatType_422YpCbCr8 是视频的首选像素格式，通常在解码时提供最佳性能。如果你需要在 RGB 域中工作，请在 iOS 中使用 kCVPixelFormatType_32BGRA ，在 macOS 中使用 kCVPixelFormatType_32ARGB 。
+- ProRes 编码媒体每个通道最多可包含 12 位。对于你希望在解压缩期间保留每个通道超过 8 位的 ProRes 编码源，请使用以下像素格式之一： kCVPixelFormatType_4444AYpCbCr16 、 kCVPixelFormatType_422YpCbCr16 、 kCVPixelFormatType_422YpCbCr10 ，或 kCVPixelFormatType_64ARGB 。 AVAssetReader 不支持使用任何这些高位深度像素格式进行缩放。如果你使用上述像素格式，请不要在 outputSettings 字典中指定 kCVPixelBufferWidthKey 或 kCVPixelBufferHeightKey 。只有 ProRes 编码器支持这些像素格式。
+- ProRes 4444 编码媒体可以包含数学上无损的 Alpha 通道。要在解压缩期间保留 Alpha 通道，请使用带有 Alpha 分量的像素格式，例如 kCVPixelFormatType_4444AYpCbCr16 或 kCVPixelFormatType_64ARGB 。要测试你的源是否包含 Alpha 通道，请检查轨道的格式描述是否具有 kCMFormatDescriptionExtension_Depth 键，其值为 32 。
+
+### AVAssetReaderAudioMixOutput
+
+```swift
+// 一种对象，用于读取从一个或多个轨道混合音频而产生的音频样本
+```
+
+通过将音频混合输出添加到资产读取器，读取从一个或多个资产轨道混合的音频数据。你可以以其存储的格式读取示例，也可以将它们转换为替代格式。
+
+### AVAssetReaderVideoCompositionOutput
+
+```swift
+// 从资产的一个或多个轨道读取合成视频帧的对象
+```
+
+### AVAssetReaderSampleReferenceOutput
+
+```swift
+// 从资产轨道读取示例引用的对象
+```
+
+应用程序可以通过将该类的实例添加到资产读取器来提取有关轨道中样本位置的信息（文件 URL 和偏移量）。读取提取的示例缓冲区上的 kCMSampleBufferAttachmentKey_SampleReferenceURL 和 kCMSampleBufferAttachmentKey_SampleReferenceByteOffset 附件以获取示例数据的位置。
+
+你还可以将使用该类提取的示例缓冲区附加到 AVAssetWriterInput 实例，以创建非独立的电影轨道并引用原始文件中的数据。要编写非独立的轨道，请使用你配置为写入 mov 类型文件的 AVAssetWriter 实例。
+
+由于此输出不返回示例数据，因此它忽略 alwaysCopiesSampleData 属性的值。
+
+### AVAssetReaderOutputMetadataAdaptor
+
+```swift
+// 为资产轨道创建定时元数据组对象的对象
+```
+
+## Media writing
+
+### AVOutputSettingsAssistant
+
+```swift
+// 构建音频和视频输出设置字典的对象
+```
+
+使用输出设置助手创建用于配置 AVAssetWriter 和 AVAssetWriterInput 实例的音频和视频设置。你可以创建具有特定预设配置的助手，例如 hevc3840x2160WithAlpha 或 preset1920x1080 。你可以按原样接受设置字典，以生成符合预设暗示的标准的文件。你还可以使用它生成的字典作为基本配置，你可以根据需要进行自定义。
+
+向助手提供有关源媒体的更多详细信息有助于它生成更完整的结果。例如，为其 sourceVideoFormat 属性设置一个值可确保助手生成的设置不会从小尺寸放大视频帧。
+
+### AVAssetWriter
+
+```swift
+// 将媒体数据写入容器文件的对象
+```
+
+你可以使用资产写入器将媒体写入文件格式，例如 QuickTime 影片文件格式和 MPEG-4 文件格式。资产写入器自动支持来自并发轨道的交错媒体数据，以实现高效播放和存储。它可以重新编码写入输出文件的媒体样本，还可以将元数据集合写入输出文件。
+
+:::caution
+
+资产写入器是一种写入一个输出文件的一次性对象。如果你的应用程序需要写入多个输出文件，请创建多个资产写入器实例。
+
+:::
+
+### AVAssetWriterInput
+
+```swift
+// 将媒体样本附加到资产编写器输出文件中的轨道的对象
+```
+
+创建资产写入器输入以将单个媒体轨道和可选的轨道级元数据写入输出文件。要以理想的媒体数据交错方式写入多个并发轨道，请观察每个输入的 `isReadyForMoreMediaData` 属性的值。
+
+你可以使用资产编写器输入在 QuickTime 影片文件中创建非独立的轨道，而是引用另一个文件中存在的示例数据。
+
+### AVAssetWriterInputPixelBufferAdaptor
+
+```swift
+// 将视频样本附加到资产编写器输入的对象
+```
+
+像素缓冲区适配器提供了一个像素缓冲池，可用于将像素缓冲区分配给输出文件。使用提供的池进行缓冲区分配通常比管理自己的池更有效。
+
+### AVAssetWriterInputTaggedPixelBufferGroupAdaptor
+
+```swift
+// 将标记的缓冲区组附加到资产编写器输入的对象
+```
+
+该类提供了一个 `CVPixelBufferPool`，用于分配标记缓冲区组的像素缓冲区以写入输出文件。使用提供的像素缓冲池进行缓冲区分配通常比附加使用单独池分配的像素缓冲区更有效。
+
+### AVAssetWriterInputMetadataAdaptor
+
+```swift
+// 将定时元数据组附加到资产编写器输入的对象
+```
+
+使用元数据适配器将轨道级元数据（打包为 `AVTimedMetadataGroup` 实例）附加到资产编写器输入。
+
+### AVAssetWriterInputGroup
+
+```swift
+// 一组输入，其轨道在播放或处理时相互排斥
+```
+
+资产可能包含多个媒体轨道，当你播放或处理它们时，这些轨道是互斥的。例如，一项资产可能包含不同口语的多个音轨，但一次只能播放其中一个。你可以使用输入组将轨道集合标记为在资产编写器输出的文件中彼此互斥。
+
+:::note
+
+通过调用 `addTrackAssociation(withTrackOf:type:)` 关联多个轨道后，你可以在写入文件之前检查资产编写器输出的媒体选择选项。
+
+:::
