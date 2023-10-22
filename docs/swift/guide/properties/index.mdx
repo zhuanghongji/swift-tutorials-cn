@@ -64,7 +64,7 @@ rangeOfFourItems.firstValue = 6
 
 当属性的初始值取决于外部因素时，惰性属性很有用，这些外部因素的值在实例初始化完成后才知道。当属性的初始值需要复杂或计算量大的设置时，惰性属性也很有用，除非需要或直到需要时才应执行这些设置。
 
-下面的示例使用惰性存储属性来避免对复杂类进行不必要的初始化。此示例定义了两个名为 and 的类，但均未完整显示：DataImporterDataManager
+下面的示例使用惰性存储属性来避免对复杂类进行不必要的初始化。该示例定义了两个名为 and 的类，但均未完整显示：DataImporterDataManager
 
 ```swift
 class DataImporter {
@@ -147,7 +147,7 @@ print("square.origin is now at (\(square.origin.x), \(square.origin.y))")
 // Prints "square.origin is now at (10.0, 10.0)"
 ```
 
-此示例定义了三个用于处理几何形状的结构：
+该示例定义了三个用于处理几何形状的结构：
 
 - Point 封装点的 x 和 y 坐标。
 - Size 封装 awidth 和 a height。
@@ -230,7 +230,7 @@ print("the volume of fourByFiveByTwo is \(fourByFiveByTwo.volume)")
 // Prints "the volume of fourByFiveByTwo is 40.0"
 ```
 
-此示例定义了一个名为 的新结构，它表示具有、和属性 Cuboid 的 3D 矩形框。此结构还有一个名为 的只读计算属性，它计算并返回长方体的当前体积。可设置是没有意义的，因为关于、和 的哪些值应该用于特定值是不明确的。尽管如此，提供只读计算属性以使外部用户能够发现其当前计算量还是很有用的。widthheightdepthvolumevolumewidthheightdepthvolumeCuboid
+该示例定义了一个名为 的新结构，它表示具有、和属性 Cuboid 的 3D 矩形框。此结构还有一个名为 的只读计算属性，它计算并返回长方体的当前体积。可设置是没有意义的，因为关于、和 的哪些值应该用于特定值是不明确的。尽管如此，提供只读计算属性以使外部用户能够发现其当前计算量还是很有用的。widthheightdepthvolumevolumewidthheightdepthvolumeCuboid
 
 ## 物业观察员
 
@@ -290,7 +290,7 @@ stepCounter.totalSteps = 896
 
 每当为属性分配新值时，都会调用和观察者。即使新值与当前值相同也是如此。willSetdidSettotalSteps
 
-此示例的观察者使用自定义参数名称来表示即将到来的新值。在此示例中，它只是打印出即将设置的值。willSetnewTotalSteps
+该示例的观察者使用自定义参数名称来表示即将到来的新值。在该示例中，它只是打印出即将设置的值。willSetnewTotalSteps
 
 更新值后调用观察者。它将新值与旧值进行比较。如果总步数增加，则会打印一条消息以指示已采取了多少新步数。观察者不为旧值提供自定义参数名称，而是使用默认名称。didSettotalStepstotalStepsdidSetoldValue
 

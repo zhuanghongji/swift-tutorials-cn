@@ -18,7 +18,7 @@ Swift 的 switch 语句比许多类 C 语言中的对应语句强大得多。案
 
 你可以使用 for-in 循环遍历序列，例如数组中的项目、数字范围或字符串中的字符。
 
-此示例使用 for-in 循环迭代数组中的项目：
+该示例使用 for-in 循环迭代数组中的项目：
 
 ```swift
 let names = ["Anna", "Alex", "Brian", "Jack"]
@@ -45,7 +45,7 @@ for (animalName, legCount) in numberOfLegs {
 
 a 的内容 Dictionary 本质上是无序的，迭代它们并不能保证检索它们的顺序。特别是，你将项目插入 a 的顺序 Dictionary 并没有定义它们被迭代的顺序。有关数组和字典的更多信息，请参阅集合类型。
 
-你还可以使用 for-in 带有数字范围的循环。此示例打印五次表中的前几个条目：
+你还可以使用 for-in 带有数字范围的循环。该示例打印五次表中的前几个条目：
 
 ```swift
 for index in 1...5 {
@@ -126,7 +126,7 @@ while <#condition#> {
 }
 ```
 
-此示例玩一个简单的蛇梯子游戏（也称为 Chutes and Ladders）：
+该示例玩一个简单的蛇梯子游戏（也称为 Chutes and Ladders）：
 
 ![](./snakes-and-ladders.png)
 
@@ -318,7 +318,7 @@ default:
 
 每一条 switch 陈述都必须详尽无遗。也就是说，所考虑的类型的每个可能值都必须与其中一种情况相匹配 switch。如果不适合为每个可能的值提供一个案例，你可以定义一个默认案例来涵盖任何未明确说明的值。此默认情况由关键字指示 default，并且必须始终出现在最后。
 
-此示例使用一条 switch 语句来考虑名为 的单个小写字符：someCharacter
+该示例使用一条 switch 语句来考虑名为 的单个小写字符：someCharacter
 
 ```swift
 let someCharacter: Character = "z"
@@ -380,7 +380,7 @@ default:
 
 ## 区间匹配
 
-可以检查个案中的值 switch 是否包含在区间中。此示例使用数字区间为任意大小的数字提供自然语言计数：
+可以检查个案中的值 switch 是否包含在区间中。该示例使用数字区间为任意大小的数字提供自然语言计数：
 
 ```swift
 let approximateCount = 62
@@ -433,7 +433,7 @@ default:
 
 该 switch 语句确定该点是在原点 (0, 0)、在红色 x 轴上、在绿色 y 轴上、在以原点为中心的蓝色 4×4 框内还是在框外。
 
-与 C 不同，Swift 允许多个 switchcase 考虑相同的一个或多个值。事实上，点 (0, 0) 可以匹配此示例中的所有四种情况。但是，如果可能有多个匹配项，则始终使用第一个匹配项。点 (0, 0) 将 case (0, 0)首先匹配，因此所有其它匹配情况将被忽略。
+与 C 不同，Swift 允许多个 switchcase 考虑相同的一个或多个值。事实上，点 (0, 0) 可以匹配该示例中的所有四种情况。但是，如果可能有多个匹配项，则始终使用第一个匹配项。点 (0, 0) 将 case (0, 0)首先匹配，因此所有其它匹配情况将被忽略。
 
 ## 值绑定
 
@@ -603,7 +603,7 @@ if let integerValue = possibleIntegerValue {
 // Prints "The integer value of 三 is 3."
 ```
 
-此示例检查数字 to 以确定它是拉丁文、阿拉伯文、中文还是泰文符号。如果找到匹配项，则语句的一个 case 将一个可选变量 called 设置为适当的整数值。numberSymbol14switchInt?possibleIntegerValue
+该示例检查数字 to 以确定它是拉丁文、阿拉伯文、中文还是泰文符号。如果找到匹配项，则语句的一个 case 将一个可选变量 called 设置为适当的整数值。numberSymbol14switchInt?possibleIntegerValue
 
 语句完成执行后 switch，该示例使用可选绑定来确定是否找到值。由于是可选类型，该变量具有隐式初始值，因此仅当语句的前四种情况之一将其设置为实际值时，可选绑定才会成功。possibleIntegerValuenilpossibleIntegerValueswitch
 
@@ -629,11 +629,11 @@ print(description)
 // Prints "The number 5 is a prime number, and also an integer."
 ```
 
-此示例声明一个新 String 变量 calleddescription 并为其分配初始值。该函数然后考虑使用语句的值。如果 的值是列表中的质数之一，该函数将文本附加到 的末尾，以注明该数是质数。然后它也使用关键字"落入"案例中。该案例在描述的末尾添加了一些额外的文本，并且陈述是完整的。integerToDescribeswitchintegerToDescribedescriptionfallthroughdefaultdefaultswitch
+该示例声明一个新 String 变量 calleddescription 并为其分配初始值。该函数然后考虑使用语句的值。如果 的值是列表中的质数之一，该函数将文本附加到 的末尾，以注明该数是质数。然后它也使用关键字"落入"案例中。该案例在描述的末尾添加了一些额外的文本，并且陈述是完整的。integerToDescribeswitchintegerToDescribedescriptionfallthroughdefaultdefaultswitch
 
 除非 的值在已知质数列表中，否则它与第一种情况根本不匹配。因为没有其它具体案例，所以被案例匹配。integerToDescribeswitchintegerToDescribedefault
 
-switch 语句执行完毕后，使用该函数打印数字的描述。在此示例中，该数字被正确识别为素数。print(\_:separator:terminator:)5
+switch 语句执行完毕后，使用该函数打印数字的描述。在该示例中，该数字被正确识别为素数。print(\_:separator:terminator:)5
 
 :::note
 关键字 fallthrough 不会检查 switch 导致执行落入的案例的案例条件。关键字 fallthrough 只是导致代码执行直接移动到下一个 case（或 case）块内的语句 default，就像 C 的标准 switch 语句行为一样。

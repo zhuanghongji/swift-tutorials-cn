@@ -215,7 +215,7 @@ beetsQuestion.response = "I also like beets. (But not with cheese.)"
 
 Swift 为任何为其所有属性提供默认值的结构或类提供默认初始化器，并且不提供至少一个初始化器本身。默认初始化器只是创建一个新实例，并将其所有属性设置为默认值。
 
-此示例定义了一个名为 的类，它封装了购物清单中商品的名称、数量和购买状态：ShoppingListItem
+该示例定义了一个名为 的类，它封装了购物清单中商品的名称、数量和购买状态：ShoppingListItem
 
 ```swift
 class ShoppingListItem {
@@ -327,7 +327,7 @@ let centerRect = Rect(center: Point(x: 4.0, y: 4.0),
 初始化器可以将新值分配给适当的属性本身。但是，对于初始化器来说，利用已经提供该功能的现有初始化器会更方便（并且意图更清晰） 。init(center:size:)originsizeinit(center:size:)
 
 :::note
-有关编写此示例而无需自己定义 init()和初始化器的替代方法，请参阅扩展。init(origin:size:)
+有关编写该示例而无需自己定义 init()和初始化器的替代方法，请参阅扩展。init(origin:size:)
 :::
 
 ## 类继承和初始化
@@ -455,7 +455,7 @@ Swift 的编译器执行四项有用的安全检查，以确保两阶段初始�
 
 ![](./two-phase-initialization-01.png)
 
-在此示例中，初始化从调用子类上的便捷初始化器开始。这个便利初始化器还不能修改任何属性。它委托给同一个类的指定初始化器。
+在该示例中，初始化从调用子类上的便捷初始化器开始。这个便利初始化器还不能修改任何属性。它委托给同一个类的指定初始化器。
 
 根据安全检查 1，指定初始化器确保子类的所有属性都有一个值。然后它调用其超类上的指定初始化器以继续初始化链。
 
@@ -537,7 +537,7 @@ print("Bicycle: \(bicycle.description)")
 
 如果子类初始化器在初始化过程的第 2 阶段不执行自定义，并且超类具有同步的零参数指定初始化器，则可以在为子类的所有存储属性赋值后省略对 的调用。如果超类的初始化器是异步的，则需要显式编写。super.init()await super.init()
 
-此示例定义了 的另一个子类 Vehicle，称为 Hoverboard。在其初始化器中，该类 Hoverboard 仅设置其 color 属性。此初始化器不是显式调用，而是依赖于对其超类的初始化器的隐式调用来完成该过程。super.init()
+该示例定义了 的另一个子类 Vehicle，称为 Hoverboard。在其初始化器中，该类 Hoverboard 仅设置其 color 属性。此初始化器不是显式调用，而是依赖于对其超类的初始化器的隐式调用来完成该过程。super.init()
 
 ```swift
 class Hoverboard: Vehicle {
@@ -586,7 +586,7 @@ print("Hoverboard: \(hoverboard.description)")
 
 ## 指定初始化器和便利初始化器的实际应用
 
-下面的例子展示了指定构造器、便利构造器和自动构造器继承的作用。Food 此示例定义了名为、和的三个类的层次结构，并演示了它们的初始化器如何交互。RecipeIngredientShoppingListItem
+下面的例子展示了指定构造器、便利构造器和自动构造器继承的作用。Food 该示例定义了名为、和的三个类的层次结构，并演示了它们的初始化器如何交互。RecipeIngredientShoppingListItem
 
 层次结构中的基类称为 Food，这是一个简单的类，用于封装食品的名称。该类 Food 引入了一个 String 名为 call 的属性 name，并提供了两个用于创建 Food 实例的初始化器：
 
@@ -649,7 +649,7 @@ init(name: String)提供的便捷初始化器采用与指定初始化器相同�
 
 尽管将初始化器作为便利初始化器提供，但仍然提供了其超类的所有指定初始化器的实现。因此，也自动继承其超类的所有便利初始化器。RecipeIngredientinit(name: String)RecipeIngredientRecipeIngredient
 
-在此示例中，超类 for 是，它有一个名为 的便利初始化器。因此，此初始化器由 继承。继承版本的功能与版本完全相同，只是它委托给版本而不是版本。RecipeIngredientFoodinit()RecipeIngredientinit()FoodRecipeIngredientinit(name: String)Food
+在该示例中，超类 for 是，它有一个名为 的便利初始化器。因此，此初始化器由 继承。继承版本的功能与版本完全相同，只是它委托给版本而不是版本。RecipeIngredientFoodinit()RecipeIngredientinit()FoodRecipeIngredientinit(name: String)Food
 
 所有这三个初始化器都可用于创建新实例：RecipeIngredient
 

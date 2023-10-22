@@ -192,7 +192,7 @@ enum Barcode {
 var productBarcode = Barcode.upc(8, 85909, 51226, 3)
 ```
 
-此示例创建一个名为 `productBarcode` 的新变量，并为其分配一个关联元组值 `(8, 85909, 51226, 3)` 的 `Barcode.upc` 值。
+该示例创建一个名为 `productBarcode` 的新变量，并为其分配一个关联元组值 `(8, 85909, 51226, 3)` 的 `Barcode.upc` 值。
 
 你可以为同一产品分配不同类型的条形码：
 
@@ -298,7 +298,7 @@ let sunsetDirection = CompassPoint.west.rawValue
 
 如果你使用原始值类型定义枚举，则该枚举会自动接收一个初始化器，该初始化器采用原始值类型的值（作为名为 `rawValue` 的参数）并返回枚举情况或 `nil`。你可以使用此初始化器尝试创建枚举的新实例。
 
-此示例根据 `7` 的原始值识别天王星：
+该示例根据 `7` 的原始值识别天王星：
 
 ```swift
 let possiblePlanet = Planet(rawValue: 7)
@@ -331,7 +331,7 @@ if let somePlanet = Planet(rawValue: positionToFind) {
 // Prints "There isn't a planet at position 11"
 ```
 
-此示例使用可选绑定（optional binding）来尝试访问原始值为 `11` 的行星。语句 `if let somePlanet = Planet(rawValue: 11)` 创建一个可选的 `Planet`，并将 `somePlanet` 设置为该可选 `Planet` 的值（如果可以检索）。在这种情况下，不可能检索位置为 `11` 的行星，因此会执行 `else` 分支。
+该示例使用可选绑定（optional binding）来尝试访问原始值为 `11` 的行星。语句 `if let somePlanet = Planet(rawValue: 11)` 创建一个可选的 `Planet`，并将 `somePlanet` 设置为该可选 `Planet` 的值（如果可以检索）。在这种情况下，不可能检索位置为 `11` 的行星，因此会执行 `else` 分支。
 
 ## 递归枚举
 

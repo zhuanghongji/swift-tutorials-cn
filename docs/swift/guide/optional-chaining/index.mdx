@@ -189,7 +189,7 @@ someAddress.street = "Acacia Road"
 john.residence?.address = someAddress
 ```
 
-在此示例中，尝试设置 address 的属性将失败，因为当前是。john.residencejohn.residencenil
+在该示例中，尝试设置 address 的属性将失败，因为当前是。john.residencejohn.residencenil
 
 赋值是可选链的一部分，这意味着运算符右侧的代码都不会=被求值。在前面的示例中，很难看出从未计算过，因为访问常量没有任何副作用。下面的清单执行相同的分配，但它使用一个函数来创建地址。该函数在返回值之前打印"Function was called"，这让你可以查看运算符的右侧是否已求值。someAddress=
 
@@ -348,7 +348,7 @@ if let johnsStreet = john.residence?.address?.street {
 // Prints "John's street name is Laurel Street."
 ```
 
-在此示例中，尝试设置 address 的属性将成功，因为当前的值包含一个有效实例。john.residencejohn.residenceResidence
+在该示例中，尝试设置 address 的属性将成功，因为当前的值包含一个有效实例。john.residencejohn.residenceResidence
 
 ## 链接具有可选返回值的方法
 

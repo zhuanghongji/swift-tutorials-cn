@@ -35,7 +35,7 @@ let initialBits: UInt8 = 0b00001111
 let invertedBits = ~initialBits  // equals 11110000
 ```
 
-UInt8 整数有八位，可以存储 0 和之间的任何值 255。此示例 UInt8 使用二进制值初始化一个整数 00001111，其前四位设置为 0，后四位设置为 1。这相当于 的十进制值 15。
+UInt8 整数有八位，可以存储 0 和之间的任何值 255。该示例 UInt8 使用二进制值初始化一个整数 00001111，其前四位设置为 0，后四位设置为 1。这相当于 的十进制值 15。
 
 然后使用按位 NOT 运算符创建一个名为 的新常量，它等于，但所有位都取反了。零变成一，一变成零。的值为，等于 的无符号十进制值。invertedBitsinitialBitsinvertedBits11110000240
 
@@ -121,7 +121,7 @@ let greenComponent = (pink & 0x00FF00) >> 8   // greenComponent is 0x66, or 102
 let blueComponent = pink & 0x0000FF           // blueComponent is 0x99, or 153
 ```
 
-此示例使用 UInt32 名为的常量 pink 来存储粉红色的级联样式表颜色值。CSS 颜色值按照 Swift 的十六进制数字表示#CC6699 形式编写。然后，此颜色通过按位与运算符 ( ) 和按位右移运算符 ( )分解为其红色 ( )、绿色( ) 和蓝色 ( ) 分量。0xCC6699CC6699&>>
+该示例使用 UInt32 名为的常量 pink 来存储粉红色的级联样式表颜色值。CSS 颜色值按照 Swift 的十六进制数字表示#CC6699 形式编写。然后，此颜色通过按位与运算符 ( ) 和按位右移运算符 ( )分解为其红色 ( )、绿色( ) 和蓝色 ( ) 分量。0xCC6699CC6699&>>
 
 红色分量是通过在数字和之间执行按位与获得的。中的零有效地"屏蔽"了 的第二个和第三个字节，导致被忽略并作为结果离开。0xCC66990xFF00000xFF00000xCC669966990xCC0000
 
@@ -313,7 +313,7 @@ let combinedVector = vector + anotherVector
 // combinedVector is a Vector2D instance with values of (5.0, 5.0)
 ```
 
-此示例将向量和加在一起以生成向量，如下图所示。(3.0, 1.0)(2.0, 4.0)(5.0, 5.0)
+该示例将向量和加在一起以生成向量，如下图所示。(3.0, 1.0)(2.0, 4.0)(5.0, 5.0)
 
 ![](./vector-addition.png)
 

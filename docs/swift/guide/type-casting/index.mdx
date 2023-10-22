@@ -86,7 +86,7 @@ print("Media library contains \(movieCount) movies and \(songCount) songs")
 // Prints "Media library contains 2 movies and 3 songs"
 ```
 
-此示例遍历 library 数组中的所有项目。每次通过时，for-in 循环都会将常量设置为数组中的 item 下一个。MediaItem
+该示例遍历 library 数组中的所有项目。每次通过时，for-in 循环都会将常量设置为数组中的 item 下一个。MediaItem
 
 item is Movietrue 如果当前是实例则返回，否则返回。同样，检查该项目是否是一个实例。在-循环的末尾，和的值包含每种类型的实例数。MediaItemMoviefalseitem is SongSongforinmovieCountsongCountMediaItem
 
@@ -102,7 +102,7 @@ as!仅当你确定向下转换总是成功时，才使用类型转换运算符 (
 
 下面的示例遍历每个 in ，并为每个项目打印适当的描述。为此，它需要将每个项目作为 true 或访问，而不仅仅是作为. 这是必要的，以便它能够访问 a 的 or 属性或在描述中使用。MediaItemlibraryMovieSongMediaItemdirectorartistMovieSong
 
-在此示例中，数组中的每个项目可能是一个 Movie，也可能是一个 Song。你事先不知道每个项目使用哪个实际类，因此使用类型转换运算符 ( as?) 的条件形式在每次循环中检查向下转换是合适的：
+在该示例中，数组中的每个项目可能是一个 Movie，也可能是一个 Song。你事先不知道每个项目使用哪个实际类，因此使用类型转换运算符 ( as?) 的条件形式在每次循环中检查向下转换是合适的：
 
 ```swift
 for item in library {

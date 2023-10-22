@@ -81,7 +81,7 @@ let john = Person(fullName: "John Appleseed")
 // john.fullName is "John Appleseed"
 ```
 
-此示例定义了一个名为 的结构 Person，它表示一个特定的命名人。它声明它采用该协议作为其定义第一行的一部分。FullyNamed
+该示例定义了一个名为 的结构 Person，它表示一个特定的命名人。它声明它采用该协议作为其定义第一行的一部分。FullyNamed
 
 的每个实例 Person 都有一个名为 的存储属性，类型为。这符合协议的单一要求，意味着正确符合协议。（如果未满足协议要求，Swift 会在编译时报告错误。）fullNameStringFullyNamedPerson
 
@@ -278,7 +278,7 @@ class Dice {
 }
 ```
 
-此示例定义了一个名为 的新类 Dice，它表示用于棋盘游戏的 n 面骰子。Dice 实例有一个名为 的整数属性 sides，表示它们有多少面，还有一个名为 的属性 generator，它提供一个随机数生成器，从中创建骰子掷骰值。
+该示例定义了一个名为 的新类 Dice，它表示用于棋盘游戏的 n 面骰子。Dice 实例有一个名为 的整数属性 sides，表示它们有多少面，还有一个名为 的属性 generator，它提供一个随机数生成器，从中创建骰子掷骰值。
 
 该 generator 属性的类型为。因此，你可以将其设置为采用该协议的任何类型的实例。你分配给该属性的实例不需要其它任何东西，除了该实例必须采用该协议。因为它的类型是，所以类内部的代码只能以适用于所有符合该协议的生成器的方式进行交互。这意味着它不能使用由生成器的底层类型定义的任何方法或属性。但是，你可以从协议类型向下转换为基础类型，就像从超类向下转换为子类一样，如向下转换中所述。RandomNumberGeneratorRandomNumberGeneratorRandomNumberGeneratorRandomNumberGeneratorDicegenerator
 
@@ -393,7 +393,7 @@ class DiceGameTracker: DiceGameDelegate {
 
 DiceGameTracker 实现 . 所需的所有三个方法。它使用这些方法来跟踪游戏进行的回合数。它在游戏开始时将属性重置为零，在每次新回合开始时递增它，并在游戏结束后打印出总回合数。DiceGameDelegatenumberOfTurns
 
-上面显示的实现使用参数来打印有关即将玩的游戏的一些介绍信息。该参数的类型为, not ，因此只能访问和使用作为协议的一部分实现的方法和属性。但是，该方法仍然能够使用类型转换来查询底层实例的类型。在此示例中，它检查是否实际上是幕后的实例，如果是，则打印一条适当的消息。gameDidStart(_:)gamegameDiceGameSnakesAndLaddersgameDidStart(_:)DiceGamegameSnakesAndLadders
+上面显示的实现使用参数来打印有关即将玩的游戏的一些介绍信息。该参数的类型为, not ，因此只能访问和使用作为协议的一部分实现的方法和属性。但是，该方法仍然能够使用类型转换来查询底层实例的类型。在该示例中，它检查是否实际上是幕后的实例，如果是，则打印一条适当的消息。gameDidStart(_:)gamegameDiceGameSnakesAndLaddersgameDidStart(_:)DiceGamegameSnakesAndLadders
 
 该方法还访问传递参数的属性。因为已知它符合协议，所以它保证有一个属性，所以无论正在玩哪种游戏，该方法都能够访问和打印骰子的属性。gameDidStart(_:)dicegamegameDiceGamedicegameDidStart(_:)sides
 
@@ -601,7 +601,7 @@ protocol PrettyTextRepresentable: TextRepresentable {
 }
 ```
 
-此示例定义了一个新协议，它继承自。任何采用的东西都必须满足由 强制执行的所有要求，以及由 强制执行的附加要求。在此示例中，添加了一个要求以提供一个名为的可获取属性，该属性返回一个.PrettyTextRepresentableTextRepresentablePrettyTextRepresentableTextRepresentablePrettyTextRepresentablePrettyTextRepresentableprettyTextualDescriptionString
+该示例定义了一个新协议，它继承自。任何采用的东西都必须满足由 强制执行的所有要求，以及由 强制执行的附加要求。在该示例中，添加了一个要求以提供一个名为的可获取属性，该属性返回一个.PrettyTextRepresentableTextRepresentablePrettyTextRepresentableTextRepresentablePrettyTextRepresentablePrettyTextRepresentableprettyTextualDescriptionString
 
 该类可以扩展以采用并符合：SnakesAndLaddersPrettyTextRepresentable
 
@@ -681,7 +681,7 @@ wishHappyBirthday(to: birthdayPerson)
 // Prints "Happy birthday, Malcolm, you're 21!"
 ```
 
-在此示例中，协议对名为 的可获取属性 Named 有一个单一要求。该协议对名为 的可获取属性有一个单一要求。这两种协议都被称为.StringnameAgedIntagePerson
+在该示例中，协议对名为 的可获取属性 Named 有一个单一要求。该协议对名为 的可获取属性有一个单一要求。这两种协议都被称为.StringnameAgedIntagePerson
 
 该示例还定义了一个函数。参数的类型是，意思是"任何同时符合和协议的类型"。将哪种特定类型传递给函数并不重要，只要它符合两个必需的协议即可。wishHappyBirthday(to:)celebratorNamed & AgedNamedAged
 
@@ -726,7 +726,7 @@ beginConcert(in: seattle)
 - 向下转换运算符的版本 as?返回协议类型的可选值，nil 如果实例不符合该协议，则该值是。
 - 向下转换运算符的版本 as!强制向下转换为协议类型，如果向下转换不成功则触发运行时错误。
 
-此示例定义了一个名为 的协议，具有一个名为 的可获取属性的单一属性要求：HasAreaDoublearea
+该示例定义了一个名为 的协议，具有一个名为 的可获取属性的单一属性要求：HasAreaDoublearea
 
 ```swift
 protocol HasArea {

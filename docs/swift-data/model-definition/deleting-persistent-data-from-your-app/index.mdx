@@ -8,7 +8,7 @@
 
 ## 概述
 
-数据驱动的应用程序通常为人们提供一种删除数据的方法，此示例也不例外。它展示了删除存储在 SwiftData 模型容器中的数据的三种方法：
+数据驱动的应用程序通常为人们提供一种删除数据的方法，该示例也不例外。它展示了删除存储在 SwiftData 模型容器中的数据的三种方法：
 
 - 滑动删除
 - 确认删除
@@ -52,7 +52,7 @@ private func removeAnimals(at indexSet: IndexSet) {
 }
 ```
 
-但是，使用此示例的人可能会删除选定的动物，因此 `removeAnimals` 方法需要在删除动物之前取消选择该动物。`removeAnimals` 的更新版本使用 [persistentModelID](https://developer.apple.com/documentation/swiftdata/persistentmodel/persistentmodelid) 来确定要删除的动物是否也是所选动物。如果是，该方法将选定的动物设置为 `nil`。
+但是，使用该示例的人可能会删除选定的动物，因此 `removeAnimals` 方法需要在删除动物之前取消选择该动物。`removeAnimals` 的更新版本使用 [persistentModelID](https://developer.apple.com/documentation/swiftdata/persistentmodel/persistentmodelid) 来确定要删除的动物是否也是所选动物。如果是，该方法将选定的动物设置为 `nil`。
 
 ```swift
 private func removeAnimals(at indexSet: IndexSet) {

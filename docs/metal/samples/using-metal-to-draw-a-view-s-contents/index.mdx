@@ -8,7 +8,7 @@
 
 ## 概述
 
-在此示例中，你将学习使用 Metal 渲染图形内容的基础知识。你将使用 MetalKit 框架创建一个视图，该视图使用 Metal 绘制视图的内容。然后，你将对渲染通道的命令进行编码，将视图擦除为背景颜色。
+在该示例中，你将学习使用 Metal 渲染图形内容的基础知识。你将使用 MetalKit 框架创建一个视图，该视图使用 Metal 绘制视图的内容。然后，你将对渲染通道的命令进行编码，将视图擦除为背景颜色。
 
 :::note
 
@@ -33,7 +33,7 @@ uiView.device = context.coordinator.device
 uiView.clearColor = MTLClearColor(red: 0.0, green: 0.5, blue: 1.0, alpha: 1.0)
 ```
 
-由于你不会在此示例中绘制动画内容，因此请配置视图，使其仅在需要更新内容时绘制，例如当视图更改形状时：
+由于你不会在该示例中绘制动画内容，因此请配置视图，使其仅在需要更新内容时绘制，例如当视图更改形状时：
 
 ```swift
 uiView.enableSetNeedsDisplay = true
@@ -52,13 +52,13 @@ uiView.delegate = context.coordinator
 - 每当内容的大小发生变化时，视图都会调用 [mtkView(\_:drawableSizeWillChange:)](https://developer.apple.com/documentation/metalkit/mtkviewdelegate/1536015-mtkview) 方法。当包含视图的窗口调整大小或设备方向更改（在 iOS 上）时，会发生这种情况。这允许你的应用程序将其渲染的分辨率调整为视图的大小。
 - 每当需要更新视图内容时，视图都会调用 [draw(in:)](https://developer.apple.com/documentation/metalkit/mtkviewdelegate/1535942-draw) 方法。在此方法中，你创建一个命令缓冲区，对命令进行编码，告诉 GPU 要绘制什么以及何时在屏幕上显示它，并将该命令缓冲区排入队列以供 GPU 执行。这有时被称为绘制一帧。你可以将一帧视为生成 "显示在屏幕上的单个图像" 的所有工作。在交互式应用程序（例如游戏）中，你可能每秒绘制许多帧。
 
-在此示例中，名为 `Coordinator` 的类实现委托方法并承担绘制的责任。`AAPLView` 创建此类的实例并将其设置为视图的委托。
+在该示例中，名为 `Coordinator` 的类实现委托方法并承担绘制的责任。`AAPLView` 创建此类的实例并将其设置为视图的委托。
 
 ## 创建渲染通道描述器
 
-绘制时，GPU 将结果存储到 **纹理（textures）**中，纹理是包含图像数据且可由 GPU 访问的内存块。在此示例中，`MTKView` 创建了绘制到视图中所需的所有纹理。它创建多个纹理，以便在渲染到另一个纹理时可以显示一个纹理的内容。
+绘制时，GPU 将结果存储到 **纹理（textures）**中，纹理是包含图像数据且可由 GPU 访问的内存块。在该示例中，`MTKView` 创建了绘制到视图中所需的所有纹理。它创建多个纹理，以便在渲染到另一个纹理时可以显示一个纹理的内容。
 
-要进行绘制，你需要创建一个 **渲染通道（render pass）**，它是绘制到一组纹理的一系列渲染命令。当在渲染通道中使用时，纹理也称为 **渲染目标（render targets）**。要创建渲染通道，你需要一个渲染通道描述器，即 [MTLRenderPassDescriptor](https://developer.apple.com/documentation/metal/mtlrenderpassdescriptor) 的实例。在此示例中，你不需要配置自己的渲染通道描述器，而是要求 `MetalKit` 视图为你创建一个。
+要进行绘制，你需要创建一个 **渲染通道（render pass）**，它是绘制到一组纹理的一系列渲染命令。当在渲染通道中使用时，纹理也称为 **渲染目标（render targets）**。要创建渲染通道，你需要一个渲染通道描述器，即 [MTLRenderPassDescriptor](https://developer.apple.com/documentation/metal/mtlrenderpassdescriptor) 的实例。在该示例中，你不需要配置自己的渲染通道描述器，而是要求 `MetalKit` 视图为你创建一个。
 
 ```swift
 guard let renderPassDescriptor = view.currentRenderPassDescriptor else {
@@ -78,7 +78,7 @@ guard let renderPassDescriptor = view.currentRenderPassDescriptor else {
 let commandEncoder = commandBuffer.makeRenderCommandEncoder(descriptor: renderPassDescriptor)
 ```
 
-在此示例中，你没有对任何绘制命令进行编码，因此渲染通道所做的唯一事情就是擦除纹理。调用编码器的 `endEncoding` 方法表明传递完成。
+在该示例中，你没有对任何绘制命令进行编码，因此渲染通道所做的唯一事情就是擦除纹理。调用编码器的 `endEncoding` 方法表明传递完成。
 
 ```swift
 commandEncoder.endEncoding()
@@ -100,7 +100,7 @@ view.currentDrawable
 commandBuffer.present(view.currentDrawable!)
 ```
 
-这个方法告诉 Metal，当命令缓冲区被安排执行时，Metal 应该与 Core Animation 协调以在渲染完成后显示纹理。当 Core Animation 呈现纹理时，它就成为视图的新内容。在此示例中，这意味着擦除的纹理将成为视图的新背景。这一变化与 Core Animation 为屏幕用户界面元素所做的任何其它视觉更新一起发生。
+这个方法告诉 Metal，当命令缓冲区被安排执行时，Metal 应该与 Core Animation 协调以在渲染完成后显示纹理。当 Core Animation 呈现纹理时，它就成为视图的新内容。在该示例中，这意味着擦除的纹理将成为视图的新背景。这一变化与 Core Animation 为屏幕用户界面元素所做的任何其它视觉更新一起发生。
 
 ## 提交命令缓冲区
 
