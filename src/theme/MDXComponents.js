@@ -4,6 +4,7 @@ import OriginalPDF from "@site/src/components/OriginalPDF";
 import OriginalSource from "@site/src/components/OriginalSource";
 import ReferenceSources from "@site/src/components/ReferenceSources";
 import ExperimentBlock from "@site/src/components/ExperimentBlock";
+import ImportantBlock from "@site/src/components/ImportantBlock";
 import Figure from "@site/src/components/Figure";
 import Screenshot from "@site/src/components/Screenshot";
 import Screenshots from "@site/src/components/Screenshots";
@@ -26,6 +27,7 @@ export default {
   OriginalSource,
   ReferenceSources,
   ExperimentBlock,
+  ImportantBlock,
   Figure,
   Screenshot,
   Screenshots,

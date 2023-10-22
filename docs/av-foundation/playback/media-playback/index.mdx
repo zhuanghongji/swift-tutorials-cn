@@ -1,0 +1,294 @@
+# Media playback
+
+<ToBePolishedAfterTranslation />
+
+<OriginalSource
+  title="Media playback"
+  url="https://developer.apple.com/documentation/avfoundation/media_playback"
+  summary="管理媒体资产和插页式内容的播放，与您在界面中呈现该内容的方式无关"
+/>
+
+## 概述
+
+您可以使用播放器来管理媒体资产的播放和计时，例如开始和停止播放以及寻找特定时间。播放器一次管理单个媒体资产的播放。该框架还提供了一个队列播放器，用于对媒体资源进行排队以按顺序播放。
+
+:::note
+
+当您使用 `AVFoundation` 时，Apple 可能会收集指标来帮助改进框架。
+
+:::
+
+您创建 `AVPlayerItem` 的实例来播放媒体资源。播放器项目管理播放器播放的资产的时间和呈现状态。播放器项目还包含与资源中的轨道相对应的播放器项目轨道。您可以将播放器的输出定向到专门的核心动画层、播放器层或同步层。
+
+<ImportantBlock>
+
+如果您的应用需要 `Afterburner` 加速播放和解码 ProRes 和 ProRes RAW 视频文件，则必须调用 `VTRegisterProfessionalVideoWorkflowVideoDecoders()` 函数。
+
+</ImportantBlock>
+
+## Playback control
+
+### AVPlayer
+
+```swift
+// 提供控制玩家传输行为的接口的对象
+```
+
+播放器是管理媒体资产的播放和计时的控制器对象。使用 AVPlayer 实例播放本地和远程基于文件的媒体，例如 QuickTime 电影和 MP3 音频文件，以及使用 HTTP Live Streaming 提供的视听媒体。
+
+使用播放器一次播放一个媒体资产。你可以使用其 replaceCurrentItem(with:) 方法重用播放器实例来播放其它媒体资产，但它一次仅管理单个媒体资产的播放。该框架还提供了一个名为 AVQueuePlayer 的类的子类，你可以使用它来创建和管理按顺序播放的媒体资源的队列。
+
+你使用 AVPlayer 来播放媒体资源，AVFoundation 使用 AVAsset 类对其进行建模。 AVAsset 仅对媒体的静态方面进行建模，例如其持续时间或创建日期，并且其本身不适合使用 AVPlayer 进行播放。要播放资产，你需要创建在 AVPlayerItem 中找到的动态对应项的实例。该对象对 AVPlayer 实例播放的资产的时序和呈现状态进行建模。有关更多详细信息，请参阅 AVPlayerItem 参考。
+
+AVPlayer 是一个状态不断变化的动态对象。你可以使用两种方法来观察玩家的状态：
+
+- 常规状态观察：你可以使用键值观察 (KVO) 来观察播放器的许多动态属性的状态更改，例如其 currentItem 或其播放 rate 。
+- 定时状态观察：KVO 对于一般状态观察效果很好，但不适用于观察像玩家时间这样不断变化的状态。 AVPlayer 提供了两种观察时间变化的方法：
+  - addPeriodicTimeObserver(forInterval:queue:using:)
+  - addBoundaryTimeObserver(forTimes:queue:using:)
+
+这些方法可让你分别定期或按边界观察时间变化。当发生变化时，调用你提供给这些方法的回调块或闭包，以便你有机会采取一些操作，例如更新玩家用户界面的状态。
+
+AVPlayer 和 AVPlayerItem 是非视觉对象，这意味着它们本身无法在屏幕上呈现资产的视频。你可以使用两种主要方法在屏幕上呈现视频内容：
+
+- AVKit：呈现视频内容的最佳方式是在 iOS 和 tvOS 中使用 AVKit 框架的 AVPlayerViewController 类，或在 macOS 中使用 AVPlayerView 类。这些类展示视频内容以及播放控件和其它媒体功能，为你提供全功能的播放体验。
+- AVPlayerLayer：为播放器构建自定义界面时，请使用 AVPlayerLayer 。你可以将此层设置为视图的支持层或将其直接添加到层层次结构中。与 AVPlayerView 和 AVPlayerViewController 不同，播放器层不提供任何播放控件 - 它仅在屏幕上显示视觉内容。你可以构建播放传输控件来播放、暂停和搜索媒体。
+
+除了使用 AVKit 或 AVPlayerLayer 呈现的视觉内容之外，你还可以使用 AVSynchronizedLayer 呈现与玩家计时同步的动画内容。使用同步层将玩家计时传递到其层子树。你可以使用 AVSynchronizedLayer 在 Core Animation 中构建自定义效果，例如动画下三分之一或视频过渡，并让它们与播放器当前 AVPlayerItem 的时间同步播放。
+
+### AVPlayerItem
+
+```swift
+// 对播放期间资产的计时和呈现状态进行建模的对象
+```
+
+播放器项存储对 `AVAsset` 对象的引用，该对象表示要播放的媒体。如果你需要在将资源放入队列进行播放之前对其进行检查，请调用其 `load(_:)` 方法来检索一个或多个属性的值。或者，你可以通过将所需属性传递给其 `init(asset:automaticallyLoadedAssetKeys:)` 初始值设定项来告诉播放器项目自动加载所需属性。当播放器项目准备好播放时，你请求的资产属性就可以使用了。
+
+### AVPlayerItemTrack
+
+```swift
+// 表示播放期间资产轨道的呈现状态的对象
+```
+
+### AVQueuePlayer
+
+```swift
+// 播放一系列播放器项目的对象
+```
+
+使用该类的实例来管理播放器项目队列。
+
+### AVPlayerLooper
+
+你可以使用 `AVQueuePlayer` 在应用中手动实现循环播放，但 `AVPlayerLooper` 提供了一个更简单的界面来循环单个 `AVPlayerItem`。你可以通过向播放器循环器传递对 `AVQueuePlayer` 的引用和模板 `AVPlayerItem` 来创建播放器循环器，循环器会自动管理此内容的循环播放（请参阅示例）。
+
+```swift
+let asset = // AVAsset with its 'duration' property value loaded
+let playerItem = AVPlayerItem(asset: asset)
+
+// Create a new player looper with the queue player and template item
+playerLooper = AVPlayerLooper(player: queuePlayer, templateItem: playerItem)
+
+// Begin looping playback
+queuePlayer.play()
+```
+
+## SharePlay
+
+### AVPlaybackCoordinator
+
+```swift
+// 协调连接组中播放器播放的对象
+```
+
+该框架提供了两个播放协调器子类来管理不同类型的播放器对象：
+
+- AVPlayerPlaybackCoordinator 协调 AVPlayer 对象的状态。如果你的应用使用 AVPlayer ，请继续使用其标准接口来控制播放。协调器拦截玩家速率和时间的更改，并将其传播给组中的其它玩家。
+- AVDelegatingPlaybackCoordinator 协调自定义玩家对象的状态。如果你的应用使用自定义播放器，例如使用 AVSampleBufferDisplayLayer 和 AVSampleBufferAudioRenderer 呈现媒体的播放器，请使用此对象来协调组播放。采用协调器的委托协议，以便你的玩家响应协调器发出的命令。
+
+:::note
+
+使用 GroupActivities 框架将播放协调器连接到其对等点。
+
+:::
+
+### AVPlayerPlaybackCoordinator
+
+```swift
+// 播放协调器子类，用于协调连接组中播放器对象的播放
+```
+
+该对象协调 `AVPlayer` 对象的状态。你不创建协调器的实例，而是通过其 `playbackCoordinator` 属性访问玩家的实例。
+
+使用 AVPlayer 的标准接口来控制应用程序中的播放。协调器自动拦截影响传输控制状态的调用，例如 setRate(\_:time:atHostTime:) 、 pause() 和 seek(to:completionHandler:) ，并在适当的时候将它们传播给组中的其它参与者。同样，协调员观察其它参与者的速率和时间变化，并将其强加给玩家。如果发生这种情况，播放器项目会发布识别原始参与者的通知。
+
+<Figure src={require("./image_1.png")} size={720} />
+
+当系统状态更改导致播放器的 timeControlStatus 值从播放状态更改为等待或暂停状态时，此对象可以自动暂停协调播放。由于播放器因网络停顿或间隙播放等事件进入等待状态而开始的暂停，在播放器完成等待时自动结束。但是，如果系统由于系统状态更改（例如音频会话中断）而暂停播放，则只有在播放器速率变回非零之后，暂停才会结束。
+
+:::caution
+
+播放协调器不管理已连接播放器的播放队列。你需要实现自定义逻辑以将相同的项目排列在所有连接的玩家之间。
+
+:::
+
+### AVDelegatingPlaybackCoordinator
+
+```swift
+// 播放协调器子类，用于协调连接组中自定义播放器对象
+```
+
+该对象协调自定义播放器对象的状态，例如使用 AVSampleBufferDisplayLayer 和 AVSampleBufferAudioRenderer 渲染媒体的对象，或使用 AVAudioEngine 播放音频的对象。
+
+采用 AVPlaybackCoordinatorPlaybackControlDelegate 协议，以便你的应用响应协调器的播放命令。这些命令提供了请求的状态更改的详细信息，以便你可以相应地控制玩家对象。
+
+<Figure src={require("./image_2.png")} size={720} />
+
+## Presentation
+
+### AVPlayerLayer
+
+```swift
+// 呈现玩家对象的视觉内容的对象
+```
+
+在 iOS 或 tvOS 中使用此对象的常见方法是作为 UIView 的支持层，如以下示例所示：
+
+```swift
+/// A view that displays the visual contents of a player object.
+class PlayerView: UIView {
+
+    // Override the property to make AVPlayerLayer the view's backing layer.
+    override static var layerClass: AnyClass { AVPlayerLayer.self }
+
+    // The associated player object.
+    var player: AVPlayer? {
+        get { playerLayer.player }
+        set { playerLayer.player = newValue }
+    }
+
+    private var playerLayer: AVPlayerLayer { layer as! AVPlayerLayer }
+}
+```
+
+:::caution
+
+播放器图层继承的 contents 属性的值是不透明的，你无法更改它。
+
+:::
+
+### AVSynchronizedLayer
+
+```swift
+// 一个核心动画层，它从播放器项目中获取其计时，以便你可以将层动画与媒体播放同步
+```
+
+你可以从同一个 AVPlayerItem 对象创建任意数量的同步层。
+
+同步图层类似于 CATransformLayer 对象，因为它本身不显示任何内容，只是将状态赋予其图层子树。 AVSynchronizedLayer 赋予其计时状态，将其子树中各层的计时与播放器项目的计时同步。
+
+任何设置了动画属性并作为 AVSynchronizedLayer 子图层添加的 CoreAnimation 图层都应将动画的 beginTime 属性设置为非零正值，以便动画在播放器项目的时间线上解释。 CoreAnimation 将默认的 beginTime 0.0 替换为 CACurrentMediaTime() 。要从时间 0 开始动画，请使用一个小的正值，例如 AVCoreAnimationBeginTimeAtZero 。
+
+你可以使用图层，如下例所示：
+
+```
+AVPlayerItem *playerItem = <#Get a player item#>;
+CALayer *superLayer =  <#Get a layer#>;
+// Set up a synchronized layer to sync the layer timing of its subtree
+// with the playback of the playerItem/
+AVSynchronizedLayer *syncLayer = [AVSynchronizedLayer synchronizedLayerWithPlayerItem:playerItem];
+[syncLayer addSublayer:<#Another layer#>];    // These sublayers will be synchronized.
+[superLayer addSublayer:syncLayer];
+```
+
+## Media selection
+
+### AVMediaSelection
+
+```swift
+// 表示资产上媒体选择选项的完整再现的对象
+```
+
+### AVMediaSelectionGroup
+
+```swift
+// 表示资产内媒体呈现的互斥选项集合的对象
+```
+
+### AVMediaSelectionOption
+
+```swift
+// 表示一组选项中用于呈现媒体的特定选项的对象
+```
+
+### AVMutableMediaSelection
+
+```swift
+// 表示资产上媒体选择选项的完整再现的可变对象
+```
+
+### AVPlayerMediaSelectionCriteria
+
+```swift
+// 指定玩家的首选语言和媒体特征的对象
+```
+
+该对象的实例表示包含播放器在准备和播放项目时尝试自动选择的媒体选择选项的资产的语言和媒体特征。它按首选顺序列出了语言和媒体特征。
+
+## Interstitials
+
+### AVPlayerInterstitialEvent
+
+```swift
+// 提供有关玩家如何呈现插页式内容的说明的对象
+```
+
+间质性事件在其 primaryItem 的时间线上定义 date 或 time ，从此处开始播放间质性内容。它指定要作为一个或多个模板播放器项目的数组来播放的替代插页式内容。系统使用事件的 templateItems 的配置来构建新的播放器项目实例来呈现插页式内容。
+
+使用 AVPlayerInterstitialEventMonitor 观察插页式事件的调度和进度。如果你的应用需要指定插页式事件的时间表，请改用 AVPlayerInterstitialEventController 。
+
+:::note
+
+AVPlayerInterstitialEvent 以前是不可变类型。从 iOS 16、tvOS 16、macOS 13 和 watchOS 9 开始，它现在是可变类型，允许你在将事件设置在 AVPlayerInterstitialEventController 上之前创建和自定义事件。
+
+:::
+
+### AVPlayerInterstitialEventController
+
+```swift
+// 为主要 player 所玩的项目安排间隙事件的对象
+```
+
+该类是 AVPlayerInterstitialEventMonitor 的子类，用于管理在主要内容播放期间呈现的插页式事件的计划。
+
+:::caution
+
+创建事件控制器并设置时间表会导致播放忽略源媒体中存在的间隙事件。
+
+:::
+
+### AVPlayerInterstitialEventMonitor
+
+```swift
+// 监视间隙事件的调度和进度的对象
+```
+
+该对象监视主要项目内容中存在的间隙事件，例如由 HLS 媒体播放列表定义的事件，以及由 AVPlayerInterstitialEventController 对象管理的事件。你可以通过 events 属性访问插页式事件的时间表。
+
+当需要呈现插页式事件时，系统会暂停主要项目的播放，并将其播放器的 timeControlStatus 更改为 AVPlayer.TimeControlStatus.waitingToPlayAtSpecifiedRate ， reasonForWaitingToPlay 值为 interstitialEvent 。当系统暂停主播放时，它会根据事件的 templateItems 创建播放器项目来播放插页式内容。间隙播放器暂时采用主要播放器的输出配置，例如将其视觉输出路由到引用主要播放器的播放器层。在插页式播放器完成播放或其当前项目变为 nil 后，将恢复主要内容的播放。
+
+### AVPlayerInterstitialEventAssetListResponseStatus
+
+```swift
+// 描述插页式事件的资产列表响应状态的常量
+```
+
+---
+
+## Remote Controls
+
+## Timed metadata
+
+## Media output
+
+## Utilities
