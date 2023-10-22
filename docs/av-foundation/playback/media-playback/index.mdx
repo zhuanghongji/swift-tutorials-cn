@@ -5,24 +5,24 @@
 <OriginalSource
   title="Media playback"
   url="https://developer.apple.com/documentation/avfoundation/media_playback"
-  summary="管理媒体资产和插页式内容的播放，与您在界面中呈现该内容的方式无关"
+  summary="管理媒体资产和插页式内容的播放，与你在界面中呈现该内容的方式无关"
 />
 
 ## 概述
 
-您可以使用播放器来管理媒体资产的播放和计时，例如开始和停止播放以及寻找特定时间。播放器一次管理单个媒体资产的播放。该框架还提供了一个队列播放器，用于对媒体资源进行排队以按顺序播放。
+你可以使用播放器来管理媒体资产的播放和计时，例如开始和停止播放以及寻找特定时间。播放器一次管理单个媒体资产的播放。该框架还提供了一个队列播放器，用于对媒体资源进行排队以按顺序播放。
 
 :::note
 
-当您使用 `AVFoundation` 时，Apple 可能会收集指标来帮助改进框架。
+当你使用 `AVFoundation` 时，Apple 可能会收集指标来帮助改进框架。
 
 :::
 
-您创建 `AVPlayerItem` 的实例来播放媒体资源。播放器项目管理播放器播放的资产的时间和呈现状态。播放器项目还包含与资源中的轨道相对应的播放器项目轨道。您可以将播放器的输出定向到专门的核心动画层、播放器层或同步层。
+你创建 `AVPlayerItem` 的实例来播放媒体资源。播放器项目管理播放器播放的资产的时间和呈现状态。播放器项目还包含与资源中的轨道相对应的播放器项目轨道。你可以将播放器的输出定向到专门的核心动画层、播放器层或同步层。
 
 <ImportantBlock>
 
-如果您的应用需要 `Afterburner` 加速播放和解码 ProRes 和 ProRes RAW 视频文件，则必须调用 `VTRegisterProfessionalVideoWorkflowVideoDecoders()` 函数。
+如果你的应用需要 `Afterburner` 加速播放和解码 ProRes 和 ProRes RAW 视频文件，则必须调用 `VTRegisterProfessionalVideoWorkflowVideoDecoders()` 函数。
 
 </ImportantBlock>
 

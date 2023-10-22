@@ -1,0 +1,112 @@
+# Speech synthesis
+
+<ToBePolishedAfterTranslation />
+
+<OriginalSource
+  title="Speech synthesis"
+  url="https://developer.apple.com/documentation/avfoundation/speech_synthesis"
+  summary="配置语音来朗读文本字符串"
+/>
+
+## 概述
+
+语音合成框架管理语音和语音合成，需要两个主要任务：
+
+创建一个包含要朗读的文本的 [AVSpeechUtterance](https://developer.apple.com/documentation/avfaudio/avspeechutterance) 实例。可选地，为每个话语配置语音参数，例如语音和速率。
+
+```swift
+// Create an utterance.
+let utterance = AVSpeechUtterance(string: "The quick brown fox jumped over the lazy dog.")
+
+// Configure the utterance.
+utterance.rate = 0.57
+utterance.pitchMultiplier = 0.8
+utterance.postUtteranceDelay = 0.2
+utterance.volume = 0.8
+
+// Retrieve the British English voice.
+let voice = AVSpeechSynthesisVoice(language: "en-GB")
+
+// Assign the voice to the utterance.
+utterance.voice = voice
+```
+
+将话语传递给 [AVSpeechSynthesizer](https://developer.apple.com/documentation/avfaudio/avspeechsynthesizer) 实例以生成语音。
+
+```swift
+// Create a speech synthesizer.
+let synthesizer = AVSpeechSynthesizer()
+
+// Tell the synthesizer to speak the utterance.
+synthesizer.speak(utterance)
+```
+
+可选地，使用语音合成器实例来控制或响应正在进行的语音；例如，指定其 [delegate](https://developer.apple.com/documentation/avfaudio/avspeechsynthesizer/1619709-delegate) 来接收语音事件通知。
+
+## 口语文本属性
+
+### AVSpeechUtterance
+
+```swift
+// 封装用于语音合成的文本和影响语音的参数的对象
+```
+
+`AVSpeechUtterance` 是语音合成的基本单位。
+
+要合成语音，请使用你希望语音合成器朗读的文本创建一个 AVSpeechUtterance 实例。可选地，更改 `voice`、`pitchMultiplier`、`volume`、`rate`、`preUtteranceDelay` 或 `postUtteranceDelay` 实例以开始语音，或者如果合成器已经在说话，则将话语排队以便稍后说话。
+
+如果要应用不同的语音参数，请将文本正文拆分为多个话语。例如，你可以通过增加音调并降低相对于其他句子的语速来强调一个句子，或者你可以通过将每个句子放入具有前导或尾随延迟的话语中来在句子之间引入停顿。
+
+设置并使用 [AVSpeechSynthesizerDelegate](https://developer.apple.com/documentation/avfaudio/avspeechsynthesizerdelegate) 在合成器开始或结束说出话语时接收通知。如果你希望在语音进行时收到通知，请为文本正文中的每个有意义的单元创建一个话语。
+
+### AVSpeechSynthesisVoice
+
+```swift
+// 用于语音合成的独特声音
+```
+
+语音合成中区分语音的主要因素是语言、区域设置和质量。创建 `AVSpeechSynthesisVoice` 的实例以选择适合文本和语言的语音，并将其设置为 [AVSpeechUtterance](https://developer.apple.com/documentation/avfaudio/avspeechutterance) 实例上的 [voice](https://developer.apple.com/documentation/avfaudio/avspeechutterance/1619710-voice) 属性的值。语音可以选择性地反映语言的本地变体，例如澳大利亚英语或南非英语。有关支持的语言的完整列表，请参阅 [VoiceOver 支持的语言](https://support.apple.com/en-us/HT206175)。
+
+## 语音合成控制
+
+### AVSpeechSynthesizer
+
+```swift
+// 从文本话语生成合成语音并能够监视或控制正在进行的语音的对象
+```
+
+要说出某些文本，请创建一个包含文本的 [AVSpeechUtterance](https://developer.apple.com/documentation/avfaudio/avspeechutterance) 实例，并将其传递给语音合成器实例上的 [speak(\_:)](https://developer.apple.com/documentation/avfaudio/avspeechsynthesizer/1619686-speak)。你还可以选择检索 [AVSpeechSynthesisVoice](https://developer.apple.com/documentation/avfaudio/avspeechsynthesisvoice) 并将其设置在话语的 [voice](https://developer.apple.com/documentation/avfaudio/avspeechutterance/1619710-voice) 属性上，以使语音合成器在说出话语文本时使用该语音。
+
+语音合成器维护它所说的话语队列。如果合成器没有说话，则调用 `speak(_:)` 会立即开始说出该话语，或者在必要时暂停 [preUtteranceDelay](https://developer.apple.com/documentation/avfaudio/avspeechutterance/1619679-preutterancedelay) 后开始说出该话语。如果合成器正在说话，合成器会将话语添加到队列中，并按照接收顺序说出它们。
+
+语音开始后，你可以使用合成器对象来暂停或停止语音。暂停后，你可以从暂停点恢复演讲，也可以完全停止演讲并删除队列中所有剩余的话语。
+
+你可以通过检查其 [isSpeaking](https://developer.apple.com/documentation/avfaudio/avspeechsynthesizer/1619680-isspeaking) 和 [isPaused](https://developer.apple.com/documentation/avfaudio/avspeechsynthesizer/1619692-ispaused) 属性或通过设置符合 [AVSpeechSynthesizerDelegate](https://developer.apple.com/documentation/avfaudio/avspeechsynthesizerdelegate) 的委托来监视语音合成器。代表会接收语音合成期间发生的重要事件。
+
+`AVSpeechSynthesizer` 还控制语音播放的路线。有关更多信息，请参阅 [Directing speech output](https://developer.apple.com/documentation/avfaudio/avspeechsynthesizer#3616560)。
+
+:::note
+
+系统不会自动保留语音合成器，因此你需要手动保留它，直到语音结束。
+
+:::
+
+## 语音合成音频单元
+
+### AVSpeechSynthesisProviderAudioUnit
+
+```swift
+// 从文本生成语音的对象
+```
+
+使用语音合成器音频单元生成包含给定语音和语音标记的语音的音频缓冲区。音频单元接收 [AVSpeechSynthesisProviderRequest](https://developer.apple.com/documentation/avfaudio/avspeechsynthesisproviderrequest) 作为输入，并通过渲染块提取音频缓冲区。
+
+使用 [speechSynthesisOutputMetadataBlock](https://developer.apple.com/documentation/avfaudio/avspeechsynthesisprovideraudiounit/3566312-speechsynthesisoutputmetadatablo) 以 [AVSpeechSynthesisMarker](https://developer.apple.com/documentation/avfaudio/avspeechsynthesismarker) 数组的形式提供元数据。
+
+系统扫描并加载此类音频单元扩展的语音，并且它提供的语音可用于 [AVSpeechSynthesizer](https://developer.apple.com/documentation/avfaudio/avspeechsynthesizer) 以及 `VoiceOver` 和 `Speak Screen` 等辅助技术。
+
+<ImportantBlock>
+
+语音合成器不允许网络访问。
+
+</ImportantBlock>

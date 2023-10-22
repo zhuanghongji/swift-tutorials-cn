@@ -796,6 +796,7 @@ const avfoundationSidebar = [
           "av-foundation/esseentials/using-hevc-video-with-alpha/index",
           "av-foundation/esseentials/selecting-subtitles-and-alternative-audio-tracks/index",
           "av-foundation/esseentials/presenting-chapter-markers/index",
+          "av-foundation/esseentials/creating-a-custom-speech-synthesizer/index",
         ],
       },
       {
@@ -813,6 +814,12 @@ const avfoundationSidebar = [
         label: "Playback",
         collapsed: false,
         items: ["av-foundation/playback/media-playback/index"],
+      },
+      {
+        type: "category",
+        label: "Audio",
+        collapsed: false,
+        items: ["av-foundation/audio/speech-synthesis/index"],
       },
     ],
   },

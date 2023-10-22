@@ -234,6 +234,18 @@
   },
   "wbr": {
     "scope": "md,mdx",
+    "prefix": "importantblock",
+    "body": [
+      "<ImportantBlock>",
+      "",
+      "$1",
+      "",
+      "</ImportantBlock>",
+    ],
+    "description": "wbr"
+  },
+  "wbr": {
+    "scope": "md,mdx",
     "prefix": "wbr",
     "body": [
       "<wbr/>",
