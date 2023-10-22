@@ -798,17 +798,7 @@ const avfoundationSidebar = [
         items: [
           "av-foundation/common/media-assets/index",
           "av-foundation/common/media-reading-and-writing/index",
-        ],
-      },
-      {
-        type: "category",
-        label: "Media types and utilities",
-        collapsed: true,
-        items: [
-          "av-foundation/media-types-and-utilities/av-media-type/index",
-          "av-foundation/media-types-and-utilities/av-media-characteristic/index",
-          "av-foundation/media-types-and-utilities/av-file-type/index",
-          "av-foundation/media-types-and-utilities/av-file-type-profile/index",
+          "av-foundation/common/media-types-and-utilities/index",
         ],
       },
       {

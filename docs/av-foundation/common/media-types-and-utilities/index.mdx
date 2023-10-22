@@ -1,14 +1,26 @@
-# AVMediaCharacteristic
+# Media types and utilities
 
 <ToBePolishedAfterTranslation />
 
 <OriginalSource
-  title="AVMediaCharacteristic"
-  url="https://developer.apple.com/documentation/avfoundation/avmediacharacteristic"
-  summary="定义媒体数据特征的结构"
+  title="Media types and utilities"
+  url="https://developer.apple.com/documentation/avfoundation/media_types_and_utilities"
+  summary="确定AVFoundation支持的内容类型和文件格式"
 />
 
-## 概述
+## Media types
+
+### AVMediaType
+
+```swift
+// 各种媒体类型的标识符
+```
+
+### AVMediaCharacteristic
+
+```swift
+// 定义媒体数据特征的结构
+```
 
 QuickTime 电影和 MPEG-4 视频文件可能包含提供标记媒体特征的轨道，以指示轨道媒体的用途、特征或功能。例如，将原始节目内容与视觉动作的附加叙述性描述混合在一起的音轨可能具有媒体特征 public.accessibility.describes-video ，以将其与存储在同一文件中的不包含附加叙述的其它音轨区分开来。
 
@@ -17,8 +29,11 @@ QuickTime 电影和 MPEG-4 视频文件可能包含提供标记媒体特征的�
 ```swift
 // Retrieve the track's QuickTime User Data and filter the results.
 let userDataItems = assetTrack.metadata(forFormat: .quickTimeUserData)
-let characteristicMetadata = AVMetadataItem.metadataItems(from: userDataItems,
-                                          filteredByIdentifier: .quickTimeUserDataTaggedCharacteristic)
+let characteristicMetadata = AVMetadataItem.metadataItems(
+        from: userDataItems,
+        filteredByIdentifier: .quickTimeUserDataTaggedCharacteristic
+)
+
 // Retrieve the tagged characteristic values from the metadata items.
 let characteristics = characteristicMetadata.compactMap { $0.stringValue }
 ```
@@ -28,9 +43,25 @@ let characteristics = characteristicMetadata.compactMap { $0.stringValue }
 ```swift
 // Create a mutable metadata item.
 let taggedCharacteristic = AVMutableMetadataItem()
+
 // Set the identifier and value.
 taggedCharacteristic.identifier = .quickTimeUserDataTaggedCharacteristic
 taggedCharacteristic.value = "com.example.custom-tag" as NSCopying & NSObjectProtocol
+
 // Set the metadata on the asset writer input instance.
 assetWriterInput.metadata = [taggedCharacteristic]
+```
+
+## File types
+
+### AVFileType
+
+```swift
+// 各种文件格式的统一类型标识符
+```
+
+### AVFileTypeProfile
+
+```swift
+// 流格式的文件类型配置文件
 ```
