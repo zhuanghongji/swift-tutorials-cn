@@ -114,7 +114,7 @@ MTLResource 有一个纹理的实现：`MTLTexture`。与 `MTLBuffer` 和 `MTLDe
 
 2015 年，Apple 推出了 MetalKit，以简化 Metal 中一些最常见的功能。由于上传和应用纹理在图形编程中非常常见，因此 MetalKit 中有一个实现。
 
-`MTKTextureLoader` 类简化了将纹理数据加载到 Metal 应用程序中所需的工作。此类可以加载常见文件格式（例如 PNG、JPEG 和 TIFF）的图像。所有使用 `MTKTextureLoader` 加载的纹理都符合 `MTLTexture` 协议。
+`MTKTextureLoader` 类简化了将纹理数据加载到 Metal 应用程序中所需的工作。该类可以加载常见文件格式（例如 PNG、JPEG 和 TIFF）的图像。所有使用 `MTKTextureLoader` 加载的纹理都符合 `MTLTexture` 协议。
 
 ```swift
 if let textureUrl = NSURL(string: fileLocation) {

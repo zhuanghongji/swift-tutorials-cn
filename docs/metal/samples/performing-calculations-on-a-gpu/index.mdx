@@ -77,13 +77,13 @@ let device = MTLCreateSystemDefaultDevice()
 
 Metal 将其它与 GPU 相关的实体（entities），比如编译的着色器（compiled shaders）、内存缓冲区（memory buffers）和纹理（textures），表示为对象。要创建这些特定于 GPU 的对象，你可以调用 [MTLDevice](https://developer.apple.com/documentation/metal/mtldevice) 上的方法，或者调用 [MTLDevice](https://developer.apple.com/documentation/metal/mtldevice) 创建的对象上的方法。由设备对象直接或间接创建的所有对象只能与该设备对象一起使用。使用多个 GPU 的应用程序将使用多个设备对象，并为每个设备对象创建类似的 Metal 对象层次结构。
 
-示例应用程序使用自定义 `MetalAdder` 类来管理与 GPU 通信所需的对象。类的初始化器创建这些对象并将它们存储在其属性中。应用程序创建此类的实例，并传入 Metal 设备对象以用于创建辅助对象。`MetalAdder` 对象保持对 Metal 对象的强引用，直到它完成执行。
+示例应用程序使用自定义 `MetalAdder` 类来管理与 GPU 通信所需的对象。类的初始化器创建这些对象并将它们存储在其属性中。应用程序创建该类的实例，并传入 Metal 设备对象以用于创建辅助对象。`MetalAdder` 对象保持对 Metal 对象的强引用，直到它完成执行。
 
 ```swift
 let adder = MetalAdder(device: device)
 ```
 
-在 Metal 中，昂贵的初始化任务可以运行一次，并且可以廉价地保留和使用结果。你很少需要在性能敏感的代码中运行此类任务。
+在 Metal 中，昂贵的初始化任务可以运行一次，并且可以廉价地保留和使用结果。你很少需要在性能敏感的代码中运行该类任务。
 
 ## 获取 Metal 函数的引用
 

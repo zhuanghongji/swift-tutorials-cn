@@ -136,7 +136,7 @@ struct ContentView: View {
 
 你可以使用 `onChange` 来触发因值更改而产生的副作用（side effect），例如 `Environment Key` 或 `Binding`。
 
-系统可能会在 main actor 上调用 action 闭包，因此请避免在闭包中进行 "长时间执行" 的任务。如果你需要执行此类任务，请分派（detach）异步后台任务。
+系统可能会在 main actor 上调用 action 闭包，因此请避免在闭包中进行 "长时间执行" 的任务。如果你需要执行该类任务，请分派（detach）异步后台任务。
 
 当值发生变化时，将调用新版本的闭包，因此任何 "捕获的值" 都将在 "观察到的值" 具有新值时具有其值。旧的和新的观察值被传递到闭包中。在以下代码示例中， `PlayerView` 将旧值和新值都传递给模型。
 

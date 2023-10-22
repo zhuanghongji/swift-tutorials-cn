@@ -38,7 +38,7 @@ var shadowRPs : Array<MTLRenderPassDescriptor> =
 
 最后一个附件类型是 `MTLRenderPassStencilAttachmentDescriptor`。模板就像一个蒙版，你可能在 Photoshop 中使用过。它具有可以在其上绘制或模印效果的形状，其中存在接收效果的图像区域和不接收效果的区域。
 
-这些附件类型中的每一种都是 `MTLRenderPassAttachmentDescriptor` 的子类。此类具有一些适用于所有附件类型的属性。对于每种类型，你必须设置其纹理属性。纹理上有一些可选属性，例如级别、切片和深度平面，可以为 3D 纹理上的 mipmap 级别、切片和深度平面进行设置。
+这些附件类型中的每一种都是 `MTLRenderPassAttachmentDescriptor` 的子类。该类具有一些适用于所有附件类型的属性。对于每种类型，你必须设置其纹理属性。纹理上有一些可选属性，例如级别、切片和深度平面，可以为 3D 纹理上的 mipmap 级别、切片和深度平面进行设置。
 
 ## 创建和管理渲染目标
 

@@ -103,7 +103,7 @@ var ncc1701 = Starship(name: "Enterprise", prefix: "USS")
 // ncc1701.fullName is "USS Enterprise"
 ```
 
-此类将属性要求实现为星际飞船的计算只读属性。每个类实例存储一个强制的和一个可选的。该属性使用该值（如果存在）并将其添加到 的开头以创建 starship 的全名。fullNameStarshipnameprefixfullNameprefixname
+该类将属性要求实现为星际飞船的计算只读属性。每个类实例存储一个强制的和一个可选的。该属性使用该值（如果存在）并将其添加到 的开头以创建 starship 的全名。fullNameStarshipnameprefixfullNameprefixname
 
 ## 方法要求
 
@@ -129,7 +129,7 @@ protocol RandomNumberGenerator {
 
 该协议不会对每个随机数的生成方式做出任何假设——它只需要生成器提供一种标准方法来生成新的随机数。RandomNumberGenerator
 
-这是一个采用并遵守协议的类的实现。此类实现称为线性同余生成器的伪随机数生成器算法：RandomNumberGenerator
+这是一个采用并遵守协议的类的实现。该类实现称为线性同余生成器的伪随机数生成器算法：RandomNumberGenerator
 
 ```swift
 class LinearCongruentialGenerator: RandomNumberGenerator {

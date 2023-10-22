@@ -10,7 +10,7 @@
 
 属性将值与特定的类、结构或枚举相关联。存储属性将常量和变量值存储为实例的一部分，而计算属性计算（而不是存储）一个值。计算属性由类、结构和枚举提供。存储属性仅由类和结构提供。
 
-存储和计算属性通常与特定类型的实例相关联。但是，属性也可以与类型本身相关联。此类属性称为类型属性。
+存储和计算属性通常与特定类型的实例相关联。但是，属性也可以与类型本身相关联。该类属性称为类型属性。
 
 此外，你可以定义属性观察器来监视属性值的变化，你可以使用自定义操作来响应这些变化。属性观察器可以添加到你自己定义的存储属性中，也可以添加到子类从其超类继承的属性中。
 
@@ -88,7 +88,7 @@ manager.data.append("Some more data")
 // the DataImporter instance for the importer property hasn't yet been created
 ```
 
-该类有一个名为 的存储属性，它使用一个新的空值数组进行初始化。尽管未显示其其余功能，但此类的目的是管理和提供对此数据数组的访问。DataManagerdataStringDataManagerString
+该类有一个名为 的存储属性，它使用一个新的空值数组进行初始化。尽管未显示其其余功能，但该类的目的是管理和提供对此数据数组的访问。DataManagerdataStringDataManagerString
 
 该类的部分功能是能够从文件中导入数据。此功能由类提供，假定需要花费大量时间进行初始化。这可能是因为实例在初始化时需要打开文件并将其内容读入内存。DataManagerDataImporterDataImporterDataImporter
 
@@ -259,7 +259,7 @@ print("the volume of fourByFiveByTwo is \(fourByFiveByTwo.volume)")
 
 有关初始化器委托的更多信息，请参阅值类型的初始化器委托和类类型的初始化器委托。
 
-下面是一个例子和实际操作。下面的示例定义了一个名为 的新类，它跟踪一个人走路时的总步数。此类可以与来自计步器或其它计步器的输入数据一起使用，以跟踪一个人在日常生活中的锻炼情况。willSetdidSetStepCounter
+下面是一个例子和实际操作。下面的示例定义了一个名为 的新类，它跟踪一个人走路时的总步数。该类可以与来自计步器或其它计步器的输入数据一起使用，以跟踪一个人在日常生活中的锻炼情况。willSetdidSetStepCounter
 
 ```swift
 class StepCounter {

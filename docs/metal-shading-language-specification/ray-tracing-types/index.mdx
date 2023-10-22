@@ -300,7 +300,7 @@ void intersectInstancesKernel(
 }
 ```
 
-可以创建此类类型的默认初始化变量，并且默认值是加速结构的 `null`。
+可以创建该类类型的默认初始化变量，并且默认值是加速结构的 `null`。
 
 在 Metal 2.4 中，加速结构被模板化类型 `acceleration_structure<intersection_tags...>` 取代。模板参数 `intersection_tags` 可以为空，也可以是 `instancing`、`primitive_motion` 或 `instance_motion` 的组合，如表 2.9 中所定义。交叉点标签（Intersection Tags）。例如，下面定义了一个支持原始运动的实例加速结构。
 
