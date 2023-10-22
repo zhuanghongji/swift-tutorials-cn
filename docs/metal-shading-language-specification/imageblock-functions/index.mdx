@@ -141,7 +141,7 @@ my_kernel(imageblock<Foo> img_blk, ushort2 lid [[thread_position_in_threadgroup]
 void write(T data, ushort2 coord, ushort color_coverage_mask);
 ```
 
-使用以下 `slice` 成员函数获取图像块结构中给定数据成员的切片区域。你可以使用此函数将线程组中所有线程的图像块结构中描述的特定数据成员关联的数据写入纹理中的指定区域。
+使用以下 `slice` 成员函数获取图像块结构中给定数据成员的切片区域。你可以使用该函数将线程组中所有线程的图像块结构中描述的特定数据成员关联的数据写入纹理中的指定区域。
 
 `data_member` 是在 `imageblock` 中指定的结构类型中声明的数据成员。`size` 是复制切片的实际大小。
 

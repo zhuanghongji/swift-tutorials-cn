@@ -268,7 +268,7 @@ uint get_array_size() const
 uint get_num_mip_levels() const
 ```
 
-此函数从稀疏一维纹理数组中采样，从 iOS 中的 Metal 2.2 和 macOS 中的 Metal 2.3 开始。
+该函数从稀疏一维纹理数组中采样，从 iOS 中的 Metal 2.2 和 macOS 中的 Metal 2.3 开始。
 
 ```c
 sparse_color-Tv sparse_sample(sampler s, float coord , uint array) const
@@ -669,7 +669,7 @@ sparse_color-Tv sparse_read(uint2 coord,
                             uint lod = 0) const
 ```
 
-此函数从稀疏 2D 纹理数组中收集四个样本进行双线性插值，从 iOS 中的 Metal 2.2 和 macOS 中的 Metal 2.3 开始。
+该函数从稀疏 2D 纹理数组中收集四个样本进行双线性插值，从 iOS 中的 Metal 2.2 和 macOS 中的 Metal 2.3 开始。
 
 ```c
 sparse_color-Tv sparse_gather(sampler s,
@@ -1666,7 +1666,7 @@ sparse_color-Tv sparse_gather(sampler s,
                               component c = component::x) const
 ```
 
-此函数收集这些样本，并将它们与稀疏 2D 深度纹理数组中的值进行比较，从 iOS 中的 Metal 2.2 和 macOS 中的 Metal 2.3 开始。
+该函数收集这些样本，并将它们与稀疏 2D 深度纹理数组中的值进行比较，从 iOS 中的 Metal 2.2 和 macOS 中的 Metal 2.3 开始。
 
 ```c
 sparse_color-Tv sparse_gather_compare(sampler s,

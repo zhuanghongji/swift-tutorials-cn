@@ -287,7 +287,7 @@ enum class geometry_type {
 void assume_geometry_type(geometry_type gt)
 ```
 
-要将交集对象设置为立即返回它找到的第一个交集，请使用值 `true` 调用以下函数。默认为 `false`。此函数的用途之一是当你只需要知道一个点从另一点是否可见时，例如渲染阴影或环境光遮挡时。
+要将交集对象设置为立即返回它找到的第一个交集，请使用值 `true` 调用以下函数。默认为 `false`。该函数的用途之一是当你只需要知道一个点从另一点是否可见时，例如渲染阴影或环境光遮挡时。
 
 ```c
 void assume_identity_transforms(bool value);

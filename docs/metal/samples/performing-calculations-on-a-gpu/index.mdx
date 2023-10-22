@@ -34,7 +34,7 @@ void add_arrays(const float* inA,
 }
 ```
 
-每个值都是独立计算的，因此可以安全地同时（concurrently）计算这些值。要在 GPU 上执行计算，需要用 Metal Shading Language（MSL）重写此函数。MSL 是 C++ 的变体（variant），专为 GPU 编程而设计。在 Metal 中，在 GPU 上运行的代码称为 **着色器（shader）**，因为历史上它们首先用于计算 3D 图形中的颜色。清单 2 显示了 MSL 中的着色器，它执行与清单 1 相同的计算。示例项目在 add.metal 文件中定义了此函数。Xcode 在应用程序目标中构建所有 .metal 文件，并创建一个默认的 Metal 库（default Metal library），且将其嵌入到你的应用程序中。稍后，你将在本示例中看到如何加载默认库。
+每个值都是独立计算的，因此可以安全地同时（concurrently）计算这些值。要在 GPU 上执行计算，需要用 Metal Shading Language（MSL）重写该函数。MSL 是 C++ 的变体（variant），专为 GPU 编程而设计。在 Metal 中，在 GPU 上运行的代码称为 **着色器（shader）**，因为历史上它们首先用于计算 3D 图形中的颜色。清单 2 显示了 MSL 中的着色器，它执行与清单 1 相同的计算。示例项目在 add.metal 文件中定义了该函数。Xcode 在应用程序目标中构建所有 .metal 文件，并创建一个默认的 Metal 库（default Metal library），且将其嵌入到你的应用程序中。稍后，你将在本示例中看到如何加载默认库。
 
 清单 2： 用 MSL 编写的数组加法
 

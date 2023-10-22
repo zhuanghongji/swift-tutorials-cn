@@ -39,7 +39,7 @@ func simpleMax<T: Comparable>(_ x: T, _ y: T) -> T {
 }
 ```
 
-例如，因为 Int 和 Double 都符合 Comparable 协议，所以此函数接受任一类型的参数。与泛型类型相反，当你使用泛型函数或初始化器时，你无需指定泛型参数子句。类型参数是从传递给函数或初始化器的参数类型中推断出来的。
+例如，因为 Int 和 Double 都符合 Comparable 协议，所以该函数接受任一类型的参数。与泛型类型相反，当你使用泛型函数或初始化器时，你无需指定泛型参数子句。类型参数是从传递给函数或初始化器的参数类型中推断出来的。
 
 ```swift
 simpleMax(17, 42) // T is inferred to be Int

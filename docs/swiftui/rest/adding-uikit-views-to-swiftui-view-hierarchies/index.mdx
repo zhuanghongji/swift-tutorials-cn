@@ -54,7 +54,7 @@ public protocol UIViewRepresentable : View where Self.Body == Never {
     // 给定建议的大小（proposed size），返回组合视图的首选大小（preferred size）
     //
     // 在同一布局过程中，可以使用不同的建议大小多次调用此方法。
-    // SwiftUI 视图选择自己的大小，因此从此函数返回的值之一将始终用作组合视图的实际大小。
+    // SwiftUI 视图选择自己的大小，因此从该函数返回的值之一将始终用作组合视图的实际大小。
     //
     // - proposal: 建议的视图大小
     @available(iOS 16.0, tvOS 16.0, *)

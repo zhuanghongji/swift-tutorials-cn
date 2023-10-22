@@ -24,9 +24,9 @@ func swapTwoInts(_ a: inout Int, _ b: inout Int) {
 }
 ```
 
-此函数使用输入输出参数来交换 a 和的值 b，如输入输出参数中所述。
+该函数使用输入输出参数来交换 a 和的值 b，如输入输出参数中所述。
 
-该函数将 的原始值交换为，并将 的原始值交换为。你可以调用此函数来交换两个变量中的值：swapTwoInts(_:_:)baabInt
+该函数将 的原始值交换为，并将 的原始值交换为。你可以调用该函数来交换两个变量中的值：swapTwoInts(_:_:)baabInt
 
 ```swift
 var someInt = 3
@@ -285,7 +285,7 @@ if let foundIndex = findIndex(ofString: "llama", in: strings) {
 
 然而，查找数组中值的索引的原则不仅仅对字符串有用。你可以通过将任何提及的字符串替换为某种类型的值来编写与通用函数相同的功能 T。
 
-以下是你可能希望编写名为 的通用版本的方式。请注意，此函数的返回类型仍然是，因为该函数返回一个可选的索引号，而不是数组中的可选值。但是请注意——这个函数不能编译，原因在示例后面解释：findIndex(ofString:in:)findIndex(of:in:)Int?
+以下是你可能希望编写名为 的通用版本的方式。请注意，该函数的返回类型仍然是，因为该函数返回一个可选的索引号，而不是数组中的可选值。但是请注意——这个函数不能编译，原因在示例后面解释：findIndex(ofString:in:)findIndex(of:in:)Int?
 
 ```swift
 func findIndex<T>(of valueToFind: T, in array:[T]) -> Int? {

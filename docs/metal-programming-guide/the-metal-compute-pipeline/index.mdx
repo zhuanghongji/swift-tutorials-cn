@@ -161,7 +161,7 @@ func setupPipeline() {
 }
 ```
 
-设置状态所需的唯一部分是内核函数。你需要使用此函数来设置供管道状态使用的 Metal 库。如果由于某种原因你无法设置该库，你需要确保程序失败。最后，你需要将状态编码到计算管道中。
+设置状态所需的唯一部分是内核函数。你需要使用该函数来设置供管道状态使用的 Metal 库。如果由于某种原因你无法设置该库，你需要确保程序失败。最后，你需要将状态编码到计算管道中。
 
 ```swift
 computeEncoder.setComputePipelineState(computePipelineState)

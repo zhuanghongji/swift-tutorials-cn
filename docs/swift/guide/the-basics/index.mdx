@@ -762,7 +762,7 @@ do {
 
 ## 使用断言进行调试
 
-你可以通过调用 Swift 标准库中的函数来编写断言。你向此函数传递一个计算结果为 or 的表达式，以及在条件结果为 时显示的消息。例如：assert(_:_:file:line:)truefalsefalse
+你可以通过调用 Swift 标准库中的函数来编写断言。你向该函数传递一个计算结果为 or 的表达式，以及在条件结果为 时显示的消息。例如：assert(_:_:file:line:)truefalsefalse
 
 ```swift
 let age = -3
@@ -794,7 +794,7 @@ if age > 10 {
 
 只要条件可能为假，就使用前提条件，但必须绝对为真，你的代码才能继续执行。例如，使用前提条件检查下标是否超出范围，或检查函数是否已传递有效值。
 
-你通过调用函数编写前提条件。你向此函数传递一个计算结果为 or 的表达式，以及在条件结果为 时显示的消息。例如：precondition(_:_:file:line:)truefalsefalse
+你通过调用函数编写前提条件。你向该函数传递一个计算结果为 or 的表达式，以及在条件结果为 时显示的消息。例如：precondition(_:_:file:line:)truefalsefalse
 
 ```swift
 // In the implementation of a subscript...

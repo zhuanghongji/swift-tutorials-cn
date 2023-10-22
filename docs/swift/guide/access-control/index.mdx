@@ -141,7 +141,7 @@ private class SomePrivateClass {                // explicitly private class
 
 函数类型的访问级别计算为函数参数类型和返回类型的最严格访问级别。如果函数的计算访问级别与上下文默认值不匹配，则必须明确指定访问级别作为函数定义的一部分。
 
-下面的示例定义了一个名为 的全局函数，但没有为该函数本身提供特定的访问级别修饰器。你可能希望此函数具有默认访问级别"内部"，但事实并非如此。事实上，不会像下面写的那样编译：someFunction()someFunction()
+下面的示例定义了一个名为 的全局函数，但没有为该函数本身提供特定的访问级别修饰器。你可能希望该函数具有默认访问级别"内部"，但事实并非如此。事实上，不会像下面写的那样编译：someFunction()someFunction()
 
 ```swift
 func someFunction() -> (SomeInternalClass, SomePrivateClass) {
