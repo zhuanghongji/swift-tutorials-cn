@@ -1,7 +1,5 @@
 # 创建自定义语音合成器
 
-<ToBePolishedAfterTranslation />
-
 <OriginalSource
   title="Creating a custom speech synthesizer"
   url="https://developer.apple.com/documentation/avfaudio/audio_engine/audio_units/creating_a_custom_speech_synthesizer"
@@ -10,9 +8,9 @@
 
 ## 概述
 
-语音合成提供程序允许你将自定义语音带到 iOS 和 macOS 中，以供系统使用 VoiceOver 等文本转语音功能。语音合成器接收文本和有关语音属性的信息，并提供语音的音频表示。要生成音频，你需要创建音频单元扩展。
+语音合成提供程序（speech synthesis provider）允许你将自定义语音带到 iOS 和 macOS 中，以供系统使用 VoiceOver 等文本转语音功能。语音合成器接收文本和有关语音属性的信息，并提供语音的音频表示。要生成音频，你需要创建音频单元扩展。
 
-该示例应用程序向你展示如何向系统提供语音列表，以及如何创建基本的语音合成器来表示你指定的语音。它探讨了如何创建一个音频单元，负责处理文本转语音请求，以使用语音合成标记语言 (SSML) 来合成语音。该示例检查请求的 SSML 中是否有两个字符串（hello 和 goodbye），并播放关联的音频文件。
+该示例应用程序向你展示如何向系统提供语音列表，以及如何创建基本的语音合成器来表示你指定的语音。它探讨了如何创建一个音频单元，负责处理文本转语音请求，以使用语音合成标记语言（SSML）来合成语音。该示例检查请求的 SSML 中是否有两个字符串（hello 和 goodbye），并播放关联的音频文件。
 
 ## 配置示例代码项目
 
@@ -23,26 +21,27 @@
 
 要创建扩展程序使用的音频文件，请执行以下步骤：
 
-- 打开终端。
-- 运行命令 `say -v Zarvox hello -o hello.aiff`。
-- 运行命令 `say -v Zarvox goodbye -o goodbye.aiff`。
-- 在项目导航器中，展开 `CustomSpeechSynthesizerExampleExtension` 组。
-
-将生成的音频文件拖放到音频组中。
+1. 打开终端。
+2. 运行命令 `say -v Zarvox hello -o hello.aiff`。
+3. 运行命令 `say -v Zarvox goodbye -o goodbye.aiff`。
+4. 在项目导航器中，展开 `CustomSpeechSynthesizerExampleExtension` 组。
+5. 将生成的音频文件拖放到 `Audio` 组中。
 
 运行项目后，为你的语音提供名称并选择 "添加语音"。打开 "系统设置" 并选择 "辅助功能" > "语音内容"，验证语音在 macOS 中是否可用。系统最多需要 30 秒来刷新可用语音列表。选择系统语音下拉菜单以查看你添加的语音。
 
 在 iOS 中，打开 "设置" 应用，然后选择 "辅助功能" > "语音内容" > "语音"。
 
-## 创建一个提供语音的应用程序 in page link
+## 创建一个提供语音的应用程序
 
-该示例创建一个主机应用程序来自定义语音合成扩展可用的语音列表，使用应用程序组在主机应用程序和音频单元扩展之间共享信息。有关应用程序组的更多信息，请参阅配置应用程序组。
+该示例创建一个主机应用程序来自定义语音合成扩展可用的语音列表，使用应用程序组在主机应用程序和音频单元扩展之间共享信息。有关应用程序组的更多信息，请参阅 [配置应用程序组](https://developer.apple.com/documentation/xcode/configuring-app-groups)。
 
 ```swift
-let groupDefaults = UserDefaults(suiteName: "group.com.example.apple.samplecode.CustomSpeechSynthesizerExample")
+let groupDefaults = UserDefaults(
+        suiteName: "group.com.example.apple.samplecode.CustomSpeechSynthesizerExample"
+)
 ```
 
-当示例更改可用语音列表时，它会通过调用 `updateSpeechVoices()` 通知系统它们可供使用。
+当示例更改可用语音列表时，它会通过调用 [updateSpeechVoices()](https://developer.apple.com/documentation/avfaudio/avspeechsynthesisprovidervoice/3929344-updatespeechvoices) 通知系统它们可供使用。
 
 ```swift
 private func saveVoicesToGroupDefaults() {
@@ -57,7 +56,7 @@ private func saveVoicesToGroupDefaults() {
 
 ## 获取可用语音列表
 
-该扩展是一个 `AVSpeechSynthesisProviderAudioUnit`，负责处理语音合成任务。音频单元向系统提供可用语音列表，检查请求的 SSML，并向系统提供音频缓冲区。为了提供语音列表，该示例检索主机应用程序提供的语音列表，并为每个语音初始化一个 `AVSpeechSynthesisProviderVoice`。
+该扩展是一个 [AVSpeechSynthesisProviderAudioUnit](https://developer.apple.com/documentation/avfaudio/avspeechsynthesisprovideraudiounit)，负责处理语音合成任务。音频单元向系统提供可用语音列表，检查请求的 SSML，并向系统提供音频缓冲区。为了提供语音列表，该示例检索主机应用程序提供的语音列表，并为每个语音初始化一个 [AVSpeechSynthesisProviderVoice](https://developer.apple.com/documentation/avfaudio/avspeechsynthesisprovidervoice)。
 
 ```swift
 public override var speechVoices: [AVSpeechSynthesisProviderVoice] {
@@ -74,19 +73,21 @@ public override var speechVoices: [AVSpeechSynthesisProviderVoice] {
 }
 ```
 
-## 处理演讲请求
+## 处理朗读请求
 
 当有文本可供合成时，系统会使用 `AVSpeechSynthesisProviderRequest` 调用 `synthesizeSpeechRequest(_:)` 。该请求包含描述要合成的文本的 SSML 表示形式以及用于自定义音高、速率、语调等的相应属性。
 
 ```swift
-public override func synthesizeSpeechRequest(_ speechRequest: AVSpeechSynthesisProviderRequest) {
+public override func synthesizeSpeechRequest(
+        _ speechRequest: AVSpeechSynthesisProviderRequest)
+{
     request = speechRequest
     currentBuffer = getAudioBufferForSSML(speechRequest.ssmlRepresentation)
     framePosition = 0
 }
 ```
 
-该示例使用 SSML 调用辅助方法来检索包含要在渲染块中播放的音频的缓冲区。方法 cancelSpeechRequest() 丢弃当前的语音请求。
+该示例使用 SSML 调用辅助方法来检索包含要在渲染块中播放的音频的缓冲区。方法 `cancelSpeechRequest()` 丢弃当前的语音请求。
 
 ## 为系统提供音频缓冲区
 
@@ -102,6 +103,243 @@ for frame in 0..<frameCount {
     if self.framePosition >= self.currentBuffer!.frameLength {
         actionFlags.pointee = .offlineUnitRenderAction_Complete
         break
+    }
+}
+```
+
+## 完整代码
+
+### CustomSpeechSynthesizerExampleApp.swift
+
+```swift
+import SwiftUI
+
+@main
+struct CustomSpeechSynthesizerExampleApp: App {
+    var body: some Scene {
+        WindowGroup {
+            ContentView()
+        }
+    }
+}
+```
+
+### ContentView.swift
+
+```swift
+import AVFoundation
+import SwiftUI
+
+struct ContentView: View {
+
+    // MARK: - Public Properties
+
+    let groupDefaults = UserDefaults(suiteName: "group.com.example.apple.samplecode.CustomSpeechSynthesizerExample")
+
+    @State var voices: [String] = []
+    @State var voiceName: String = ""
+
+    var body: some View {
+        VStack {
+            HStack {
+                TextField("Name", text: $voiceName)
+                Button("Add Voice") {
+                    voices.append(voiceName)
+                    voiceName = ""
+                    saveVoicesToGroupDefaults()
+                }
+                .disabled(voiceName.isEmpty)
+            }
+            List {
+                ForEach(voices, id: \.self) { voice in
+                    HStack {
+                        Text(voice)
+                        Spacer()
+                        Button("Delete") {
+                            voices = voices.filter({ value in
+                                value != voice
+                            })
+                            saveVoicesToGroupDefaults()
+                        }
+                    }
+                }
+            }
+        }
+        .onAppear {
+            voices = (groupDefaults?.value(forKey: "voices") as? [String]) ?? []
+        }
+        .padding()
+
+    }
+
+    // MARK: - Private Methods
+
+    private func saveVoicesToGroupDefaults() {
+
+        // Update the list of voices in the shared group defaults.
+        groupDefaults?.set(voices, forKey: "voices")
+
+        // Inform the system that the available voices changed.
+        AVSpeechSynthesisProviderVoice.updateSpeechVoices()
+
+    }
+
+}
+
+struct ContentView_Previews: PreviewProvider {
+    static var previews: some View {
+        ContentView()
+    }
+}
+```
+
+### CustomSpeechSynthesizerExampleAudioUnit.swift
+
+```swift
+import AVFoundation
+
+public class CustomSpeechSynthesizerExampleAudioUnit: AVSpeechSynthesisProviderAudioUnit {
+
+    // MARK: - Private Properties
+
+    private let groupDefaults = UserDefaults(suiteName: "group.com.example.apple.samplecode.CustomSpeechSynthesizerExample")
+
+    private var request: AVSpeechSynthesisProviderRequest?
+
+    private var outputBus: AUAudioUnitBus
+    private var _outputBusses: AUAudioUnitBusArray!
+    private var currentBuffer: AVAudioPCMBuffer?
+    private var framePosition: AVAudioFramePosition = 0
+    private var format: AVAudioFormat
+
+    // MARK: - Lifecycle
+
+    @objc
+    override init(componentDescription: AudioComponentDescription,
+                  options: AudioComponentInstantiationOptions) throws {
+
+        let basicDescription = AudioStreamBasicDescription(mSampleRate: 22_050,
+                                                           mFormatID: kAudioFormatLinearPCM,
+                                                           mFormatFlags: kAudioFormatFlagsNativeFloatPacked | kAudioFormatFlagIsNonInterleaved,
+                                                           mBytesPerPacket: 4,
+                                                           mFramesPerPacket: 1,
+                                                           mBytesPerFrame: 4,
+                                                           mChannelsPerFrame: 1,
+                                                           mBitsPerChannel: 32,
+                                                           mReserved: 0)
+
+        format = AVAudioFormat(cmAudioFormatDescription: try! CMAudioFormatDescription(audioStreamBasicDescription: basicDescription))
+        outputBus = try AUAudioUnitBus(format: self.format)
+
+        try super.init(componentDescription: componentDescription,
+                       options: options)
+
+        _outputBusses = AUAudioUnitBusArray(audioUnit: self,
+                                            busType: AUAudioUnitBusType.output,
+                                            busses: [outputBus])
+
+    }
+
+    // MARK: - Public Properties
+    public override var speechVoices: [AVSpeechSynthesisProviderVoice] {
+        get {
+            let voices: [String] = (groupDefaults?.value(forKey: "voices") as? [String]) ?? []
+            return voices.map { voice in
+                return AVSpeechSynthesisProviderVoice(name: voice,
+                                                      identifier: "com.identifier.\(voice)",
+                                                      primaryLanguages: ["en-US"],
+                                                      supportedLanguages: ["en-US"])
+            }
+        }
+        set { }
+    }
+
+    public override var outputBusses: AUAudioUnitBusArray {
+        return _outputBusses
+    }
+
+    public override func allocateRenderResources() throws {
+        try super.allocateRenderResources()
+    }
+
+    public override var internalRenderBlock: AUInternalRenderBlock {
+        return { actionFlags, timestamp, frameCount, outputBusNumber, outputAudioBufferList, _, _ in
+
+            // The audio buffer to fill with data to return to the system
+            let unsafeBuffer = UnsafeMutableAudioBufferListPointer(outputAudioBufferList)[0]
+            let frames = unsafeBuffer.mData!.assumingMemoryBound(to: Float32.self)
+
+            // Get the frames from the current buffer that represents the SSML.
+            let sourceBuffer = UnsafeMutableAudioBufferListPointer(self.currentBuffer!.mutableAudioBufferList)[0]
+            let sourceFrames = sourceBuffer.mData!.assumingMemoryBound(to: Float32.self)
+
+            // Clear the target buffer.
+            for frame in 0..<frameCount {
+                frames[Int(frame)] = 0.0
+            }
+
+            // Iterate through the requested number of frames.
+            for frame in 0..<frameCount {
+                // Copy the source frames into the target buffer.
+                frames[Int(frame)] = sourceFrames[Int(self.framePosition)]
+                self.framePosition += 1
+                // Complete the request if the frame position exceeds the available buffer.
+                if self.framePosition >= self.currentBuffer!.frameLength {
+                    actionFlags.pointee = .offlineUnitRenderAction_Complete
+                    break
+                }
+            }
+            return noErr
+        }
+    }
+
+    // MARK: - Public Methods
+
+    public override func synthesizeSpeechRequest(_ speechRequest: AVSpeechSynthesisProviderRequest) {
+        request = speechRequest
+        currentBuffer = getAudioBufferForSSML(speechRequest.ssmlRepresentation)
+        framePosition = 0
+    }
+
+    public override func cancelSpeechRequest() {
+        request = nil
+    }
+
+    func getAudioBufferForSSML(_ ssml: String) -> AVAudioPCMBuffer? {
+        let audioFileName = ssml.contains("goodbye") ? "goodbye" : "hello"
+        guard let fileUrl = Bundle.main.url(forResource: audioFileName,
+                                            withExtension: "aiff") else {
+            return nil
+        }
+
+        do {
+            let file = try AVAudioFile(forReading: fileUrl)
+            let buffer = AVAudioPCMBuffer(pcmFormat: self.format,
+                                          frameCapacity: AVAudioFrameCount(file.length))
+            try file.read(into: buffer!)
+            return buffer
+        } catch {
+            return nil
+        }
+    }
+}
+```
+
+### AudioUnitFactory.swift
+
+```swift
+import CoreAudioKit
+
+public class AudioUnitFactory: NSObject, AUAudioUnitFactory {
+
+    var audioUnit: AUAudioUnit?
+
+    public func beginRequest(with context: NSExtensionContext) { }
+
+    @objc
+    public func createAudioUnit(with componentDescription: AudioComponentDescription) throws -> AUAudioUnit {
+        audioUnit = try CustomSpeechSynthesizerExampleAudioUnit(componentDescription: componentDescription, options: [])
+        return audioUnit!
     }
 }
 ```
