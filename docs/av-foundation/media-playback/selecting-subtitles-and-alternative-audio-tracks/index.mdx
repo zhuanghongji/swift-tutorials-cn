@@ -16,7 +16,7 @@
 
 AVMediaSelectionOption 对源媒体中包含的替代音频、视频或文本轨道进行建模。媒体选项用于选择替代摄像机角度、呈现以用户母语配音的音频或显示字幕和隐藏式字幕。你可以通过异步加载和调用资源的 availableMediaCharacteristicsWithMediaSelectionOptions 属性来确定哪些替代媒体演示可用，该属性返回一个指示可用媒体特征的字符串数组。返回的可能值有 audible （替代音轨）、 visual （替代视频轨道）和 legible （字幕和隐藏式字幕）。
 
-检索到可用选项数组后，调用资产的 mediaSelectionGroup(forMediaCharacteristic:) 方法，向其传递所需的特征。此方法返回关联的 AVMediaSelectionGroup 对象，如果不存在指定特征的组，则返回 nil 对象。
+检索到可用选项数组后，调用资产的 mediaSelectionGroup(forMediaCharacteristic:) 方法，向其传递所需的特征。该方法返回关联的 AVMediaSelectionGroup 对象，如果不存在指定特征的组，则返回 nil 对象。
 
 AVMediaSelectionGroup 充当互斥 AVMediaSelectionOption 对象集合的容器。以下示例显示如何检索资产的媒体选择组并显示其可用选项：
 

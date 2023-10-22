@@ -35,7 +35,7 @@ let description = AudioComponentDescription(componentType: componentType,
 let components = AVAudioUnitComponentManager.shared().components(matching: description)
 ```
 
-此方法返回与组件描述匹配的 AVAudioUnitComponent 对象数组，如果未找到匹配项，则返回空数组。你可以访问组件的属性来确定其功能并查找标识值，例如其名称和制造商，以显示在用户界面中。
+该方法返回与组件描述匹配的 AVAudioUnitComponent 对象数组，如果未找到匹配项，则返回空数组。你可以访问组件的属性来确定其功能并查找标识值，例如其名称和制造商，以显示在用户界面中。
 
 ## 实例化音频单元
 
@@ -43,7 +43,7 @@ let components = AVAudioUnitComponentManager.shared().components(matching: descr
 
 iOS 支持使用最新音频单元标准 (AUv3) 构建的第三方插件，该标准基于应用程序扩展模型。与 iOS 中的所有应用程序扩展一样，AUv3 插件在进程外运行，这意味着它们在应用程序外部的专用进程中运行，并且与扩展程序的通信是通过进程间通信 (IPC) 完成的。
 
-你可以通过调用 instantiate(with:options:completionHandler:) 方法并向其传递组件描述来实例化 AU。如果进程失败，此方法会异步返回实例化的 AVAudioUnit 或 Error 。实例化音频单元时，必须避免阻塞应用程序的主线程。
+你可以通过调用 instantiate(with:options:completionHandler:) 方法并向其传递组件描述来实例化 AU。如果进程失败，该方法会异步返回实例化的 AVAudioUnit 或 Error 。实例化音频单元时，必须避免阻塞应用程序的主线程。
 
 ```swift
 // Instantiate the Audio Unit

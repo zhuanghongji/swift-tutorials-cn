@@ -116,7 +116,7 @@ var body: some View {
 
 这种分离确保 SwiftData 不会保存用户所做的更改，直到该人准备好保存这些更改。这种方式还使人们有机会放弃他们在编辑器中所做的任何更改，而不保存它们。
 
-示例应用程序使用此方法，因为它使用了 SwiftData 的自动保存功能。自动保存功能会自动保存对模型类实例（例如 `animal`）所做的数据更改，而不是依赖应用程序对模型上下文 [save()](<https://developer.apple.com/documentation/swiftdata/modelcontext/save()>) 方法进行显式调用。有关自动保存的更多信息，请参阅 [autosaveEnabled](https://developer.apple.com/documentation/swiftdata/modelcontext/autosaveenabled)。
+示例应用程序使用该方法，因为它使用了 SwiftData 的自动保存功能。自动保存功能会自动保存对模型类实例（例如 `animal`）所做的数据更改，而不是依赖应用程序对模型上下文 [save()](<https://developer.apple.com/documentation/swiftdata/modelcontext/save()>) 方法进行显式调用。有关自动保存的更多信息，请参阅 [autosaveEnabled](https://developer.apple.com/documentation/swiftdata/modelcontext/autosaveenabled)。
 
 最后，为了让使用它的人清楚编辑器的用途，`AnimalEditor` 使用计算属性 `editorTitle` 在工具栏的主要位置显示标题：
 

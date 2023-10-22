@@ -101,7 +101,7 @@ move(firstPhoto, from: "Summer Vacation", to: "Road Trip")
 
 :::note
 
-该方法在编写简单代码以了解并发性如何工作时很有用。此方法不执行任何操作，但在返回之前至少等待给定的纳秒数。这是用于模拟等待网络操作的函数版本：`Task.sleep(until:tolerance:clock:)` `listPhotos(inGallery:)sleep(until:tolerance:clock:)`
+该方法在编写简单代码以了解并发性如何工作时很有用。该方法不执行任何操作，但在返回之前至少等待给定的纳秒数。这是用于模拟等待网络操作的函数版本：`Task.sleep(until:tolerance:clock:)` `listPhotos(inGallery:)sleep(until:tolerance:clock:)`
 
 ```swift
 func listPhotos(inGallery name: String) async throws -> [String] {
@@ -254,7 +254,7 @@ extension TemperatureLogger {
 }
 ```
 
-该 `update(with:)` 方法已经在 actor 上运行，因此它不会像 maxwith 那样标记它对属性的访问 await。此方法还显示了 actor 一次只允许一个任务与其可变状态交互的原因之一：对 actor 状态的某些更新会暂时破坏不变量。Actor 跟踪温度列表和最高温度，并在你记录新测量值时更新最高温度。在更新过程中，在添加新测量值之后但在更新之前，温度记录器处于临时不一致状态。防止多个任务同时与同一个实例交互可以防止出现类似以下事件序列的问题：TemperatureLoggermax
+该 `update(with:)` 方法已经在 actor 上运行，因此它不会像 maxwith 那样标记它对属性的访问 await。该方法还显示了 actor 一次只允许一个任务与其可变状态交互的原因之一：对 actor 状态的某些更新会暂时破坏不变量。Actor 跟踪温度列表和最高温度，并在你记录新测量值时更新最高温度。在更新过程中，在添加新测量值之后但在更新之前，温度记录器处于临时不一致状态。防止多个任务同时与同一个实例交互可以防止出现类似以下事件序列的问题：TemperatureLoggermax
 
 - 你的代码调用该 update(with:)方法。它首先更新 measurements 数组。
 - 在你的代码可以更新之前 max，其它地方的代码会读取最大值和温度数组。

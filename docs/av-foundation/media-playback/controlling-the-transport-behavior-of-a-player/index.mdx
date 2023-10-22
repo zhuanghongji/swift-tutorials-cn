@@ -94,7 +94,7 @@ private func observeRateChanges() async {
 
 ## 寻找媒体时间线 in page link
 
-你可以使用 AVPlayer 和 AVPlayerItem 方法以多种方式搜索媒体时间线。最常见的方法是使用播放器的 seek(to:) 方法，向其传递目标 CMTime 值。在异步上下文中调用此方法：
+你可以使用 AVPlayer 和 AVPlayerItem 方法以多种方式搜索媒体时间线。最常见的方法是使用播放器的 seek(to:) 方法，向其传递目标 CMTime 值。在异步上下文中调用该方法：
 
 ```swift
 // Handle time update request from user interface.
@@ -105,7 +105,7 @@ func seek(to timeInterval: TimeInterval) async {
 }
 ```
 
-你可以单次调用此方法来查找位置，但也可以连续调用它，例如当你使用 Slider 视图时。
+你可以单次调用该方法来查找位置，但也可以连续调用它，例如当你使用 Slider 视图时。
 
 seek(to:) 方法是快速搜索演示文稿的便捷方法，但它针对的是速度而不是精度。这意味着玩家寻求的实际时间可能与你请求的时间略有不同。如果你需要实现精确的搜索行为，请使用 seek(to:toleranceBefore:toleranceAfter:) 方法，该方法可让你指示与目标时间（之前和之后）的容许偏差量。例如，如果你需要提供样本精确的搜索行为，请将容差值指定为零：
 

@@ -206,7 +206,7 @@ return texture
 
 最后，你可以创建纹理对象。你可以通过传入纹理的宽度、高度和像素格式并指定是否对该对象进行 mipmap 来创建 MTLTextureDescriptor。此信息用于创建纹理。然后，你可以使用该纹理来替换你指定的区域。你不需要分配不再使用的内存，以便释放内存并返回纹理。
 
-使用此方法从图像创建新纹理很容易。你只需传入要使用的 `UIImage` 和 `MTLDevice` 即可。
+使用该方法从图像创建新纹理很容易。你只需传入要使用的 `UIImage` 和 `MTLDevice` 即可。
 
 ```swift
 diffuseTexture = self.textureForImage(UIImage(named: "bluemarble")!, device: device)

@@ -160,7 +160,7 @@ class Address {
 }
 ```
 
-该类 Address 还提供了一个名为 的方法，该方法的返回类型为。此方法检查地址的属性并返回它是否有值，或者如果两者都有值则连接在一起，否则返回。buildingIdentifier()String?buildingNamebuildingNumberstreetnil
+该类 Address 还提供了一个名为 的方法，该方法的返回类型为。该方法检查地址的属性并返回它是否有值，或者如果两者都有值则连接在一起，否则返回。buildingIdentifier()String?buildingNamebuildingNumberstreetnil
 
 ## 通过可选链接访问属性
 
@@ -220,9 +220,9 @@ func printNumberOfRooms() {
 }
 ```
 
-此方法不指定返回类型。但是，没有返回类型的函数和方法具有隐式返回类型 Void，如无返回值函数中所述。这意味着它们返回一个值()，或者一个空元组。
+该方法不指定返回类型。但是，没有返回类型的函数和方法具有隐式返回类型 Void，如无返回值函数中所述。这意味着它们返回一个值()，或者一个空元组。
 
-如果你使用可选链接对可选值调用此方法，则该方法的返回类型将为 Void?，而不是 Void，因为通过可选链接调用时，返回值始终为可选类型。这使你能够使用 if 语句来检查是否可以调用该方法，即使该方法本身没有定义返回值。比较调用的返回值以查看方法调用是否成功：printNumberOfRooms()printNumberOfRoomsnil
+如果你使用可选链接对可选值调用该方法，则该方法的返回类型将为 Void?，而不是 Void，因为通过可选链接调用时，返回值始终为可选类型。这使你能够使用 if 语句来检查是否可以调用该方法，即使该方法本身没有定义返回值。比较调用的返回值以查看方法调用是否成功：printNumberOfRooms()printNumberOfRoomsnil
 
 ```swift
 if john.residence?.printNumberOfRooms() != nil {
@@ -354,7 +354,7 @@ if let johnsStreet = john.residence?.address?.street {
 
 前面的示例显示了如何通过可选链接检索可选类型的属性的值。你还可以使用可选链接来调用返回可选类型值的方法，并在需要时链接该方法的返回值。
 
-下面的示例通过可选链接调用 Address 类的方法。此方法返回 type 的值。如上所述，可选链接后此方法调用的最终返回类型也是：buildingIdentifier()String?String?
+下面的示例通过可选链接调用 Address 类的方法。该方法返回 type 的值。如上所述，可选链接后该方法调用的最终返回类型也是：buildingIdentifier()String?String?
 
 ```swift
 if let buildingIdentifier = john.residence?.address?.buildingIdentifier() {
@@ -363,7 +363,7 @@ if let buildingIdentifier = john.residence?.address?.buildingIdentifier() {
 // Prints "John's building identifier is The Larches."
 ```
 
-如果要对此方法的返回值执行进一步的可选链接，请将可选链接问号放在方法的括号之后：
+如果要对该方法的返回值执行进一步的可选链接，请将可选链接问号放在方法的括号之后：
 
 ```swift
 if let beginsWithThe =

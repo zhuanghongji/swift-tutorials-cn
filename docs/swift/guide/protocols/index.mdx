@@ -284,7 +284,7 @@ class Dice {
 
 Dice 还有一个初始化器，用于设置其初始状态。这个初始化器有一个名为 的参数 generator，它的类型也是。初始化新实例时，你可以将任何符合类型的值传递给此参数。RandomNumberGeneratorDice
 
-Dice 提供了一个实例方法，roll 它返回一个介于 1 和骰子面数之间的整数值。此方法调用生成器的方法在和 之间 random()创建一个新的随机数，并使用此随机数创建正确范围内的掷骰值。因为已知 adopt ，它保证有一个方法可以调用。0.01.0generatorRandomNumberGeneratorrandom()
+Dice 提供了一个实例方法，roll 它返回一个介于 1 和骰子面数之间的整数值。该方法调用生成器的方法在和 之间 random()创建一个新的随机数，并使用此随机数创建正确范围内的掷骰值。因为已知 adopt ，它保证有一个方法可以调用。0.01.0generatorRandomNumberGeneratorrandom()
 
 以下是如何 Dice 使用该类创建一个六面骰子，并将一个实例作为其随机数生成器：LinearCongruentialGenerator
 
@@ -915,7 +915,7 @@ extension RandomNumberGenerator {
 }
 ```
 
-通过在协议上创建扩展，所有符合的类型都自动获得此方法实现，而无需任何额外修改。
+通过在协议上创建扩展，所有符合的类型都自动获得该方法实现，而无需任何额外修改。
 
 ```swift
 let generator = LinearCongruentialGenerator()

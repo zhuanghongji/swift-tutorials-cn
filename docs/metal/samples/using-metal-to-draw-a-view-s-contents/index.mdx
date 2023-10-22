@@ -50,7 +50,7 @@ uiView.delegate = context.coordinator
 该委托实现了两个方法：
 
 - 每当内容的大小发生变化时，视图都会调用 [mtkView(\_:drawableSizeWillChange:)](https://developer.apple.com/documentation/metalkit/mtkviewdelegate/1536015-mtkview) 方法。当包含视图的窗口调整大小或设备方向更改（在 iOS 上）时，会发生这种情况。这允许你的应用程序将其渲染的分辨率调整为视图的大小。
-- 每当需要更新视图内容时，视图都会调用 [draw(in:)](https://developer.apple.com/documentation/metalkit/mtkviewdelegate/1535942-draw) 方法。在此方法中，你创建一个命令缓冲区，对命令进行编码，告诉 GPU 要绘制什么以及何时在屏幕上显示它，并将该命令缓冲区排入队列以供 GPU 执行。这有时被称为绘制一帧。你可以将一帧视为生成 "显示在屏幕上的单个图像" 的所有工作。在交互式应用程序（例如游戏）中，你可能每秒绘制许多帧。
+- 每当需要更新视图内容时，视图都会调用 [draw(in:)](https://developer.apple.com/documentation/metalkit/mtkviewdelegate/1535942-draw) 方法。在该方法中，你创建一个命令缓冲区，对命令进行编码，告诉 GPU 要绘制什么以及何时在屏幕上显示它，并将该命令缓冲区排入队列以供 GPU 执行。这有时被称为绘制一帧。你可以将一帧视为生成 "显示在屏幕上的单个图像" 的所有工作。在交互式应用程序（例如游戏）中，你可能每秒绘制许多帧。
 
 在该示例中，名为 `Coordinator` 的类实现委托方法并承担绘制的责任。`AAPLView` 创建此类的实例并将其设置为视图的委托。
 

@@ -139,7 +139,7 @@ audioUnit.maximumFramesToRender = 4096
 
 ## 展示音频单元的用户界面
 
-要显示音频单元的用户界面，请调用其 requestViewController(completionHandler:) 方法。此方法异步检索音频单元的视图控制器实例并在回调闭包中返回它。回调是在后台线程上调用的，因此你需要在将音频单元的用户界面添加到应用程序的视图层次结构之前将控制分派回主队列。
+要显示音频单元的用户界面，请调用其 requestViewController(completionHandler:) 方法。该方法异步检索音频单元的视图控制器实例并在回调闭包中返回它。回调是在后台线程上调用的，因此你需要在将音频单元的用户界面添加到应用程序的视图层次结构之前将控制分派回主队列。
 
 ```swift
 audioUnit.requestViewController { viewController in

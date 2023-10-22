@@ -42,7 +42,7 @@ private struct AnimalList: View {
 }
 ```
 
-前面代码中的 [onDelete(perform:)](<https://developer.apple.com/documentation/SwiftUI/DynamicViewContent/onDelete(perform:)>) 修饰器调用自定义方法 `removeAnimals` 以从列表中删除一个或多个动物。此方法接收一个 [IndexSet](https://developer.apple.com/documentation/foundation/indexset)，它标识要删除的动物。然后，该方法迭代索引集（index set），使用 [ModelContext](https://developer.apple.com/documentation/swiftdata/modelcontext) 方法 [delete(\_:)](<https://developer.apple.com/documentation/swiftdata/modelcontext/delete(_:)>) 删除每个动物。
+前面代码中的 [onDelete(perform:)](<https://developer.apple.com/documentation/SwiftUI/DynamicViewContent/onDelete(perform:)>) 修饰器调用自定义方法 `removeAnimals` 以从列表中删除一个或多个动物。该方法接收一个 [IndexSet](https://developer.apple.com/documentation/foundation/indexset)，它标识要删除的动物。然后，该方法迭代索引集（index set），使用 [ModelContext](https://developer.apple.com/documentation/swiftdata/modelcontext) 方法 [delete(\_:)](<https://developer.apple.com/documentation/swiftdata/modelcontext/delete(_:)>) 删除每个动物。
 
 ```swift
 private func removeAnimals(at indexSet: IndexSet) {
@@ -129,7 +129,7 @@ struct AnimalDetailView: View {
 }
 ```
 
-确认删除请求后，确认按钮的操作将调用自定义 `delete` 方法。此方法将选定的动物设置为 `nil`，然后通过调用 [delete(\_:)](<https://developer.apple.com/documentation/swiftdata/modelcontext/delete(_:)>) 方法从模型上下文中删除该动物。
+确认删除请求后，确认按钮的操作将调用自定义 `delete` 方法。该方法将选定的动物设置为 `nil`，然后通过调用 [delete(\_:)](<https://developer.apple.com/documentation/swiftdata/modelcontext/delete(_:)>) 方法从模型上下文中删除该动物。
 
 ```swift
 private func delete(_ animal: Animal) {

@@ -114,7 +114,7 @@ print("The point is now at (\(somePoint.x), \(somePoint.y))")
 // Prints "The point is now at (3.0, 4.0)"
 ```
 
-上面的结构 Point 定义了一个 mutating 方法，它将一个实例移动一定量。此方法实际上修改了调用它的点，而不是返回一个新点。关键字被添加到其定义中以使其能够修改其属性。moveBy(x:y:)Pointmutating
+上面的结构 Point 定义了一个 mutating 方法，它将一个实例移动一定量。该方法实际上修改了调用它的点，而不是返回一个新点。关键字被添加到其定义中以使其能够修改其属性。moveBy(x:y:)Pointmutating
 
 请注意，你不能对结构类型的常量调用变异方法，因为它的属性无法更改，即使它们是可变属性，如常量结构实例的存储属性中所述：
 
@@ -137,7 +137,7 @@ struct Point {
 }
 ```
 
-这个版本的 mutating 方法创建了一个新结构，其值设置为目标位置。调用此方法的替代版本的最终结果与调用早期版本的结果完全相同。moveBy(x:y:)xy
+这个版本的 mutating 方法创建了一个新结构，其值设置为目标位置。调用该方法的替代版本的最终结果与调用早期版本的结果完全相同。moveBy(x:y:)xy
 
 枚举的变异方法可以将隐式 self 参数设置为与同一枚举不同的情况：
 
@@ -222,7 +222,7 @@ LevelTracker 还定义了两个类型函数来处理该属性。第一个是名�
 
 除了其类型属性和类型方法外，还跟踪单个玩家在游戏中的进度。它使用一个名为的实例属性来跟踪玩家当前正在玩的级别。LevelTrackercurrentLevel
 
-为了帮助管理属性，定义了一个名为 的实例方法。在更新之前，此方法检查请求的新级别是否已解锁。该方法返回一个布尔值以指示它是否实际能够设置。因为调用方法的代码忽略返回值不一定是错误的，所以这个函数用属性标记。有关此属性的更多信息，请参阅属性。currentLevelLevelTrackeradvance(to:)currentLeveladvance(to:)currentLeveladvance(to:)@discardableResult
+为了帮助管理属性，定义了一个名为 的实例方法。在更新之前，该方法检查请求的新级别是否已解锁。该方法返回一个布尔值以指示它是否实际能够设置。因为调用方法的代码忽略返回值不一定是错误的，所以这个函数用属性标记。有关此属性的更多信息，请参阅属性。currentLevelLevelTrackeradvance(to:)currentLeveladvance(to:)currentLeveladvance(to:)@discardableResult
 
 该结构与类一起使用，如下所示，以跟踪和更新单个玩家的进度：LevelTrackerPlayer
 
@@ -240,7 +240,7 @@ class Player {
 }
 ```
 
-该类 Player 创建一个新实例来跟踪该玩家的进度。它还提供了一个名为 的方法，每当玩家完成特定关卡时都会调用该方法。此方法为所有玩家解锁下一个级别并更新玩家的进度以将他们移动到下一个级别。（布尔返回值被忽略，因为已知该级别已被上一行的调用解锁。）LevelTrackercomplete(level:)advance(to:)LevelTracker.unlock(\_:)
+该类 Player 创建一个新实例来跟踪该玩家的进度。它还提供了一个名为 的方法，每当玩家完成特定关卡时都会调用该方法。该方法为所有玩家解锁下一个级别并更新玩家的进度以将他们移动到下一个级别。（布尔返回值被忽略，因为已知该级别已被上一行的调用解锁。）LevelTrackercomplete(level:)advance(to:)LevelTracker.unlock(\_:)
 
 你可以为新玩家创建该类的实例 Player，并查看当玩家完成第一级时会发生什么：
 

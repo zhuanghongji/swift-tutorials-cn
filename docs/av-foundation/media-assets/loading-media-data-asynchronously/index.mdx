@@ -26,7 +26,7 @@ AVFoundation 使用 AVAsset 类来建模定时视听媒体。创建资产是一�
 public func load<T>(_ property: AVAsyncProperty<Self, T>) async throws -> T
 ```
 
-从异步上下文中调用此方法，并指定 await 关键字以指示执行可以挂起，直到完成加载数据。如果成功加载属性，该方法将返回类型安全值；如果失败，则抛出错误。
+从异步上下文中调用该方法，并指定 await 关键字以指示执行可以挂起，直到完成加载数据。如果成功加载属性，该方法将返回类型安全值；如果失败，则抛出错误。
 
 ```swift
 // A CMTime value.

@@ -24,15 +24,15 @@ public protocol UIViewRepresentable : View where Self.Body == Never {
 
     // 创建视图对象并配置其初始状态
     //
-    // 你必须实现此方法并使用它来创建视图对象。使用应用程序的当前数据和 context 参数的内容配置视图。
-    // 系统仅在第一次创建视图时调用此方法一次。对于所有后续更新，系统都会调用 updateUIView(_:context:) 方法。
+    // 你必须实现该方法并使用它来创建视图对象。使用应用程序的当前数据和 context 参数的内容配置视图。
+    // 系统仅在第一次创建视图时调用该方法一次。对于所有后续更新，系统都会调用 updateUIView(_:context:) 方法。
     @MainActor func makeUIView(context: Self.Context) -> Self.UIViewType
 
     // 使用 SwiftUI 中的新信息更新指定视图的状态
     //
     // 当应用程序的状态发生变化时，SwiftUI 会更新受这些更改影响的界面部分（portions）。
-    // SwiftUI 会针对影响相应 UIKit 视图的任何更改调用此方法。
-    // 使用此方法可以更新视图的配置，以匹配 context 参数中提供的新状态信息。
+    // SwiftUI 会针对影响相应 UIKit 视图的任何更改调用该方法。
+    // 使用该方法可以更新视图的配置，以匹配 context 参数中提供的新状态信息。
     //
     // - uiView: 你的自定义视图对象
     // - context: 包含有关系统当前状态的信息的上下文结构体
@@ -40,8 +40,8 @@ public protocol UIViewRepresentable : View where Self.Body == Never {
 
     // 清理呈现的 UIKit 视图（和协调器）以预期它们被删除
     //
-    // 使用此方法可以执行与自定义视图相关的其它清理工作。
-    // 例如，你可以使用此方法来删除观察者或更新 SwiftUI 界面的其它部分。
+    // 使用该方法可以执行与自定义视图相关的其它清理工作。
+    // 例如，你可以使用该方法来删除观察者或更新 SwiftUI 界面的其它部分。
     @MainActor static func dismantleUIView(_ uiView: Self.UIViewType,
                                           coordinator: Self.Coordinator)
 
@@ -53,7 +53,7 @@ public protocol UIViewRepresentable : View where Self.Body == Never {
 
     // 给定建议的大小（proposed size），返回组合视图的首选大小（preferred size）
     //
-    // 在同一布局过程中，可以使用不同的建议大小多次调用此方法。
+    // 在同一布局过程中，可以使用不同的建议大小多次调用该方法。
     // SwiftUI 视图选择自己的大小，因此从该函数返回的值之一将始终用作组合视图的实际大小。
     //
     // - proposal: 建议的视图大小

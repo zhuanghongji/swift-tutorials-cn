@@ -102,9 +102,9 @@ MTLTexture 对象表示格式化图像数据的分配，该数据可用作顶点
 
 MTLResource 有一个纹理的实现：`MTLTexture`。与 `MTLBuffer` 和 `MTLDevice` 类似，这是一种协议，你可以使用指定的方法创建符合该协议的对象。创建 `MTLTexture` 有以下三种方法：
 
-- **newTextureWithDescriptor**：此方法在 `MTLDevice` 上创建新纹理。它使用 `MTLTextureDescriptor` 来配置纹理对象。
-- **makeTextureView(pixelFormat:)**：此方法基于 `MTLTexture` 协议。它创建并返回一个新的纹理对象，该对象与源纹理对象共享相同的存储分配。由于它们共享相同的存储空间，因此对新纹理像素的任何更改都会反映在源纹理中，反之亦然。
-- **newTextureWithDescriptor:offset:bytesPerRow**：此方法基于另一个协议 `MTLBuffer`。它与 `makeTextureView(pixelFormat:)` 类似，因为新纹理与源缓冲区对象共享相同的存储分配，因此适用相同的规则。在 `newTextureWithDescriptor:offset:bytesPerRow` 中，你可以根据纹理描述符创建新纹理 `MTLTextureDescriptor` 配置你的新纹理对象。这包括像素格式、高度和 mipmap 级别计数。到目前为止我们讨论的有关存储模式和类型的所有方面都在这里配置。
+- **newTextureWithDescriptor**：该方法在 `MTLDevice` 上创建新纹理。它使用 `MTLTextureDescriptor` 来配置纹理对象。
+- **makeTextureView(pixelFormat:)**：该方法基于 `MTLTexture` 协议。它创建并返回一个新的纹理对象，该对象与源纹理对象共享相同的存储分配。由于它们共享相同的存储空间，因此对新纹理像素的任何更改都会反映在源纹理中，反之亦然。
+- **newTextureWithDescriptor:offset:bytesPerRow**：该方法基于另一个协议 `MTLBuffer`。它与 `makeTextureView(pixelFormat:)` 类似，因为新纹理与源缓冲区对象共享相同的存储分配，因此适用相同的规则。在 `newTextureWithDescriptor:offset:bytesPerRow` 中，你可以根据纹理描述符创建新纹理 `MTLTextureDescriptor` 配置你的新纹理对象。这包括像素格式、高度和 mipmap 级别计数。到目前为止我们讨论的有关存储模式和类型的所有方面都在这里配置。
 
 如果使用 `makeTextureView(pixelFormat:)` 方法，则必须指定像素格式 `MTLPixelFormat` 描述了纹理的各个像素中颜色、深度或模板数据存储的组织。像素格式分为三种：普通、打包和压缩。对于普通格式和打包格式，你需要指定三个描述：颜色分量的顺序、颜色分量的位深度以及分量的数据类型。格式数据以小端顺序存储。本章稍后将介绍压缩格式。
 
@@ -127,7 +127,7 @@ if let textureUrl = NSURL(string: fileLocation) {
 }
 ```
 
-在此代码片段中，你将从默认的 `MTLDevice` 创建一个新的 `MTKTextureLoader`。该纹理位于你的应用程序包中。你可以通过在新纹理加载器上调用 `textureLoader.newTextureWithContentsOfURL` 来加载纹理。如果你尝试加载不可用的纹理或拼写错误，此方法可能会失败。如果发生这种情况，你不希望应用程序崩溃，因此你捕获错误并将错误消息打印到控制台。
+在此代码片段中，你将从默认的 `MTLDevice` 创建一个新的 `MTKTextureLoader`。该纹理位于你的应用程序包中。你可以通过在新纹理加载器上调用 `textureLoader.newTextureWithContentsOfURL` 来加载纹理。如果你尝试加载不可用的纹理或拼写错误，该方法可能会失败。如果发生这种情况，你不希望应用程序崩溃，因此你捕获错误并将错误消息打印到控制台。
 
 还可以从资产目录、核心图形和模型 I/O 加载纹理。这些函数中的每一个都以 `textureLoader.newTextureWith` 开头。这完全取决于你选择纹理的来源。这样可以轻松简化从各种不同来源引入纹理的过程，而无需记住太多差异。
 
@@ -135,9 +135,9 @@ if let textureUrl = NSURL(string: fileLocation) {
 
 在本章前面，你学习了如何创建 `MTLTexture` 对象。一种方法是调用 `MTLTexture` 协议上的方法来创建纹理视图。本节更深入地解释该过程。
 
-与设备方法不同，此方法不分配内存来复制纹理数据。该方法以新的指定像素格式重新解释现有纹理图像数据。它不会修改原始底层数据文件。新纹理的像素格式必须与源纹理的像素格式兼容。
+与设备方法不同，该方法不分配内存来复制纹理数据。该方法以新的指定像素格式重新解释现有纹理图像数据。它不会修改原始底层数据文件。新纹理的像素格式必须与源纹理的像素格式兼容。
 
-`func makeTextureView(pixelFormat: MTLPixelFormat) -> MTLTexture` 指定要将纹理转换为的新像素格式并返回该新纹理。并非所有像素格式都与所有其它像素格式兼容。你不能在不同大小的颜色像素格式之间使用此方法。
+`func makeTextureView(pixelFormat: MTLPixelFormat) -> MTLTexture` 指定要将纹理转换为的新像素格式并返回该新纹理。并非所有像素格式都与所有其它像素格式兼容。你不能在不同大小的颜色像素格式之间使用该方法。
 
 制作纹理视图的另一种方法是使用以下方法：
 
@@ -148,7 +148,7 @@ func makeTextureView(pixelFormat: MTLPixelFormat,
                      slices sliceRange: NSRange) -> MTLTexture
 ```
 
-以前的方法仅允许你更改像素格式。此方法还允许你更改纹理类型。与 `MTLPixelFormat` 类似，`MTLTextureType` 具有可以将纹理转换为的有限数量的其它纹理 `type1D` 纹理只能转换为另一个 `type1D` 纹理，而 `type2D` 纹理可以转换为另一个 `type2D` 或 `type2DArray`。
+以前的方法仅允许你更改像素格式。该方法还允许你更改纹理类型。与 `MTLPixelFormat` 类似，`MTLTextureType` 具有可以将纹理转换为的有限数量的其它纹理 `type1D` 纹理只能转换为另一个 `type1D` 纹理，而 `type2D` 纹理可以转换为另一个 `type2D` 或 `type2DArray`。
 
 ### 纹理数组
 
@@ -209,7 +209,7 @@ Metal 支持三种压缩纹理格式：
 - 生成填充和 mipmap 数据
 - 同步数据
 
-任何将数据从一处复制到另一处的操作都使用 MTLBlitCommandEncoder 的复制方法。此方法被重载以反映复制数据的不同方式。这种复制方法最简单的示例是将一个缓冲区复制到另一个缓冲区：
+任何将数据从一处复制到另一处的操作都使用 MTLBlitCommandEncoder 的复制方法。该方法被重载以反映复制数据的不同方式。这种复制方法最简单的示例是将一个缓冲区复制到另一个缓冲区：
 
 ```swift
 func copy(from sourceBuffer: MTLBuffer,

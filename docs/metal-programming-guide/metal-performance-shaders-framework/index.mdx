@@ -139,7 +139,7 @@ func encodeTransform(to commandBuffer: MTLCommandBuffer,
                      histogramOffset: Int)
 ```
 
-此方法使用特定命令缓冲区的偏移量对源纹理和直方图进行编码。最后一步是调用 `encode(commandBuffer:sourceTexture:destinationTexture:)` 方法从源纹理读取数据。
+该方法使用特定命令缓冲区的偏移量对源纹理和直方图进行编码。最后一步是调用 `encode(commandBuffer:sourceTexture:destinationTexture:)` 方法从源纹理读取数据。
 
 `MPSImageHistogramSpecification` 是一个对图像执行直方图规范操作的过滤器。这有类似的实现过程，但是 `encodeTransform` 方法需要更多的参数：
 

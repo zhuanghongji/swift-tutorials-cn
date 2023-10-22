@@ -16,7 +16,7 @@
 
 观察玩家当前时间的最常见方法是定期观察。当驱动玩家用户界面中的时间显示状态时，以这种方式观察它非常有用。
 
-要定期观察玩家的当前时间，请调用其 addPeriodicTimeObserver(forInterval:queue:using:) 方法。此方法采用一个 CMTime 值（表示观察时间的间隔）、串行调度队列以及玩家在指定时间间隔调用的回调。以下示例添加了一个观察者，播放器在正常播放期间每半秒调用一次：
+要定期观察玩家的当前时间，请调用其 addPeriodicTimeObserver(forInterval:queue:using:) 方法。该方法采用一个 CMTime 值（表示观察时间的间隔）、串行调度队列以及玩家在指定时间间隔调用的回调。以下示例添加了一个观察者，播放器在正常播放期间每半秒调用一次：
 
 ```swift
 @Published private(set) var duration: TimeInterval = 0.0
@@ -52,7 +52,7 @@ private func removePeriodicTimeObserver() {
 
 观察播放器的另一种方法是播放器在播放过程中何时跨越特定时间边界。你可以通过更新播放器 UI 或执行其它操作来应对这些时间的流逝。
 
-要让播放器在穿过媒体时间轴中的特定点时通知你的应用，请调用播放器的 addBoundaryTimeObserver(forTimes:queue:using:) 方法。此方法采用一个 NSValue 对象数组，这些对象包装了定义边界时间的 CMTime 值、串行调度队列和回调闭包。以下示例显示如何定义每个季度播放的边界时间：
+要让播放器在穿过媒体时间轴中的特定点时通知你的应用，请调用播放器的 addBoundaryTimeObserver(forTimes:queue:using:) 方法。该方法采用一个 NSValue 对象数组，这些对象包装了定义边界时间的 CMTime 值、串行调度队列和回调闭包。以下示例显示如何定义每个季度播放的边界时间：
 
 ```swift
 /// Adds an observer of the player traversing specific times during standard playback.

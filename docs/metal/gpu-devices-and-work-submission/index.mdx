@@ -1200,7 +1200,7 @@ open class MTLCommandBufferDescriptor : NSObject, NSCopying {
 
 重复此过程，直到完成将命令编码到命令缓冲区并准备好在 GPU 上运行缓冲区的内容。然后通过调用命令缓冲区的 [commit()](https://developer.apple.com/documentation/metal/mtlcommandbuffer/1443003-commit) 方法将命令缓冲区提交到用于创建它的命令队列。应用提交命令缓冲区后，你可以检查其 [status](https://developer.apple.com/documentation/metal/mtlcommandbuffer/1443048-status) 属性或通过调用其 [waitUntilScheduled()](https://developer.apple.com/documentation/metal/mtlcommandbuffer/1443036-waituntilscheduled) 或 [waitUntilCompleted()](https://developer.apple.com/documentation/metal/mtlcommandbuffer/1443039-waituntilcompleted) 方法来阻止线程。
 
-你还可以选择通过调用命令缓冲区的 [enqueue()](https://developer.apple.com/documentation/metal/mtlcommandbuffer/1443019-enqueue) 方法在其命令队列中为命令缓冲区保留一个位置。在将缓冲区提交到队列之前，你可以随时调用此方法一次。如果你没有将命令缓冲区排入队列，那么当你提交命令缓冲区时，它会隐式地将其自身排入队列。每个命令队列都确保将其命令缓冲区排入队列的顺序与队列安排它们在 GPU 上运行的顺序相同。
+你还可以选择通过调用命令缓冲区的 [enqueue()](https://developer.apple.com/documentation/metal/mtlcommandbuffer/1443019-enqueue) 方法在其命令队列中为命令缓冲区保留一个位置。在将缓冲区提交到队列之前，你可以随时调用该方法一次。如果你没有将命令缓冲区排入队列，那么当你提交命令缓冲区时，它会隐式地将其自身排入队列。每个命令队列都确保将其命令缓冲区排入队列的顺序与队列安排它们在 GPU 上运行的顺序相同。
 
 :::note
 

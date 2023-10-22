@@ -108,7 +108,7 @@ class VendingMachine {
 
 该方法的实现使用语句提前退出该方法，并在不满足购买零食的任何要求时抛出适当的错误。因为语句会立即转移程序控制，所以只有满足所有这些要求时才会出售商品。vend(itemNamed:)guardthrow
 
-因为该方法会传播它抛出的任何错误，所以调用此方法的任何代码都必须处理错误（使用-语句、或）或继续传播错误。例如，下例中的 也是一个抛出函数，该方法抛出的任何错误都会传播到调用该函数的位置。vend(itemNamed:)docatchtry?try!buyFavoriteSnack(person:vendingMachine:)vend(itemNamed:)buyFavoriteSnack(person:vendingMachine:)
+因为该方法会传播它抛出的任何错误，所以调用该方法的任何代码都必须处理错误（使用-语句、或）或继续传播错误。例如，下例中的 也是一个抛出函数，该方法抛出的任何错误都会传播到调用该函数的位置。vend(itemNamed:)docatchtry?try!buyFavoriteSnack(person:vendingMachine:)vend(itemNamed:)buyFavoriteSnack(person:vendingMachine:)
 
 ```swift
 let favoriteSnacks = [

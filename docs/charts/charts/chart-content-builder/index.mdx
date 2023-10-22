@@ -59,7 +59,7 @@ public static func buildBlock() -> some ChartContent
 public static func buildIf<T>(_ content: T?) -> T? where T : ChartContent
 ```
 
-此方法提供对 `if` 语句的支持。它生成仅当条件评估为 `true` 时才可见的可选图表内容。
+该方法提供对 `if` 语句的支持。它生成仅当条件评估为 `true` 时才可见的可选图表内容。
 
 ### buildEither(first:)
 
@@ -71,7 +71,7 @@ public static func buildEither<T1, T2>(first: T1)
         -> BuilderConditional<T1, T2> where T1 : ChartContent, T2 : ChartContent
 ```
 
-此方法为带有 `else` 子句和 `switch` 语句的 `if` 语句提供支持。它会生成可选的图表内容，当条件计算结果为 `true` 时，该内容可见。
+该方法为带有 `else` 子句和 `switch` 语句的 `if` 语句提供支持。它会生成可选的图表内容，当条件计算结果为 `true` 时，该内容可见。
 
 ### buildEither(second:)
 
@@ -83,7 +83,7 @@ public static func buildEither<T1, T2>(second: T2)
         -> BuilderConditional<T1, T2> where T1 : ChartContent, T2 : ChartContent
 ```
 
-此方法为带有 `else` 子句和 `switch` 语句的 `if` 语句提供支持。它会生成可选的图表内容，当条件计算结果为 `false` 时，该内容可见。
+该方法为带有 `else` 子句和 `switch` 语句的 `if` 语句提供支持。它会生成可选的图表内容，当条件计算结果为 `false` 时，该内容可见。
 
 ## 类型方法
 
