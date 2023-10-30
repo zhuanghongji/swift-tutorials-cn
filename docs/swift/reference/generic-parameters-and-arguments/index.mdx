@@ -1,34 +1,32 @@
 # 泛型形参和实参
 
-<ToBePolishedAfterTranslation />
-
 <OriginalSource
   title="Generic Parameters and Arguments"
   url="https://docs.swift.org/swift-book/documentation/the-swift-programming-language/genericparametersandarguments"
-  summary="概括声明以抽象出具体类型"
+  summary="泛化性声明以抽象出具体类型"
 />
 
-本章介绍泛型类型、函数和初始化器的参数和自变量。当你声明泛型类型、函数、下标或初始化器时，你指定了泛型类型、函数或初始化器可以使用的类型参数。这些类型参数充当占位符，当创建泛型类型的实例或调用泛型函数或初始化器时，它们将被实际的具体类型参数替换。
+本章介绍泛型类型、函数和初始化器的形参（parameters）和实参（arguments）。当你声明一个泛型类型、函数、下标或初始化器时，你指定了泛型类型、函数或初始化器可以使用的类型参数。这些类型参数充当占位符，并在创建泛型类型的实例、或 "泛型函数或初始化器" 被调用时，被实际的具体类型参数替换。
 
-有关 Swift 中泛型的概述，请参阅泛型。
+有关 Swift 中泛型的概述，请参阅 [泛型](https://docs.swift.org/swift-book/documentation/the-swift-programming-language/generics)。
 
-## 通用参数子句
+## 泛型形参子句
 
-泛型参数子句指定泛型类型或函数的类型参数，以及对这些参数的任何相关约束和要求。通用参数子句括在尖括号 (`<>`) 中并具有以下形式：
+「泛型形参子句」指定泛型类型或函数的类型参数，以及对这些参数的任何相关约束和要求。泛型形参子句括在尖括号 (`<>`) 中并具有以下形式：
 
-```swift
+```
 <<#generic parameter list#>>
 ```
 
-泛型参数列表是以逗号分隔的泛型参数列表，每个参数都具有以下形式：
+「泛型形参列表」是以逗号分隔的泛型参数列表，每个参数都具有以下形式：
 
-```swift
+```
 <#type parameter#>: <#constraint#>
 ```
 
-泛型参数由一个类型参数和一个可选约束组成。类型参数只是占位符类型的名称（例如，、、、、、T 等）。你可以访问类型、函数或初始化器声明的其余部分（包括函数或初始化器的签名）中的类型参数（及其任何关联类型）。UVKeyValue
+泛型参数由一个类型参数和一个可选约束组成。类型参数只是占位符类型的名称（例如 `T`、`U`、`V`、`Key`、`Value` 等）。你可以访问类型、函数或初始值设定项声明的其余部分中的类型参数（及其任何关联类型），包括函数或初始值设定项的签名中的类型参数。
 
-该约束指定类型参数继承自特定类或符合协议或协议组合。例如，在下面的泛型函数中，泛型参数 T: Comparable 表示任何替代类型参数的类型参数都 T 必须符合 Comparable 协议。
+该约束指定类型参数 "继承自特定类" 或 "符合协议或协议组合"。例如，在下面的泛型函数中，泛型参数 `T: Comparable` 指明替换类型形参（type parameter）`T` 的任何类型实参（type argument）都必须符合 `Comparable` 协议。
 
 ```swift
 func simpleMax<T: Comparable>(_ x: T, _ y: T) -> T {
@@ -39,27 +37,33 @@ func simpleMax<T: Comparable>(_ x: T, _ y: T) -> T {
 }
 ```
 
-例如，因为 Int 和 Double 都符合 Comparable 协议，所以该函数接受任一类型的参数。与泛型类型相反，当你使用泛型函数或初始化器时，你无需指定泛型参数子句。类型参数是从传递给函数或初始化器的参数类型中推断出来的。
+例如，因为 `Int` 和 `Double` 都符合 `Comparable` 协议，所以该函数接受其中任意一种类型的参数。相比泛型类型，在你使用泛型函数或初始化器时，无需指定泛型参数子句。类型参数是从传递给函数或初始化器的参数类型中推断出来的。
 
 ```swift
-simpleMax(17, 42) // T is inferred to be Int
+simpleMax(17, 42)           // T is inferred to be Int
 simpleMax(3.14159, 2.71828) // T is inferred to be Double
 ```
 
-## 通用 Where 子句
+## 泛型 Where 子句
 
-where 你可以通过在类型或函数主体的左大括号之前包含一个泛型子句来指定对类型参数及其关联类型的其它要求。通用 where 子句由关键字组成 where，后跟一个或多个要求的逗号分隔列表。
+你可以通过在类型或函数体的左大括号之前，使用泛型 `where` 子句来指定类型参数及其关联类型的附加要求。泛型 `where` 子句由 `where` 关键字组成，后跟一个或多个要求的逗号分隔列表。
 
+```swift
 where <#requirements#>
-通用子句中的要求指定 where 类型参数继承自类或符合协议或协议组合。虽然泛型 where 子句提供了语法糖来表达对类型参数的简单约束（例如，`<T: Comparable>` 等同于 `<T> where T: Comparable` 等），但你可以使用它来提供对类型参数及其关联类型的更复杂约束。例如，你可以约束类型参数的关联类型以符合协议。例如，指定符合协议以及关联类型符合协议。此约束确保序列中的每个元素都是相等的。`<S: Sequence> where S.Iterator.Element: EquatableSSequenceS.Iterator.ElementEquatable`
+```
 
-你还可以使用运算符指定两种类型相同的要求==。例如，表示和符合协议的约束以及两个序列的元素必须属于同一类型。`<S1: Sequence, S2: Sequence> where S1.Iterator.Element == S2.Iterator.ElementS1S2Sequence`
+泛型 `where` 子句中的要求指定 "类型参数继承自某个类" 或 "符合协议或协议组合"。虽然泛型 `where` 子句提供了语法糖来表达对类型参数的简单约束（例如，`<T: Comparable>` 等同于 `<T> where T: Comparable` 等），但你可以使用它来提供更复杂的、对类型参数及其关联类型的约束：
 
-任何替代类型参数的类型参数都必须满足对类型参数的所有约束和要求。
+- 例如，你可以约束类型参数的关联类型符合某个协议。
+- 例如，`<S: Sequence> where S.Iterator.Element: Equatable` 指定 `S` 符合 `Sequence` 协议，并且关联类型 `S.Iterator.Element` 符合 `Equatable` 协议。
 
-泛型 where 子句可以作为包含类型参数的声明的一部分出现，也可以作为嵌套在包含类型参数的声明中的声明的一部分。嵌套声明的通用 where 子句仍然可以引用封闭声明的类型参数；但是，该条款的要求 where 仅适用于其所写的声明。
+你还可以使用 `==` 运算符指定 "两种类型相同" 的要求。例如，`<S1: Sequence, S2: Sequence> where S1.Iterator.Element == S2.Iterator.Element` 表示 `S1` 和 `S2` 符合 `Sequence` 协议的约束，并且两个序列的元素必须是相同类型。
 
-如果封闭声明也有一个 where 子句，则将两个子句的要求结合起来。在下面的示例中，仅当同时符合和 时才可用。startsWithZero()ElementSomeProtocolNumeric
+任何替代类型形参（type parameter）的类型实参（type argument）都必须满足对类型参数的所有约束和要求。
+
+泛型 `where` 子句可以作为 "包含类型参数的声明" 的一部分出现，也可以作为 "嵌套在包含类型参数的声明内的声明" 的一部分出现。嵌套声明的泛型 `where` 子句仍然可以引用 "封闭声明（enclosing declaration）的类型参数"。但是，该 `where` 子句的要求仅适用于所编写的声明。
+
+如果封闭声明也有 `where` 子句，则两个子句的要求将合并。在下面的示例中，仅当 `Element` 符合 `SomeProtocol` 和 `Numeric` 时， `startsWithZero()` 才可用。
 
 ```swift
 extension Collection where Element: SomeProtocol {
@@ -69,11 +73,11 @@ extension Collection where Element: SomeProtocol {
 }
 ```
 
-你可以通过对类型参数提供不同的约束、要求或两者来重载泛型函数或初始化器。当你调用重载的泛型函数或初始化器时，编译器会使用这些约束来确定要调用的重载函数或初始化器。
+你可以通过对类型参数提供不同的约束、要求，或两者来重载泛型函数或初始化器。当你调用重载的泛型函数或初始化器时，编译器会使用这些约束来确定要调用的重载函数或初始化器。
 
-有关泛型 where 子句的更多信息以及查看泛型函数声明中的泛型子句示例，请参阅泛型 Where 子句。
+有关泛型 `where` 子句的更多信息，以及查看泛型函数声明中的泛型子句示例，请参阅 [泛型 Where 子句](https://docs.swift.org/swift-book/documentation/the-swift-programming-language/generics#Generic-Where-Clauses)。
 
-:::note 通用参数子句的语法
+:::note 泛型参数子句的语法
 
 ```
 generic-parameter-clause → < generic-parameter-list >
@@ -101,15 +105,15 @@ same-type-requirement → type-identifier == type
 
 :::
 
-## 一般论证条款
+## 泛型实参子句
 
-泛型参数子句指定泛型类型的类型参数。通用参数子句括在尖括号 (`<>`) 中并具有以下形式：
+「泛型实参子句」指定泛型类型的类型参数。泛型实参子句括在尖括号 (`<>`) 中并具有以下形式：
 
-```swift
+```
 <<#generic argument list#>>
 ```
 
-通用参数列表是以逗号分隔的类型参数列表。类型参数是实际具体类型的名称，它替换了泛型类型的泛型参数子句中的相应类型参数。结果是该通用类型的专用版本。下面的示例显示了 Swift 标准库的通用字典类型的简化版本。
+「泛型实参列表」是以逗号分隔的类型参数列表。类型实参是实际具体类型的名称，它替换了泛型类型的 "泛型形参子句" 中的相应类型参数。得到的结果是该泛型类型的特定版本。下面的示例演示了 Swift 标准库的泛型字典类型的简化版本。
 
 ```swift
 struct Dictionary<Key: Hashable, Value>: Collection, ExpressibleByDictionaryLiteral {
@@ -117,17 +121,17 @@ struct Dictionary<Key: Hashable, Value>: Collection, ExpressibleByDictionaryLite
 }
 ```
 
-泛型 Dictionary 类型的特殊版本 `Dictionary<String, Int>` 是通过用具体类型参数 Key: Hashable 和替换 Value 泛型参数 String 和来形成的 Int。每个类型参数都必须满足它所替换的泛型参数的所有约束，包括泛型 where 子句中指定的任何附加要求。在上面的示例中，Key 类型参数被约束为符合 Hashable 协议，因此 String 也必须符合 Hashable 协议。
+泛型 `Dictionary` 类型的特定版本 `Dictionary<String, Int>` 是通过用具体类型参数 `String` 和 `Int` 来替换对应的泛型形参 `Key: Hashable` 和 `Value`。每个类型参数都必须满足它所替换的泛型形参的所有约束，包括泛型 `where` 子句中指定的任何附加要求。在上面的示例中，`Key` 类型形参被约束为符合 `Hashable` 协议，因此 `String` 也必须符合 `Hashable` 协议。
 
-你还可以将类型参数替换为本身是泛型类型的专用版本的类型参数（前提是它满足适当的约束和要求）。例如，你可以将类型参数 `Elementin` 替换 `Array<Element>` 为数组的特殊版本 ，`Array<Int>` 以形成一个其元素本身就是整数数组的数组。
+你还可以将类型形参替换为本身是泛型类型的特定版本的类型实参（前提是它满足适当的约束和要求）。例如，您可以将 `Array<Element>` 中的类型形参 `Element` 替换为数组的特定版本 `Array<Int>`，以形成一个数组，其元素本身就是数组整数。
 
 ```swift
 let arrayOfArrays: Array<Array<Int>> = [[1, 2, 3], [4, 5, 6], [7, 8, 9]]
 ```
 
-如通用参数子句中所述，你不使用通用参数子句来指定通用函数或初始化器的类型参数。
+如 [泛型形参子句](#泛型形参子句) 中所述，你不使用 "泛型实参子句" 来指定泛型函数或初始化器的类型参数。
 
-:::note 通用参数子句的语法
+:::note 泛型实参子句的语法
 
 ```
 generic-argument-clause → < generic-argument-list >
