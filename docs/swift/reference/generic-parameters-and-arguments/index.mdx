@@ -24,7 +24,7 @@
 <#type parameter#>: <#constraint#>
 ```
 
-泛型参数由一个类型参数和一个可选约束组成。类型参数只是占位符类型的名称（例如 `T`、`U`、`V`、`Key`、`Value` 等）。你可以访问类型、函数或初始值设定项声明的其余部分中的类型参数（及其任何关联类型），包括函数或初始值设定项的签名中的类型参数。
+泛型参数由一个类型参数和一个可选约束组成。类型参数只是占位符类型的名称（例如 `T`、`U`、`V`、`Key`、`Value` 等）。你可以访问类型、函数或初始化器声明的其余部分中的类型参数（及其任何关联类型），包括函数或初始化器的签名中的类型参数。
 
 该约束指定类型参数 "继承自特定类" 或 "符合协议或协议组合"。例如，在下面的泛型函数中，泛型参数 `T: Comparable` 指明替换类型形参（type parameter）`T` 的任何类型实参（type argument）都必须符合 `Comparable` 协议。
 
@@ -123,7 +123,7 @@ struct Dictionary<Key: Hashable, Value>: Collection, ExpressibleByDictionaryLite
 
 泛型 `Dictionary` 类型的特定版本 `Dictionary<String, Int>` 是通过用具体类型参数 `String` 和 `Int` 来替换对应的泛型形参 `Key: Hashable` 和 `Value`。每个类型参数都必须满足它所替换的泛型形参的所有约束，包括泛型 `where` 子句中指定的任何附加要求。在上面的示例中，`Key` 类型形参被约束为符合 `Hashable` 协议，因此 `String` 也必须符合 `Hashable` 协议。
 
-你还可以将类型形参替换为本身是泛型类型的特定版本的类型实参（前提是它满足适当的约束和要求）。例如，您可以将 `Array<Element>` 中的类型形参 `Element` 替换为数组的特定版本 `Array<Int>`，以形成一个数组，其元素本身就是数组整数。
+你还可以将类型形参替换为本身是泛型类型的特定版本的类型实参（前提是它满足适当的约束和要求）。例如，你可以将 `Array<Element>` 中的类型形参 `Element` 替换为数组的特定版本 `Array<Int>`，以形成一个数组，其元素本身就是数组整数。
 
 ```swift
 let arrayOfArrays: Array<Array<Int>> = [[1, 2, 3], [4, 5, 6], [7, 8, 9]]
