@@ -1,24 +1,22 @@
 # 类型转换
 
-<ToBePolishedAfterTranslation />
-
 <OriginalSource
   title="Type Casting"
   url="https://docs.swift.org/swift-book/documentation/the-swift-programming-language/typecasting"
   summary="确定值的运行时类型并为其提供更具体的类型信息"
 />
 
-类型转换是一种检查实例类型的方法，或者将该实例视为与其自身类层次结构中其它地方不同的超类或子类。
+「类型转换」是一种检查实例类型，或将实例视为 "与其自身类层级中其它不同位置" 的 "超类或子类" 的方式。
 
-Swift 中的类型转换是使用 isand 运算符实现的 as。这两个运算符提供了一种简单而富有表现力的方法来检查值的类型或将值转换为不同的类型。
+Swift 中的类型转换是通过 `is` 和 `as` 运算符实现的。这两个运算符提供了一种简单而富有表现力的方式，来检查值的类型，或将值转换为不同的类型。
 
-你还可以使用类型转换来检查类型是否符合协议，如检查协议一致性中所述。
+你还可以使用「类型转换」来检查某个类型是否符合特定协议，如 [检查协议符合性](https://docs.swift.org/swift-book/documentation/the-swift-programming-language/protocols#Checking-for-Protocol-Conformance) 中所述。
 
-## 为类型转换定义类层次结构
+## 为类型转换定义类层级
 
-你可以对类和子类的层次结构使用类型转换来检查特定类实例的类型，并将该实例转换为同一层次结构中的另一个类。下面的三个代码片段定义了一个类的层次结构和一个包含这些类实例的数组，用于类型转换的示例。
+你可以对类和子类的层级使用「类型转换」来检查特定类实例的类型，并将该实例转换为同一层级中的另一个类。下面的三个代码片段定义了一个类的层级和一个包含这些类实例的数组，用于类型转换的示例。
 
-第一个片段定义了一个名为. 该类为出现在数字媒体库中的任何类型的项目提供基本功能。具体来说，它声明了一个 type 的属性和一个初始化器。（假设所有媒体项目，包括所有电影和歌曲，都有一个名称。）MediaItemnameStringinit(name:)
+第一个片段定义了一个名为 `MediaItem` 的新基类。此类为 "数字媒体库中出现的任何类型的项目" 提供基本功能。具体来说，它声明了一个 `String` 类型的 `name` 属性和一个 `init(name:)` 初始化器。（假设所有媒体项目，包括所有电影和歌曲，都有一个名称。）
 
 ```swift
 class MediaItem {
@@ -29,7 +27,10 @@ class MediaItem {
 }
 ```
 
-下一个片段定义了 的两个子类。第一个子类封装了有关电影或影片的附加信息。它在基类之上添加了一个属性，并带有相应的初始化器。第二个子类，在基类之上添加了一个属性和初始化器：MediaItemMoviedirectorMediaItemSongartist
+下一个代码片段定义了 `MediaItem` 的两个子类：
+
+- 第一个子类 `Movie` 封装了有关电影或影片的附加信息。它在基类 `MediaItem` 之上添加了一个 `director` 属性，以及相应的初始化器。
+- 第二个子类 `Song` 在基类之上添加 `artist` 属性和初始化器。
 
 ```swift
 class Movie: MediaItem {
@@ -49,7 +50,7 @@ class Song: MediaItem {
 }
 ```
 
-最后的代码片段创建了一个名为 的常量数组 library，其中包含两个 Movie 实例和三个 Song 实例。数组的类型 library 是通过用数组文字的内容初始化它来推断的。Swift 的类型检查器能够推断出它 Movie 并 Song 具有一个共同的超类，因此它为数组推断出一种类型：MediaItem[MediaItem]library
+最后的代码片段创建一个名为 `library` 的常量数组，其中包含两个 `Movie` 实例和三个 `Song` 实例。`library` 数组的类型是通过使用数组字面量的内容进行初始化来推断的。Swift 的类型检查器能够推断出 `Movie` 和 `Song` 有一个共同的超类 `MediaItem`，因此它推断出 `library` 数组的类型是 `[MediaItem]`：
 
 ```swift
 let library = [
@@ -59,16 +60,17 @@ let library = [
     Song(name: "The One And Only", artist: "Chesney Hawkes"),
     Song(name: "Never Gonna Give You Up", artist: "Rick Astley")
 ]
+
 // the type of "library" is inferred to be [MediaItem]
 ```
 
-存储在幕后的 library 静止 Movie 和实例中的项目。Song 但是，如果你遍历此数组的内容，则你收到的项目类型为, 而不是或。为了将它们作为它们的原生类型来使用，你需要检查它们的类型，或者将它们向下转换为不同的类型，如下所述。MediaItemMovieSong
+存储在 `library` 中的项目仍然是幕后的 `Movie` 和 `Song` 实例。但在你遍历此数组时，得到的项目类型为 `MediaItem`，而不是 `Movie` 或 `Song`。为了将它们作为其本身类型（native type）使用，你需要检查它们的类型，或将它们向下转换为不同的类型，如下所述。
 
 ## 检查类型
 
-使用类型检查运算符( is) 检查实例是否属于某个子类类型。类型检查运算符返回 true 实例是否属于该子类类型，false 如果不是。
+使用类型检查运算符（`is`）检查实例是否属于某个具体的子类类型。如果该实例是对应子类类型，类型检查运算符返回 `true`，否则反悔 `false`。
 
-下面的示例定义了两个变量和，它们计算数组中和实例的数量：movieCountsongCountMovieSonglibrary
+下面的示例定义了两个变量 `movieCount` 和 `songCount`，它们计算 `library` 数组中 `Movie` 和 `Song` 实例的数量。
 
 ```swift
 var movieCount = 0
@@ -83,26 +85,30 @@ for item in library {
 }
 
 print("Media library contains \(movieCount) movies and \(songCount) songs")
+
 // Prints "Media library contains 2 movies and 3 songs"
 ```
 
-该示例遍历 library 数组中的所有项目。每次通过时，for-in 循环都会将常量设置为数组中的 item 下一个。MediaItem
+该示例遍历 `library` 数组中的所有项目。在每次传递中，`for-in` 循环将 `item` 常量设置为数组中的下一个 `MediaItem`。
 
-item is Movietrue 如果当前是实例则返回，否则返回。同样，检查该项目是否是一个实例。在-循环的末尾，和的值包含每种类型的实例数。MediaItemMoviefalseitem is SongSongforinmovieCountsongCountMediaItem
+如果当前 `MediaItem` 是 `Movie` 实例，则 `item is Movie` 返回 `true`。如果不是，则返回 `false`。同样，`item is Song` 检查该项目是否是 `Song` 实例。在 `for-in` 循环结束时，`movieCount` 和 `songCount` 的值对应到 `MediaItem` 实例中两个子类型的数量。
 
-## 向下倾诉
+## 向下转换
 
-某个类类型的常量或变量实际上可能在幕后引用子类的实例。如果你认为是这种情况，你可以尝试使用类型转换运算符（或）向下转换为子类类型。as?as!
+一个具体类类型（class type）的常量或变量，幕后实际引用的可能是子类的实例。如果你认为是这种情况，你可以尝试使用类型转换运算符（`as?` 或 `as!`）向下转换为子类类型。
 
-因为向下转换可能会失败，所以类型转换运算符有两种不同的形式。条件形式 as?返回你尝试向下转型的类型的可选值。强制形式 as!尝试将向下转换和强制展开结果作为单个复合操作。
+由于向下转型可能会失败，因此类型转型运算符有两种不同的形式：
 
-as?当你不确定向下转换是否会成功时，请使用类型转换运算符 ( ) 的条件形式。nil 这种形式的运算符将始终返回一个可选值，如果无法进行向下转换，则该值将是。这使你能够检查是否成功进行了向下转换。
+- 条件形式 `as?` 返回你尝试向下转换的类型的可选值。
+- 强制形式 `as!` 尝试将 "向下转换" 并 "强制展开" 结果作为单个组合操作。
 
-as!仅当你确定向下转换总是成功时，才使用类型转换运算符 ( ) 的强制形式。如果你尝试向下转换为不正确的类类型，这种形式的运算符将触发运行时错误。
+当你不确定向下转换是否会成功时，请使用类型转换运算符的条件形式（`as?`）。这种形式的运算符将始终返回一个可选值，如果无法进行向下转换，则该值将为 `nil`。这使你能够检查是否成功向下转型。
 
-下面的示例遍历每个 in ，并为每个项目打印适当的描述。为此，它需要将每个项目作为 true 或访问，而不仅仅是作为. 这是必要的，以便它能够访问 a 的 or 属性或在描述中使用。MediaItemlibraryMovieSongMediaItemdirectorartistMovieSong
+仅当你确定向下转换始终会成功时，才使用强制形式的类型转换运算符（`as!`）。如果你尝试向下转换为不正确的类类型，这种形式的运算符将触发运行时错误。
 
-在该示例中，数组中的每个项目可能是一个 Movie，也可能是一个 Song。你事先不知道每个项目使用哪个实际类，因此使用类型转换运算符 ( as?) 的条件形式在每次循环中检查向下转换是合适的：
+下面的示例遍历 `library` 中的每个 `MediaItem`，并打印每个项目的适当描述。为此，它需要将每个项目作为真正的 `Movie` 或 `Song` 进行访问，而不仅仅是作为 `MediaItem` 进行访问。为了能够访问 `Movie` 或 `Song` 的 `director` 或 `artist` 属性以在描述中使用，这是必要的。
+
+在此示例中，数组中的每个项目可能是 `Movie`，也可能是 `Song`。你事先不知道哪个项目要使用哪个实际类，因此最好使用类型转换运算符（`as?`）的条件形式来每次循环检查「向下转换」：
 
 ```swift
 for item in library {
@@ -120,28 +126,30 @@ for item in library {
 // Song: Never Gonna Give You Up, by Rick Astley
 ```
 
-该示例首先尝试将 currentitem 向下转换为 Movie. 因为 item 是一个实例，所以它可能是一个；同样，它也可能是一个，甚至只是一个 base 。由于这种不确定性，类型转换运算符的形式在尝试向下转换为子类类型时返回一个可选值。的结果是类型，或"可选"。MediaItemMovieSongMediaItemas?item as? MovieMovie?Movie
+该示例首先尝试将当前 `item` 向下转换为 `Movie`。因为 `item` 是 `MediaItem` 实例，所以它可能是 `Movie`。同样，它也可能是一个 `Song`，甚至只是一个基础 `MediaItem`。由于这种不确定性，类型转换运算符的 `as?` 形式在尝试 "向下转换为子类类型" 时返回一个可选值。 `item as? Movie` 的结果是 `Movie?` 类型，或 "Ooptinal `Movie`”。
 
-Movie 应用于 Song 库数组中的实例时向下转型失败。为了解决这个问题，上面的示例使用可选绑定来检查可选是否实际 Movie 包含值（即找出向下转换是否成功。）这个可选绑定写为" if let movie = item as? Movie"，可以读作：
+当应用于 `library` 数组中的 `Song` 实例时，向下转换为 `Movie` 会失败。为了解决这个问题，上面的例子使用了「可选绑定」来检查可选的 `Movie` 是否实际上包含一个值（即找出向下转型是否成功）。这个「可选绑定」被写为 `if let movie = item as? Movie`。
 
-"尝试 item 以 Movie. 如果成功，将一个新的临时常量 called 设置 movie 为存储在返回的 optional 中的值 Movie。"
+> "尝试以 `Movie` 的形式访问 `item`。如果成功，请将名为 `movie` 的新临时常量设置为 '存储在返回的可选 `Movie` 中的值'。"
 
-如果向下转型成功，则使用 的属性 movie 打印该 Movie 实例的描述，包括其 director. 类似的原则用于检查实例，并在库中找到时 Song 打印适当的描述（包括名称）。artistSong
+如果向下转换成功，则 `movie` 的属性将用于打印该 `Movie` 实例的描述，包括其 `director` 的名称。类似的原理用于检查 `Song` 实例，并在库中找到 `Song` 时打印适当的描述（包括 `artist` 名称）。
 
 :::note
-转换实际上并不修改实例或更改其值。底层实例保持不变；它只是作为它所转换到的类型的实例来处理和访问。
+
+转换实际上并不修改实例或更改其值。即底层实例保持不变，它只是作为 "其所转换到的类型的实例" 来处理和访问。
+
 :::
 
 ## Any 和 AnyObject 的类型转换
 
 Swift 提供了两种特殊类型来处理非特定类型：
 
-- Any 可以表示任何类型的实例，包括函数类型。
-- AnyObject 可以表示任何类类型的实例。
+- `Any` 可以表示任何类型的实例，包括函数类型。
+- `AnyObject` 可以表示任何类类型（class type）的实例。
 
-仅当你明确需要它们提供的行为和功能时才使用 Anyand 。最好具体说明你希望在代码中使用的类型。AnyObject
+仅当你明确需要它们提供的行为和功能时，才使用 `Any` 和 `AnyObject`。最好具体说明你希望在代码中使用的类型。
 
-下面是一个使用 Any 来混合使用不同类型的示例，包括函数类型和非类类型。该示例创建了一个名为 的数组 things，它可以存储类型为 的值 Any：
+下面是使用 `Any` 混合使用不同类型（包括函数类型和非类类型）的示例。该示例创建一个名为 `things` 的数组，它可以存储 `Any` 类型的值：
 
 ```swift
 var things: [Any] = []
@@ -156,9 +164,9 @@ things.append(Movie(name: "Ghostbusters", director: "Ivan Reitman"))
 things.append({ (name: String) -> String in "Hello, \(name)" })
 ```
 
-该 things 数组包含两个 Int 值，两个 Double 值，一个 String 值，一个类型的元组(Double, Double)，电影"捉鬼敢死队"，以及一个接受一个 String 值并返回另一个 String 值的闭包表达式。
+`things` 数组包含两个 `Int` 值、两个 `Double` 值、一个 `String` 值、一个 `(Double, Double)` 值、一个 `Movie` 值，以及一个 "接收 `String` 值并返回另一个 `String` 值" 的闭包表达式。
 
-要发现已知仅属于 Anyor 类型的常量或变量的特定类型，你可以在语句的 case 中使用 or 模式。下面的示例遍历数组中的项目并使用语句查询每个项目的类型。几个语句的 case 将它们的匹配值绑定到指定类型的常量以使其值能够被打印：AnyObjectisasswitchthingsswitchswitch
+要探索仅知道类型为 `Any` 或 `AnyObject` 的常量或变量的特定类型，可以使用在 `switch` 语句的 cases 中使用 `is` 或 `as` 模式。下面的示例遍历 `things` 数组中的 `items` 并使用 `switch` 语句查询每个项目的类型。`switch` 语句的一些情况将其 "匹配值" 绑定到 "指定类型的常量"，以使其值能够被打印：
 
 ```swift
 for thing in things {
@@ -196,12 +204,27 @@ for thing in things {
 // Hello, Michael
 ```
 
+阅读上面的 `switch` 判断语句时，大概是这样：
+
+- `case 0 as Int`: 可以转换成 `Int` 类型且值为 `0`。
+- `case 0 as Double`: 可以转换成 `Double` 类型且值为 `0`。
+- `case let someInt as Int`：可以转换成 `Int` 类型，则用类型同为 `Int` 的常量 `someInt` 引用其值。
+- `case let someDouble as Double where someDouble > 0`：可以转换成 `Double` 类型且其值大于 `0`，则用类型同为 `Double` 的常量 `someDouble` 引用其值。
+- `case is Double`：类型是 `Double`。
+- ...
+
 :::note
-类型 Any 表示任何类型的值，包括可选类型。Any 如果你在需要类型值的地方使用可选值，Swift 会给你一个警告。如果确实需要使用可选值作为 Any 值，则可以使用 as 运算符将可选值显式转换为 Any，如下所示。
-:::
+
+`Any` 类型表示任何类型的值，包括可选类型。如果你在需要 `Any` 类型值的情况下使用可选值，Swift 会向你发出警告。如果你确实需要使用可选值作为 `Any` 值，则可以使用 `as` 运算符将可选值显式转换为 `Any`，如下所示。
 
 ```swift
 let optionalNumber: Int? = 3
 things.append(optionalNumber)        // Warning
 things.append(optionalNumber as Any) // No warning
 ```
+
+Xcode 警告截图如下：
+
+<Figure src={require("./image_1.png")} size={720} />
+
+:::
