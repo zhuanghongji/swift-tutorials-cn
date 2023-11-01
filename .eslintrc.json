@@ -1,0 +1,45 @@
+// Docs:
+// https://cn.eslint.org/docs/rules/
+// https://marketplace.visualstudio.com/items?itemName=dbaeumer.vscode-eslint
+
+{
+  "env": {
+    "es6": true
+  },
+  "extends": [
+    "eslint:recommended",
+    "plugin:react/recommended",
+    "plugin:@typescript-eslint/eslint-recommended"
+  ],
+  "globals": {
+    "Atomics": "readonly",
+    "SharedArrayBuffer": "readonly"
+  },
+  "parser": "@typescript-eslint/parser",
+  "parserOptions": {
+    "ecmaFeatures": {
+      "jsx": true
+    },
+    "ecmaVersion": 2018,
+    "sourceType": "module"
+  },
+  "plugins": ["react", "@typescript-eslint"],
+  "rules": {
+    "semi": "off",
+    "no-unused-vars": "off",
+    "no-trailing-spaces": "off",
+    "no-duplicate-imports": "error",
+    "no-multi-spaces": "warn",
+    "no-multiple-empty-lines": "warn",
+    "@typescript-eslint/no-unused-vars": "warn",
+    "react/jsx-sort-props": [
+      "warn",
+      {
+        "reservedFirst": true,
+        "shorthandFirst": true,
+        "callbacksLast": true,
+        "noSortAlphabetically": true
+      }
+    ]
+  }
+}

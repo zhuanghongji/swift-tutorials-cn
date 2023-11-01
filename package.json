@@ -12,6 +12,8 @@
     "serve": "docusaurus serve",
     "write-translations": "docusaurus write-translations",
     "write-heading-ids": "docusaurus write-heading-ids",
+    "lint": "eslint src --ext .js --ext .jsx --ext .ts --ext .tsx",
+    "prettier": "prettier --config .prettierrc.json --write ./src/**/**/**/**/**/**/**/*.tsx",
     "typecheck": "tsc"
   },
   "dependencies": {
@@ -30,6 +32,11 @@
     "@docusaurus/tsconfig": "3.0.0",
     "@docusaurus/types": "3.0.0",
     "@types/react": "^18.2.29",
+    "@typescript-eslint/eslint-plugin": "^6.9.1",
+    "@typescript-eslint/parser": "^6.9.1",
+    "eslint": "^8.52.0",
+    "eslint-plugin-react": "^7.33.2",
+    "prettier": "^3.0.3",
     "typescript": "^5.2.2"
   },
   "browserslist": {
