@@ -14,10 +14,18 @@ type ScreenshotBlockProps = PropsWithChildren<{
   minSize?: boolean
 }>
 
-export default function ScreenshotBlock({ children, mini = false, src, srcRight, srcBottom, size, minSize = false}: ScreenshotBlockProps) {
+export default function ScreenshotBlock({
+  children,
+  mini = false,
+  src,
+  srcRight,
+  srcBottom,
+  size,
+  minSize = false,
+}: ScreenshotBlockProps) {
   let width = MAX_SIZE
   if (size !== undefined) {
-    width = size 
+    width = size
   } else if (srcRight || minSize) {
     width = MIN_SIZE
   }
@@ -27,14 +35,12 @@ export default function ScreenshotBlock({ children, mini = false, src, srcRight,
   return (
     <>
       <div style={{ display: 'flex' }}>
-        <div className={styles.container}>
-          {children}
-        </div>
+        <div className={styles.container}>{children}</div>
         <div style={{ display: 'flex', flexDirection: 'column', marginLeft: 14 }}>
           <Image style={{ width }} img={src} />
           {srcBottom ? <Image style={{ width, marginTop: 14 }} img={srcBottom} /> : null}
         </div>
-        {srcRight ? ( 
+        {srcRight ? (
           <div style={{ marginLeft: 14 }}>
             <Image style={{ width }} img={srcRight} />
           </div>
@@ -42,5 +48,5 @@ export default function ScreenshotBlock({ children, mini = false, src, srcRight,
       </div>
       <br />
     </>
-  );
+  )
 }

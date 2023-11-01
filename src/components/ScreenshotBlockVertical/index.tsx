@@ -13,10 +13,17 @@ type Props = PropsWithChildren<{
   minSize?: boolean
 }>
 
-export default function ScreenshotBlockVertical({ children, src, srcRight, srcRightmost, size, minSize = false,}: Props) {
+export default function ScreenshotBlockVertical({
+  children,
+  src,
+  srcRight,
+  srcRightmost,
+  size,
+  minSize = false,
+}: Props) {
   let width = MAX_SIZE
   if (size !== undefined) {
-    width = size 
+    width = size
   } else if (srcRight || minSize) {
     width = MIN_SIZE
   }
@@ -25,14 +32,12 @@ export default function ScreenshotBlockVertical({ children, src, srcRight, srcRi
       {children}
       <div style={{ display: 'flex', flexDirection: 'row' }}>
         <Image style={{ width }} img={src} />
-        {srcRight ? ( 
-          <Image style={{ width, marginLeft: MARGIN_LEFT }} img={srcRight} />
-        ) : null}
-        {srcRightmost ? ( 
+        {srcRight ? <Image style={{ width, marginLeft: MARGIN_LEFT }} img={srcRight} /> : null}
+        {srcRightmost ? (
           <Image style={{ width, marginLeft: MARGIN_LEFT }} img={srcRightmost} />
         ) : null}
       </div>
       <br />
     </>
-  );
+  )
 }

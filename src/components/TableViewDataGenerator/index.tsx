@@ -45,13 +45,16 @@ export default function TableViewDataGenerator() {
   const datasLists = useMemo(() => {
     const result: string[][] = []
     let datas: string[] = []
-    INPUT_TEXT.split('\n').map(v => v.trim().replace(/\t/g, '\n')).filter(v => v ? true : false).forEach(v => {
-      if (datas.length === INPUT_LINE_NUM) {
-        result.push(datas)
-        datas = []
-      }
-      datas.push(v)
-    })
+    INPUT_TEXT.split('\n')
+      .map(v => v.trim().replace(/\t/g, '\n'))
+      .filter(v => (v ? true : false))
+      .forEach(v => {
+        if (datas.length === INPUT_LINE_NUM) {
+          result.push(datas)
+          datas = []
+        }
+        datas.push(v)
+      })
     result.push(datas)
     return result
   }, [])
@@ -60,15 +63,23 @@ export default function TableViewDataGenerator() {
     const items: string[] = []
     datasLists.forEach(v => {
       items.push(`${JSON.stringify(v)},`)
-    });
+    })
     return items.join('\n')
   }, [datasLists])
 
   return (
-    <div style={{ display: 'flex', flexDirection: 'column', width: '100%', justifyContent: 'center', alignItems: 'center' }}>
-      <br/>
-      <p style={{ whiteSpace: 'pre-line'}}>{datasListsText}</p>
-      <br/>
+    <div
+      style={{
+        display: 'flex',
+        flexDirection: 'column',
+        width: '100%',
+        justifyContent: 'center',
+        alignItems: 'center',
+      }}
+    >
+      <br />
+      <p style={{ whiteSpace: 'pre-line' }}>{datasListsText}</p>
+      <br />
     </div>
   )
 }

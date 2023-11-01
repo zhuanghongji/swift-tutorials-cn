@@ -1,7 +1,7 @@
-import React, { PropsWithChildren } from 'react'
+import React from 'react'
 
 type TableViewProps = {
-  num: string 
+  num: string
   title: string
   headers: string[]
   datasList: string[][]
@@ -11,45 +11,58 @@ type TableViewProps = {
 /**
  * 表格视图
  */
-export default function TableView({ num, title, headers, datasList , size = '90%' }: TableViewProps) {
-  
+export default function TableView({
+  num,
+  title,
+  headers,
+  datasList,
+  size = '90%',
+}: TableViewProps) {
   return (
-    <div style={{ display: 'flex', flexDirection: 'column', width: '100%', justifyContent: 'center', alignItems: 'center' }}>
+    <div
+      style={{
+        display: 'flex',
+        flexDirection: 'column',
+        width: '100%',
+        justifyContent: 'center',
+        alignItems: 'center',
+      }}
+    >
       {num && title ? (
-        <div><strong>{`Table ${num} - ${title}`}</strong></div>
+        <div>
+          <strong>{`Table ${num} - ${title}`}</strong>
+        </div>
       ) : null}
-      <br/>
+      <br />
       <center style={{ maxWidth: size }}>
         <table>
           <thead>
-            {
-              headers.map((h, index) => (
-                <th key={`${index}_${h}`}>{h}</th>
-              ))
-            }
+            {headers.map((h, index) => (
+              <th key={`${index}_${h}`}>{h}</th>
+            ))}
           </thead>
 
           <tbody>
-            {
-              datasList.map((datas, index) => (
-                <tr key={index}>
-                  { 
-                    datas.map((d, index) => (
-                      <td 
-                        key={`${index}_${d}`} 
-                        style={{ whiteSpace: 'pre-line', minWidth: '10rem', color: index === 0 ? '#BDBDBD' : 'white' }}
-                      >
-                        {d}
-                      </td>
-                    ))
-                  }
-                </tr>
-              ))
-            }
+            {datasList.map((datas, index) => (
+              <tr key={index}>
+                {datas.map((d, index) => (
+                  <td
+                    key={`${index}_${d}`}
+                    style={{
+                      whiteSpace: 'pre-line',
+                      minWidth: '10rem',
+                      color: index === 0 ? '#BDBDBD' : 'white',
+                    }}
+                  >
+                    {d}
+                  </td>
+                ))}
+              </tr>
+            ))}
           </tbody>
         </table>
       </center>
-      <br/>
+      <br />
     </div>
   )
 }

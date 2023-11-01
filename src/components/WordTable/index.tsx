@@ -25,8 +25,16 @@ export default function WordTable({ category, rows = [], children }: WordTablePr
         </thead>
         <tbody>
           {rows.map((row, index) => {
-            const { value, symbol, paraphrase, sentence } = row 
-            return <WordRow key={`${index}_${value}`} value={value} symbol={symbol} paraphrase={paraphrase} sentence={sentence} />
+            const { value, symbol, paraphrase, sentence } = row
+            return (
+              <WordRow
+                key={`${index}_${value}`}
+                value={value}
+                symbol={symbol}
+                paraphrase={paraphrase}
+                sentence={sentence}
+              />
+            )
           })}
           {children}
         </tbody>
@@ -34,4 +42,3 @@ export default function WordTable({ category, rows = [], children }: WordTablePr
     </>
   )
 }
-

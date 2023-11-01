@@ -7,9 +7,9 @@ export default function ImportantBlock({ children }: ImportantBlockProps) {
   return (
     <div>
       <Admonition type="caution" title="重要">
-          {children}
+        {children}
       </Admonition>
       <br />
     </div>
-  );
+  )
 }

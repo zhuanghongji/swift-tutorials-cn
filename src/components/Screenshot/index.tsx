@@ -6,8 +6,8 @@ type ScreenshotProps = {
   size: string | number
 }
 
-export default function Screenshot({ src, size  }: ScreenshotProps) {
-  let width = 160 
+export default function Screenshot({ src, size }: ScreenshotProps) {
+  let width = 160
   if (typeof size === 'number') {
     width = size
   } else if (size === 'm') {
@@ -20,5 +20,5 @@ export default function Screenshot({ src, size  }: ScreenshotProps) {
       </div>
       <br />
     </>
-  );
+  )
 }

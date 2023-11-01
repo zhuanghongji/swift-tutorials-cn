@@ -1,5 +1,4 @@
 import React from 'react'
-import Admonition from '@theme/Admonition';
 
 interface WisdomProps {
   words: string
@@ -9,18 +8,20 @@ interface WisdomProps {
 export default function Wisdom({ words, author }: WisdomProps) {
   return (
     <>
-      <div style={{  
-        paddingLeft: '1rem', 
-        paddingRight: '1rem', 
-        paddingTop: '0.5rem', 
-        paddingBottom: '0.5rem', 
-        borderRadius: '0.5rem',
-        backgroundColor: '#333333', 
-       }}>
+      <div
+        style={{
+          paddingLeft: '1rem',
+          paddingRight: '1rem',
+          paddingTop: '0.5rem',
+          paddingBottom: '0.5rem',
+          borderRadius: '0.5rem',
+          backgroundColor: '#333333',
+        }}
+      >
         <p>{words}</p>
         {`— ${author}`}
       </div>
-      <br/>
+      <br />
     </>
   )
 }

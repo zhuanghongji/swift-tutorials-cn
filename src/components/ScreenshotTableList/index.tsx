@@ -4,7 +4,7 @@ import ScreenshotTable from '../ScreenshotTable'
 const COLUMN = 4
 
 type Item = {
-  title?: string 
+  title?: string
   src: any
 }
 
@@ -14,7 +14,6 @@ type ScreenshotTableListProps = {
 }
 
 export default function ScreenshotTableList({ data, size = 160 }: ScreenshotTableListProps) {
-
   const itemsList = useMemo(() => {
     const result: Item[][] = []
     let lastItems: Item[] = []
@@ -29,12 +28,10 @@ export default function ScreenshotTableList({ data, size = 160 }: ScreenshotTabl
       result.push(lastItems)
     }
     return result
-  }, [data]) 
+  }, [data])
 
   return itemsList.map((items, index) => {
     const firstTitle = items[0]?.title ?? '--'
-    return (
-      <ScreenshotTable key={`${index}_${firstTitle}`} data={items} size={size} />
-    )
-  });
+    return <ScreenshotTable key={`${index}_${firstTitle}`} data={items} size={size} />
+  })
 }

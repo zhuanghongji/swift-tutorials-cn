@@ -7,7 +7,6 @@ export default function ToContinueBookmark() {
       <br />
       <div className={styles.container}>待继续的标签</div>
       <br />
-      </>
+    </>
   )
 }
-
