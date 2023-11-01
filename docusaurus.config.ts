@@ -35,7 +35,16 @@ const config: Config = {
   },
 
   markdown: {
+    format: 'mdx',
     mermaid: true,
+    preprocessor: ({ fileContent }) => {
+      return fileContent.replaceAll('{{MY_VAR}}', 'MY_VALUE');
+    },
+    mdx1Compat: {
+      comments: true,
+      admonitions: true,
+      headingIds: true,
+    },
   },
 
   themes: ["@docusaurus/theme-mermaid"],
