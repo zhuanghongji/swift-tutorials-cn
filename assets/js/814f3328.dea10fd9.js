@@ -1,0 +1,1 @@
+"use strict";(self.webpackChunkswift_tutorials_cn=self.webpackChunkswift_tutorials_cn||[]).push([[2535],{45641:t=>{t.exports=JSON.parse('{"title":"Recent posts","items":[{"title":"Welcome","permalink":"/swift-tutorials-cn/blog/welcome","unlisted":false}]}')}}]);
