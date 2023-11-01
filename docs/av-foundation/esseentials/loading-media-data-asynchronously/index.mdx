@@ -12,7 +12,7 @@
 
 AVFoundation 使用 AVAsset 类来建模定时视听媒体。创建资产是一项轻量级操作，因为它会推迟加载其媒体，直到需要数据为止。资产加载数据所需的时间取决于多种因素，包括媒体大小、本地设备功能和远程网络条件。为了避免阻塞调用线程，你必须异步加载媒体数据。
 
-:::caution
+:::warning
 
 从 iOS 16、tvOS 16、MacCatalyst 16 和 macOS 13 开始，AVFoundation 不推荐使用 Swift 的 AVAsset 、 AVAssetTrack 和 AVMetadataItem 的同步属性和方法客户。它还不建议使用 loadValuesAsynchronously(forKeys:completionHandler:) 方法异步加载属性值，而改用下面描述的语法。
 

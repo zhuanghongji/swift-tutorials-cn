@@ -65,7 +65,7 @@ func selectAudioUnit(at index: Int) {
 }
 ```
 
-:::caution
+:::warning
 
 两个音频单元 API 版本之间的主要区别在于 AUv2 音频单元加载到主机进程中，而 AUv3 音频单元默认加载到进程外。仅在 macOS 中，如果 AUv3 音频单元支持，你可以通过在 options 参数中传递 loadInProcess 选项来请求在进程中加载它。要验证音频单元是否已在进程中成功加载，请查询其 isLoadedInProcess 属性。
 

@@ -115,7 +115,7 @@ let container = try ModelContainer(
 )
 ```
 
-:::caution
+:::warning
 
 自动 iCloud 同步依赖于 CloudKit 权利的存在（presence），并且 SwiftData 使用它在该权利中找到的第一个容器。如果你的应用需要特定容器，请使用 `ModelConfiguration` 实例来指定该容器。
 

@@ -15,8 +15,8 @@
     "message": "信息",
     "description": "The default label used for the Info admonition (:::info)"
   },
-  "theme.admonition.caution": {
+  "theme.admonition.warning": {
     "message": "注意",
-    "description": "The default label used for the Caution admonition (:::caution)"
+    "description": "The default label used for the Warning admonition (:::warning)"
   }
 }

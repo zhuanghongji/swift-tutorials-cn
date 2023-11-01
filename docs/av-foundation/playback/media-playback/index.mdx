@@ -126,7 +126,7 @@ queuePlayer.play()
 
 当系统状态更改导致播放器的 timeControlStatus 值从播放状态更改为等待或暂停状态时，此对象可以自动暂停协调播放。由于播放器因网络停顿或间隙播放等事件进入等待状态而开始的暂停，在播放器完成等待时自动结束。但是，如果系统由于系统状态更改（例如音频会话中断）而暂停播放，则只有在播放器速率变回非零之后，暂停才会结束。
 
-:::caution
+:::warning
 
 播放协调器不管理已连接播放器的播放队列。你需要实现自定义逻辑以将相同的项目排列在所有连接的玩家之间。
 
@@ -171,7 +171,7 @@ class PlayerView: UIView {
 }
 ```
 
-:::caution
+:::warning
 
 播放器图层继承的 contents 属性的值是不透明的，你无法更改它。
 
@@ -261,7 +261,7 @@ AVPlayerInterstitialEvent 以前是不可变类型。从 iOS 16、tvOS 16、macO
 
 该类是 AVPlayerInterstitialEventMonitor 的子类，用于管理在主要内容播放期间呈现的插页式事件的计划。
 
-:::caution
+:::warning
 
 创建事件控制器并设置时间表会导致播放忽略源媒体中存在的间隙事件。
 

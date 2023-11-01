@@ -124,7 +124,7 @@ class ImageSaver: NSObject {
 
 由于 `ImageRenderer` 符合 `ObservableObject`，因此你可以使用它在其属性更改时生成图像流。订阅渲染器的 `objectWillChange` 发布者，然后在每次订阅者收到更新时使用渲染器栅格化新图像。
 
-:::caution
+:::warning
 
 `ImageRenderer` 输出仅包括 SwiftUI 绘制的视图，例如 text、image、shape 这些类型的视图或其复合视图。它不绘制（render）本机 native 框架（AppKit 和 UIKit）提供的视图，例如 Web 视图、媒体播放器和某些控件。对于这些视图， `ImageRenderer` 显示占位符图像，类似于 [drawingGroup(opaque:colorMode:)](<https://developer.apple.com/documentation/swiftui/view/drawinggroup(opaque:colormode:)>) 的行为。
 

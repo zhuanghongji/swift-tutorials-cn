@@ -19,7 +19,7 @@ import TabItem from "@theme/TabItem";
 
 传统上，你使用视图控制器在模型和 UI 之间来回移动数据（move data back and forth），但 SwiftUI 会为你处理大部分同步。要在数据更改时更新视图，你可以将数据模型类设置为可观察对象，发布它们的属性，并使用属性包装器声明它们的实例。为了确保用户驱动的数据更改回流到模型中，你可以将 UI 控件绑定到模型属性。这些功能协同工作，可帮助你维护数据的单一事实来源。
 
-:::caution
+:::warning
 
 本文介绍了如何在 "最低部署目标早于 iOS 17、iPadOS 17、macOS 14、tvOS 17 或 watchOS 10 的 SwiftUI 应用程序" 中观察模型数据更改。为其中之一的较新版本操作系统准备你的应用程序，请参阅 [从 Observable 对象协议迁移到 Observable 宏](https://developer.apple.com/documentation/swiftui/migrating-from-the-observable-object-protocol-to-the-observable-macro)。如果你的应用程序的最低部署目标是 iOS 17、iPadOS 17、macOS 14、tvOS 17 或 watchOS 10 或更高版本，请使用 [管理应用程序中的模型数据](https://developer.apple.com/documentation/swiftui/managing-model-data-in-your-app) 中描述的观察方法。
 
@@ -283,7 +283,7 @@ var body: some View {
 }
 ```
 
-:::caution
+:::warning
 
 即使对于可配置的状态对象，你仍然将其声明为私有。这确保你不会意外地通过视图的成员初始化器设置参数，因为这样做可能会与框架的存储管理发生冲突并产生意外的结果。
 
