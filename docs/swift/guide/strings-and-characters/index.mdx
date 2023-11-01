@@ -89,7 +89,7 @@ It also ends with a line break.
 字符串文字可以包含以下特殊字符：
 
 - 转义的特殊字符 `\0`（空字符）、`\\`（反斜杠）、 （水平制表 `\t` 符 `\n`）、（换行）、`\r`（回车）、`\"`（双引号）和 `\'`（单引号）
-- 任意 Unicode 标量值，写为 `\\` u{n}，其中 n 是 1-8 位十六进制数（Unicode 在下面的 Unicode 中讨论）
+- 任意 Unicode 标量值，写为 `\\` `u{n}`，其中 n 是 1-8 位十六进制数（Unicode 在下面的 Unicode 中讨论）
 
 下面的代码显示了这些特殊字符的四个示例。该常量包含两个转义双引号。、和常量演示 Unicode 标量格式：wiseWordsdollarSignblackHeartsparklingHeart
 
@@ -104,15 +104,15 @@ let sparklingHeart = "\u{1F496}" // 💖, Unicode scalar U+1F496
 因为多行字符串文字使用三个双引号而不是一个双引号，所以你可以"在多行字符串文字中包含一个双引号 ( ) 而无需转义。要将文本包含"""在多行字符串中，请至少转义一个引号。例如：
 
 ```swift
-let threeDoubleQuotationMarks = """
-Escaping the first quotation mark \"""
-Escaping all three quotation marks \"\"\"
-"""
+// let threeDoubleQuotationMarks = """
+// Escaping the first quotation mark \"""
+// Escaping all three quotation marks \"\"\"
+// """
 ```
 
 ## 扩展字符串定界符
 
-你可以将字符串文字放在扩展定界符中，以在字符串中包含特殊字符，而无需调用它们的效果。你将字符串放在引号 ( ") 内，并用数字符号 ( #) 将其括起来。例如，打印字符串文字会打印换行符转义序列 ( )，而不是跨两行打印字符串。#"Line 1\nLine 2"#\n
+你可以将字符串文字放在扩展定界符中，以在字符串中包含特殊字符，而无需调用它们的效果。你将字符串放在引号 ( ") 内，并用数字符号 ( #) 将其括起来。例如，打印字符串文字会打印换行符转义序列 ( )，而不是跨两行打印字符串。
 
 如果你需要字符串文字中字符的特殊效果，请匹配转义字符 ( ) 之后的字符串中数字符号的数量\。例如，如果你的字符串是并且你想换行，你可以使用 instead。同样，也断线。#"Line 1\nLine 2"##"Line 1\#nLine 2"####"Line1\###nLine2"###
 

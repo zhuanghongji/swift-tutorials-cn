@@ -122,7 +122,7 @@ balance(&playerOneScore, &playerOneScore)
 上面的函数修改了它的两个参数以在它们之间平均分配总值。用和作为参数调用它不会产生冲突——有两个写访问在时间上重叠，但它们访问内存中的不同位置。相反，作为两个参数的值传递会产生冲突，因为它试图同时对内存中的同一位置执行两次写访问。balance(_:_:)playerOneScoreplayerTwoScoreplayerOneScore
 
 :::note
-因为运算符是函数，所以它们也可以长期访问它们的输入输出参数。例如，如果是一个名为 的运算符函数，写入将导致与 . 相同的冲突。balance(_:_:)<^>playerOneScore <^> playerOneScorebalance(&playerOneScore, &playerOneScore)
+因为运算符是函数，所以它们也可以长期访问它们的输入输出参数。例如，如果是一个名为 的运算符函数，写入将导致与 . 相同的冲突。` balance(_:_:)` `<^>playerOneScore <^> playerOneScorebalance(&playerOneScore, &playerOneScore) `
 :::
 
 ## 方法中对自我的冲突访问

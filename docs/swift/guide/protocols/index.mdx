@@ -44,7 +44,7 @@ class SomeClass: SomeSuperclass, FirstProtocol, AnotherProtocol {
 
 如果协议要求属性是可获取和可设置的，则常量存储属性或只读计算属性无法满足该属性要求。如果协议只要求一个属性是可获取的，那么任何类型的属性都可以满足该要求，并且如果这对你自己的代码有用，那么属性也是可设置的也是有效的。
 
-属性要求总是声明为变量属性，并以关键字为前缀 var。Gettable 和 settable 属性通过在其类型声明后写入来指示{ get set }，而 gettable 属性通过写入来指示{ get }。
+属性要求总是声明为变量属性，并以关键字为前缀 var。Gettable 和 settable 属性通过在其类型声明后写入来指示 `{ get set }`，而 gettable 属性通过写入来指示 `{ get }`。
 
 ```swift
 protocol SomeProtocol {
@@ -541,7 +541,7 @@ HashableSwift 为以下类型的自定义类型提供了综合实现：
 
 要接收 的合成实现，请在包含原始声明的文件中 hash(into:)声明符合性，而无需自己实现方法。Hashablehash(into:)
 
-ComparableSwift 为没有原始值的枚举提供了综合实现。如果枚举有关联类型，它们必须都符合协议 Comparable。要接收 的合成实现，请在包含原始枚举声明的文件中<声明符合性，而无需自己实现运算符。协议的默认实现, , 并提供剩余的比较运算符。Comparable<Comparable<=>>=
+ComparableSwift 为没有原始值的枚举提供了综合实现。如果枚举有关联类型，它们必须都符合协议 Comparable。要接收 的合成实现，请在包含原始枚举声明的文件中`<`声明符合性，而无需自己实现运算符。协议的默认实现, , 并提供剩余的比较运算符。`Comparable<Comparable<=>>=`
 
 下面的示例定义了一个枚举，其中包含初学者、中级和专家的案例。专家还根据他们拥有的星星数量进行排名。SkillLevel
 
